@@ -1,0 +1,65 @@
+---
+description: Dependency management using Gradle version catalog and convention plugins
+---
+
+# Dependency Management
+
+## Version Catalog
+
+- **Always use the version catalog** (`gradle/libs.versions.toml`) for all dependencies
+- Never hardcode versions directly in `build.gradle.kts` files
+
+```kotlin
+// ✅ Correct — use version catalog aliases
+implementation(libs.ktor.client.core)
+testImplementation(libs.kotlin.test)
+
+// ❌ Incorrect — hardcoded versions
+implementation("io.ktor:ktor-client-core:3.1.0")
+```
+
+## Adding New Dependencies
+
+1. Add the version under `[versions]` in `gradle/libs.versions.toml`
+2. Add the library under `[libraries]` referencing that version
+3. Reference it in `build.gradle.kts` via `libs.<alias>`
+
+## Module References
+
+- Use `Modules.kt` constants for all project module references
+- Example: `implementation(project(Modules.Core.COMMON))`
+- Never use raw path strings like `implementation(project(":core:common"))`
+
+## Convention Plugins
+
+- All shared build logic lives in `buildSrc` (or `build-logic`) as convention plugins
+- Apply convention plugins via their alias: `alias(libs.plugins.devpulse.kmp.compose)`
+- Never duplicate build configuration — extract it into a convention plugin instead
+
+## KMP Source Set Dependencies
+
+- Prefer `commonMain` dependencies; only add platform-specific dependencies when truly required
+- Use `api()` sparingly — only expose what consuming modules actually need at compile time
+- Use `implementation()` for transitive dependencies that should not leak
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.ktor.client.core)
+        }
+        androidMain.dependencies {
+            implementation(libs.ktor.client.android)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
+    }
+}
+```
+
+## Gradle Composite Builds
+
+- Prefer composite builds (`includeBuild`) over `buildSrc` for convention plugin modules when scaling beyond a single build logic module
+- Keep `buildSrc` for simple, single-project setups; migrate to `build-logic` composite build when the project grows

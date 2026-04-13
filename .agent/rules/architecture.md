@@ -1,0 +1,90 @@
+---
+description: Clean Architecture and MVVM/MVI patterns for DevPulse KMP
+---
+
+# Architecture
+
+DevPulse follows Clean Architecture with an MVVM/MVI-inspired presentation layer.
+
+## Layer Rules
+
+**Dependency direction**: Presentation → Domain → Data. Never reverse.
+
+| Layer | Lives in | Responsibility |
+|---|---|---|
+| Presentation | `commonMain` (ViewModel), platform (UI) | UI state, effects, event handling |
+| Domain | `commonMain` | Use cases, repository interfaces, domain models |
+| Data | `commonMain` + `expect/actual` | Repository implementations, data sources, mappers |
+
+## ViewModel Pattern
+
+Every screen has three companion files:
+
+```kotlin
+@Immutable
+data class MyScreenState(
+    val isLoading: Boolean = false,
+    val items: List<Item> = emptyList(),
+) : ScreenState
+
+sealed interface MyScreenEvent : Event {
+    data object OnRefresh : MyScreenEvent
+    data class OnItemClick(val id: String) : MyScreenEvent
+}
+
+sealed interface MyScreenEffect : Effect {
+    data class NavigateTo(val route: String) : MyScreenEffect
+    data object ShowError : MyScreenEffect
+}
+```
+
+- `state` is exposed as `StateFlow<S>` — updated via `setState { copy(...) }`
+- `effect` is exposed as `SharedFlow<E>` — emitted via `setEffect(...)`
+- The ViewModel implements `EventHandler<E>` and routes all user input through `onEvent(event)`
+- **No business logic in the ViewModel** — delegate everything to use cases
+
+## Use Cases
+
+- One public operator function `invoke()` per use case
+- Always return `Result<T>` — never throw
+- Switch to the correct dispatcher internally: `withContext(Dispatchers.IO) { ... }`
+- Use cases live in `domain` and only depend on repository interfaces
+
+## Repository Pattern
+
+- Define the interface in `domain` (`commonMain`)
+- Implement it in `data` (`commonMain` for shared logic; `expect/actual` for platform I/O)
+- Repositories coordinate data sources and transform data models → domain models
+
+## expect/actual
+
+- Use `expect/actual` only for genuine platform differences (file I/O, platform APIs, crypto)
+- Prefer interfaces + DI over `expect/actual` when a pure-Kotlin abstraction is feasible
+- Always provide default implementations in `commonMain` where possible; use `actual` to override
+
+## Module Structure
+
+```
+:app:android          # Android entry point
+:app:ios              # iOS entry point (optional KMP shared framework)
+:feature:<name>       # Feature module: presentation + domain + data
+:core:designsystem    # Compose Multiplatform design tokens & components
+:core:ui              # Shared reusable UI components
+:core:domain          # Shared domain models, base use case, Result
+:core:network         # Ktor client, API definitions
+:core:database        # Room entities, DAOs, and database definitions
+:core:common          # Extensions, utilities, base classes
+:core:logging         # Logger abstraction + platform implementations
+:core:test            # Test utilities, fakes, test dispatchers
+```
+
+- Module dependencies use `Modules.kt` constants — never hardcode paths as strings
+- Feature modules must **not** depend on other feature modules directly
+
+## Dependency Injection
+
+- Use **Koin** for dependency injection across all platforms
+- Define modules in `commonMain` wherever possible; use platform-specific Koin modules only for platform-bound bindings (e.g., Room database builder, platform services)
+- One Koin module file per layer per feature: `featureNameDomainModule`, `featureNameDataModule`, `featureNamePresentationModule`
+- Inject ViewModels with `koinViewModel()` in connectors — never construct them manually
+- Never use `GlobalContext.get()` or `KoinComponent` in composables — use `koinViewModel()` / `koinInject()` instead

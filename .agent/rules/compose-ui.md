@@ -1,0 +1,100 @@
+---
+description: Compose Multiplatform UI conventions for DevPulse
+---
+
+# Compose Multiplatform UI
+
+## Connector / Content Pattern
+
+Every screen and non-trivial feature composable must be split into two layers:
+
+**Connector** — wires the composable to the outside world. It obtains the ViewModel, collects state and effects, and passes pure data down. It has no UI of its own beyond delegating to the content composable. Connectors are **not** previewed.
+
+**Content** — a pure, stateless composable. It receives only plain data and lambda callbacks; it has zero knowledge of ViewModels, flows, or DI. It can be rendered in a preview by simply passing test data.
+
+```kotlin
+@Composable
+fun FeedConnector(viewModel: FeedViewModel = koinViewModel()) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is FeedEffect.NavigateTo -> navigator.navigate(effect.route)
+            }
+        }
+    }
+
+    FeedContent(state = state, onEvent = viewModel::onEvent)
+}
+
+@Composable
+fun FeedContent(
+    state: FeedState,
+    onEvent: (FeedEvent) -> Unit,
+) { ... }
+```
+
+- Never pass a ViewModel into a content composable
+- Split large content composables into smaller private composables in the same file; they must also be pure and previewable
+
+## State & Effects
+
+State and effect collection belongs exclusively in the **connector**, never in content composables.
+
+- Collect `StateFlow` with `collectAsStateWithLifecycle()` — not `collectAsState()`
+- Collect one-time `SharedFlow` effects in a `LaunchedEffect(Unit)` inside the connector
+
+## Theming & Styling
+
+- Always use design system tokens — never hardcode colors, typography, or spacing values
+- Use `MaterialTheme.colorScheme`, `MaterialTheme.typography`, and design system `Dp` constants
+- Apply `@Immutable` on all custom theme data classes
+
+## Performance
+
+- Use `key()` in `LazyColumn`/`LazyRow` items for stable identity
+- Apply `@Stable` or `@Immutable` to data passed into composables for skippability
+- Avoid lambdas that capture mutable state; lift them up or use `rememberUpdatedState`
+- Do **not** call `remember {}` with keys that change every recomposition
+
+## Previews
+
+Every composable **except connectors** must have at least one preview.
+
+**Design system components** use `@DPComponentPreview`:
+
+```kotlin
+@DPComponentPreview
+@Composable
+private fun DPButtonPreview() {
+    Preview { DPButton(label = "Save", onClick = {}) }
+}
+```
+
+**Screen / feature content composables** use `@DPScreenPreview`:
+
+```kotlin
+@DPScreenPreview
+@Composable
+private fun FeedContentPreview() {
+    Preview { FeedContent(state = FeedState.preview(), onEvent = {}) }
+}
+```
+
+- Use `@PreviewParameter` for data-driven previews covering multiple states (loading, empty, error, populated)
+- Preview functions live at the bottom of the same file, are `private`, and are named `<Component>Preview`
+- Each content composable should expose a `fun <State>.preview(): <State>` factory or a companion `previewState` so previews stay in sync with real data shapes
+
+## Design System First
+
+All UI must be built from components in `core:designsystem`. Never reach for raw Material3 or Compose primitives (`Text`, `Button`, `Card`, `TextField`, etc.) directly in feature or screen composables.
+
+If a required component, token, or variant is missing from the design system, **stop and ask** before reaching for a primitive or building an ad-hoc implementation:
+
+> "This screen needs an X component. It doesn't exist in the design system yet — should it be added before I continue?"
+
+## Accessibility
+
+- Provide `contentDescription` for all icon-only and image composables
+- Use `semantics {}` modifier to add meaningful accessibility labels to interactive elements
