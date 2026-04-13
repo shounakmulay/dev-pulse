@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.ui.components
+package dev.shounakmulay.core.designsystem.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,9 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.devpulse.ui.theme.DPTheme
+import dev.shounakmulay.core.designsystem.theme.DPTheme
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DPEMPTYSTATE
@@ -58,7 +57,7 @@ fun DPEmptyState(
                 color = colours.textPrimary,
             )
             if (body != null) {
-                Spacer(Modifier.height(spacing.sm))
+                Spacer(height(spacing.sm))
                 DPBody(
                     text = body,
                     size = DPTextSize.Small,
@@ -67,7 +66,7 @@ fun DPEmptyState(
                 )
             }
             if (action != null) {
-                Spacer(Modifier.height(spacing.xl))
+                Spacer(height(spacing.xl))
                 action()
             }
         }
@@ -100,7 +99,7 @@ fun DPLoadingState(
                 modifier = Modifier.size(32.dp),
             )
             if (label != null) {
-                Spacer(Modifier.height(spacing.md))
+                Spacer(height(spacing.md))
                 DPMono(
                     text = label,
                     size = DPTextSize.Small,
@@ -151,7 +150,7 @@ fun DPErrorState(
                 color = colours.textPrimary,
             )
             if (body != null) {
-                Spacer(Modifier.height(spacing.sm))
+                Spacer(height(spacing.sm))
                 DPBody(
                     text = body,
                     size = DPTextSize.Small,
@@ -159,7 +158,7 @@ fun DPErrorState(
                 )
             }
             if (onRetry != null) {
-                Spacer(Modifier.height(spacing.xl))
+                Spacer(height(spacing.xl))
                 DPButton(
                     label = "Try again",
                     variant = DPButtonVariant.Secondary,

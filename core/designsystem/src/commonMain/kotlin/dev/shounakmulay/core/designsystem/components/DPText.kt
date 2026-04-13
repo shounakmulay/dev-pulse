@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.ui.components
+package dev.shounakmulay.core.designsystem.components
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import dev.shounakmulay.devpulse.ui.theme.DPTheme
+import dev.shounakmulay.core.designsystem.theme.DPTheme
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TEXT COMPONENTS
@@ -31,9 +31,9 @@ fun DPDisplayText(
     val colours = DPTheme.colours
     val typography = DPTheme.typography
     val style = when (size) {
-        DPTextSize.Large  -> typography.displayLarge
+        DPTextSize.Large -> typography.displayLarge
         DPTextSize.Medium -> typography.displayMedium
-        DPTextSize.Small  -> typography.displaySmall
+        DPTextSize.Small -> typography.displaySmall
     }
     Text(
         text = text,
@@ -61,9 +61,9 @@ fun DPHeadline(
     val colours = DPTheme.colours
     val typography = DPTheme.typography
     val style = when (size) {
-        DPTextSize.Large  -> typography.headlineLarge
+        DPTextSize.Large -> typography.headlineLarge
         DPTextSize.Medium -> typography.headlineMedium
-        DPTextSize.Small  -> typography.headlineSmall
+        DPTextSize.Small -> typography.headlineSmall
     }
     Text(
         text = text,
@@ -91,9 +91,9 @@ fun DPTitle(
     val colours = DPTheme.colours
     val typography = DPTheme.typography
     val style = when (size) {
-        DPTextSize.Large  -> typography.titleLarge
+        DPTextSize.Large -> typography.titleLarge
         DPTextSize.Medium -> typography.titleMedium
-        DPTextSize.Small  -> typography.titleSmall
+        DPTextSize.Small -> typography.titleSmall
     }
     Text(
         text = text,
@@ -121,9 +121,9 @@ fun DPBody(
     val colours = DPTheme.colours
     val typography = DPTheme.typography
     val style = when (size) {
-        DPTextSize.Large  -> typography.bodyLarge
+        DPTextSize.Large -> typography.bodyLarge
         DPTextSize.Medium -> typography.bodyMedium
-        DPTextSize.Small  -> typography.bodySmall
+        DPTextSize.Small -> typography.bodySmall
     }
     Text(
         text = text,
@@ -152,9 +152,9 @@ fun DPLabel(
     val colours = DPTheme.colours
     val typography = DPTheme.typography
     val resolvedStyle = style ?: when (size) {
-        DPTextSize.Large  -> typography.labelLarge
+        DPTextSize.Large -> typography.labelLarge
         DPTextSize.Medium -> typography.labelMedium
-        DPTextSize.Small  -> typography.labelSmall
+        DPTextSize.Small -> typography.labelSmall
     }
     Text(
         text = text,
@@ -183,7 +183,7 @@ fun DPMono(
     val typography = DPTheme.typography
     val style = when (size) {
         DPTextSize.Large, DPTextSize.Medium -> typography.codeMedium
-        DPTextSize.Small                   -> typography.codeSmall
+        DPTextSize.Small -> typography.codeSmall
     }
     Text(
         text = text,

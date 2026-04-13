@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.ui.components
+package dev.shounakmulay.core.designsystem.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
@@ -9,7 +9,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -31,8 +30,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.devpulse.ui.foundation.DPMotion
-import dev.shounakmulay.devpulse.ui.theme.DPTheme
+import dev.shounakmulay.core.designsystem.foundation.DPMotion
+import dev.shounakmulay.core.designsystem.theme.DPTheme
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BUTTON VARIANTS & SIZES
@@ -151,7 +150,7 @@ fun DPButton(
             .background(fillColour, shape2d)
             .then(
                 if (baseBorder != Color.Transparent)
-                    Modifier.border(BorderStroke(1.dp, baseBorder), shape2d)
+                    border(BorderStroke(1.dp, baseBorder), shape2d)
                 else Modifier
             )
             .clickable(

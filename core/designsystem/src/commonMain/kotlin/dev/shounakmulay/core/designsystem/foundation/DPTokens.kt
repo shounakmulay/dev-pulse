@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.ui.foundation
+package dev.shounakmulay.core.designsystem.foundation
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing

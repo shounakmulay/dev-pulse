@@ -1,3 +1,4 @@
+import dev.shounakmulay.devpulse.buildsrc.constants.Modules
 import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
@@ -8,6 +9,9 @@ plugins {
 kotlin {
     iosFrameworks(baseName = "ComposeApp", isStatic = true)
     sourceSets {
+        commonMain.dependencies {
+            implementation(project(Modules.designsystem))
+        }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)

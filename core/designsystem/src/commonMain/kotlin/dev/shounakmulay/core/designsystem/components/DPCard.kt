@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.ui.components
+package dev.shounakmulay.core.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,9 +13,8 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.devpulse.ui.theme.DPTheme
+import dev.shounakmulay.core.designsystem.theme.DPTheme
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CARD VARIANTS

@@ -1,10 +1,10 @@
-package dev.shounakmulay.devpulse.ui.foundation
+package dev.shounakmulay.core.designsystem.foundation
 
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.sp
@@ -247,7 +247,7 @@ val LocalDPTypography = staticCompositionLocalOf { DefaultTypography }
 // Maps DPTypography to Material3 Typography for MaterialTheme wiring.
 // ─────────────────────────────────────────────────────────────────────────────
 
-val DefaultMaterial3Typography = androidx.compose.material3.Typography(
+val DefaultMaterial3Typography = Typography(
     displayLarge   = DefaultTypography.displayLarge,
     displayMedium  = DefaultTypography.displayMedium,
     displaySmall   = DefaultTypography.displaySmall,

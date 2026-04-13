@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.ui.components
+package dev.shounakmulay.core.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,7 +35,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.devpulse.ui.theme.DPTheme
+import dev.shounakmulay.core.designsystem.theme.DPTheme
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DPTEXTFIELD
@@ -119,7 +119,7 @@ fun DPTextField(
                             tint = colours.textTertiary,
                             modifier = Modifier.size(16.dp),
                         )
-                        Spacer(Modifier.width(spacing.sm))
+                        Spacer(width(spacing.sm))
                     }
                     Box(Modifier.weight(1f)) {
                         if (value.isEmpty()) {
@@ -132,7 +132,7 @@ fun DPTextField(
                         innerTextField()
                     }
                     if (trailingIcon != null) {
-                        Spacer(Modifier.width(spacing.sm))
+                        Spacer(width(spacing.sm))
                         Icon(
                             imageVector = trailingIcon,
                             contentDescription = null,
@@ -205,7 +205,7 @@ fun DPListRow(
     ) {
         if (leadingContent != null) {
             leadingContent()
-            Spacer(Modifier.width(spacing.md))
+            Spacer(width(spacing.md))
         }
 
         Column(modifier = Modifier.weight(1f)) {
@@ -223,7 +223,7 @@ fun DPListRow(
         }
 
         if (trailingContent != null) {
-            Spacer(Modifier.width(spacing.sm))
+            Spacer(width(spacing.sm))
             trailingContent()
         }
     }
@@ -278,7 +278,7 @@ fun DPSettingsRow(
                 )
             }
             if (showChevron && onClick != null) {
-                Spacer(Modifier.width(spacing.xs))
+                Spacer(width(spacing.xs))
                 DPMono(
                     text = "›",
                     size = DPTextSize.Medium,
