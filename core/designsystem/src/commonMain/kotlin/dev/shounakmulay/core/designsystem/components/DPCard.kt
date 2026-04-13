@@ -16,20 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.theme.DPTheme
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CARD VARIANTS
-// ─────────────────────────────────────────────────────────────────────────────
-
-enum class DPCardVariant {
-    Default,    // Standard card — elevated surface with subtle border
-    Outlined,   // Selected / focused state — stronger border
-    Flat,       // List context — no elevation, hairline border
-    Ghost,      // Secondary content — low-opacity fill
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DPCARD — Column layout card
-// ─────────────────────────────────────────────────────────────────────────────
+enum class DPCardVariant { Default, Outlined, Flat, Ghost }
 
 @Composable
 fun DPCard(
@@ -66,10 +53,6 @@ fun DPCard(
     )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DPSURFACE — Box layout surface (for custom content placement)
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun DPSurface(
     modifier: Modifier = Modifier,
@@ -102,10 +85,6 @@ fun DPSurface(
         content = { content() },
     )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DPSECTION — labelled content group
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DPSection(

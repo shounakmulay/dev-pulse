@@ -33,17 +33,9 @@ import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.foundation.DPMotion
 import dev.shounakmulay.core.designsystem.theme.DPTheme
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BUTTON VARIANTS & SIZES
-// ─────────────────────────────────────────────────────────────────────────────
-
 enum class DPButtonVariant { Primary, Secondary, Ghost, Destructive, Caution }
 
-enum class DPButtonSize {
-    Small,   // 36dp height, 12dp padding
-    Medium,  // 44dp height, 16dp padding
-    Large,   // 52dp height, 20dp padding
-}
+enum class DPButtonSize { Small, Medium, Large }
 
 private data class DPButtonSizeTokens(
     val height: Dp,
@@ -55,10 +47,6 @@ private fun sizeTokens(size: DPButtonSize) = when (size) {
     DPButtonSize.Medium -> DPButtonSizeTokens(height = 44.dp, horizontalPadding = 16.dp)
     DPButtonSize.Large -> DPButtonSizeTokens(height = 52.dp, horizontalPadding = 20.dp)
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DPBUTTON
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DPButton(
@@ -197,10 +185,6 @@ fun DPButton(
         }
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DPICONBUTTON
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DPIconButton(

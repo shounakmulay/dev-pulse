@@ -26,18 +26,14 @@ import dev.shounakmulay.core.designsystem.compose.Preview
 import dev.shounakmulay.core.designsystem.foundation.categoryColour
 import dev.shounakmulay.core.designsystem.theme.DPTheme
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BADGE VARIANTS
-// ─────────────────────────────────────────────────────────────────────────────
-
 enum class DPBadgeVariant {
-    Healthy,    // Operational / success — jade
-    Degraded,   // Warning / partial — amber
-    Outage,     // Critical error — crimson
-    Info,       // New version, informational — sapphire
-    Waiting,    // Pending / queued — indigo
-    Neutral,    // Inactive / general
-    New,        // New item badge (alias for Info)
+    Healthy,
+    Degraded,
+    Outage,
+    Info,
+    Waiting,
+    Neutral,
+    New,
 }
 
 private data class BadgeColours(
@@ -96,10 +92,6 @@ private fun badgeColours(variant: DPBadgeVariant): BadgeColours {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DPSTATUSBADGE — semantic status pill with dot indicator
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun DPStatusBadge(
     variant: DPBadgeVariant,
@@ -134,10 +126,6 @@ fun DPStatusBadge(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DPCOUNTBADGE — unread count indicator; hidden when count == 0
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun DPCountBadge(
     count: Int,
@@ -166,10 +154,6 @@ fun DPCountBadge(
         )
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DPCATEGORYCHIP — source category identity mark
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DPCategoryChip(
@@ -218,10 +202,6 @@ fun DPCategoryChip(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DPLABELCHIP — generic text chip with accent styling
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun DPLabelChip(
     label: String,
@@ -260,10 +240,6 @@ fun DPLabelChip(
         )
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PREVIEWS
-// ─────────────────────────────────────────────────────────────────────────────
 
 @DPComponentPreview
 @Composable

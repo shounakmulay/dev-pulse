@@ -17,10 +17,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.theme.DPTheme
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DPEMPTYSTATE
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun DPEmptyState(
     title: String,
@@ -73,10 +69,6 @@ fun DPEmptyState(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DPLOADINGSTATE
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun DPLoadingState(
     modifier: Modifier = Modifier,
@@ -109,10 +101,6 @@ fun DPLoadingState(
         }
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DPERRORSTATE
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DPErrorState(

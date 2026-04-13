@@ -8,16 +8,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import dev.shounakmulay.core.designsystem.theme.DPTheme
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TEXT COMPONENTS
-// Never use Text() with manual style — use the component that matches the role.
-// ─────────────────────────────────────────────────────────────────────────────
-
 enum class DPTextSize { Large, Medium, Small }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DISPLAY — Newsreader serif. Hero screens, empty states, onboarding.
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DPDisplayText(
@@ -45,10 +36,6 @@ fun DPDisplayText(
     )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HEADLINE — Inter sans. Screen titles, section headers.
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun DPHeadline(
     text: String,
@@ -74,10 +61,6 @@ fun DPHeadline(
         overflow = overflow,
     )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TITLE — Inter sans. Article titles in feed, list item primaries.
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DPTitle(
@@ -105,10 +88,6 @@ fun DPTitle(
     )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BODY — Inter sans. Descriptions, excerpts, body copy.
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun DPBody(
     text: String,
@@ -134,10 +113,6 @@ fun DPBody(
         overflow = overflow,
     )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// LABEL — Inter sans. UI labels, button text, metadata.
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DPLabel(
@@ -166,10 +141,6 @@ fun DPLabel(
     )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MONO — DM Mono. Timestamps, version numbers, IDs, API keys.
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun DPMono(
     text: String,
@@ -194,10 +165,6 @@ fun DPMono(
         overflow = overflow,
     )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SECTION LABEL — DM Mono uppercase eyebrow. Section headers above content groups.
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DPSectionLabel(

@@ -37,10 +37,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.theme.DPTheme
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DPTEXTFIELD
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun DPTextField(
     value: String,
@@ -161,10 +157,6 @@ fun DPTextField(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DPDIVIDER
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun DPDivider(modifier: Modifier = Modifier) {
     HorizontalDivider(
@@ -173,10 +165,6 @@ fun DPDivider(modifier: Modifier = Modifier) {
         color = DPTheme.colours.borderSubtle,
     )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DPLISTROW — standard feed / article list item
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DPListRow(
@@ -232,10 +220,6 @@ fun DPListRow(
         }
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DPSETTINGSROW — settings screen list item
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DPSettingsRow(
