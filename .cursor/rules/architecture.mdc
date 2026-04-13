@@ -88,7 +88,7 @@ class GetUserProfileUseCase(
 :core:ui              # Shared reusable UI components
 :core:domain          # Shared domain models, base use case, Result
 :core:network         # Ktor client, API definitions
-:core:database        # SQLDelight schemas and generated queries
+:core:database        # Room entities, DAOs, and database definitions
 :core:common          # Extensions, utilities, base classes
 :core:logging         # Logger abstraction + platform implementations
 :core:test            # Test utilities, fakes, test dispatchers
