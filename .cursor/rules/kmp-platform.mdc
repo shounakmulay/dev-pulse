@@ -1,0 +1,72 @@
+---
+description: KMP platform-specific patterns and expect/actual guidelines for DevPulse
+globs: "**/*actual*.kt,**/androidMain/**/*.kt,**/iosMain/**/*.kt,**/commonMain/**/*.kt"
+alwaysApply: false
+---
+
+# KMP Platform Patterns
+
+## expect/actual Rules
+
+- Use `expect/actual` **only** for genuine platform differences: file I/O, crypto, platform SDKs, system APIs
+- Prefer **interfaces + dependency injection** over `expect/actual` when a pure-Kotlin abstraction is feasible — it's easier to test
+- Every `expect` declaration must have a matching `actual` in **every** configured target
+- Use intermediate source sets (`nativeMain`, `appleMain`) to avoid duplicating `actual` declarations across similar targets
+
+```kotlin
+// ✅ commonMain — declare the interface
+interface PlatformLogger {
+    fun log(tag: String, message: String)
+}
+
+// ✅ androidMain — implement
+class AndroidPlatformLogger : PlatformLogger { ... }
+
+// ✅ iosMain — implement
+class IosPlatformLogger : PlatformLogger { ... }
+```
+
+```kotlin
+// Use expect/actual for things with no interface equivalent
+// commonMain
+expect fun generateUUID(): String
+
+// androidMain
+actual fun generateUUID(): String = UUID.randomUUID().toString()
+
+// iosMain
+actual fun generateUUID(): String = NSUUID().UUIDString
+```
+
+## Source Set Discipline
+
+- `commonMain` must compile with **zero platform-specific imports** — no `android.*`, no `UIKit`
+- Platform-specific UI (Activities, ViewControllers) lives in platform app modules only
+- Shared Compose UI lives in `commonMain` using Compose Multiplatform components only
+
+## Coroutines on iOS
+
+- Swift cannot directly consume `StateFlow`/`SharedFlow` — expose a `@ObjCName`-annotated wrapper or use a KMP-NativeCoroutines / SKIE bridge
+- All coroutine scopes in shared code must be cancelled properly to avoid memory leaks on iOS
+
+## Networking
+
+- Use **Ktor** as the single HTTP client across all platforms
+- Configure platform engines in the respective `*Main` source sets:
+  - `androidMain`: `OkHttp` engine
+  - `iosMain`: `Darwin` engine
+- Never use `OkHttp` or `NSURLSession` directly in `commonMain`
+
+## Database
+
+- Use **Room** for local persistence across platforms (Room KMP is supported since Room 2.7)
+- Entity, DAO, and Database definitions live in `commonMain`
+- Use `expect/actual` only for the `RoomDatabase.Builder` instantiation — Android uses `Context`, iOS uses the documents path
+- Annotate entities with `@Entity`, DAOs with `@Dao`, and the database class with `@Database` as normal
+- Never write raw SQL outside of `@Query` annotations in DAOs
+
+## Serialization
+
+- Use **kotlinx.serialization** — it is KMP-compatible
+- Never use Gson, Moshi, or Jackson in `commonMain` — they are Android-only
+- Annotate all serializable domain/data models with `@Serializable`
