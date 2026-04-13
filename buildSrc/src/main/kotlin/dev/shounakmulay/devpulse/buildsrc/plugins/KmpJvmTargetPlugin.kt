@@ -1,0 +1,17 @@
+package dev.shounakmulay.devpulse.buildsrc.plugins
+
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+
+@Suppress("unused")
+class KmpJvmTargetPlugin : Plugin<Project> {
+    override fun apply(target: Project) {
+        target.plugins.withId("org.jetbrains.kotlin.multiplatform") {
+            target.extensions.configure<KotlinMultiplatformExtension> {
+                jvm()
+            }
+        }
+    }
+}
