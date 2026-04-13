@@ -57,7 +57,7 @@ fun DPEmptyState(
                 color = colours.textPrimary,
             )
             if (body != null) {
-                Spacer(height(spacing.sm))
+                Spacer(Modifier.height(spacing.sm))
                 DPBody(
                     text = body,
                     size = DPTextSize.Small,
@@ -66,7 +66,7 @@ fun DPEmptyState(
                 )
             }
             if (action != null) {
-                Spacer(height(spacing.xl))
+                Spacer(Modifier.height(spacing.xl))
                 action()
             }
         }
@@ -99,7 +99,7 @@ fun DPLoadingState(
                 modifier = Modifier.size(32.dp),
             )
             if (label != null) {
-                Spacer(height(spacing.md))
+                Spacer(Modifier.height(spacing.md))
                 DPMono(
                     text = label,
                     size = DPTextSize.Small,
@@ -150,7 +150,7 @@ fun DPErrorState(
                 color = colours.textPrimary,
             )
             if (body != null) {
-                Spacer(height(spacing.sm))
+                Spacer(Modifier.height(spacing.sm))
                 DPBody(
                     text = body,
                     size = DPTextSize.Small,
@@ -158,7 +158,7 @@ fun DPErrorState(
                 )
             }
             if (onRetry != null) {
-                Spacer(height(spacing.xl))
+                Spacer(Modifier.height(spacing.xl))
                 DPButton(
                     label = "Try again",
                     variant = DPButtonVariant.Secondary,

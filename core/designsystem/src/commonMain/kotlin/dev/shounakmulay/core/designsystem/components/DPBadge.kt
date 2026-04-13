@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -20,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.core.designsystem.compose.Preview
 import dev.shounakmulay.core.designsystem.foundation.categoryColour
 import dev.shounakmulay.core.designsystem.theme.DPTheme
 
@@ -48,13 +51,48 @@ private data class BadgeColours(
 private fun badgeColours(variant: DPBadgeVariant): BadgeColours {
     val c = DPTheme.colours
     return when (variant) {
-        DPBadgeVariant.Healthy  -> BadgeColours(c.signalSuccessSurface, c.signalSuccessText,  c.signalSuccessText,  c.signalSuccessBorder)
-        DPBadgeVariant.Degraded -> BadgeColours(c.signalWarningSurface, c.signalWarningText,  c.accentPrimary,     c.signalWarningBorder)
-        DPBadgeVariant.Outage   -> BadgeColours(c.signalErrorSurface,   c.signalErrorText,    c.signalErrorText,   c.signalErrorBorder)
+        DPBadgeVariant.Healthy -> BadgeColours(
+            c.signalSuccessSurface,
+            c.signalSuccessText,
+            c.signalSuccessText,
+            c.signalSuccessBorder
+        )
+
+        DPBadgeVariant.Degraded -> BadgeColours(
+            c.signalWarningSurface,
+            c.signalWarningText,
+            c.accentPrimary,
+            c.signalWarningBorder
+        )
+
+        DPBadgeVariant.Outage -> BadgeColours(
+            c.signalErrorSurface,
+            c.signalErrorText,
+            c.signalErrorText,
+            c.signalErrorBorder
+        )
+
         DPBadgeVariant.Info,
-        DPBadgeVariant.New      -> BadgeColours(c.signalInfoSurface,    c.signalInfoText,     c.signalInfoText,    c.signalInfoBorder)
-        DPBadgeVariant.Waiting  -> BadgeColours(c.signalWaitingSurface, c.signalWaitingText,  c.signalWaitingText, c.signalWaitingBorder)
-        DPBadgeVariant.Neutral  -> BadgeColours(c.backgroundSubtle,     c.textSecondary,      c.textTertiary,      c.borderDefault)
+        DPBadgeVariant.New -> BadgeColours(
+            c.signalInfoSurface,
+            c.signalInfoText,
+            c.signalInfoText,
+            c.signalInfoBorder
+        )
+
+        DPBadgeVariant.Waiting -> BadgeColours(
+            c.signalWaitingSurface,
+            c.signalWaitingText,
+            c.signalWaitingText,
+            c.signalWaitingBorder
+        )
+
+        DPBadgeVariant.Neutral -> BadgeColours(
+            c.backgroundSubtle,
+            c.textSecondary,
+            c.textTertiary,
+            c.borderDefault
+        )
     }
 }
 
@@ -154,7 +192,11 @@ fun DPCategoryChip(
             .border(1.dp, catColour.copy(alpha = borderAlpha), shape)
             .then(
                 if (onClick != null)
-                    Modifier.clickable(indication = ripple(), interactionSource = null, onClick = onClick)
+                    Modifier.clickable(
+                        indication = ripple(),
+                        interactionSource = null,
+                        onClick = onClick
+                    )
                 else Modifier
             )
             .padding(horizontal = 8.dp, vertical = 3.dp),
@@ -201,7 +243,11 @@ fun DPLabelChip(
             .border(1.dp, border, shape)
             .then(
                 if (onClick != null)
-                    Modifier.clickable(indication = ripple(), interactionSource = null, onClick = onClick)
+                    Modifier.clickable(
+                        indication = ripple(),
+                        interactionSource = null,
+                        onClick = onClick
+                    )
                 else Modifier
             )
             .padding(horizontal = 8.dp, vertical = 3.dp),
@@ -212,5 +258,69 @@ fun DPLabelChip(
             size = DPTextSize.Small,
             color = textColor,
         )
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PREVIEWS
+// ─────────────────────────────────────────────────────────────────────────────
+
+@DPComponentPreview
+@Composable
+private fun DPStatusBadgePreview() {
+    Preview {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            DPBadgeVariant.entries.forEach { variant ->
+                DPStatusBadge(variant = variant, label = variant.name)
+            }
+        }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun DPCountBadgePreview() {
+    Preview {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            DPCountBadge(count = 5)
+            DPCountBadge(count = 10, variant = DPBadgeVariant.Healthy)
+            DPCountBadge(count = 99)
+            DPCountBadge(count = 120, variant = DPBadgeVariant.Outage)
+        }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun DPCategoryChipPreview() {
+    Preview {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            DPCategoryChip(category = "Android")
+            DPCategoryChip(category = "Kotlin", isSelected = true)
+            DPCategoryChip(category = "Compose")
+        }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun DPLabelChipPreview() {
+    Preview {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            DPLabelChip(label = "Default")
+            DPLabelChip(label = "Selected", isSelected = true)
+        }
     }
 }

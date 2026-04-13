@@ -51,9 +51,9 @@ private data class DPButtonSizeTokens(
 )
 
 private fun sizeTokens(size: DPButtonSize) = when (size) {
-    DPButtonSize.Small  -> DPButtonSizeTokens(height = 36.dp, horizontalPadding = 12.dp)
+    DPButtonSize.Small -> DPButtonSizeTokens(height = 36.dp, horizontalPadding = 12.dp)
     DPButtonSize.Medium -> DPButtonSizeTokens(height = 44.dp, horizontalPadding = 16.dp)
-    DPButtonSize.Large  -> DPButtonSizeTokens(height = 52.dp, horizontalPadding = 20.dp)
+    DPButtonSize.Large -> DPButtonSizeTokens(height = 52.dp, horizontalPadding = 20.dp)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -79,9 +79,9 @@ fun DPButton(
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val cornerRadius = when (size) {
-        DPButtonSize.Small  -> shape.xs
+        DPButtonSize.Small -> shape.xs
         DPButtonSize.Medium -> shape.sm
-        DPButtonSize.Large  -> shape.sm
+        DPButtonSize.Large -> shape.sm
     }
     val sizeT = sizeTokens(size)
 
@@ -91,26 +91,31 @@ fun DPButton(
             colours.textDisabled,
             Color.Transparent,
         )
+
         variant == DPButtonVariant.Primary -> Triple(
             colours.interactivePrimaryFill,
             colours.interactivePrimaryText,
             Color.Transparent,
         )
+
         variant == DPButtonVariant.Secondary -> Triple(
             colours.interactiveSecondaryFill,
             colours.textPrimary,
             colours.interactiveSecondaryBorder,
         )
+
         variant == DPButtonVariant.Ghost -> Triple(
             Color.Transparent,
             colours.textSecondary,
             Color.Transparent,
         )
+
         variant == DPButtonVariant.Destructive -> Triple(
             colours.interactiveDestructiveFill,
             colours.interactiveDestructiveText,
             Color.Transparent,
         )
+
         else -> Triple(
             colours.signalWarningSurface,
             colours.signalWarningText,
@@ -136,9 +141,9 @@ fun DPButton(
     )
 
     val textStyle = when (size) {
-        DPButtonSize.Small  -> typography.labelMedium
+        DPButtonSize.Small -> typography.labelMedium
         DPButtonSize.Medium -> typography.labelLarge
-        DPButtonSize.Large  -> typography.labelLarge
+        DPButtonSize.Large -> typography.labelLarge
     }
 
     val shape2d = RoundedCornerShape(cornerRadius)
@@ -150,7 +155,7 @@ fun DPButton(
             .background(fillColour, shape2d)
             .then(
                 if (baseBorder != Color.Transparent)
-                    border(BorderStroke(1.dp, baseBorder), shape2d)
+                    Modifier.border(BorderStroke(1.dp, baseBorder), shape2d)
                 else Modifier
             )
             .clickable(
@@ -223,14 +228,14 @@ fun DPIconButton(
     )
 
     val touchSize = when (size) {
-        DPButtonSize.Small  -> 36.dp
+        DPButtonSize.Small -> 36.dp
         DPButtonSize.Medium -> 44.dp
-        DPButtonSize.Large  -> 48.dp
+        DPButtonSize.Large -> 48.dp
     }
     val iconSize = when (size) {
-        DPButtonSize.Small  -> 16.dp
+        DPButtonSize.Small -> 16.dp
         DPButtonSize.Medium -> 20.dp
-        DPButtonSize.Large  -> 24.dp
+        DPButtonSize.Large -> 24.dp
     }
 
     Box(

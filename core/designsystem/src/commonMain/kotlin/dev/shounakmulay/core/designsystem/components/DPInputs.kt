@@ -68,9 +68,9 @@ fun DPTextField(
     var isFocused by remember { mutableStateOf(false) }
 
     val borderColour = when {
-        isError   -> colours.signalErrorText.copy(alpha = 0.5f)
+        isError -> colours.signalErrorText.copy(alpha = 0.5f)
         isFocused -> colours.borderStrong
-        else      -> colours.borderDefault
+        else -> colours.borderDefault
     }
 
     val shape2d = RoundedCornerShape(shape.sm)
@@ -119,7 +119,7 @@ fun DPTextField(
                             tint = colours.textTertiary,
                             modifier = Modifier.size(16.dp),
                         )
-                        Spacer(width(spacing.sm))
+                        Spacer(Modifier.width(spacing.sm))
                     }
                     Box(Modifier.weight(1f)) {
                         if (value.isEmpty()) {
@@ -132,7 +132,7 @@ fun DPTextField(
                         innerTextField()
                     }
                     if (trailingIcon != null) {
-                        Spacer(width(spacing.sm))
+                        Spacer(Modifier.width(spacing.sm))
                         Icon(
                             imageVector = trailingIcon,
                             contentDescription = null,
@@ -197,7 +197,11 @@ fun DPListRow(
             .background(colours.backgroundElevated)
             .then(
                 if (onClick != null)
-                    Modifier.clickable(indication = ripple(), interactionSource = null, onClick = onClick)
+                    Modifier.clickable(
+                        indication = ripple(),
+                        interactionSource = null,
+                        onClick = onClick
+                    )
                 else Modifier
             )
             .padding(horizontal = spacing.xl),
@@ -205,7 +209,7 @@ fun DPListRow(
     ) {
         if (leadingContent != null) {
             leadingContent()
-            Spacer(width(spacing.md))
+            Spacer(Modifier.width(spacing.md))
         }
 
         Column(modifier = Modifier.weight(1f)) {
@@ -223,7 +227,7 @@ fun DPListRow(
         }
 
         if (trailingContent != null) {
-            Spacer(width(spacing.sm))
+            Spacer(Modifier.width(spacing.sm))
             trailingContent()
         }
     }
@@ -253,7 +257,11 @@ fun DPSettingsRow(
             .background(colours.backgroundElevated)
             .then(
                 if (onClick != null)
-                    Modifier.clickable(indication = ripple(), interactionSource = null, onClick = onClick)
+                    Modifier.clickable(
+                        indication = ripple(),
+                        interactionSource = null,
+                        onClick = onClick
+                    )
                 else Modifier
             )
             .padding(horizontal = spacing.xl),
@@ -278,7 +286,7 @@ fun DPSettingsRow(
                 )
             }
             if (showChevron && onClick != null) {
-                Spacer(width(spacing.xs))
+                Spacer(Modifier.width(spacing.xs))
                 DPMono(
                     text = "›",
                     size = DPTextSize.Medium,
