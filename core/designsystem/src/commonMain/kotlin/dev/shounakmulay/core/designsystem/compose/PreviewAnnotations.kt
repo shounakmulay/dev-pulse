@@ -6,7 +6,7 @@ import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import dev.shounakmulay.core.designsystem.theme.DPTheme
+import dev.shounakmulay.core.designsystem.theme.AppTheme
 
 @PreviewFontScale
 @PreviewDynamicColors
@@ -19,7 +19,7 @@ annotation class DPScreenPreview
 
 @Composable
 fun Preview(content: @Composable () -> Unit) {
-    DPTheme {
+    AppTheme {
         Surface {
             content()
         }
