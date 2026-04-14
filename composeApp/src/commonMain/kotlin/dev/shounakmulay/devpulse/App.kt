@@ -13,8 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import dev.shounakmulay.core.designsystem.theme.AppTheme
 import org.jetbrains.compose.resources.painterResource
-import dev.shounakmulay.core.designsystem.theme.DPTheme
 
 import devpulse.composeapp.generated.resources.Res
 import devpulse.composeapp.generated.resources.compose_multiplatform
@@ -22,7 +22,7 @@ import devpulse.composeapp.generated.resources.compose_multiplatform
 @Composable
 @Preview
 fun App() {
-    DPTheme {
+    AppTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
         ) {

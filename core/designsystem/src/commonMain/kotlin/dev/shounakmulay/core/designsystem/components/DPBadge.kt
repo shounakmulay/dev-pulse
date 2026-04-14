@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,8 +24,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.core.designsystem.compose.Preview
-import dev.shounakmulay.core.designsystem.foundation.categoryColour
-import dev.shounakmulay.core.designsystem.theme.DPTheme
+import dev.shounakmulay.core.designsystem.theme.categoryColour
+import dev.shounakmulay.core.designsystem.theme.info
+import dev.shounakmulay.core.designsystem.theme.infoContainer
+import dev.shounakmulay.core.designsystem.theme.onInfoContainer
+import dev.shounakmulay.core.designsystem.theme.onSuccessContainer
+import dev.shounakmulay.core.designsystem.theme.onWarningContainer
+import dev.shounakmulay.core.designsystem.theme.success
+import dev.shounakmulay.core.designsystem.theme.successContainer
+import dev.shounakmulay.core.designsystem.theme.warning
+import dev.shounakmulay.core.designsystem.theme.warningContainer
 
 enum class DPBadgeVariant {
     Healthy,
@@ -45,49 +54,49 @@ private data class BadgeColours(
 
 @Composable
 private fun badgeColours(variant: DPBadgeVariant): BadgeColours {
-    val c = DPTheme.colours
+    val colorScheme = MaterialTheme.colorScheme
     return when (variant) {
         DPBadgeVariant.Healthy -> BadgeColours(
-            c.signalSuccessSurface,
-            c.signalSuccessText,
-            c.signalSuccessText,
-            c.signalSuccessBorder
+            colorScheme.successContainer,
+            colorScheme.onSuccessContainer,
+            colorScheme.onSuccessContainer,
+            colorScheme.success
         )
 
         DPBadgeVariant.Degraded -> BadgeColours(
-            c.signalWarningSurface,
-            c.signalWarningText,
-            c.accentPrimary,
-            c.signalWarningBorder
+            colorScheme.warningContainer,
+            colorScheme.onWarningContainer,
+            colorScheme.onWarningContainer,
+            colorScheme.warning,
         )
 
         DPBadgeVariant.Outage -> BadgeColours(
-            c.signalErrorSurface,
-            c.signalErrorText,
-            c.signalErrorText,
-            c.signalErrorBorder
+            colorScheme.errorContainer,
+            colorScheme.onErrorContainer,
+            colorScheme.onErrorContainer,
+            colorScheme.error,
         )
 
         DPBadgeVariant.Info,
         DPBadgeVariant.New -> BadgeColours(
-            c.signalInfoSurface,
-            c.signalInfoText,
-            c.signalInfoText,
-            c.signalInfoBorder
+            colorScheme.infoContainer,
+            colorScheme.onInfoContainer,
+            colorScheme.onInfoContainer,
+            colorScheme.info,
         )
 
         DPBadgeVariant.Waiting -> BadgeColours(
-            c.signalWaitingSurface,
-            c.signalWaitingText,
-            c.signalWaitingText,
-            c.signalWaitingBorder
+            colorScheme.secondaryContainer,
+            colorScheme.onSecondaryContainer,
+            colorScheme.onSecondaryContainer,
+            colorScheme.secondary,
         )
 
         DPBadgeVariant.Neutral -> BadgeColours(
-            c.backgroundSubtle,
-            c.textSecondary,
-            c.textTertiary,
-            c.borderDefault
+            colorScheme.surfaceContainerHigh,
+            colorScheme.onSurfaceVariant,
+            colorScheme.outline,
+            colorScheme.outlineVariant,
         )
     }
 }
@@ -99,7 +108,7 @@ fun DPStatusBadge(
     modifier: Modifier = Modifier,
 ) {
     val colours = badgeColours(variant)
-    val typography = DPTheme.typography
+    val typography = MaterialTheme.typography
     val shape = RoundedCornerShape(100.dp)
 
     Row(
@@ -162,8 +171,7 @@ fun DPCategoryChip(
     isSelected: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
-    val colours = DPTheme.colours
-    val catColour = colours.categoryColour(category)
+    val catColour = categoryColour(category)
     val shape = RoundedCornerShape(4.dp)
 
     val bgAlpha = if (isSelected) 0.20f else 0.10f
@@ -209,12 +217,12 @@ fun DPLabelChip(
     isSelected: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
-    val colours = DPTheme.colours
+    val colorScheme = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(4.dp)
 
-    val bg = if (isSelected) colours.accentPrimarySubtle else colours.backgroundInteractive
-    val border = if (isSelected) colours.accentPrimaryBorder else colours.borderDefault
-    val textColor = if (isSelected) colours.accentPrimary else colours.textSecondary
+    val bg = if (isSelected) colorScheme.primaryContainer else colorScheme.surfaceContainerHigh
+    val border = if (isSelected) colorScheme.primary else colorScheme.outlineVariant
+    val textColor = if (isSelected) colorScheme.primary else colorScheme.onSurfaceVariant
 
     Box(
         modifier = modifier

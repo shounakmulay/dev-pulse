@@ -3,10 +3,14 @@ import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    id("devpulse.kmp.application")
+    id("devpulse.kmp.library.compose")
 }
 
 kotlin {
+    android {
+        namespace = "dev.shounakmulay.devpulse"
+        androidResources.enable = true
+    }
     iosFrameworks(baseName = "ComposeApp", isStatic = true)
     sourceSets {
         commonMain.dependencies {
@@ -14,21 +18,14 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
-            implementation(libs.androidx.activity.compose)
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
         }
     }
-}
-
-android {
-    namespace = "dev.shounakmulay.devpulse"
-    defaultConfig {
-        applicationId = "dev.shounakmulay.devpulse"
-        versionCode = 1
-        versionName = "1.0"
+    sourceSets.commonTest.dependencies {
+        implementation(kotlin("test"))
     }
 }
 

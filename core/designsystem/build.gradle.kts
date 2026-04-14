@@ -17,4 +17,10 @@ kotlin {
         }
     }
     iosFrameworks(baseName = "core:designsystemKit")
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.compose.components.resources)
+        }
+    }
 }

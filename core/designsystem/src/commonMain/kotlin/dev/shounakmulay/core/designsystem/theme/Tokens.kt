@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.designsystem.foundation
+package dev.shounakmulay.core.designsystem.theme
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
@@ -10,11 +10,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SPACING
-// 4dp base grid. All values are multiples of 4 (except xxs hairline).
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Immutable
 data class DPSpacing(
@@ -28,7 +23,6 @@ data class DPSpacing(
     val xxxl: Dp,
     val hero: Dp,
 
-    // Semantic spatial tokens
     val screenHorizontal: Dp,
     val sectionGap: Dp,
     val iconTextGap: Dp,
@@ -62,11 +56,6 @@ val DefaultSpacing = DPSpacing(
 
 val LocalDPSpacing = staticCompositionLocalOf { DefaultSpacing }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SHAPE
-// Named corner radius tokens. Pass to RoundedCornerShape(DPTheme.shape.md).
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Immutable
 data class DPShape(
     val xs: Dp,
@@ -85,10 +74,6 @@ val DefaultShape = DPShape(
 )
 
 val LocalDPShape = staticCompositionLocalOf { DefaultShape }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// ELEVATION
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Immutable
 data class DPElevation(
@@ -109,10 +94,6 @@ val DefaultElevation = DPElevation(
 
 val LocalDPElevation = staticCompositionLocalOf { DefaultElevation }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// STROKE
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Immutable
 data class DPStroke(
     val hairline: Dp,
@@ -127,10 +108,6 @@ val DefaultStroke = DPStroke(
 )
 
 val LocalDPStroke = staticCompositionLocalOf { DefaultStroke }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// ICON SIZES
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Immutable
 data class DPIconSize(
@@ -149,28 +126,19 @@ val DefaultIconSize = DPIconSize(
 
 val LocalDPIconSize = staticCompositionLocalOf { DefaultIconSize }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MOTION
-// All animations use DPMotion constants.
-// Never hardcode milliseconds or easing curves.
-// ─────────────────────────────────────────────────────────────────────────────
-
 object DPMotion {
 
-    // Duration constants (ms)
     const val MICRO = 80
     const val FAST = 150
     const val STANDARD = 250
     const val COMFORTABLE = 350
     const val RELAXED = 450
 
-    // Easing curves
     val standard: Easing = FastOutSlowInEasing
     val decelerate: Easing = LinearOutSlowInEasing
     val accelerate: Easing = CubicBezierEasing(0.4f, 0f, 1f, 1f)
     val emphasized: Easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 
-    // Pre-built AnimationSpec factories
     fun <T> microSpec(): FiniteAnimationSpec<T> = tween(MICRO, easing = standard)
     fun <T> fastSpec(): FiniteAnimationSpec<T> = tween(FAST, easing = standard)
     fun <T> standardSpec(): FiniteAnimationSpec<T> = tween(STANDARD, easing = standard)
