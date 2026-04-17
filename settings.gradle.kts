@@ -35,3 +35,4 @@ plugins {
 include(":composeApp")
 include(":core:designsystem")
 include(":androidApp")
+include(":core:navigation")
