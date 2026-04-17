@@ -5,7 +5,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "dev.shounakmulay.core.designsystem"
 
         withHostTestBuilder {}
