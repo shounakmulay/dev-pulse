@@ -1,7 +1,11 @@
 package dev.shounakmulay.devpulse.buildsrc.constants
 
 object Modules {
-    const val composeApp = ":composeApp"
-    const val designsystem = ":core:designsystem"
-    const val androidApp = ":androidApp"
+    const val COMPOSE_APP = ":composeApp"
+    const val ANDROID_APP = ":androidApp"
+
+    object Core {
+        const val DESIGN_SYSTEM = ":core:designsystem"
+        const val NAVIGATION = ":core:navigation"
+    }
 }

@@ -18,7 +18,7 @@ configure<ApplicationExtension> {
 }
 
 dependencies {
-    implementation(project(Modules.composeApp))
+    implementation(project(Modules.COMPOSE_APP))
     implementation(libs.androidx.activity.compose)
     debugImplementation(libs.compose.uiToolingPreview)
 }

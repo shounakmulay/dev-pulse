@@ -6,7 +6,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "dev.shounakmulay.core.designsystem"
+        namespace = "dev.shounakmulay.core.navigation"
 
         withHostTestBuilder {}
 
@@ -16,7 +16,7 @@ kotlin {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
     }
-    iosFrameworks(baseName = "core:designsystemKit")
+    iosFrameworks(baseName = "core:navigationKit")
 
     sourceSets {
         commonMain.dependencies {

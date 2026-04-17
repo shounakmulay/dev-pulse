@@ -10,7 +10,6 @@ class KmpIosTargetsPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         target.plugins.withId("org.jetbrains.kotlin.multiplatform") {
             target.extensions.configure<KotlinMultiplatformExtension> {
-                iosX64()
                 iosArm64()
                 iosSimulatorArm64()
             }

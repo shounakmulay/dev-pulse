@@ -6,6 +6,7 @@ plugins {
 dependencies {
     implementation(libs.android.gradle.plugin)
     implementation(libs.kotlin.gradle.plugin)
+    implementation(libs.kotlin.serialization.gradle.plugin)
     implementation(libs.compose.multiplatform.gradle.plugin)
     implementation(libs.compose.compiler.gradle.plugin)
     implementation(libs.compose.hot.reload.gradle.plugin)

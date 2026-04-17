@@ -12,6 +12,7 @@ class KmpLibraryPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("org.jetbrains.kotlin.multiplatform")
+                apply("org.jetbrains.kotlin.plugin.serialization")
                 apply("devpulse.kmp.android.library")
                 apply("devpulse.kmp.ios")
                 apply("devpulse.kmp.jvm")

@@ -14,7 +14,9 @@ kotlin {
     iosFrameworks(baseName = "ComposeApp", isStatic = true)
     sourceSets {
         commonMain.dependencies {
-            implementation(project(Modules.designsystem))
+            implementation(project(Modules.Core.DESIGN_SYSTEM))
+            implementation(project(Modules.Core.NAVIGATION))
+            implementation(libs.navigation3.ui)
         }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)

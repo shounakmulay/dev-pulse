@@ -8,7 +8,7 @@ fun KotlinMultiplatformExtension.iosFrameworks(
     isStatic: Boolean = false,
     configure: Framework.() -> Unit = {}
 ) {
-    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach { target ->
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
         target.binaries.framework {
             this.baseName = baseName
             this.isStatic = isStatic
