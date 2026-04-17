@@ -1,0 +1,26 @@
+import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
+
+plugins {
+    id("devpulse.kmp.library.compose")
+}
+
+kotlin {
+    android {
+        namespace = "dev.shounakmulay.core.navigation"
+
+        withHostTestBuilder {}
+
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
+    }
+    iosFrameworks(baseName = "core:navigationKit")
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.compose.components.resources)
+        }
+    }
+}
