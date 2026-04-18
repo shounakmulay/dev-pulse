@@ -1,5 +1,6 @@
 package dev.shounakmulay.core.designsystem.theme
 
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
@@ -192,28 +193,28 @@ class DPTextVariants(
     )
     val HeadingLarge = TextStyle(
         fontFamily = displayFont,
-        fontWeight = FontWeight.W600,
+        fontWeight = FontWeight.W400,
         fontSize = 32.sp,
         lineHeight = 40.sp,
         letterSpacing = 0.sp,
     )
     val HeadingMedium = TextStyle(
         fontFamily = displayFont,
-        fontWeight = FontWeight.W600,
+        fontWeight = FontWeight.W400,
         fontSize = 28.sp,
         lineHeight = 36.sp,
         letterSpacing = 0.sp,
     )
     val HeadingSmall = TextStyle(
         fontFamily = displayFont,
-        fontWeight = FontWeight.W600,
+        fontWeight = FontWeight.W400,
         fontSize = 24.sp,
         lineHeight = 32.sp,
         letterSpacing = 0.sp,
     )
     val TitleLarge = TextStyle(
         fontFamily = displayFont,
-        fontWeight = FontWeight.W600,
+        fontWeight = FontWeight.W400,
         fontSize = 22.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp,
@@ -274,6 +275,111 @@ class DPTextVariants(
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp,
     )
+    val DisplayLargeEmphasized = TextStyle(
+        fontFamily = displayFont,
+        fontWeight = FontWeight.W500,
+        fontSize = 57.sp,
+        lineHeight = 64.sp,
+        letterSpacing = 0.sp,
+    )
+    val DisplayMediumEmphasized = TextStyle(
+        fontFamily = displayFont,
+        fontWeight = FontWeight.W500,
+        fontSize = 45.sp,
+        lineHeight = 52.sp,
+        letterSpacing = 0.sp,
+    )
+    val DisplaySmallEmphasized = TextStyle(
+        fontFamily = displayFont,
+        fontWeight = FontWeight.W500,
+        fontSize = 36.sp,
+        lineHeight = 44.sp,
+        letterSpacing = 0.sp,
+    )
+    val HeadingLargeEmphasized = TextStyle(
+        fontFamily = displayFont,
+        fontWeight = FontWeight.W500,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
+        letterSpacing = 0.sp,
+    )
+    val HeadingMediumEmphasized = TextStyle(
+        fontFamily = displayFont,
+        fontWeight = FontWeight.W500,
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
+        letterSpacing = 0.sp,
+    )
+    val HeadingSmallEmphasized = TextStyle(
+        fontFamily = displayFont,
+        fontWeight = FontWeight.W500,
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
+        letterSpacing = 0.sp,
+    )
+    val TitleLargeEmphasized = TextStyle(
+        fontFamily = displayFont,
+        fontWeight = FontWeight.W500,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp,
+    )
+    val TitleMediumEmphasized = TextStyle(
+        fontFamily = displayFont,
+        fontWeight = FontWeight.W700,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.15.sp,
+    )
+    val TitleSmallEmphasized = TextStyle(
+        fontFamily = displayFont,
+        fontWeight = FontWeight.W700,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp,
+    )
+    val BodyLargeEmphasized = TextStyle(
+        fontFamily = bodyFont,
+        fontWeight = FontWeight.W500,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.15.sp,
+    )
+    val BodyMediumEmphasized = TextStyle(
+        fontFamily = bodyFont,
+        fontWeight = FontWeight.W500,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.25.sp,
+    )
+    val BodySmallEmphasized = TextStyle(
+        fontFamily = bodyFont,
+        fontWeight = FontWeight.W500,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.4.sp,
+    )
+    val LabelLargeEmphasized = TextStyle(
+        fontFamily = bodyFont,
+        fontWeight = FontWeight.W700,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp,
+    )
+    val LabelMediumEmphasized = TextStyle(
+        fontFamily = bodyFont,
+        fontWeight = FontWeight.W700,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp,
+    )
+    val LabelSmallEmphasized = TextStyle(
+        fontFamily = bodyFont,
+        fontWeight = FontWeight.W700,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp,
+    )
 }
 
 @Composable
@@ -282,6 +388,7 @@ fun dpTextVariants(): DPTextVariants = DPTextVariants(
     bodyFont = bodyFontFamily(),
 )
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun appTypography(): Typography {
     val variants = dpTextVariants()
@@ -290,6 +397,9 @@ fun appTypography(): Typography {
         displayLarge = variants.DisplayLarge,
         displayMedium = variants.DisplayMedium,
         displaySmall = variants.DisplaySmall,
+        displayLargeEmphasized = variants.DisplayLargeEmphasized,
+        displayMediumEmphasized = variants.DisplayMediumEmphasized,
+        displaySmallEmphasized = variants.DisplaySmallEmphasized,
         headlineLarge = variants.HeadingLarge,
         headlineMedium = variants.HeadingMedium,
         headlineSmall = variants.HeadingSmall,
@@ -302,6 +412,18 @@ fun appTypography(): Typography {
         labelLarge = variants.LabelLarge,
         labelMedium = variants.LabelMedium,
         labelSmall = variants.LabelSmall,
+        headlineLargeEmphasized = variants.HeadingLargeEmphasized,
+        headlineMediumEmphasized = variants.HeadingMediumEmphasized,
+        headlineSmallEmphasized = variants.HeadingSmallEmphasized,
+        titleLargeEmphasized = variants.TitleLargeEmphasized,
+        titleMediumEmphasized = variants.TitleMediumEmphasized,
+        titleSmallEmphasized = variants.TitleSmallEmphasized,
+        bodyLargeEmphasized = variants.BodyLargeEmphasized,
+        bodyMediumEmphasized = variants.BodyMediumEmphasized,
+        bodySmallEmphasized = variants.BodySmallEmphasized,
+        labelLargeEmphasized = variants.LabelLargeEmphasized,
+        labelMediumEmphasized = variants.LabelMediumEmphasized,
+        labelSmallEmphasized = variants.LabelSmallEmphasized,
     )
 }
 

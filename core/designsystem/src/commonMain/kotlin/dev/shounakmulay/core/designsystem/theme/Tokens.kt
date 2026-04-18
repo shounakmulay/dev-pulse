@@ -1,11 +1,11 @@
 package dev.shounakmulay.core.designsystem.theme
 
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.Easing
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MotionScheme
+import androidx.compose.material3.Shapes
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
@@ -22,15 +22,11 @@ data class DPSpacing(
     val xxl: Dp,
     val xxxl: Dp,
     val hero: Dp,
-
+    val paragraphGap: Dp,
     val screenHorizontal: Dp,
     val sectionGap: Dp,
-    val iconTextGap: Dp,
     val touchTarget: Dp,
     val listItemHeight: Dp,
-    val listItemHeightCompact: Dp,
-    val bottomNavHeight: Dp,
-    val topBarHeight: Dp,
 )
 
 val DefaultSpacing = DPSpacing(
@@ -43,71 +39,14 @@ val DefaultSpacing = DPSpacing(
     xxl = 24.dp,
     xxxl = 32.dp,
     hero = 48.dp,
-
+    paragraphGap = 12.dp,
     screenHorizontal = 20.dp,
-    sectionGap = 24.dp,
-    iconTextGap = 8.dp,
+    sectionGap = 32.dp,
     touchTarget = 48.dp,
     listItemHeight = 56.dp,
-    listItemHeightCompact = 48.dp,
-    bottomNavHeight = 64.dp,
-    topBarHeight = 56.dp,
 )
 
 val LocalDPSpacing = staticCompositionLocalOf { DefaultSpacing }
-
-@Immutable
-data class DPShape(
-    val xs: Dp,
-    val sm: Dp,
-    val md: Dp,
-    val lg: Dp,
-    val pill: Dp,
-)
-
-val DefaultShape = DPShape(
-    xs = 3.dp,
-    sm = 6.dp,
-    md = 10.dp,
-    lg = 14.dp,
-    pill = 100.dp,
-)
-
-val LocalDPShape = staticCompositionLocalOf { DefaultShape }
-
-@Immutable
-data class DPElevation(
-    val none: Dp,
-    val low: Dp,
-    val medium: Dp,
-    val high: Dp,
-    val overlay: Dp,
-)
-
-val DefaultElevation = DPElevation(
-    none = 0.dp,
-    low = 1.dp,
-    medium = 4.dp,
-    high = 8.dp,
-    overlay = 16.dp,
-)
-
-val LocalDPElevation = staticCompositionLocalOf { DefaultElevation }
-
-@Immutable
-data class DPStroke(
-    val hairline: Dp,
-    val thin: Dp,
-    val medium: Dp,
-)
-
-val DefaultStroke = DPStroke(
-    hairline = 0.5.dp,
-    thin = 1.dp,
-    medium = 2.dp,
-)
-
-val LocalDPStroke = staticCompositionLocalOf { DefaultStroke }
 
 @Immutable
 data class DPIconSize(
@@ -126,25 +65,61 @@ val DefaultIconSize = DPIconSize(
 
 val LocalDPIconSize = staticCompositionLocalOf { DefaultIconSize }
 
-object DPMotion {
+val dpShapes: Shapes = Shapes(
+    extraSmall = RoundedCornerShape(4.dp),
+    small = RoundedCornerShape(6.dp),
+    medium = RoundedCornerShape(10.dp),
+    large = RoundedCornerShape(14.dp),
+    extraLarge = RoundedCornerShape(20.dp),
+)
 
-    const val MICRO = 80
-    const val FAST = 150
-    const val STANDARD = 250
-    const val COMFORTABLE = 350
-    const val RELAXED = 450
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+fun calmMotionScheme(): MotionScheme = CalmMotionSchemeImpl
 
-    val standard: Easing = FastOutSlowInEasing
-    val decelerate: Easing = LinearOutSlowInEasing
-    val accelerate: Easing = CubicBezierEasing(0.4f, 0f, 1f, 1f)
-    val emphasized: Easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Suppress("UNCHECKED_CAST")
+private object CalmMotionSchemeImpl : MotionScheme {
 
-    fun <T> microSpec(): FiniteAnimationSpec<T> = tween(MICRO, easing = standard)
-    fun <T> fastSpec(): FiniteAnimationSpec<T> = tween(FAST, easing = standard)
-    fun <T> standardSpec(): FiniteAnimationSpec<T> = tween(STANDARD, easing = standard)
-    fun <T> comfortableSpec(): FiniteAnimationSpec<T> = tween(COMFORTABLE, easing = emphasized)
-    fun <T> relaxedSpec(): FiniteAnimationSpec<T> = tween(RELAXED, easing = emphasized)
+    private val defaultSpatial = spring<Any>(
+        dampingRatio = 0.95f,
+        stiffness = 220f,
+    )
+    private val fastSpatial = spring<Any>(
+        dampingRatio = 0.9f,
+        stiffness = 400f,
+    )
+    private val slowSpatial = spring<Any>(
+        dampingRatio = 1.0f,
+        stiffness = 120f,
+    )
+    private val defaultEffects = spring<Any>(
+        dampingRatio = 1.0f,
+        stiffness = 600f,
+    )
+    private val fastEffects = spring<Any>(
+        dampingRatio = 1.0f,
+        stiffness = 1000f,
+    )
+    private val slowEffects = spring<Any>(
+        dampingRatio = 1.0f,
+        stiffness = 300f,
+    )
 
-    fun <T> enterSpec(): FiniteAnimationSpec<T> = tween(COMFORTABLE, easing = decelerate)
-    fun <T> exitSpec(): FiniteAnimationSpec<T> = tween(FAST, easing = accelerate)
+    override fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T> =
+        defaultSpatial as FiniteAnimationSpec<T>
+
+    override fun <T> fastSpatialSpec(): FiniteAnimationSpec<T> =
+        fastSpatial as FiniteAnimationSpec<T>
+
+    override fun <T> slowSpatialSpec(): FiniteAnimationSpec<T> =
+        slowSpatial as FiniteAnimationSpec<T>
+
+    override fun <T> defaultEffectsSpec(): FiniteAnimationSpec<T> =
+        defaultEffects as FiniteAnimationSpec<T>
+
+    override fun <T> fastEffectsSpec(): FiniteAnimationSpec<T> =
+        fastEffects as FiniteAnimationSpec<T>
+
+    override fun <T> slowEffectsSpec(): FiniteAnimationSpec<T> =
+        slowEffects as FiniteAnimationSpec<T>
 }
