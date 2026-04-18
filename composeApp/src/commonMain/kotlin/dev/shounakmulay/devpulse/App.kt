@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import dev.shounakmulay.core.designsystem.components.devtools.DesignSystemBoard
 import dev.shounakmulay.core.designsystem.theme.AppTheme
 import dev.shounakmulay.core.navigation.NavigationState
 import dev.shounakmulay.core.navigation.Navigator
@@ -42,34 +43,9 @@ fun App() {
         tabRoutes = bottomBarScreens
     )
 
-    val navigator = remember { Navigator(navigationState) }
-    val isTabsScreen = navigationState.rootStack.last() == Screen.TabsScreen
     AppTheme {
-        if (!isTabsScreen) {
-            Scaffold {
-                NavDisplay(it, navigationState, navigator)
-            }
-            return@AppTheme
-        }
-
-
-        Scaffold(
-            bottomBar = {
-                BottomAppBar() {
-                    bottomBarScreens.forEach {
-                        NavigationBarItem(
-                            selected = it == navigationState.selectedTab,
-                            onClick = { navigator.navigate(it, false) },
-                            icon = {},
-                            label = {
-                                Text(it.toString())
-                            }
-                        )
-                    }
-                }
-            }
-        ) {
-            NavDisplay(it, navigationState, navigator)
+        Scaffold {
+            DesignSystemBoard(Modifier.padding(it))
         }
     }
 }
