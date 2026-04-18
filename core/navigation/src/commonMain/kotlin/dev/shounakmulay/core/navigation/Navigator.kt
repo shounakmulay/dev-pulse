@@ -1,6 +1,5 @@
 package dev.shounakmulay.core.navigation
 
-import dev.shounakmulay.devpulse.Screen
 
 class Navigator(val state: NavigationState) {
     fun navigate(screen: Screen, onRootStack: Boolean): Boolean {
