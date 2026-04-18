@@ -14,7 +14,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgeDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,7 +39,22 @@ import dev.shounakmulay.core.designsystem.theme.successContainer
 import dev.shounakmulay.core.designsystem.theme.warning
 import dev.shounakmulay.core.designsystem.theme.warningContainer
 
-enum class DPBadgeVariant {
+@Composable
+fun DPBadge(
+    modifier: Modifier = Modifier,
+    containerColor: Color = BadgeDefaults.containerColor,
+    contentColor: Color = contentColorFor(containerColor),
+    content: (@Composable RowScope.() -> Unit)? = null,
+) {
+    Badge(
+        modifier = modifier,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        content = content,
+    )
+}
+
+enum class DPStatusBadgeVariant {
     Healthy,
     Degraded,
     Outage,
@@ -53,46 +72,46 @@ private data class BadgeColours(
 )
 
 @Composable
-private fun badgeColours(variant: DPBadgeVariant): BadgeColours {
+private fun badgeColours(variant: DPStatusBadgeVariant): BadgeColours {
     val colorScheme = MaterialTheme.colorScheme
     return when (variant) {
-        DPBadgeVariant.Healthy -> BadgeColours(
+        DPStatusBadgeVariant.Healthy -> BadgeColours(
             colorScheme.successContainer,
             colorScheme.onSuccessContainer,
             colorScheme.onSuccessContainer,
             colorScheme.success
         )
 
-        DPBadgeVariant.Degraded -> BadgeColours(
+        DPStatusBadgeVariant.Degraded -> BadgeColours(
             colorScheme.warningContainer,
             colorScheme.onWarningContainer,
             colorScheme.onWarningContainer,
             colorScheme.warning,
         )
 
-        DPBadgeVariant.Outage -> BadgeColours(
+        DPStatusBadgeVariant.Outage -> BadgeColours(
             colorScheme.errorContainer,
             colorScheme.onErrorContainer,
             colorScheme.onErrorContainer,
             colorScheme.error,
         )
 
-        DPBadgeVariant.Info,
-        DPBadgeVariant.New -> BadgeColours(
+        DPStatusBadgeVariant.Info,
+        DPStatusBadgeVariant.New -> BadgeColours(
             colorScheme.infoContainer,
             colorScheme.onInfoContainer,
             colorScheme.onInfoContainer,
             colorScheme.info,
         )
 
-        DPBadgeVariant.Waiting -> BadgeColours(
+        DPStatusBadgeVariant.Waiting -> BadgeColours(
             colorScheme.secondaryContainer,
             colorScheme.onSecondaryContainer,
             colorScheme.onSecondaryContainer,
             colorScheme.secondary,
         )
 
-        DPBadgeVariant.Neutral -> BadgeColours(
+        DPStatusBadgeVariant.Neutral -> BadgeColours(
             colorScheme.surfaceContainerHigh,
             colorScheme.onSurfaceVariant,
             colorScheme.outline,
@@ -103,7 +122,7 @@ private fun badgeColours(variant: DPBadgeVariant): BadgeColours {
 
 @Composable
 fun DPStatusBadge(
-    variant: DPBadgeVariant,
+    variant: DPStatusBadgeVariant,
     label: String,
     modifier: Modifier = Modifier,
 ) {
@@ -139,7 +158,7 @@ fun DPStatusBadge(
 fun DPCountBadge(
     count: Int,
     modifier: Modifier = Modifier,
-    variant: DPBadgeVariant = DPBadgeVariant.Waiting,
+    variant: DPStatusBadgeVariant = DPStatusBadgeVariant.Waiting,
 ) {
     if (count <= 0) return
 
@@ -257,7 +276,7 @@ private fun DPStatusBadgePreview() {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            DPBadgeVariant.entries.forEach { variant ->
+            DPStatusBadgeVariant.entries.forEach { variant ->
                 DPStatusBadge(variant = variant, label = variant.name)
             }
         }
@@ -273,9 +292,9 @@ private fun DPCountBadgePreview() {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             DPCountBadge(count = 5)
-            DPCountBadge(count = 10, variant = DPBadgeVariant.Healthy)
+            DPCountBadge(count = 10, variant = DPStatusBadgeVariant.Healthy)
             DPCountBadge(count = 99)
-            DPCountBadge(count = 120, variant = DPBadgeVariant.Outage)
+            DPCountBadge(count = 120, variant = DPStatusBadgeVariant.Outage)
         }
     }
 }
