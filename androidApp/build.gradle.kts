@@ -4,8 +4,7 @@ import org.gradle.kotlin.dsl.configure
 
 plugins {
     id("devpulse.kmp.android.application")
-    id("org.jetbrains.compose")
-    id("org.jetbrains.kotlin.plugin.compose")
+    id("devpulse.kmp.compose")
 }
 
 configure<ApplicationExtension> {
@@ -20,5 +19,4 @@ configure<ApplicationExtension> {
 dependencies {
     implementation(project(Modules.COMPOSE_APP))
     implementation(libs.androidx.activity.compose)
-    debugImplementation(libs.compose.uiToolingPreview)
 }

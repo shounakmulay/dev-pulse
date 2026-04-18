@@ -5,7 +5,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
-
 val lightScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,
@@ -106,7 +105,7 @@ val darkScheme = darkColorScheme(
     onTertiaryFixedVariant = onInfoContainerDark,
 )
 
-private val mediumContrastLightColorScheme = lightColorScheme(
+internal val mediumContrastLightColorScheme = lightColorScheme(
     primary = primaryLightMediumContrast,
     onPrimary = onPrimaryLightMediumContrast,
     primaryContainer = primaryContainerLightMediumContrast,
@@ -156,7 +155,7 @@ private val mediumContrastLightColorScheme = lightColorScheme(
     onTertiaryFixedVariant = onInfoContainerLightMediumContrast,
 )
 
-private val highContrastLightColorScheme = lightColorScheme(
+internal val highContrastLightColorScheme = lightColorScheme(
     primary = primaryLightHighContrast,
     onPrimary = onPrimaryLightHighContrast,
     primaryContainer = primaryContainerLightHighContrast,
@@ -206,7 +205,7 @@ private val highContrastLightColorScheme = lightColorScheme(
     onTertiaryFixedVariant = onInfoContainerLightHighContrast,
 )
 
-private val mediumContrastDarkColorScheme = darkColorScheme(
+internal val mediumContrastDarkColorScheme = darkColorScheme(
     primary = primaryDarkMediumContrast,
     onPrimary = onPrimaryDarkMediumContrast,
     primaryContainer = primaryContainerDarkMediumContrast,
@@ -256,7 +255,7 @@ private val mediumContrastDarkColorScheme = darkColorScheme(
     onTertiaryFixedVariant = onInfoContainerDarkMediumContrast,
 )
 
-private val highContrastDarkColorScheme = darkColorScheme(
+internal val highContrastDarkColorScheme = darkColorScheme(
     primary = primaryDarkHighContrast,
     onPrimary = onPrimaryDarkHighContrast,
     primaryContainer = primaryContainerDarkHighContrast,
@@ -305,6 +304,10 @@ private val highContrastDarkColorScheme = darkColorScheme(
     tertiaryFixedDim = infoContainerDarkHighContrast,
     onTertiaryFixedVariant = onInfoContainerDarkHighContrast,
 )
+
+// =============================================================================
+// ColorScheme extension properties for semantic colors
+// =============================================================================
 
 val ColorScheme.success: Color get() = primaryFixed
 val ColorScheme.onSuccess: Color get() = onPrimaryFixed

@@ -25,6 +25,7 @@ navigation3 = "1.1.0-rc01"
 runner = "1.7.0"
 core = "1.7.0"
 material = "1.10.0"
+materialKolor = "1.7.0"
 
 [libraries]
 compose-material3-window-size = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "material3" }
@@ -73,6 +74,7 @@ compose-hot-reload-gradle-plugin = { module = "org.jetbrains.compose.hot-reload:
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+material-kolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
