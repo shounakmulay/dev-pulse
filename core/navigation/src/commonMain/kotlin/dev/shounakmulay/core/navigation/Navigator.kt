@@ -1,6 +1,9 @@
 package dev.shounakmulay.core.navigation
 
+import androidx.compose.runtime.Immutable
 
+
+@Immutable
 class Navigator(val state: NavigationState) {
     fun navigate(screen: Screen, onRootStack: Boolean): Boolean {
         if (onRootStack) {
@@ -16,7 +19,7 @@ class Navigator(val state: NavigationState) {
     }
 
     fun navigateBack(): Boolean {
-        if (state.rootStack.last() == Screen.TabsScreen) {
+        if (state.rootStack.last() == Screen.Tabs) {
             return navigateBackTabs()
         }
 
