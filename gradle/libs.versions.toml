@@ -26,6 +26,8 @@ runner = "1.7.0"
 core = "1.7.0"
 material = "1.10.0"
 materialKolor = "1.7.0"
+koin = "4.2.1"
+koin-compiler-plugin = "1.0.0-RC1"
 
 [libraries]
 compose-material3-window-size = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "material3" }
@@ -71,10 +73,16 @@ kotlin-serialization-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-ser
 compose-multiplatform-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "composeMultiplatform" }
 compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 compose-hot-reload-gradle-plugin = { module = "org.jetbrains.compose.hot-reload:org.jetbrains.compose.hot-reload.gradle.plugin", version.ref = "composeHotReload" }
+koin-compiler-gradle-plugin = { module = "io.insert-koin.compiler.plugin:io.insert-koin.compiler.plugin.gradle.plugin", version.ref = "koin-compiler-plugin" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 material-kolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+koin-core = { module = "io.insert-koin:koin-core" }
+koin-compose = { module = "io.insert-koin:koin-compose" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
+koin-annotations = { module = "io.insert-koin:koin-annotations" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -85,3 +93,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 androidLint = { id = "com.android.lint", version.ref = "agp" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-compiler-plugin" }

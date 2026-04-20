@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.buildsrc.plugins
 
 import com.android.build.api.dsl.ApplicationExtension
 import dev.shounakmulay.devpulse.buildsrc.extensions.libs
+import dev.shounakmulay.devpulse.buildsrc.plugins.PluginExtensions.applyPlugin
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -13,7 +14,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 class KmpAndroidApplicationPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            pluginManager.apply("com.android.application")
+            plugins.applyPlugin(libs.findPlugin("androidApplication"))
 
             plugins.withId("org.jetbrains.kotlin.multiplatform") {
                 extensions.configure<KotlinMultiplatformExtension> {

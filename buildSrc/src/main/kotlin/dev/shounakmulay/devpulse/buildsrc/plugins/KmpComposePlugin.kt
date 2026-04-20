@@ -1,20 +1,20 @@
 package dev.shounakmulay.devpulse.buildsrc.plugins
 
 import dev.shounakmulay.devpulse.buildsrc.extensions.libs
+import dev.shounakmulay.devpulse.buildsrc.plugins.PluginExtensions.applyPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.dependencies
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 @Suppress("unused")
 class KmpComposePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            with(pluginManager) {
-                apply("org.jetbrains.kotlin.plugin.compose")
-                apply("org.jetbrains.compose")
-                apply("org.jetbrains.compose.hot-reload")
+            plugins.apply {
+                applyPlugin(libs.findPlugin("composeCompiler"))
+                applyPlugin(libs.findPlugin("composeMultiplatform"))
+                applyPlugin(libs.findPlugin("composeHotReload"))
             }
 
             plugins.withId("org.jetbrains.kotlin.multiplatform") {
@@ -46,6 +46,8 @@ class KmpComposePlugin : Plugin<Project> {
                             implementation(libs.findLibrary("androidx-lifecycle-viewmodelCompose").get())
                             implementation(libs.findLibrary("androidx-lifecycle-viewmodel-navigation3").get())
                             implementation(libs.findLibrary("androidx-lifecycle-runtimeCompose").get())
+                            implementation(libs.findLibrary("koin-compose").get())
+                            implementation(libs.findLibrary("koin-compose-viewmodel").get())
                         }
                     }
                 }

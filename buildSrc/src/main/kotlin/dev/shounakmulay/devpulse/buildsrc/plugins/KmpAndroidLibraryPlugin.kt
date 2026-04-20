@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.buildsrc.plugins
 
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import dev.shounakmulay.devpulse.buildsrc.extensions.libs
+import dev.shounakmulay.devpulse.buildsrc.plugins.PluginExtensions.applyPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -12,9 +13,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 class KmpAndroidLibraryPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            with(pluginManager) {
-                apply("com.android.kotlin.multiplatform.library")
-                apply("com.android.lint")
+            plugins.apply {
+                applyPlugin(libs.findPlugin("androidKotlinMultiplatformLibrary"))
+                applyPlugin(libs.findPlugin("androidLint"))
             }
 
             plugins.withId("com.android.kotlin.multiplatform.library") {
