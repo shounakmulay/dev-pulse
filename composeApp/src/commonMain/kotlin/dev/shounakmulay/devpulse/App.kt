@@ -35,73 +35,72 @@ import dev.shounakmulay.core.navigation.Navigator
 import dev.shounakmulay.core.navigation.Screen
 import dev.shounakmulay.core.navigation.rememberNavigationState
 import dev.shounakmulay.feature.devtools.navigation.developerToolsFeatureEntries
+import org.koin.compose.KoinApplication
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Preview
 fun App() {
-    val tabRoutes by remember {
-        mutableStateOf(
-            setOf(
-                Screen.Tabs.Home,
-                Screen.Tabs.Feed,
-                Screen.Tabs.Time
+    KoinApplication(application = {}) {
+        val tabRoutes by remember {
+            mutableStateOf(
+                setOf(
+                    Screen.Tabs.Home,
+                    Screen.Tabs.Feed,
+                    Screen.Tabs.Time
+                )
             )
+        }
+
+        val navigationState = rememberNavigationState(
+            rootStart = Screen.Tabs,
+            tabsStart = Screen.Tabs.Home,
+            tabRoutes = tabRoutes
         )
-    }
+        val navigator = remember { Navigator(navigationState) }
 
+        AppTheme {
+            Scaffold {
+                val isTabsPageVisible by derivedStateOf {
+                    navigationState.rootStack.last() == Screen.Tabs
+                }
 
-    val navigationState = rememberNavigationState(
-        rootStart = Screen.Tabs,
-        tabsStart = Screen.Tabs.Home,
-        tabRoutes = tabRoutes
-    )
-    val navigator = remember { Navigator(navigationState) }
-
-    AppTheme {
-        Scaffold {
-
-            val isTabsPageVisible by derivedStateOf {
-                navigationState.rootStack.last() == Screen.Tabs
-            }
-
-            if (isTabsPageVisible) {
-                NavigationSuiteScaffold(
-                    modifier = Modifier.padding(it),
-                    navigationItems = {
-                        tabRoutes.forEach { tab ->
-                            NavigationSuiteItem(
-                                selected = tab == navigationState.selectedTab,
-                                onClick = { navigator.navigate(tab, false) },
-                                icon = {
-                                    Icon(
-                                        imageVector = when (tab) {
-                                            Screen.Tabs.Home -> Icons.Default.Home
-                                            Screen.Tabs.Feed -> Icons.Default.DynamicFeed
-                                            Screen.Tabs.Time -> Icons.Default.Timer
-                                            else -> Icons.Default.ExpandMore
-                                        },
-                                        contentDescription = ""
-                                    )
-                                },
-                                label = {
-                                    DPTextView(
-                                        text = tab.toString(),
-                                        variant = DPTextViewVariant.LabelMedium
-                                    )
-                                },
-                            )
+                if (isTabsPageVisible) {
+                    NavigationSuiteScaffold(
+                        modifier = Modifier.padding(it),
+                        navigationItems = {
+                            tabRoutes.forEach { tab ->
+                                NavigationSuiteItem(
+                                    selected = tab == navigationState.selectedTab,
+                                    onClick = { navigator.navigate(tab, false) },
+                                    icon = {
+                                        Icon(
+                                            imageVector = when (tab) {
+                                                Screen.Tabs.Home -> Icons.Default.Home
+                                                Screen.Tabs.Feed -> Icons.Default.DynamicFeed
+                                                Screen.Tabs.Time -> Icons.Default.Timer
+                                                else -> Icons.Default.ExpandMore
+                                            },
+                                            contentDescription = ""
+                                        )
+                                    },
+                                    label = {
+                                        DPTextView(
+                                            text = tab.toString(),
+                                            variant = DPTextViewVariant.LabelMedium
+                                        )
+                                    },
+                                )
+                            }
                         }
+                    ) {
+                        NavDisplay(navigationState, navigator)
                     }
-                ) {
+                } else {
                     NavDisplay(navigationState, navigator)
                 }
-            } else {
-                NavDisplay(navigationState, navigator)
             }
-
-
         }
     }
 }
