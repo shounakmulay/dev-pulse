@@ -5,7 +5,7 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 class Navigator(val state: NavigationState) {
-    fun navigate(screen: Screen, onRootStack: Boolean): Boolean {
+    fun navigate(screen: Screen, onRootStack: Boolean = false): Boolean {
         if (onRootStack) {
             return state.rootStack.add(screen)
         }
