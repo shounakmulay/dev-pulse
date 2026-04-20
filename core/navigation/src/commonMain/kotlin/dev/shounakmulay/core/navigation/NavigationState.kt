@@ -37,24 +37,31 @@ fun rememberNavigationState(
     val serializersConfig = SavedStateConfiguration {
         serializersModule = SerializersModule {
             polymorphic(NavKey::class) {
-                subclass(Screen.TabsScreen::class, Screen.TabsScreen.serializer())
-                subclass(Screen.HomeScreen::class, Screen.HomeScreen.serializer())
-                subclass(Screen.MonitorsScreen::class, Screen.MonitorsScreen.serializer())
-                subclass(Screen.FeedScreen::class, Screen.FeedScreen.serializer())
-                subclass(Screen.TimeScreen::class, Screen.TimeScreen.serializer())
-                subclass(Screen.SettingsScreen::class, Screen.SettingsScreen.serializer())
+                subclass(Screen.Tabs::class, Screen.Tabs.serializer())
+                subclass(Screen.Tabs.Home::class, Screen.Tabs.Home.serializer())
+                subclass(Screen.Monitors::class, Screen.Monitors.serializer())
+                subclass(Screen.Tabs.Feed::class, Screen.Tabs.Feed.serializer())
+                subclass(Screen.Tabs.Time::class, Screen.Tabs.Time.serializer())
+                subclass(Screen.Settings::class, Screen.Settings.serializer())
+                subclass(Screen.DeveloperTools::class, Screen.DeveloperTools.serializer())
             }
         }
     }
 
     val tabsBackStacks = tabRoutes.associateWith { key ->
+        @Suppress("UNCHECKED_CAST")
         rememberNavBackStack(
             configuration = serializersConfig,
             key
-        )
+        ) as NavBackStack<Screen>
     }
 
-    val rootBackStack = rememberNavBackStack(configuration = serializersConfig, rootStart)
+    @Suppress("UNCHECKED_CAST")
+    val rootBackStack =
+        rememberNavBackStack(
+            configuration = serializersConfig,
+            rootStart
+        ) as NavBackStack<Screen>
 
     return remember {
         NavigationState(
@@ -67,18 +74,18 @@ fun rememberNavigationState(
 }
 
 class NavigationState(
-    val rootStack: NavBackStack<NavKey>,
+    val rootStack: NavBackStack<Screen>,
     val tabsStart: Screen,
     selectedTab: MutableState<Screen>,
-    val tabsBackStacks: Map<Screen, NavBackStack<NavKey>>
+    val tabsBackStacks: Map<Screen, NavBackStack<Screen>>
 ) {
     var selectedTab: Screen by selectedTab
 
     @Composable
-    fun toEntries(entryProvider: (NavKey) -> NavEntry<NavKey>): List<NavEntry<NavKey>> {
+    fun toEntries(entryProvider: (Screen) -> NavEntry<Screen>): List<NavEntry<Screen>> {
         val entries = buildList {
             rootStack.forEach {
-                if (it == Screen.TabsScreen) {
+                if (it == Screen.Tabs) {
                     addTabsScreens()
                 } else {
                     add(it)
@@ -87,7 +94,7 @@ class NavigationState(
         }
 
         val decorator = listOf(
-            rememberSaveableStateHolderNavEntryDecorator<NavKey>(),
+            rememberSaveableStateHolderNavEntryDecorator<Screen>(),
             rememberViewModelStoreNavEntryDecorator()
         )
 
@@ -98,7 +105,7 @@ class NavigationState(
         )
     }
 
-    private fun MutableList<NavKey>.addTabsScreens() {
+    private fun MutableList<Screen>.addTabsScreens() {
         val tabScreens = if (selectedTab == tabsStart) {
             listOf(tabsStart)
         } else {
