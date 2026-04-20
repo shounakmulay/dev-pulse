@@ -2,7 +2,7 @@ import dev.shounakmulay.devpulse.buildsrc.constants.Modules
 import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
 
 plugins {
-    id("devpulse.kmp.library.compose")
+    alias(libs.plugins.devpulse.kmp.library.compose)
 }
 
 kotlin {

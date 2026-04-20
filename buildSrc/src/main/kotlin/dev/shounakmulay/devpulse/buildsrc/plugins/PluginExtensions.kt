@@ -8,12 +8,14 @@ import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
 object PluginExtensions {
-    fun PluginContainer.applyPlugin(pluginOptional: Optional<Provider<PluginDependency>>) {
+    fun PluginContainer.applyPlugin(
+        alias: String,
+        pluginOptional: Optional<Provider<PluginDependency>>,
+    ) {
         val plugin = pluginOptional.getOrNull()?.orNull
-        if (plugin != null) {
-            apply(plugin.pluginId)
-        } else {
-            throw GradleException("Plugin not found in version catalog")
-        }
+            ?: throw GradleException(
+                "Plugin alias '$alias' not found in libs.versions.toml [plugins]"
+            )
+        apply(plugin.pluginId)
     }
 }

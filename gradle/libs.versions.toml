@@ -94,3 +94,7 @@ androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.lib
 androidLint = { id = "com.android.lint", version.ref = "agp" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-compiler-plugin" }
+devpulse-kmp-library = { id = "devpulse.kmp.library", version = "" }
+devpulse-kmp-library-compose = { id = "devpulse.kmp.library.compose", version = "" }
+devpulse-kmp-compose = { id = "devpulse.kmp.compose", version = "" }
+devpulse-kmp-android-application = { id = "devpulse.kmp.android.application", version = "" }

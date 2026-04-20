@@ -3,7 +3,7 @@ import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    id("devpulse.kmp.library.compose")
+    alias(libs.plugins.devpulse.kmp.library.compose)
 }
 
 kotlin {

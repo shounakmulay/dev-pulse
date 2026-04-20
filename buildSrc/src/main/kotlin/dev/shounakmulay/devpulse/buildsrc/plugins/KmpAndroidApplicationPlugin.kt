@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 class KmpAndroidApplicationPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            plugins.applyPlugin(libs.findPlugin("androidApplication"))
+            plugins.applyPlugin("androidApplication", libs.findPlugin("androidApplication"))
 
             plugins.withId("org.jetbrains.kotlin.multiplatform") {
                 extensions.configure<KotlinMultiplatformExtension> {

@@ -12,9 +12,9 @@ class KmpComposePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             plugins.apply {
-                applyPlugin(libs.findPlugin("composeCompiler"))
-                applyPlugin(libs.findPlugin("composeMultiplatform"))
-                applyPlugin(libs.findPlugin("composeHotReload"))
+                applyPlugin("composeCompiler", libs.findPlugin("composeCompiler"))
+                applyPlugin("composeMultiplatform", libs.findPlugin("composeMultiplatform"))
+                applyPlugin("composeHotReload", libs.findPlugin("composeHotReload"))
             }
 
             plugins.withId("org.jetbrains.kotlin.multiplatform") {
