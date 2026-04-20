@@ -1,5 +1,8 @@
 package dev.shounakmulay.devpulse.buildsrc.plugins
 
+import dev.shounakmulay.devpulse.buildsrc.extensions.configureAndroidKmpLibrary
+import dev.shounakmulay.devpulse.buildsrc.extensions.configureIosTargets
+import dev.shounakmulay.devpulse.buildsrc.extensions.configureJvmTarget
 import dev.shounakmulay.devpulse.buildsrc.extensions.libs
 import dev.shounakmulay.devpulse.buildsrc.plugins.PluginExtensions.applyPlugin
 import org.gradle.api.Plugin
@@ -12,15 +15,13 @@ class KmpLibraryPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             plugins.apply {
-                applyPlugin(libs.findPlugin("kotlinMultiplatform"))
-                applyPlugin(libs.findPlugin("kotlinSerialization"))
-                applyPlugin(libs.findPlugin("koin-compiler"))
+                applyPlugin("kotlinMultiplatform", libs.findPlugin("kotlinMultiplatform"))
+                applyPlugin("kotlinSerialization", libs.findPlugin("kotlinSerialization"))
+                applyPlugin("koin-compiler", libs.findPlugin("koin-compiler"))
             }
-            with(pluginManager) {
-                apply("devpulse.kmp.android.library")
-                apply("devpulse.kmp.ios")
-                apply("devpulse.kmp.jvm")
-            }
+            configureAndroidKmpLibrary()
+            configureIosTargets()
+            configureJvmTarget()
 
             plugins.withId("org.jetbrains.kotlin.multiplatform") {
                 extensions.configure<KotlinMultiplatformExtension> {
