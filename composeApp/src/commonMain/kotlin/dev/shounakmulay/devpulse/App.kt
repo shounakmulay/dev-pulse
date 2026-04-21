@@ -122,7 +122,9 @@ private fun NavDisplay(
             homeFeatureEntries(navigator)
             feedFeatureEntries(navigator)
             entry<Screen.Tabs.Time> {
-                ScreenPlaceholder(it, onOpenSettings = {})
+                ScreenPlaceholder(
+                    it,
+                    onOpenSettings = { navigator.navigate(Screen.DeveloperTools, onRootStack = true) })
             }
             entry<Screen.Settings> {
                 ScreenPlaceholder(it, onOpenSettings = {})
