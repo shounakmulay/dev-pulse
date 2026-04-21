@@ -64,6 +64,7 @@ class KmpComposePlugin : Plugin<Project> {
                             implementation(libs.findLibrary("koin-compose").get())
                             implementation(libs.findLibrary("koin-compose-viewmodel").get())
                             implementation(libs.findLibrary("kotlinx-serialization-json").get())
+                            implementation(libs.findLibrary("kotlinx-collections-immutable").get())
                         }
                     }
                 }
