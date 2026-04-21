@@ -6,10 +6,13 @@ object Modules {
 
     object Feature {
         const val DEVTOOLS = ":feature:devtools"
+        const val HOME = ":feature:home"
+        const val FEED = ":feature:feed"
     }
 
     object Core {
         const val DESIGN_SYSTEM = ":core:designsystem"
         const val NAVIGATION = ":core:navigation"
+        const val UI = ":core:ui"
     }
 }

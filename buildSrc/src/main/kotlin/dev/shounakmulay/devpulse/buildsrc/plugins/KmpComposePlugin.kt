@@ -26,12 +26,21 @@ class KmpComposePlugin : Plugin<Project> {
                             implementation(libs.findLibrary("compose-foundation-layout").get())
                             implementation(libs.findLibrary("compose-material-v3").get())
                             implementation(libs.findLibrary("compose-material3-window-size").get())
-                            implementation(libs.findLibrary("compose-material3-adaptive-navigation-suite").get())
+                            implementation(
+                                libs.findLibrary("compose-material3-adaptive-navigation-suite")
+                                    .get()
+                            )
                             implementation(libs.findLibrary("compose-material3-adaptive").get())
-                            implementation(libs.findLibrary("compose-material3-adaptive-layout").get())
-                            implementation(libs.findLibrary("compose-material3-adaptive-navigation").get())
+                            implementation(
+                                libs.findLibrary("compose-material3-adaptive-layout").get()
+                            )
+                            implementation(
+                                libs.findLibrary("compose-material3-adaptive-navigation").get()
+                            )
                             implementation(libs.findLibrary("compose-material-icons-core").get())
-                            implementation(libs.findLibrary("compose-material-icons-extended").get())
+                            implementation(
+                                libs.findLibrary("compose-material-icons-extended").get()
+                            )
                             implementation(libs.findLibrary("compose-animation").get())
                             implementation(libs.findLibrary("compose-animation-graphics").get())
                             implementation(libs.findLibrary("navigation-compose").get())
@@ -43,11 +52,18 @@ class KmpComposePlugin : Plugin<Project> {
                             implementation(libs.findLibrary("compose-ui-util").get())
                             implementation(libs.findLibrary("compose-components-resources").get())
                             implementation(libs.findLibrary("compose-uiToolingPreview").get())
-                            implementation(libs.findLibrary("androidx-lifecycle-viewmodelCompose").get())
-                            implementation(libs.findLibrary("androidx-lifecycle-viewmodel-navigation3").get())
-                            implementation(libs.findLibrary("androidx-lifecycle-runtimeCompose").get())
+                            implementation(
+                                libs.findLibrary("androidx-lifecycle-viewmodelCompose").get()
+                            )
+                            implementation(
+                                libs.findLibrary("androidx-lifecycle-viewmodel-navigation3").get()
+                            )
+                            implementation(
+                                libs.findLibrary("androidx-lifecycle-runtimeCompose").get()
+                            )
                             implementation(libs.findLibrary("koin-compose").get())
                             implementation(libs.findLibrary("koin-compose-viewmodel").get())
+                            implementation(libs.findLibrary("kotlinx-serialization-json").get())
                         }
                     }
                 }
