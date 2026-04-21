@@ -17,6 +17,8 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
 import androidx.savedstate.serialization.SavedStateConfiguration
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.serializer
@@ -42,9 +44,17 @@ fun rememberNavigationState(
                 subclass(Screen.Tabs.Home::class, Screen.Tabs.Home.serializer())
                 subclass(Screen.Monitors::class, Screen.Monitors.serializer())
                 subclass(Screen.Tabs.Feed::class, Screen.Tabs.Feed.serializer())
+                subclass(
+                    Screen.Tabs.Feed.FeedDetail::class,
+                    Screen.Tabs.Feed.FeedDetail.serializer()
+                )
                 subclass(Screen.Tabs.Time::class, Screen.Tabs.Time.serializer())
                 subclass(Screen.Settings::class, Screen.Settings.serializer())
                 subclass(Screen.DeveloperTools::class, Screen.DeveloperTools.serializer())
+                subclass(
+                    Screen.DeveloperTools.DesignSystemBoard::class,
+                    Screen.DeveloperTools.DesignSystemBoard.serializer()
+                )
             }
         }
     }
@@ -83,7 +93,7 @@ class NavigationState(
     var selectedTab: Screen by selectedTab
 
     @Composable
-    fun toEntries(entryProvider: (Screen) -> NavEntry<Screen>): List<NavEntry<Screen>> {
+    fun toEntries(entryProvider: (Screen) -> NavEntry<Screen>): ImmutableList<NavEntry<Screen>> {
         val tabStacksEntries = tabsBackStacks.mapValues { (_, stack) ->
             rememberDecoratedNavEntries(
                 backStack = stack,
@@ -96,21 +106,22 @@ class NavigationState(
             backStack = rootStack.filterNot { it == Screen.Tabs },
             entryDecorators = rememberNavEntryDecorators(),
             entryProvider = entryProvider
-        ).associateBy { it.contentKey as Screen }
+        ).associateBy { it.contentKey }
 
         val entries = buildList {
-            rootStack.forEach {
-                if (it == Screen.Tabs) {
+            rootStack.forEach { screen ->
+                if (screen == Screen.Tabs) {
                     val tabEntries = tabStacksEntries.getTabEntries()
                     addAll(tabEntries)
                 } else {
-                    val rootEntry = rootStackEntries[it]
+                    // Default content key is screen.toString().
+                    val rootEntry = rootStackEntries[screen.toString()]
                     if (rootEntry != null) add(rootEntry)
                 }
             }
         }
-
-        return entries
+println("======== entries: ${entries.joinToString { it.contentKey.toString() }}")
+        return entries.toImmutableList()
     }
 
     @Composable
@@ -140,3 +151,4 @@ class NavigationState(
         return tabScreens
     }
 }
+
