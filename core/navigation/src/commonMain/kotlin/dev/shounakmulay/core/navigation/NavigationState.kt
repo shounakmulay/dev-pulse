@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -83,39 +84,59 @@ class NavigationState(
 
     @Composable
     fun toEntries(entryProvider: (Screen) -> NavEntry<Screen>): List<NavEntry<Screen>> {
+        val tabStacksEntries = tabsBackStacks.mapValues { (_, stack) ->
+            rememberDecoratedNavEntries(
+                backStack = stack,
+                entryDecorators = rememberNavEntryDecorators(),
+                entryProvider = entryProvider
+            )
+        }
+
+        val rootStackEntries = rememberDecoratedNavEntries(
+            backStack = rootStack.filterNot { it == Screen.Tabs },
+            entryDecorators = rememberNavEntryDecorators(),
+            entryProvider = entryProvider
+        ).associateBy { it.contentKey as Screen }
+
         val entries = buildList {
             rootStack.forEach {
                 if (it == Screen.Tabs) {
-                    addTabsScreens()
+                    val tabEntries = tabStacksEntries.getTabEntries()
+                    addAll(tabEntries)
                 } else {
-                    add(it)
+                    val rootEntry = rootStackEntries[it]
+                    if (rootEntry != null) add(rootEntry)
                 }
             }
         }
 
-        val decorator = listOf(
+        return entries
+    }
+
+    @Composable
+    private fun rememberNavEntryDecorators(): List<NavEntryDecorator<Screen>> {
+        return listOf(
             rememberSaveableStateHolderNavEntryDecorator<Screen>(),
             rememberViewModelStoreNavEntryDecorator()
         )
-
-        return rememberDecoratedNavEntries(
-            backStack = entries,
-            entryDecorators = decorator,
-            entryProvider = entryProvider
-        )
     }
 
-    private fun MutableList<Screen>.addTabsScreens() {
+    private fun Map<Screen, List<NavEntry<Screen>>>.getTabEntries(): List<NavEntry<Screen>> {
+        val tabScreens = getTabsInUse()
+
+        val expandedTabStacks = tabScreens.flatMap {
+            get(it)?.toList().orEmpty()
+        }
+
+        return expandedTabStacks
+    }
+
+    private fun getTabsInUse(): List<Screen> {
         val tabScreens = if (selectedTab == tabsStart) {
             listOf(tabsStart)
         } else {
             listOf(tabsStart, selectedTab)
         }
-
-        val expandedTabStacks = tabScreens.flatMap {
-            tabsBackStacks[it]?.toList().orEmpty()
-        }
-
-        addAll(expandedTabStacks)
+        return tabScreens
     }
 }
