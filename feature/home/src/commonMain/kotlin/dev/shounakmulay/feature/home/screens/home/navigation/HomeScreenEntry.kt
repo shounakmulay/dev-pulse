@@ -4,9 +4,12 @@ import androidx.navigation3.runtime.EntryProviderScope
 import dev.shounakmulay.core.navigation.Navigator
 import dev.shounakmulay.core.navigation.Screen
 import dev.shounakmulay.feature.home.screens.home.ui.HomeScreen
+import org.koin.compose.viewmodel.koinViewModel
 
-fun EntryProviderScope<Screen>.homeScreen(navigator: Navigator) {
+internal fun EntryProviderScope<Screen>.homeScreen(navigator: Navigator) {
     entry<Screen.Tabs.Home> {
-        HomeScreen()
+        HomeScreen(
+            viewModel = koinViewModel()
+        )
     }
 }

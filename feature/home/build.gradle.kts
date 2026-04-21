@@ -22,7 +22,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(Modules.Core.NAVIGATION))
-            implementation(project(Modules.Core.DESIGN_SYSTEM))
+            implementation(project(Modules.Core.UI))
             implementation(libs.compose.components.resources)
         }
     }
