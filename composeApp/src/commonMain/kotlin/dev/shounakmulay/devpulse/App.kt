@@ -34,7 +34,10 @@ import dev.shounakmulay.core.navigation.NavigationState
 import dev.shounakmulay.core.navigation.Navigator
 import dev.shounakmulay.core.navigation.Screen
 import dev.shounakmulay.core.navigation.rememberNavigationState
+import dev.shounakmulay.devpulse.di.koinConfiguration
 import dev.shounakmulay.feature.devtools.navigation.developerToolsFeatureEntries
+import dev.shounakmulay.feature.feed.navigation.feedFeatureEntries
+import dev.shounakmulay.feature.home.navigation.homeFeatureEntries
 import org.koin.compose.KoinApplication
 
 
@@ -42,7 +45,7 @@ import org.koin.compose.KoinApplication
 @Composable
 @Preview
 fun App() {
-    KoinApplication(application = {}) {
+    KoinApplication(configuration = koinConfiguration) {
         val tabRoutes by remember {
             mutableStateOf(
                 setOf(
@@ -116,16 +119,8 @@ private fun NavDisplay(
         navigator = navigator,
         entryProvider = {
             developerToolsFeatureEntries(navigator)
-            entry<Screen.Tabs.Home> {
-                ScreenPlaceholder(
-                    it,
-                    onOpenSettings = { navigator.navigate(Screen.Settings, true) })
-            }
-            entry<Screen.Tabs.Feed> {
-                ScreenPlaceholder(
-                    it,
-                    onOpenSettings = { navigator.navigate(Screen.Settings, false) })
-            }
+            homeFeatureEntries(navigator)
+            feedFeatureEntries(navigator)
             entry<Screen.Tabs.Time> {
                 ScreenPlaceholder(it, onOpenSettings = {})
             }
