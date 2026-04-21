@@ -120,7 +120,6 @@ class NavigationState(
                 }
             }
         }
-println("======== entries: ${entries.joinToString { it.contentKey.toString() }}")
         return entries.toImmutableList()
     }
 
