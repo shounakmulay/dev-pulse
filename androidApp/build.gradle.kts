@@ -3,8 +3,8 @@ import dev.shounakmulay.devpulse.buildsrc.constants.Modules
 import org.gradle.kotlin.dsl.configure
 
 plugins {
-    id("devpulse.kmp.android.application")
-    id("devpulse.kmp.compose")
+    alias(libs.plugins.devpulse.kmp.android.application)
+    alias(libs.plugins.devpulse.kmp.compose)
 }
 
 configure<ApplicationExtension> {

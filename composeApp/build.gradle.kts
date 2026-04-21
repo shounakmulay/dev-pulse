@@ -3,7 +3,7 @@ import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    id("devpulse.kmp.library.compose")
+    alias(libs.plugins.devpulse.kmp.library.compose)
 }
 
 kotlin {
@@ -17,6 +17,8 @@ kotlin {
             implementation(project(Modules.Core.DESIGN_SYSTEM))
             implementation(project(Modules.Core.NAVIGATION))
 
+            implementation(project(Modules.Feature.HOME))
+            implementation(project(Modules.Feature.FEED))
             implementation(project(Modules.Feature.DEVTOOLS))
 
             implementation(libs.navigation3.ui)
