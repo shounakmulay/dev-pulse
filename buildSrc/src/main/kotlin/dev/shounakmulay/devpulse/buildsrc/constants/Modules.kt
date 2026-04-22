@@ -8,6 +8,7 @@ object Modules {
         const val DEVTOOLS = ":feature:devtools"
         const val HOME = ":feature:home"
         const val FEED = ":feature:feed"
+        const val SETTINGS = ":feature:settings"
     }
 
     object Core {
