@@ -22,8 +22,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPSegmentedButton
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -34,7 +35,7 @@ fun SegmentedAndToolbarsBoard(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         item {
-            DPBody(text = "Single Choice Segmented Button")
+            DPTextView(text = "Single Choice Segmented Button", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             var selected by remember { mutableIntStateOf(0) }
             val options = listOf("Day", "Week", "Month")
@@ -51,7 +52,7 @@ fun SegmentedAndToolbarsBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Multi Choice Segmented Button")
+            DPTextView(text = "Multi Choice Segmented Button", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             var bold by remember { mutableStateOf(true) }
             var italic by remember { mutableStateOf(false) }
@@ -79,7 +80,7 @@ fun SegmentedAndToolbarsBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Horizontal Floating Toolbar")
+            DPTextView(text = "Horizontal Floating Toolbar", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             HorizontalFloatingToolbar(expanded = true) {
                 Text("Cut")
@@ -89,7 +90,7 @@ fun SegmentedAndToolbarsBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Horizontal Floating Toolbar with FAB")
+            DPTextView(text = "Horizontal Floating Toolbar with FAB", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             HorizontalFloatingToolbar(
                 expanded = true,
@@ -105,7 +106,7 @@ fun SegmentedAndToolbarsBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Vertical Floating Toolbar")
+            DPTextView(text = "Vertical Floating Toolbar", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             VerticalFloatingToolbar(expanded = true) {
                 Text("1")

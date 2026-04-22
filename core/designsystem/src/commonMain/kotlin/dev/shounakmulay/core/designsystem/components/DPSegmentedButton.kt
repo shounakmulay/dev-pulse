@@ -109,7 +109,7 @@ fun SingleChoiceSegmentedButtonRowScope.DPSegmentedButton(
         } else {
             { SegmentedButtonDefaults.Icon(selected) }
         },
-        label = { DPLabel(text = text, size = DPTextSize.Medium) },
+        label = { DPTextView(text = text, variant = DPTextViewVariant.LabelMedium) },
     )
 }
 
@@ -134,7 +134,7 @@ fun MultiChoiceSegmentedButtonRowScope.DPSegmentedButton(
         } else {
             { SegmentedButtonDefaults.Icon(checked) }
         },
-        label = { DPLabel(text = text, size = DPTextSize.Medium) },
+        label = { DPTextView(text = text, variant = DPTextViewVariant.LabelMedium) },
     )
 }
 

@@ -78,7 +78,7 @@ fun DPAlertDialog(
         if (dismissText != null) {
             val dText = dismissText
             {
-                TextButton(onClick = dismissOnClick) { DPLabel(dText) }
+                TextButton(onClick = dismissOnClick) { DPTextView(dText, variant = DPTextViewVariant.LabelMedium) }
             }
         } else {
             null
@@ -87,14 +87,14 @@ fun DPAlertDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                DPLabel(confirmText, color = resolvedConfirmColor)
+                DPTextView(confirmText, variant = DPTextViewVariant.LabelMedium, color = resolvedConfirmColor)
             }
         },
         modifier = modifier,
         dismissButton = dismissButtonSlot,
         icon = iconSlot,
-        title = { DPTitle(text = title, size = DPTextSize.Large) },
-        text = { DPBody(text = message, size = DPTextSize.Medium) },
+        title = { DPTextView(text = title, variant = DPTextViewVariant.TitleLarge) },
+        text = { DPTextView(text = message, variant = DPTextViewVariant.BodyMedium) },
         shape = shape ?: AlertDialogDefaults.shape,
         containerColor = AlertDialogDefaults.containerColor,
         iconContentColor = AlertDialogDefaults.iconContentColor,
@@ -183,14 +183,14 @@ private fun DPAlertDialogTextFirstPreview() {
                             contentDescription = null,
                             tint = resolvedIconTint,
                         )
-                        DPTitle(text = label, size = DPTextSize.Large)
-                        DPBody(text = "Sample message for this variant.", size = DPTextSize.Medium)
+                        DPTextView(text = label, variant = DPTextViewVariant.TitleLarge)
+                        DPTextView(text = "Sample message for this variant.", variant = DPTextViewVariant.BodyMedium)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End,
                         ) {
-                            TextButton(onClick = {}) { DPLabel("Cancel") }
-                            TextButton(onClick = {}) { DPLabel("OK", color = resolvedConfirmColor) }
+                            TextButton(onClick = {}) { DPTextView("Cancel", variant = DPTextViewVariant.LabelMedium) }
+                            TextButton(onClick = {}) { DPTextView("OK", variant = DPTextViewVariant.LabelMedium, color = resolvedConfirmColor) }
                         }
                     }
                 }

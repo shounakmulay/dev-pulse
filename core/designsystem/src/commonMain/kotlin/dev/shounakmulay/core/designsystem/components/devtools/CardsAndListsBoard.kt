@@ -17,12 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPCard
 import dev.shounakmulay.core.designsystem.components.DPCardStyle
 import dev.shounakmulay.core.designsystem.components.DPHorizontalDivider
 import dev.shounakmulay.core.designsystem.components.DPListItem
 import dev.shounakmulay.core.designsystem.components.DPVerticalDivider
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.core.designsystem.theme.DPDensity
 import dev.shounakmulay.core.designsystem.theme.DPIntent
 
@@ -34,7 +35,7 @@ fun CardsAndListsBoard(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         DPCardStyle.entries.forEach { style ->
-            item { DPBody(text = "DPCard – $style") }
+            item { DPTextView(text = "DPCard – $style", variant = DPTextViewVariant.BodyMedium) }
             item {
                 DPCard(modifier = Modifier.fillMaxWidth(), style = style) {
                     Text("$style card content", modifier = Modifier.padding(16.dp))
@@ -49,7 +50,7 @@ fun CardsAndListsBoard(modifier: Modifier = Modifier) {
 
         item { DPHorizontalDivider() }
 
-        item { DPBody(text = "DPListItem – text-first (intent × density)") }
+        item { DPTextView(text = "DPListItem – text-first (intent × density)", variant = DPTextViewVariant.BodyMedium) }
         item {
             DPListItem(
                 headlineText = "Default",
@@ -89,7 +90,7 @@ fun CardsAndListsBoard(modifier: Modifier = Modifier) {
 
         item { DPHorizontalDivider() }
 
-        item { DPBody(text = "DPVerticalDivider") }
+        item { DPTextView(text = "DPVerticalDivider", variant = DPTextViewVariant.BodyMedium) }
         item {
             Row(
                 modifier = Modifier.height(IntrinsicSize.Min),

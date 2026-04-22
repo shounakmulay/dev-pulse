@@ -15,10 +15,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPChip
 import dev.shounakmulay.core.designsystem.components.DPChipKind
 import dev.shounakmulay.core.designsystem.components.DPChipStyle
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 
 private val allCategories = listOf(
     "Android",
@@ -41,7 +42,7 @@ fun ChipsBoard(modifier: Modifier = Modifier) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { DPBody(text = "Assist Chips") }
+        item { DPTextView(text = "Assist Chips", variant = DPTextViewVariant.BodyMedium) }
         item {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DPChip(
@@ -66,7 +67,7 @@ fun ChipsBoard(modifier: Modifier = Modifier) {
             }
         }
 
-        item { DPBody(text = "Filter Chips") }
+        item { DPTextView(text = "Filter Chips", variant = DPTextViewVariant.BodyMedium) }
         item {
             var selected by remember { mutableStateOf(false) }
             var elevatedSelected by remember { mutableStateOf(true) }
@@ -89,7 +90,7 @@ fun ChipsBoard(modifier: Modifier = Modifier) {
             }
         }
 
-        item { DPBody(text = "Input Chips") }
+        item { DPTextView(text = "Input Chips", variant = DPTextViewVariant.BodyMedium) }
         item {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DPChip(
@@ -110,7 +111,7 @@ fun ChipsBoard(modifier: Modifier = Modifier) {
             }
         }
 
-        item { DPBody(text = "Suggestion Chips") }
+        item { DPTextView(text = "Suggestion Chips", variant = DPTextViewVariant.BodyMedium) }
         item {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DPChip(

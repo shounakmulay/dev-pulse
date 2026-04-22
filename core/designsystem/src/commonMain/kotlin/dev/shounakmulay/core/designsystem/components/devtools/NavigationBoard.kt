@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPLeadingIconTab
 import dev.shounakmulay.core.designsystem.components.DPNavigationBar
 import dev.shounakmulay.core.designsystem.components.DPNavigationBarItem
@@ -29,6 +28,8 @@ import dev.shounakmulay.core.designsystem.components.DPTabRow
 import dev.shounakmulay.core.designsystem.components.DPTabRowVariant
 import dev.shounakmulay.core.designsystem.components.DPTopAppBar
 import dev.shounakmulay.core.designsystem.components.DPTopAppBarVariant
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +40,7 @@ fun NavigationBoard(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         item {
-            DPBody(text = "Top App Bar – variants", modifier = Modifier.padding(horizontal = 16.dp))
+            DPTextView(text = "Top App Bar – variants", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
             Spacer(Modifier.height(8.dp))
             DPTopAppBarVariant.entries.forEach { variant ->
                 DPTopAppBar(
@@ -54,7 +55,7 @@ fun NavigationBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Navigation Bar", modifier = Modifier.padding(horizontal = 16.dp))
+            DPTextView(text = "Navigation Bar", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
             Spacer(Modifier.height(8.dp))
             var selectedNav by remember { mutableIntStateOf(0) }
             DPNavigationBar(Modifier.fillMaxWidth()) {
@@ -87,7 +88,7 @@ fun NavigationBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Tab Row – Primary", modifier = Modifier.padding(horizontal = 16.dp))
+            DPTextView(text = "Tab Row – Primary", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
             Spacer(Modifier.height(8.dp))
             var selectedTab by remember { mutableIntStateOf(0) }
             val tabs = listOf("Overview", "Details", "Reviews")
@@ -107,7 +108,7 @@ fun NavigationBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Tab Row – Secondary", modifier = Modifier.padding(horizontal = 16.dp))
+            DPTextView(text = "Tab Row – Secondary", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
             Spacer(Modifier.height(8.dp))
             var selectedTab by remember { mutableIntStateOf(1) }
             val tabs = listOf("Alpha", "Beta", "Gamma")
@@ -128,7 +129,7 @@ fun NavigationBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Tab Row – Scrollable Primary", modifier = Modifier.padding(horizontal = 16.dp))
+            DPTextView(text = "Tab Row – Scrollable Primary", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
             Spacer(Modifier.height(8.dp))
             var selectedTab by remember { mutableIntStateOf(0) }
             val tabs = listOf("One", "Two", "Three", "Four", "Five", "Six", "Seven")
@@ -148,7 +149,7 @@ fun NavigationBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Leading Icon Tab", modifier = Modifier.padding(horizontal = 16.dp))
+            DPTextView(text = "Leading Icon Tab", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
             Spacer(Modifier.height(8.dp))
             var selectedTab by remember { mutableIntStateOf(0) }
             val tabs = listOf("Inbox" to Icons.Default.Mail, "Settings" to Icons.Default.Settings)

@@ -20,10 +20,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.components.DPAlertDialog
-import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPButton
 import dev.shounakmulay.core.designsystem.components.DPDialogVariant
 import dev.shounakmulay.core.designsystem.components.DPModalBottomSheet
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,31 +43,31 @@ fun DialogsAndSheetsBoard(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         item {
-            DPBody(text = "Alert Dialog – Standard")
+            DPTextView(text = "Alert Dialog – Standard", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             DPButton(text = "Show Standard Dialog", onClick = { showStandardDialog = true })
         }
 
         item {
-            DPBody(text = "Alert Dialog – Destructive")
+            DPTextView(text = "Alert Dialog – Destructive", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             DPButton(text = "Show Destructive Dialog", onClick = { showDestructiveDialog = true })
         }
 
         item {
-            DPBody(text = "Alert Dialog – Informational")
+            DPTextView(text = "Alert Dialog – Informational", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             DPButton(text = "Show Informational Dialog", onClick = { showInformationalDialog = true })
         }
 
         item {
-            DPBody(text = "Modal Bottom Sheet")
+            DPTextView(text = "Modal Bottom Sheet", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             DPButton(text = "Show Modal Bottom Sheet", onClick = { showModalSheet = true })
         }
 
         item {
-            DPBody(text = "Theme Switcher Sheet")
+            DPTextView(text = "Theme Switcher Sheet", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             DPButton(text = "Show Theme Switcher Sheet", onClick = { showThemeSheet = true })
         }
@@ -117,8 +118,9 @@ fun DialogsAndSheetsBoard(modifier: Modifier = Modifier) {
             onDismissRequest = { showModalSheet = false },
             sheetState = sheetState,
         ) {
-            DPBody(
+            DPTextView(
                 text = "This is a DPModalBottomSheet. Swipe down or tap outside to dismiss.",
+                variant = DPTextViewVariant.BodyMedium,
                 modifier = Modifier.fillMaxSize(),
             )
             Spacer(Modifier.height(32.dp))

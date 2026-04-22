@@ -11,10 +11,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPFontFamily
 import dev.shounakmulay.core.designsystem.components.DPTextField
 import dev.shounakmulay.core.designsystem.components.DPTextFieldStyle
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.core.designsystem.theme.DPIntent
 
 @Composable
@@ -24,7 +25,7 @@ fun TextFieldsBoard(modifier: Modifier = Modifier) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { DPBody(text = "DPTextField – Outlined") }
+        item { DPTextView(text = "DPTextField – Outlined", variant = DPTextViewVariant.BodyMedium) }
         item {
             var text by remember { mutableStateOf("") }
             DPTextField(
@@ -36,7 +37,7 @@ fun TextFieldsBoard(modifier: Modifier = Modifier) {
             )
         }
 
-        item { DPBody(text = "DPTextField – Filled") }
+        item { DPTextView(text = "DPTextField – Filled", variant = DPTextViewVariant.BodyMedium) }
         item {
             var text by remember { mutableStateOf("") }
             DPTextField(
@@ -49,7 +50,7 @@ fun TextFieldsBoard(modifier: Modifier = Modifier) {
             )
         }
 
-        item { DPBody(text = "DPTextField – Disabled") }
+        item { DPTextView(text = "DPTextField – Disabled", variant = DPTextViewVariant.BodyMedium) }
         item {
             DPTextField(
                 value = "Disabled",
@@ -60,7 +61,7 @@ fun TextFieldsBoard(modifier: Modifier = Modifier) {
             )
         }
 
-        item { DPBody(text = "DPTextField – Mono") }
+        item { DPTextView(text = "DPTextField – Mono", variant = DPTextViewVariant.BodyMedium) }
         item {
             var code by remember { mutableStateOf("") }
             DPTextField(
@@ -74,7 +75,7 @@ fun TextFieldsBoard(modifier: Modifier = Modifier) {
             )
         }
 
-        item { DPBody(text = "DPTextField – Intent samples") }
+        item { DPTextView(text = "DPTextField – Intent samples", variant = DPTextViewVariant.BodyMedium) }
         listOf(DPIntent.Primary, DPIntent.Success, DPIntent.Danger).forEach { intent ->
             item {
                 var text by remember { mutableStateOf("") }

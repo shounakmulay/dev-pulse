@@ -19,10 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPButton
 import dev.shounakmulay.core.designsystem.components.DPDropdownMenu
 import dev.shounakmulay.core.designsystem.components.DPDropdownMenuItem
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 
 @Composable
 fun MenusAndPickersBoard(modifier: Modifier = Modifier) {
@@ -32,7 +33,7 @@ fun MenusAndPickersBoard(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         item {
-            DPBody(text = "Dropdown Menu")
+            DPTextView(text = "Dropdown Menu", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             var expanded by remember { mutableStateOf(false) }
             Box {
@@ -49,7 +50,7 @@ fun MenusAndPickersBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Date Picker")
+            DPTextView(text = "Date Picker", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             val dateState = rememberDatePickerState()
             DatePicker(state = dateState)

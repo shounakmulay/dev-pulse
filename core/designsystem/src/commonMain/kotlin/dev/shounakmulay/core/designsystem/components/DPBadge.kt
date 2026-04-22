@@ -79,10 +79,11 @@ fun DPBadge(
                     .padding(horizontal = 5.dp, vertical = 2.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                DPMono(
+                DPTextView(
                     text = label,
-                    size = DPTextSize.Small,
+                    variant = DPTextViewVariant.LabelSmall,
                     color = c.onContainer,
+                    fontFamily = monoFontFamily(),
                 )
             }
         }
@@ -107,10 +108,11 @@ fun DPBadge(
                         .background(c.accent),
                 )
                 Spacer(Modifier.width(4.dp))
-                DPMono(
+                DPTextView(
                     text = text,
-                    size = DPTextSize.Small,
+                    variant = DPTextViewVariant.LabelSmall,
                     color = c.onContainer,
+                    fontFamily = monoFontFamily(),
                 )
             }
         }
@@ -148,10 +150,11 @@ fun DPBadge(
                         .background(catColor),
                 )
                 Spacer(Modifier.width(4.dp))
-                DPMono(
+                DPTextView(
                     text = text.orEmpty(),
-                    size = DPTextSize.Small,
+                    variant = DPTextViewVariant.LabelSmall,
                     color = catColor,
+                    fontFamily = monoFontFamily(),
                 )
             }
         }
@@ -181,9 +184,9 @@ fun DPBadge(
                     .padding(horizontal = 8.dp, vertical = 3.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                DPLabel(
+                DPTextView(
                     text = text.orEmpty(),
-                    size = DPTextSize.Small,
+                    variant = DPTextViewVariant.LabelSmall,
                     color = textColor,
                 )
             }

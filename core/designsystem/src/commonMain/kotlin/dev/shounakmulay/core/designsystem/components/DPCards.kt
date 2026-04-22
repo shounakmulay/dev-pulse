@@ -147,14 +147,14 @@ private fun DPCardVariantsPreview() {
         ) {
             DPCardStyle.entries.forEach { style ->
                 DPCard(style = style, onClick = {}) {
-                    DPBody(text = "$style card", modifier = Modifier.padding(DPTheme.spacing.md))
+                    DPTextView(text = "$style card", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(DPTheme.spacing.md))
                 }
             }
             DPCard(style = DPCardStyle.Filled, intent = DPIntent.Success) {
-                DPBody(text = "Success intent", modifier = Modifier.padding(DPTheme.spacing.md))
+                DPTextView(text = "Success intent", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(DPTheme.spacing.md))
             }
             DPCard(style = DPCardStyle.Outlined, intent = DPIntent.Danger) {
-                DPBody(text = "Danger outlined", modifier = Modifier.padding(DPTheme.spacing.md))
+                DPTextView(text = "Danger outlined", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(DPTheme.spacing.md))
             }
         }
     }

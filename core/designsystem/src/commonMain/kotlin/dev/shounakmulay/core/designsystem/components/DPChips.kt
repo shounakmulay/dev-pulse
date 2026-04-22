@@ -62,7 +62,7 @@ fun DPChip(
     selectableChipElevation: SelectableChipElevation? = null,
     border: BorderStroke? = null,
 ) {
-    val label: @Composable () -> Unit = { DPLabel(text = text, size = DPTextSize.Medium) }
+    val label: @Composable () -> Unit = { DPTextView(text = text, variant = DPTextViewVariant.LabelMedium) }
     when (kind) {
         DPChipKind.Assist -> {
             when (style) {

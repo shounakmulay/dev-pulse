@@ -44,22 +44,22 @@ fun DPListItem(
 ) {
     val resolvedColors = colors ?: resolveListItemColors(intent)
     ListItem(
-        headlineContent = { DPBody(headlineText, size = DPTextSize.Medium) },
+        headlineContent = { DPTextView(headlineText, variant = DPTextViewVariant.BodyMedium) },
         modifier = modifier,
         overlineContent = overlineText?.let {
             {
-                DPLabel(
+                DPTextView(
                     it,
-                    size = DPTextSize.Small,
+                    variant = DPTextViewVariant.LabelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },
         supportingContent = supportingText?.let {
             {
-                DPBody(
+                DPTextView(
                     it,
-                    size = DPTextSize.Small,
+                    variant = DPTextViewVariant.BodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -104,18 +104,18 @@ fun DPListItem(
             trailingContent = trailingContent,
             overlineContent = overlineText?.let {
                 {
-                    DPLabel(
+                    DPTextView(
                         it,
-                        size = DPTextSize.Small,
+                        variant = DPTextViewVariant.LabelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             },
             supportingContent = supportingText?.let {
                 {
-                    DPBody(
+                    DPTextView(
                         it,
-                        size = DPTextSize.Small,
+                        variant = DPTextViewVariant.BodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -124,7 +124,7 @@ fun DPListItem(
             elevation = ListItemDefaults.elevation(),
             contentPadding = contentPadding,
             interactionSource = null,
-            content = { DPBody(headlineText, size = DPTextSize.Medium) },
+            content = { DPTextView(headlineText, variant = DPTextViewVariant.BodyMedium) },
         )
     } else {
         ListItem(
@@ -135,18 +135,18 @@ fun DPListItem(
             trailingContent = trailingContent,
             overlineContent = overlineText?.let {
                 {
-                    DPLabel(
+                    DPTextView(
                         it,
-                        size = DPTextSize.Small,
+                        variant = DPTextViewVariant.LabelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             },
             supportingContent = supportingText?.let {
                 {
-                    DPBody(
+                    DPTextView(
                         it,
-                        size = DPTextSize.Small,
+                        variant = DPTextViewVariant.BodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -155,7 +155,7 @@ fun DPListItem(
             elevation = ListItemDefaults.elevation(),
             contentPadding = contentPadding,
             interactionSource = null,
-            content = { DPBody(headlineText, size = DPTextSize.Medium) },
+            content = { DPTextView(headlineText, variant = DPTextViewVariant.BodyMedium) },
         )
     }
 }

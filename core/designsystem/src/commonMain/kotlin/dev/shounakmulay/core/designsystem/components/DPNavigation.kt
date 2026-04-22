@@ -13,7 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Mail
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -82,6 +81,7 @@ enum class DPTopAppBarVariant {
     TwoRows,
 }
 
+
 @Composable
 fun DPTopAppBar(
     title: String,
@@ -95,14 +95,6 @@ fun DPTopAppBar(
     colors: TopAppBarColors? = null,
     windowInsets: WindowInsets? = null,
 ) {
-    val titleSlot: @Composable () -> Unit = { DPTitle(text = title, size = DPTextSize.Large) }
-    val subtitleSlot: @Composable () -> Unit = {
-        DPLabel(
-            text = subtitle!!,
-            size = DPTextSize.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
     val nav: @Composable () -> Unit = {
         if (navigationIcon != null) {
             IconButton(onClick = onNavigationClick ?: {}) {
@@ -112,6 +104,41 @@ fun DPTopAppBar(
                 )
             }
         }
+    }
+
+    DPTopAppBar(
+        title = title,
+        modifier = modifier,
+        subtitle = subtitle,
+        variant = variant,
+        navigationIcon = nav,
+        actions = actions,
+        scrollBehavior = scrollBehavior,
+        colors = colors,
+        windowInsets = windowInsets
+    )
+
+}
+
+@Composable
+fun DPTopAppBar(
+    title: String,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    variant: DPTopAppBarVariant = DPTopAppBarVariant.Small,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    scrollBehavior: TopAppBarScrollBehavior? = null,
+    colors: TopAppBarColors? = null,
+    windowInsets: WindowInsets? = null,
+) {
+    val titleSlot: @Composable () -> Unit = { DPTextView(text = title, variant = DPTextViewVariant.TitleLarge) }
+    val subtitleSlot: @Composable () -> Unit = {
+        DPTextView(
+            text = subtitle!!,
+            variant = DPTextViewVariant.LabelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
     val resolvedColors = colors ?: TopAppBarDefaults.topAppBarColors()
     val resolvedInsets = windowInsets ?: TopAppBarDefaults.windowInsets
@@ -123,7 +150,7 @@ fun DPTopAppBar(
                     title = titleSlot,
                     subtitle = subtitleSlot,
                     modifier = modifier,
-                    navigationIcon = nav,
+                    navigationIcon = navigationIcon,
                     actions = actions,
                     titleHorizontalAlignment = Alignment.Start,
                     expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight,
@@ -136,7 +163,7 @@ fun DPTopAppBar(
                 TopAppBar(
                     title = titleSlot,
                     modifier = modifier,
-                    navigationIcon = nav,
+                    navigationIcon = navigationIcon,
                     actions = actions,
                     expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight,
                     windowInsets = resolvedInsets,
@@ -146,25 +173,26 @@ fun DPTopAppBar(
                 )
             }
         }
+
         DPTopAppBarVariant.CenterAligned -> {
             val titleForCenter: @Composable () -> Unit = {
                 if (subtitle != null) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        DPTitle(text = title, size = DPTextSize.Large)
-                        DPLabel(
+                        DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
+                        DPTextView(
                             text = subtitle,
-                            size = DPTextSize.Medium,
+                            variant = DPTextViewVariant.LabelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 } else {
-                    DPTitle(text = title, size = DPTextSize.Large)
+                    DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
                 }
             }
             CenterAlignedTopAppBar(
                 title = titleForCenter,
                 modifier = modifier,
-                navigationIcon = nav,
+                navigationIcon = navigationIcon,
                 actions = actions,
                 expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight,
                 windowInsets = resolvedInsets,
@@ -173,25 +201,26 @@ fun DPTopAppBar(
                 contentPadding = TopAppBarDefaults.ContentPadding,
             )
         }
+
         DPTopAppBarVariant.Medium -> {
             val titleForMedium: @Composable () -> Unit = {
                 if (subtitle != null) {
                     Column {
-                        DPTitle(text = title, size = DPTextSize.Large)
-                        DPLabel(
+                        DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
+                        DPTextView(
                             text = subtitle,
-                            size = DPTextSize.Medium,
+                            variant = DPTextViewVariant.LabelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 } else {
-                    DPTitle(text = title, size = DPTextSize.Large)
+                    DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
                 }
             }
             MediumTopAppBar(
                 title = titleForMedium,
                 modifier = modifier,
-                navigationIcon = nav,
+                navigationIcon = navigationIcon,
                 actions = actions,
                 collapsedHeight = TopAppBarDefaults.MediumAppBarCollapsedHeight,
                 expandedHeight = TopAppBarDefaults.MediumAppBarExpandedHeight,
@@ -200,25 +229,26 @@ fun DPTopAppBar(
                 scrollBehavior = scrollBehavior,
             )
         }
+
         DPTopAppBarVariant.Large -> {
             val titleForLarge: @Composable () -> Unit = {
                 if (subtitle != null) {
                     Column {
-                        DPTitle(text = title, size = DPTextSize.Large)
-                        DPLabel(
+                        DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
+                        DPTextView(
                             text = subtitle,
-                            size = DPTextSize.Medium,
+                            variant = DPTextViewVariant.LabelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 } else {
-                    DPTitle(text = title, size = DPTextSize.Large)
+                    DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
                 }
             }
             LargeTopAppBar(
                 title = titleForLarge,
                 modifier = modifier,
-                navigationIcon = nav,
+                navigationIcon = navigationIcon,
                 actions = actions,
                 collapsedHeight = TopAppBarDefaults.LargeAppBarCollapsedHeight,
                 expandedHeight = TopAppBarDefaults.LargeAppBarExpandedHeight,
@@ -227,16 +257,23 @@ fun DPTopAppBar(
                 scrollBehavior = scrollBehavior,
             )
         }
+
         DPTopAppBarVariant.TwoRows -> {
             TwoRowsTopAppBar(
-                title = { DPTitle(text = title, size = DPTextSize.Large) },
+                title = { DPTextView(text = title, variant = DPTextViewVariant.TitleLarge) },
                 modifier = modifier,
                 subtitle = if (subtitle != null) {
-                    { DPLabel(text = subtitle, size = DPTextSize.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    {
+                        DPTextView(
+                            text = subtitle,
+                            variant = DPTextViewVariant.LabelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 } else {
                     null
                 },
-                navigationIcon = nav,
+                navigationIcon = navigationIcon,
                 actions = actions,
                 titleHorizontalAlignment = Alignment.Start,
                 collapsedHeight = Dp.Unspecified,
@@ -248,7 +285,6 @@ fun DPTopAppBar(
         }
     }
 }
-
 
 
 // -----------------------------------------------------------------------------
@@ -312,7 +348,7 @@ fun RowScope.DPNavigationBarItem(
                 )
             }
         },
-        label = { DPLabel(text = text, size = DPTextSize.Small) },
+        label = { DPTextView(text = text, variant = DPTextViewVariant.LabelSmall) },
         modifier = modifier,
         enabled = enabled,
         alwaysShowLabel = alwaysShowLabel,
@@ -381,7 +417,7 @@ fun ColumnScope.DPNavigationRailItem(
                 )
             }
         },
-        label = { DPLabel(text = text, size = DPTextSize.Small) },
+        label = { DPTextView(text = text, variant = DPTextViewVariant.LabelSmall) },
         modifier = modifier,
         enabled = enabled,
         alwaysShowLabel = alwaysShowLabel,
@@ -436,6 +472,7 @@ fun DPTabRow(
             divider = divider,
             tabs = tabs,
         )
+
         DPTabRowVariant.Secondary -> SecondaryTabRow(
             selectedTabIndex = selectedTabIndex,
             modifier = modifier,
@@ -445,6 +482,7 @@ fun DPTabRow(
             divider = divider,
             tabs = tabs,
         )
+
         DPTabRowVariant.ScrollablePrimary -> PrimaryScrollableTabRow(
             selectedTabIndex = selectedTabIndex,
             modifier = modifier,
@@ -457,6 +495,7 @@ fun DPTabRow(
             minTabWidth = TabRowDefaults.ScrollableTabRowMinTabWidth,
             tabs = tabs,
         )
+
         DPTabRowVariant.ScrollableSecondary -> SecondaryScrollableTabRow(
             selectedTabIndex = selectedTabIndex,
             modifier = modifier,
@@ -491,7 +530,7 @@ fun DPTab(
             onClick = onClick,
             modifier = modifier,
             enabled = enabled,
-            text = { DPLabel(text = text, size = DPTextSize.Medium) },
+            text = { DPTextView(text = text, variant = DPTextViewVariant.LabelMedium) },
             selectedContentColor = sel,
             unselectedContentColor = unsel,
         )
@@ -501,7 +540,7 @@ fun DPTab(
             onClick = onClick,
             modifier = modifier,
             enabled = enabled,
-            text = { DPLabel(text = text, size = DPTextSize.Medium) },
+            text = { DPTextView(text = text, variant = DPTextViewVariant.LabelMedium) },
             icon = { Icon(imageVector = icon, contentDescription = null) },
             selectedContentColor = sel,
             unselectedContentColor = unsel,
@@ -523,12 +562,13 @@ fun DPLeadingIconTab(
     LeadingIconTab(
         selected = selected,
         onClick = onClick,
-        text = { DPLabel(text = text, size = DPTextSize.Medium) },
+        text = { DPTextView(text = text, variant = DPTextViewVariant.LabelMedium) },
         icon = { Icon(imageVector = icon, contentDescription = null) },
         modifier = modifier,
         enabled = enabled,
         selectedContentColor = selectedContentColor ?: LocalContentColor.current,
-        unselectedContentColor = unselectedContentColor ?: (selectedContentColor ?: LocalContentColor.current),
+        unselectedContentColor = unselectedContentColor ?: (selectedContentColor
+            ?: LocalContentColor.current),
     )
 }
 
@@ -616,8 +656,6 @@ private fun DPTopAppBarAllVariantsPreview() {
                     title = "Title",
                     subtitle = "Subtitle",
                     variant = v,
-                    navigationIcon = Icons.Filled.MoreVert,
-                    onNavigationClick = {},
                 )
             }
         }

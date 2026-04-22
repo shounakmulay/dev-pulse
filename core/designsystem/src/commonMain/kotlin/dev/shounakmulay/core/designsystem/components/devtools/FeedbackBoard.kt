@@ -11,11 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPCircularProgressIndicator
 import dev.shounakmulay.core.designsystem.components.DPLinearProgressIndicator
 import dev.shounakmulay.core.designsystem.components.DPSnackbar
 import dev.shounakmulay.core.designsystem.components.DPSnackbarVariant
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.core.designsystem.theme.DPIntent
 
 @Composable
@@ -26,19 +27,19 @@ fun FeedbackBoard(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         item {
-            DPBody(text = "Linear Progress — Indeterminate")
+            DPTextView(text = "Linear Progress — Indeterminate", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             DPLinearProgressIndicator(Modifier.fillMaxWidth())
         }
 
         item {
-            DPBody(text = "Linear Progress — 60%")
+            DPTextView(text = "Linear Progress — 60%", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             DPLinearProgressIndicator(progress = { 0.6f }, modifier = Modifier.fillMaxWidth())
         }
 
         item {
-            DPBody(text = "Linear Progress — intent samples")
+            DPTextView(text = "Linear Progress — intent samples", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             listOf(DPIntent.Primary, DPIntent.Success, DPIntent.Warning, DPIntent.Danger)
                 .forEach { intent ->
@@ -52,13 +53,13 @@ fun FeedbackBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Circular Progress — Indeterminate")
+            DPTextView(text = "Circular Progress — Indeterminate", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             DPCircularProgressIndicator()
         }
 
         item {
-            DPBody(text = "Circular Progress — 75%")
+            DPTextView(text = "Circular Progress — 75%", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             DPCircularProgressIndicator(progress = { 0.75f })
         }
@@ -68,13 +69,13 @@ fun FeedbackBoard(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                DPBody(text = "Indeterminate + Determinate")
+                DPTextView(text = "Indeterminate + Determinate", variant = DPTextViewVariant.BodyMedium)
                 DPCircularProgressIndicator()
                 DPCircularProgressIndicator(progress = { 0.4f })
             }
         }
 
-        item { DPBody(text = "Snackbar – variants") }
+        item { DPTextView(text = "Snackbar – variants", variant = DPTextViewVariant.BodyMedium) }
         DPSnackbarVariant.entries.forEach { variant ->
             item {
                 DPSnackbar(
@@ -86,7 +87,7 @@ fun FeedbackBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPBody(text = "Snackbar – action + dismiss")
+            DPTextView(text = "Snackbar – action + dismiss", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
             DPSnackbar(
                 message = "Network error occurred",

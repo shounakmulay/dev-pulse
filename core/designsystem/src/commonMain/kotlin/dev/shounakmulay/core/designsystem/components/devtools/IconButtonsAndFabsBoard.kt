@@ -11,12 +11,13 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPFAB
 import dev.shounakmulay.core.designsystem.components.DPFABStyle
 import dev.shounakmulay.core.designsystem.components.DPExtendedFAB
 import dev.shounakmulay.core.designsystem.components.DPIconButton
 import dev.shounakmulay.core.designsystem.components.DPIconButtonStyle
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.core.designsystem.theme.DPIntent
 import dev.shounakmulay.core.designsystem.theme.DPSize
 
@@ -27,7 +28,7 @@ fun IconButtonsAndFabsBoard(modifier: Modifier = Modifier) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { DPBody(text = "Icon Buttons – styles") }
+        item { DPTextView(text = "Icon Buttons – styles", variant = DPTextViewVariant.BodyMedium) }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DPIconButtonStyle.entries.forEach { style ->
@@ -41,7 +42,7 @@ fun IconButtonsAndFabsBoard(modifier: Modifier = Modifier) {
             }
         }
 
-        item { DPBody(text = "Icon Buttons – sizes") }
+        item { DPTextView(text = "Icon Buttons – sizes", variant = DPTextViewVariant.BodyMedium) }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DPSize.entries.forEach { size ->
@@ -56,7 +57,7 @@ fun IconButtonsAndFabsBoard(modifier: Modifier = Modifier) {
             }
         }
 
-        item { DPBody(text = "Icon Buttons – disabled") }
+        item { DPTextView(text = "Icon Buttons – disabled", variant = DPTextViewVariant.BodyMedium) }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DPIconButtonStyle.entries.forEach { style ->
@@ -71,7 +72,7 @@ fun IconButtonsAndFabsBoard(modifier: Modifier = Modifier) {
             }
         }
 
-        item { DPBody(text = "FABs – styles") }
+        item { DPTextView(text = "FABs – styles", variant = DPTextViewVariant.BodyMedium) }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 DPFABStyle.entries.forEach { style ->
@@ -80,7 +81,7 @@ fun IconButtonsAndFabsBoard(modifier: Modifier = Modifier) {
             }
         }
 
-        item { DPBody(text = "FABs – sizes") }
+        item { DPTextView(text = "FABs – sizes", variant = DPTextViewVariant.BodyMedium) }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 DPSize.entries.forEach { size ->

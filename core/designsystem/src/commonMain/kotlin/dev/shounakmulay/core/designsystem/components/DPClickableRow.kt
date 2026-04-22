@@ -58,11 +58,11 @@ fun DPClickableRow(
         }
 
         Column(modifier = Modifier.weight(1f)) {
-            DPBody(text = title, size = DPTextSize.Medium)
+            DPTextView(text = title, variant = DPTextViewVariant.BodyMedium)
             if (subtitle != null) {
-                DPLabel(
+                DPTextView(
                     text = subtitle,
-                    size = DPTextSize.Small,
+                    variant = DPTextViewVariant.LabelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
