@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.buildsrc.plugins
 
+import dev.shounakmulay.devpulse.buildsrc.constants.Modules
 import dev.shounakmulay.devpulse.buildsrc.extensions.libs
 import dev.shounakmulay.devpulse.buildsrc.plugins.PluginExtensions.applyPlugin
 import org.gradle.api.Plugin
@@ -65,6 +66,7 @@ class KmpComposePlugin : Plugin<Project> {
                             implementation(libs.findLibrary("koin-compose-viewmodel").get())
                             implementation(libs.findLibrary("kotlinx-serialization-json").get())
                             implementation(libs.findLibrary("kotlinx-collections-immutable").get())
+                            api(project(Modules.Core.RESOURCES))
                         }
                     }
                 }
