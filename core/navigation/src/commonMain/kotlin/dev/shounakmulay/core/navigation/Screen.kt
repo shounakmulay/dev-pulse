@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 sealed interface Screen : NavKey {
 
     @Serializable
-    data object DeveloperTools : Screen {
+    data object DeveloperTools {
 
         @Serializable
         data object DesignSystemBoard : Screen
