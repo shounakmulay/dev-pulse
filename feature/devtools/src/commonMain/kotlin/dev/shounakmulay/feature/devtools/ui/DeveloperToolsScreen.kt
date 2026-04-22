@@ -9,8 +9,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.shounakmulay.core.designsystem.components.DPClickableRow
-import dev.shounakmulay.core.designsystem.components.DPTextView
-import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.core.navigation.Navigator
 import dev.shounakmulay.core.navigation.Screen
 
@@ -24,20 +22,15 @@ fun DeveloperToolsScreen(navigator: Navigator, modifier: Modifier = Modifier) {
         LazyColumn(modifier = modifier.padding(padding)) {
             items(developerToolsScreens) {
                 DPClickableRow(
+                    title = it.toString(),
                     onClick = {
                         navigator.navigate(
                             it,
                             onRootStack = true
                         )
                     },
-                    trailingIcon = Icons.Default.ChevronRight
-                ) {
-                    DPTextView(
-                        text = it.toString(),
-                        variant = DPTextViewVariant.TitleMedium
-                    )
-
-                }
+                    trailingIcon = Icons.Filled.ChevronRight,
+                )
             }
         }
     }

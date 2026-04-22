@@ -1,14 +1,15 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package dev.shounakmulay.core.designsystem.components
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.FloatingActionButtonElevation
@@ -16,6 +17,7 @@ import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFloatingActionButton
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
@@ -24,147 +26,104 @@ import androidx.compose.material3.ToggleFloatingActionButtonDefaults
 import androidx.compose.material3.ToggleFloatingActionButtonScope
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.core.designsystem.compose.Preview
+import dev.shounakmulay.core.designsystem.theme.DPSize
+import dev.shounakmulay.core.designsystem.theme.DPTheme
+
+enum class DPFABStyle { Primary, Secondary, Tertiary, Surface }
 
 @Composable
-fun DPFloatingActionButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    shape: Shape = FloatingActionButtonDefaults.shape,
-    containerColor: Color = FloatingActionButtonDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit,
-) = FloatingActionButton(
-    onClick = onClick,
-    modifier = modifier,
-    shape = shape,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    elevation = elevation,
-    interactionSource = interactionSource,
-    content = content,
-)
+@ReadOnlyComposable
+private fun DPFABStyle.containerColor(): Color = when (this) {
+    DPFABStyle.Primary -> MaterialTheme.colorScheme.primaryContainer
+    DPFABStyle.Secondary -> MaterialTheme.colorScheme.secondaryContainer
+    DPFABStyle.Tertiary -> MaterialTheme.colorScheme.tertiaryContainer
+    DPFABStyle.Surface -> MaterialTheme.colorScheme.surfaceContainerHigh
+}
 
 @Composable
-fun DPSmallFloatingActionButton(
+fun DPFAB(
+    icon: ImageVector,
+    contentDescription: String? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    shape: Shape = FloatingActionButtonDefaults.smallShape,
-    containerColor: Color = FloatingActionButtonDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit,
-) = SmallFloatingActionButton(
-    onClick = onClick,
-    modifier = modifier,
-    shape = shape,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    elevation = elevation,
-    interactionSource = interactionSource,
-    content = content,
-)
+    style: DPFABStyle = DPFABStyle.Primary,
+    size: DPSize = DPSize.Medium,
+    shape: Shape? = null,
+    elevation: FloatingActionButtonElevation? = null,
+) {
+    val containerColor = style.containerColor()
+    val contentColor = contentColorFor(containerColor)
+    val resolvedElevation = elevation ?: FloatingActionButtonDefaults.elevation()
+    val iconSlot: @Composable () -> Unit = {
+        Icon(imageVector = icon, contentDescription = contentDescription)
+    }
+
+    when (size) {
+        DPSize.Small -> SmallFloatingActionButton(
+            onClick = onClick,
+            modifier = modifier,
+            shape = shape ?: FloatingActionButtonDefaults.smallShape,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            elevation = resolvedElevation,
+            content = iconSlot,
+        )
+        DPSize.Medium -> FloatingActionButton(
+            onClick = onClick,
+            modifier = modifier,
+            shape = shape ?: FloatingActionButtonDefaults.shape,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            elevation = resolvedElevation,
+            content = iconSlot,
+        )
+        DPSize.Large -> LargeFloatingActionButton(
+            onClick = onClick,
+            modifier = modifier,
+            shape = shape ?: FloatingActionButtonDefaults.largeShape,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            elevation = resolvedElevation,
+            content = iconSlot,
+        )
+    }
+}
 
 @Composable
-fun DPLargeFloatingActionButton(
+fun DPExtendedFAB(
+    text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    shape: Shape = FloatingActionButtonDefaults.largeShape,
-    containerColor: Color = FloatingActionButtonDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit,
-) = LargeFloatingActionButton(
-    onClick = onClick,
-    modifier = modifier,
-    shape = shape,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    elevation = elevation,
-    interactionSource = interactionSource,
-    content = content,
-)
-
-@Composable
-fun DPExtendedFloatingActionButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    shape: Shape = FloatingActionButtonDefaults.extendedFabShape,
-    containerColor: Color = FloatingActionButtonDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit,
-) = ExtendedFloatingActionButton(
-    onClick = onClick,
-    modifier = modifier,
-    shape = shape,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    elevation = elevation,
-    interactionSource = interactionSource,
-    content = content,
-)
-
-@Composable
-fun DPExtendedFloatingActionButton(
-    text: @Composable () -> Unit,
-    icon: @Composable () -> Unit,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    style: DPFABStyle = DPFABStyle.Primary,
     expanded: Boolean = true,
-    shape: Shape = FloatingActionButtonDefaults.extendedFabShape,
-    containerColor: Color = FloatingActionButtonDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
-    interactionSource: MutableInteractionSource? = null,
-) = ExtendedFloatingActionButton(
-    text = text,
-    icon = icon,
-    onClick = onClick,
-    modifier = modifier,
-    expanded = expanded,
-    shape = shape,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    elevation = elevation,
-    interactionSource = interactionSource,
-)
+    shape: Shape? = null,
+    elevation: FloatingActionButtonElevation? = null,
+) {
+    val containerColor = style.containerColor()
+    ExtendedFloatingActionButton(
+        text = { Text(text) },
+        icon = { if (icon != null) Icon(imageVector = icon, contentDescription = null) },
+        onClick = onClick,
+        modifier = modifier,
+        expanded = expanded,
+        shape = shape ?: FloatingActionButtonDefaults.extendedFabShape,
+        containerColor = containerColor,
+        contentColor = contentColorFor(containerColor),
+        elevation = elevation ?: FloatingActionButtonDefaults.elevation(),
+    )
+}
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun DPMediumFloatingActionButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    shape: Shape = FloatingActionButtonDefaults.mediumShape,
-    containerColor: Color = FloatingActionButtonDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit,
-) = MediumFloatingActionButton(
-    onClick = onClick,
-    modifier = modifier,
-    shape = shape,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    elevation = elevation,
-    interactionSource = interactionSource,
-    content = content,
-)
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DPFloatingActionButtonMenu(
     expanded: Boolean,
@@ -180,7 +139,6 @@ fun DPFloatingActionButtonMenu(
     content = content,
 )
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DPToggleFloatingActionButton(
     checked: Boolean,
@@ -189,8 +147,7 @@ fun DPToggleFloatingActionButton(
     containerColor: (Float) -> Color = ToggleFloatingActionButtonDefaults.containerColor(),
     contentAlignment: Alignment = Alignment.TopEnd,
     containerSize: (Float) -> Dp = ToggleFloatingActionButtonDefaults.containerSize(),
-    containerCornerRadius: (Float) -> Dp =
-        ToggleFloatingActionButtonDefaults.containerCornerRadius(),
+    containerCornerRadius: (Float) -> Dp = ToggleFloatingActionButtonDefaults.containerCornerRadius(),
     content: @Composable ToggleFloatingActionButtonScope.() -> Unit,
 ) = ToggleFloatingActionButton(
     checked = checked,
@@ -203,38 +160,22 @@ fun DPToggleFloatingActionButton(
     content = content,
 )
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @DPComponentPreview
 @Composable
-private fun DPFABsPreview() {
+private fun DPFABStylesPreview() {
     Preview {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(DPTheme.spacing.lg),
+            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.md),
         ) {
-            DPFloatingActionButton(onClick = {}) {
-                Icon(Icons.Default.Add, contentDescription = null)
+            DPFABStyle.entries.forEach { style ->
+                DPFAB(icon = Icons.Default.Add, onClick = {}, style = style)
             }
-            DPSmallFloatingActionButton(onClick = {}) {
-                Icon(Icons.Default.Add, contentDescription = null)
+            DPSize.entries.forEach { size ->
+                DPFAB(icon = Icons.Default.Edit, onClick = {}, size = size)
             }
-            DPLargeFloatingActionButton(onClick = {}) {
-                Icon(Icons.Default.Add, contentDescription = null)
-            }
-            DPMediumFloatingActionButton(onClick = {}) {
-                Icon(Icons.Default.Add, contentDescription = null)
-            }
-            DPExtendedFloatingActionButton(onClick = {}) {
-                Text("Action")
-            }
-            DPExtendedFloatingActionButton(
-                text = { Text("Create") },
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                onClick = {},
-            )
-            DPToggleFloatingActionButton(checked = false, onCheckedChange = {}) {
-                Icon(Icons.Default.Add, contentDescription = null)
-            }
+            DPExtendedFAB(text = "Create", icon = Icons.Default.Add, onClick = {})
+            DPExtendedFAB(text = "Secondary", onClick = {}, style = DPFABStyle.Secondary)
         }
     }
 }

@@ -7,11 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,13 +22,15 @@ import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.components.DPAlertDialog
 import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPButton
+import dev.shounakmulay.core.designsystem.components.DPDialogVariant
 import dev.shounakmulay.core.designsystem.components.DPModalBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DialogsAndSheetsBoard(modifier: Modifier = Modifier) {
-    var showBasicDialog by remember { mutableStateOf(false) }
-    var showIconDialog by remember { mutableStateOf(false) }
+    var showStandardDialog by remember { mutableStateOf(false) }
+    var showDestructiveDialog by remember { mutableStateOf(false) }
+    var showInformationalDialog by remember { mutableStateOf(false) }
     var showModalSheet by remember { mutableStateOf(false) }
     var showThemeSheet by remember { mutableStateOf(false) }
     var selectedTheme by remember { mutableStateOf<ThemeMode>(ThemeMode.Light) }
@@ -41,64 +42,73 @@ fun DialogsAndSheetsBoard(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         item {
-            DPBody(text = "Alert Dialog")
+            DPBody(text = "Alert Dialog – Standard")
             Spacer(Modifier.height(8.dp))
-            DPButton(onClick = { showBasicDialog = true }) {
-                Text("Show Alert Dialog")
-            }
+            DPButton(text = "Show Standard Dialog", onClick = { showStandardDialog = true })
         }
 
         item {
-            DPBody(text = "Alert Dialog with Icon")
+            DPBody(text = "Alert Dialog – Destructive")
             Spacer(Modifier.height(8.dp))
-            DPButton(onClick = { showIconDialog = true }) {
-                Text("Show Icon Dialog")
-            }
+            DPButton(text = "Show Destructive Dialog", onClick = { showDestructiveDialog = true })
+        }
+
+        item {
+            DPBody(text = "Alert Dialog – Informational")
+            Spacer(Modifier.height(8.dp))
+            DPButton(text = "Show Informational Dialog", onClick = { showInformationalDialog = true })
         }
 
         item {
             DPBody(text = "Modal Bottom Sheet")
             Spacer(Modifier.height(8.dp))
-            DPButton(onClick = { showModalSheet = true }) {
-                Text("Show Modal Bottom Sheet")
-            }
+            DPButton(text = "Show Modal Bottom Sheet", onClick = { showModalSheet = true })
         }
 
         item {
             DPBody(text = "Theme Switcher Sheet")
             Spacer(Modifier.height(8.dp))
-            DPButton(onClick = { showThemeSheet = true }) {
-                Text("Show Theme Switcher Sheet")
-            }
+            DPButton(text = "Show Theme Switcher Sheet", onClick = { showThemeSheet = true })
         }
     }
 
-    if (showBasicDialog) {
+    if (showStandardDialog) {
         DPAlertDialog(
-            onDismissRequest = { showBasicDialog = false },
-            title = { Text("Confirm Action") },
-            text = { Text("Are you sure you want to proceed? This action cannot be undone.") },
-            confirmButton = {
-                TextButton(onClick = { showBasicDialog = false }) { Text("Confirm") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showBasicDialog = false }) { Text("Cancel") }
-            },
+            title = "Confirm action",
+            message = "Are you sure you want to proceed? This action cannot be undone.",
+            confirmText = "Confirm",
+            onConfirm = { showStandardDialog = false },
+            onDismissRequest = { showStandardDialog = false },
+            variant = DPDialogVariant.Standard,
+            dismissText = "Cancel",
+            onDismiss = { showStandardDialog = false },
+            icon = Icons.Default.Info,
         )
     }
 
-    if (showIconDialog) {
+    if (showDestructiveDialog) {
         DPAlertDialog(
-            onDismissRequest = { showIconDialog = false },
-            icon = { Icon(Icons.Default.Warning, contentDescription = null) },
-            title = { Text("Warning") },
-            text = { Text("You are about to delete all data. This is irreversible.") },
-            confirmButton = {
-                TextButton(onClick = { showIconDialog = false }) { Text("Delete") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showIconDialog = false }) { Text("Keep") }
-            },
+            title = "Delete everything?",
+            message = "You are about to delete all data. This is irreversible.",
+            confirmText = "Delete",
+            onConfirm = { showDestructiveDialog = false },
+            onDismissRequest = { showDestructiveDialog = false },
+            variant = DPDialogVariant.Destructive,
+            dismissText = "Keep",
+            onDismiss = { showDestructiveDialog = false },
+            icon = Icons.Default.Delete,
+        )
+    }
+
+    if (showInformationalDialog) {
+        DPAlertDialog(
+            title = "Heads up",
+            message = "This is an informational dialog. No destructive action here.",
+            confirmText = "Got it",
+            onConfirm = { showInformationalDialog = false },
+            onDismissRequest = { showInformationalDialog = false },
+            variant = DPDialogVariant.Informational,
+            icon = Icons.Default.Warning,
         )
     }
 

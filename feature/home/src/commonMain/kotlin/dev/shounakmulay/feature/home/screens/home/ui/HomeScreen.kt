@@ -10,7 +10,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPElevatedButton
+import dev.shounakmulay.core.designsystem.components.DPButton
+import dev.shounakmulay.core.designsystem.components.DPButtonStyle
 import dev.shounakmulay.core.designsystem.components.DPTextView
 import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 
@@ -21,12 +22,14 @@ fun HomeScreen(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
         Column {
             DPTextView(
                 text = state.count.toString(),
-                variant = DPTextViewVariant.DisplayMedium
+                variant = DPTextViewVariant.DisplayMedium,
             )
             Spacer(Modifier.height(16.dp))
-            DPElevatedButton(onClick = viewModel::increment) {
-                DPTextView(text = "Increment", variant = DPTextViewVariant.LabelMedium)
-            }
+            DPButton(
+                text = "Increment",
+                onClick = viewModel::increment,
+                style = DPButtonStyle.Elevated,
+            )
         }
     }
 }

@@ -17,63 +17,65 @@ import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.core.designsystem.compose.Preview
+import dev.shounakmulay.core.designsystem.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DPHorizontalMultiBrowseCarousel(
-    state: CarouselState,
-    preferredItemWidth: Dp,
-    modifier: Modifier = Modifier,
-    itemSpacing: Dp = 0.dp,
-    flingBehavior: TargetedFlingBehavior =
-        CarouselDefaults.singleAdvanceFlingBehavior(state = state),
-    userScrollEnabled: Boolean = true,
-    minSmallItemWidth: Dp = CarouselDefaults.MinSmallItemSize,
-    maxSmallItemWidth: Dp = CarouselDefaults.MaxSmallItemSize,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    content: @Composable CarouselItemScope.(itemIndex: Int) -> Unit,
-) {
-    HorizontalMultiBrowseCarousel(
-        state = state,
-        preferredItemWidth = preferredItemWidth,
-        modifier = modifier,
-        itemSpacing = itemSpacing,
-        flingBehavior = flingBehavior,
-        userScrollEnabled = userScrollEnabled,
-        minSmallItemWidth = minSmallItemWidth,
-        maxSmallItemWidth = maxSmallItemWidth,
-        contentPadding = contentPadding,
-        content = content,
-    )
+enum class DPCarouselVariant {
+    MultiBrowse,
+    Uncontained,
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DPHorizontalUncontainedCarousel(
+fun DPCarousel(
     state: CarouselState,
-    itemWidth: Dp,
     modifier: Modifier = Modifier,
-    itemSpacing: Dp = 0.dp,
-    flingBehavior: TargetedFlingBehavior = CarouselDefaults.noSnapFlingBehavior(),
+    variant: DPCarouselVariant = DPCarouselVariant.MultiBrowse,
+    preferredItemWidth: Dp = 200.dp,
+    itemSpacing: Dp? = null,
+    contentPadding: PaddingValues? = null,
     userScrollEnabled: Boolean = true,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
+    flingBehavior: TargetedFlingBehavior? = null,
     content: @Composable CarouselItemScope.(itemIndex: Int) -> Unit,
 ) {
-    HorizontalUncontainedCarousel(
-        state = state,
-        itemWidth = itemWidth,
-        modifier = modifier,
-        itemSpacing = itemSpacing,
-        flingBehavior = flingBehavior,
-        userScrollEnabled = userScrollEnabled,
-        contentPadding = contentPadding,
-        content = content,
-    )
+    val resolvedSpacing = itemSpacing ?: DPTheme.spacing.sm
+    val resolvedContentPadding = contentPadding
+        ?: PaddingValues(horizontal = DPTheme.spacing.lg, vertical = 0.dp)
+    when (variant) {
+        DPCarouselVariant.MultiBrowse -> {
+            val resolvedFling = flingBehavior
+                ?: CarouselDefaults.singleAdvanceFlingBehavior(state = state)
+            HorizontalMultiBrowseCarousel(
+                state = state,
+                preferredItemWidth = preferredItemWidth,
+                modifier = modifier,
+                itemSpacing = resolvedSpacing,
+                flingBehavior = resolvedFling,
+                userScrollEnabled = userScrollEnabled,
+                minSmallItemWidth = CarouselDefaults.MinSmallItemSize,
+                maxSmallItemWidth = CarouselDefaults.MaxSmallItemSize,
+                contentPadding = resolvedContentPadding,
+                content = content,
+            )
+        }
+        DPCarouselVariant.Uncontained -> {
+            val resolvedFling = flingBehavior
+                ?: CarouselDefaults.noSnapFlingBehavior()
+            HorizontalUncontainedCarousel(
+                state = state,
+                itemWidth = preferredItemWidth,
+                modifier = modifier,
+                itemSpacing = resolvedSpacing,
+                flingBehavior = resolvedFling,
+                userScrollEnabled = userScrollEnabled,
+                contentPadding = resolvedContentPadding,
+                content = content,
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,20 +83,16 @@ fun DPHorizontalUncontainedCarousel(
 @Composable
 private fun DPCarouselPreview() {
     Preview {
-        val state = rememberCarouselState { 5 }
-        DPHorizontalUncontainedCarousel(
+        val state = rememberCarouselState { 8 }
+        DPCarousel(
             state = state,
-            itemWidth = 120.dp,
-            modifier = Modifier.fillMaxWidth().height(160.dp).padding(8.dp),
-        ) {
+            modifier = Modifier.fillMaxWidth().height(160.dp),
+        ) { index ->
             Surface(
-                modifier = Modifier.maskClip(shape = MaterialTheme.shapes.large),
-                color = Color.Magenta.copy(alpha = 0.3f),
+                modifier = Modifier.maskClip(MaterialTheme.shapes.large),
+                color = MaterialTheme.colorScheme.primaryContainer,
             ) {
-                Text(
-                    text = "Item $it",
-                    modifier = Modifier.padding(16.dp),
-                )
+                Text("Item $index", modifier = Modifier.padding(16.dp))
             }
         }
     }

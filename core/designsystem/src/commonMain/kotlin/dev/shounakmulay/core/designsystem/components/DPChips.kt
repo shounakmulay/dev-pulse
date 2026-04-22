@@ -1,13 +1,12 @@
 package dev.shounakmulay.core.designsystem.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AssistChip
@@ -20,310 +19,313 @@ import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.SelectableChipColors
 import androidx.compose.material3.SelectableChipElevation
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.core.designsystem.compose.Preview
+import dev.shounakmulay.core.designsystem.theme.DPTheme
+import dev.shounakmulay.core.designsystem.theme.DPIntent
+import dev.shounakmulay.core.designsystem.theme.colors
+
+enum class DPChipKind { Assist, Filter, Input, Suggestion }
+
+enum class DPChipStyle { Flat, Elevated }
 
 @Composable
-fun DPAssistChip(
+fun DPChip(
+    text: String,
     onClick: () -> Unit,
-    label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    shape: Shape = AssistChipDefaults.shape,
-    colors: ChipColors = AssistChipDefaults.assistChipColors(),
-    elevation: ChipElevation? = AssistChipDefaults.assistChipElevation(),
-    border: BorderStroke? = AssistChipDefaults.assistChipBorder(enabled),
-    horizontalArrangement: Arrangement.Horizontal = AssistChipDefaults.horizontalArrangement(),
-    contentPadding: PaddingValues = AssistChipDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource? = null,
-) {
-    AssistChip(
-        onClick = onClick,
-        label = label,
-        modifier = modifier,
-        enabled = enabled,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        shape = shape,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        horizontalArrangement = horizontalArrangement,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-    )
-}
-
-@Composable
-fun DPElevatedAssistChip(
-    onClick: () -> Unit,
-    label: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    shape: Shape = AssistChipDefaults.shape,
-    colors: ChipColors = AssistChipDefaults.elevatedAssistChipColors(),
-    elevation: ChipElevation? = AssistChipDefaults.elevatedAssistChipElevation(),
-    border: BorderStroke? = null,
-    horizontalArrangement: Arrangement.Horizontal = AssistChipDefaults.horizontalArrangement(),
-    contentPadding: PaddingValues = AssistChipDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource? = null,
-) {
-    ElevatedAssistChip(
-        onClick = onClick,
-        label = label,
-        modifier = modifier,
-        enabled = enabled,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        shape = shape,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        horizontalArrangement = horizontalArrangement,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-    )
-}
-
-@Composable
-fun DPFilterChip(
-    selected: Boolean,
-    onClick: () -> Unit,
-    label: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    shape: Shape = FilterChipDefaults.shape,
-    colors: SelectableChipColors = FilterChipDefaults.filterChipColors(),
-    elevation: SelectableChipElevation? = FilterChipDefaults.filterChipElevation(),
-    border: BorderStroke? = FilterChipDefaults.filterChipBorder(enabled, selected),
-    horizontalArrangement: Arrangement.Horizontal = FilterChipDefaults.horizontalArrangement(),
-    contentPadding: PaddingValues = FilterChipDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource? = null,
-) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = label,
-        modifier = modifier,
-        enabled = enabled,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        shape = shape,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        horizontalArrangement = horizontalArrangement,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-    )
-}
-
-@Composable
-fun DPElevatedFilterChip(
-    selected: Boolean,
-    onClick: () -> Unit,
-    label: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    shape: Shape = FilterChipDefaults.shape,
-    colors: SelectableChipColors = FilterChipDefaults.elevatedFilterChipColors(),
-    elevation: SelectableChipElevation? = FilterChipDefaults.elevatedFilterChipElevation(),
-    border: BorderStroke? = null,
-    horizontalArrangement: Arrangement.Horizontal = FilterChipDefaults.horizontalArrangement(),
-    contentPadding: PaddingValues = FilterChipDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource? = null,
-) {
-    ElevatedFilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = label,
-        modifier = modifier,
-        enabled = enabled,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        shape = shape,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        horizontalArrangement = horizontalArrangement,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-    )
-}
-
-@Composable
-fun DPInputChip(
-    selected: Boolean,
-    onClick: () -> Unit,
-    label: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    kind: DPChipKind = DPChipKind.Assist,
+    style: DPChipStyle = DPChipStyle.Flat,
+    intent: DPIntent = DPIntent.Primary,
+    selected: Boolean = false,
+    leadingIcon: ImageVector? = null,
+    trailingIcon: ImageVector? = null,
     avatar: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    shape: Shape = InputChipDefaults.shape,
-    colors: SelectableChipColors = InputChipDefaults.inputChipColors(),
-    elevation: SelectableChipElevation? = InputChipDefaults.inputChipElevation(),
-    border: BorderStroke? = InputChipDefaults.inputChipBorder(enabled, selected),
-    horizontalArrangement: Arrangement.Horizontal = InputChipDefaults.horizontalArrangement(),
-    contentPadding: PaddingValues =
-        InputChipDefaults.contentPadding(avatar != null, leadingIcon != null, trailingIcon != null),
-    interactionSource: MutableInteractionSource? = null,
-) {
-    InputChip(
-        selected = selected,
-        onClick = onClick,
-        label = label,
-        modifier = modifier,
-        enabled = enabled,
-        leadingIcon = leadingIcon,
-        avatar = avatar,
-        trailingIcon = trailingIcon,
-        shape = shape,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        horizontalArrangement = horizontalArrangement,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-    )
-}
-
-@Composable
-fun DPSuggestionChip(
-    onClick: () -> Unit,
-    label: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
+    onDismiss: (() -> Unit)? = null,
     enabled: Boolean = true,
-    icon: @Composable (() -> Unit)? = null,
-    shape: Shape = SuggestionChipDefaults.shape,
-    colors: ChipColors = SuggestionChipDefaults.suggestionChipColors(),
-    elevation: ChipElevation? = SuggestionChipDefaults.suggestionChipElevation(),
-    border: BorderStroke? = SuggestionChipDefaults.suggestionChipBorder(enabled),
-    horizontalArrangement: Arrangement.Horizontal = SuggestionChipDefaults.horizontalArrangement(),
-    contentPadding: PaddingValues = SuggestionChipDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource? = null,
-) {
-    SuggestionChip(
-        onClick = onClick,
-        label = label,
-        modifier = modifier,
-        enabled = enabled,
-        icon = icon,
-        shape = shape,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        horizontalArrangement = horizontalArrangement,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-    )
-}
-
-@Composable
-fun DPElevatedSuggestionChip(
-    onClick: () -> Unit,
-    label: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    icon: @Composable (() -> Unit)? = null,
-    shape: Shape = SuggestionChipDefaults.shape,
-    colors: ChipColors = SuggestionChipDefaults.elevatedSuggestionChipColors(),
-    elevation: ChipElevation? = SuggestionChipDefaults.elevatedSuggestionChipElevation(),
+    shape: Shape? = null,
+    chipColors: ChipColors? = null,
+    selectableChipColors: SelectableChipColors? = null,
+    chipElevation: ChipElevation? = null,
+    selectableChipElevation: SelectableChipElevation? = null,
     border: BorderStroke? = null,
-    horizontalArrangement: Arrangement.Horizontal = SuggestionChipDefaults.horizontalArrangement(),
-    contentPadding: PaddingValues = SuggestionChipDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource? = null,
 ) {
-    ElevatedSuggestionChip(
-        onClick = onClick,
-        label = label,
-        modifier = modifier,
-        enabled = enabled,
-        icon = icon,
-        shape = shape,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        horizontalArrangement = horizontalArrangement,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-    )
+    val label: @Composable () -> Unit = { DPLabel(text = text, size = DPTextSize.Medium) }
+    when (kind) {
+        DPChipKind.Assist -> {
+            when (style) {
+                DPChipStyle.Flat -> {
+                    val c = intent.colors()
+                    val colors = chipColors
+                        ?: AssistChipDefaults.assistChipColors(
+                            labelColor = c.onContainer,
+                            leadingIconContentColor = c.accent,
+                        )
+                    val elevation = chipElevation ?: AssistChipDefaults.assistChipElevation()
+                    AssistChip(
+                        onClick = onClick,
+                        label = label,
+                        modifier = modifier,
+                        enabled = enabled,
+                        leadingIcon = leadingIcon.asLeading18(),
+                        trailingIcon = trailingIcon.asTrailing18(),
+                        shape = shape ?: AssistChipDefaults.shape,
+                        colors = colors,
+                        elevation = elevation,
+                        border = border ?: AssistChipDefaults.assistChipBorder(enabled),
+                        horizontalArrangement = AssistChipDefaults.horizontalArrangement(),
+                        contentPadding = AssistChipDefaults.ContentPadding,
+                        interactionSource = null,
+                    )
+                }
+                DPChipStyle.Elevated -> {
+                    val c = intent.colors()
+                    val colors = chipColors
+                        ?: AssistChipDefaults.elevatedAssistChipColors(
+                            labelColor = c.onContainer,
+                            leadingIconContentColor = c.accent,
+                        )
+                    val elevation = chipElevation
+                        ?: AssistChipDefaults.elevatedAssistChipElevation()
+                    ElevatedAssistChip(
+                        onClick = onClick,
+                        label = label,
+                        modifier = modifier,
+                        enabled = enabled,
+                        leadingIcon = leadingIcon.asLeading18(),
+                        trailingIcon = trailingIcon.asTrailing18(),
+                        shape = shape ?: AssistChipDefaults.shape,
+                        colors = colors,
+                        elevation = elevation,
+                        border = border,
+                        horizontalArrangement = AssistChipDefaults.horizontalArrangement(),
+                        contentPadding = AssistChipDefaults.ContentPadding,
+                        interactionSource = null,
+                    )
+                }
+            }
+        }
+        DPChipKind.Filter -> {
+            when (style) {
+                DPChipStyle.Flat -> {
+                    val c = intent.colors()
+                    val colors = selectableChipColors
+                        ?: FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = c.container,
+                            selectedLabelColor = c.onContainer,
+                            selectedLeadingIconColor = c.onContainer,
+                        )
+                    val elevation = selectableChipElevation
+                        ?: FilterChipDefaults.filterChipElevation()
+                    FilterChip(
+                        selected = selected,
+                        onClick = onClick,
+                        label = label,
+                        modifier = modifier,
+                        enabled = enabled,
+                        leadingIcon = leadingIcon.asLeading18(),
+                        trailingIcon = trailingIcon.asTrailing18(),
+                        shape = shape ?: FilterChipDefaults.shape,
+                        colors = colors,
+                        elevation = elevation,
+                        border = border
+                            ?: FilterChipDefaults.filterChipBorder(enabled, selected),
+                        horizontalArrangement = FilterChipDefaults.horizontalArrangement(),
+                        contentPadding = FilterChipDefaults.ContentPadding,
+                        interactionSource = null,
+                    )
+                }
+                DPChipStyle.Elevated -> {
+                    val c = intent.colors()
+                    val colors = selectableChipColors
+                        ?: FilterChipDefaults.elevatedFilterChipColors(
+                            selectedContainerColor = c.container,
+                            selectedLabelColor = c.onContainer,
+                            selectedLeadingIconColor = c.onContainer,
+                        )
+                    val elevation = selectableChipElevation
+                        ?: FilterChipDefaults.elevatedFilterChipElevation()
+                    ElevatedFilterChip(
+                        selected = selected,
+                        onClick = onClick,
+                        label = label,
+                        modifier = modifier,
+                        enabled = enabled,
+                        leadingIcon = leadingIcon.asLeading18(),
+                        trailingIcon = trailingIcon.asTrailing18(),
+                        shape = shape ?: FilterChipDefaults.shape,
+                        colors = colors,
+                        elevation = elevation,
+                        border = border,
+                        horizontalArrangement = FilterChipDefaults.horizontalArrangement(),
+                        contentPadding = FilterChipDefaults.ContentPadding,
+                        interactionSource = null,
+                    )
+                }
+            }
+        }
+        DPChipKind.Input -> {
+            val c = intent.colors()
+            val colors = selectableChipColors
+                ?: InputChipDefaults.inputChipColors(
+                    selectedContainerColor = c.container,
+                    selectedLabelColor = c.onContainer,
+                    selectedLeadingIconColor = c.onContainer,
+                )
+            val trailing = inputTrailingContent(onDismiss, trailingIcon)
+            val leading = leadingIcon.asLeading18()
+            val elevation = selectableChipElevation
+                ?: InputChipDefaults.inputChipElevation()
+            InputChip(
+                selected = selected,
+                onClick = onClick,
+                label = label,
+                modifier = modifier,
+                enabled = enabled,
+                leadingIcon = leading,
+                avatar = avatar,
+                trailingIcon = trailing,
+                shape = shape ?: InputChipDefaults.shape,
+                colors = colors,
+                elevation = elevation,
+                border = border
+                    ?: InputChipDefaults.inputChipBorder(enabled, selected),
+                horizontalArrangement = InputChipDefaults.horizontalArrangement(),
+                contentPadding = InputChipDefaults.contentPadding(
+                    hasAvatar = avatar != null,
+                    hasLeadingIcon = leading != null,
+                    hasTrailingIcon = trailing != null,
+                ),
+                interactionSource = null,
+            )
+        }
+        DPChipKind.Suggestion -> {
+            when (style) {
+                DPChipStyle.Flat -> {
+                    val c = intent.colors()
+                    val colors = chipColors
+                        ?: SuggestionChipDefaults.suggestionChipColors(
+                            labelColor = c.onContainer,
+                            iconContentColor = c.accent,
+                        )
+                    val elevation = chipElevation
+                        ?: SuggestionChipDefaults.suggestionChipElevation()
+                    SuggestionChip(
+                        onClick = onClick,
+                        label = label,
+                        modifier = modifier,
+                        enabled = enabled,
+                        icon = leadingIcon.asSuggestionIcon(),
+                        shape = shape ?: SuggestionChipDefaults.shape,
+                        colors = colors,
+                        elevation = elevation,
+                        border = border
+                            ?: SuggestionChipDefaults.suggestionChipBorder(enabled),
+                        horizontalArrangement = SuggestionChipDefaults.horizontalArrangement(),
+                        contentPadding = SuggestionChipDefaults.ContentPadding,
+                        interactionSource = null,
+                    )
+                }
+                DPChipStyle.Elevated -> {
+                    val c = intent.colors()
+                    val colors = chipColors
+                        ?: SuggestionChipDefaults.elevatedSuggestionChipColors(
+                            labelColor = c.onContainer,
+                            iconContentColor = c.accent,
+                        )
+                    val elevation = chipElevation
+                        ?: SuggestionChipDefaults.elevatedSuggestionChipElevation()
+                    ElevatedSuggestionChip(
+                        onClick = onClick,
+                        label = label,
+                        modifier = modifier,
+                        enabled = enabled,
+                        icon = leadingIcon.asSuggestionIcon(),
+                        shape = shape ?: SuggestionChipDefaults.shape,
+                        colors = colors,
+                        elevation = elevation,
+                        border = border,
+                        horizontalArrangement = SuggestionChipDefaults.horizontalArrangement(),
+                        contentPadding = SuggestionChipDefaults.ContentPadding,
+                        interactionSource = null,
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun ImageVector?.asLeading18(): @Composable (() -> Unit)? =
+    this?.let { v ->
+        { Icon(v, contentDescription = null, modifier = Modifier.size(18.dp)) }
+    }
+
+private fun ImageVector?.asTrailing18(): @Composable (() -> Unit)? =
+    this?.let { v ->
+        { Icon(v, contentDescription = null, modifier = Modifier.size(18.dp)) }
+    }
+
+private fun ImageVector?.asSuggestionIcon(): @Composable (() -> Unit)? =
+    this?.let { v ->
+        { Icon(v, contentDescription = null) }
+    }
+
+private fun inputTrailingContent(
+    onDismiss: (() -> Unit)?,
+    trailingVector: ImageVector?,
+): @Composable (() -> Unit)? {
+    onDismiss?.let { dismiss ->
+        return {
+            IconButton(onClick = dismiss) {
+                Icon(Icons.Default.Close, contentDescription = null)
+            }
+        }
+    }
+    return trailingVector.asTrailing18()
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @DPComponentPreview
 @Composable
-private fun DPChipsPreview() {
+private fun DPChipMatrixPreview() {
     Preview {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(DPTheme.spacing.lg),
+            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
         ) {
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                DPAssistChip(onClick = {}, label = { Text("Assist") })
-                DPElevatedAssistChip(onClick = {}, label = { Text("Elevated assist") })
-            }
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                DPFilterChip(selected = false, onClick = {}, label = { Text("Filter") })
-                DPFilterChip(selected = true, onClick = {}, label = { Text("On") })
-            }
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                DPElevatedFilterChip(selected = false, onClick = {}, label = { Text("El. filter") })
-                DPElevatedFilterChip(selected = true, onClick = {}, label = { Text("El. tonal") })
-            }
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                DPInputChip(
-                    selected = true,
-                    onClick = {},
-                    label = { Text("Input") },
-                    trailingIcon = {
-                        Icon(Icons.Default.Close, contentDescription = null)
-                    },
-                )
-                DPInputChip(
-                    selected = false,
-                    onClick = {},
-                    label = { Text("Input tonal") },
-                )
-            }
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                DPSuggestionChip(onClick = {}, label = { Text("Suggestion") })
-                DPElevatedSuggestionChip(onClick = {}, label = { Text("Elevated suggestion") })
+            DPChipKind.entries.forEach { kind ->
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
+                ) {
+                    DPChipStyle.entries.forEach { style ->
+                        DPChip(
+                            text = "$kind",
+                            onClick = {},
+                            kind = kind,
+                            style = style,
+                        )
+                        DPChip(
+                            text = "Selected",
+                            onClick = {},
+                            kind = kind,
+                            style = style,
+                            selected = true,
+                            intent = DPIntent.Primary,
+                        )
+                    }
+                }
             }
         }
     }

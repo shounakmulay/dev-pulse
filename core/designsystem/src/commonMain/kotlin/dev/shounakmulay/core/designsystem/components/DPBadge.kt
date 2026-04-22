@@ -1,5 +1,6 @@
 package dev.shounakmulay.core.designsystem.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,143 +15,179 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgeDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.core.designsystem.compose.Preview
-import dev.shounakmulay.core.designsystem.theme.categoryColour
-import dev.shounakmulay.core.designsystem.theme.info
-import dev.shounakmulay.core.designsystem.theme.infoContainer
-import dev.shounakmulay.core.designsystem.theme.onInfoContainer
-import dev.shounakmulay.core.designsystem.theme.onSuccessContainer
-import dev.shounakmulay.core.designsystem.theme.onWarningContainer
-import dev.shounakmulay.core.designsystem.theme.success
-import dev.shounakmulay.core.designsystem.theme.successContainer
-import dev.shounakmulay.core.designsystem.theme.warning
-import dev.shounakmulay.core.designsystem.theme.warningContainer
+import dev.shounakmulay.core.designsystem.theme.*
 
+enum class DPBadgeKind { Dot, Count, Status, Category, Label }
+
+/**
+ * Unified design-system badge. Replaces the legacy Material 3 `Badge` wrapper
+ * and the removed `DPStatusBadge` / chip variants.
+ *
+ * **Migration from `DPStatusBadgeVariant` to [DPIntent]:**
+ * - Healthy → [DPIntent.Success]
+ * - Degraded → [DPIntent.Warning]
+ * - Outage → [DPIntent.Danger]
+ * - Info → [DPIntent.Info]
+ * - Waiting → [DPIntent.Neutral]
+ * - Neutral → [DPIntent.Neutral]
+ * - New → [DPIntent.Primary]
+ */
 @Composable
 fun DPBadge(
     modifier: Modifier = Modifier,
-    containerColor: Color = BadgeDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    content: (@Composable RowScope.() -> Unit)? = null,
+    text: String? = null,
+    kind: DPBadgeKind = DPBadgeKind.Status,
+    intent: DPIntent = DPIntent.Neutral,
+    selected: Boolean = false,
+    categoryKey: String? = null,
+    onClick: (() -> Unit)? = null,
 ) {
-    Badge(
-        modifier = modifier,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        content = content,
-    )
-}
+    when (kind) {
+        DPBadgeKind.Dot -> {
+            val c = intent.colors()
+            Box(
+                modifier = modifier
+                    .size(5.dp)
+                    .clip(CircleShape)
+                    .background(c.accent, CircleShape),
+            )
+        }
 
-enum class DPStatusBadgeVariant {
-    Healthy,
-    Degraded,
-    Outage,
-    Info,
-    Waiting,
-    Neutral,
-    New,
-}
+        DPBadgeKind.Count -> {
+            val label = text ?: return
+            if (label != "99+") {
+                val n = label.toIntOrNull() ?: return
+                if (n <= 0) return
+            }
+            val c = intent.colors()
+            val shape = RoundedCornerShape(100.dp)
+            Box(
+                modifier = modifier
+                    .defaultMinSize(minWidth = 18.dp, minHeight = 18.dp)
+                    .clip(shape)
+                    .background(c.container, shape)
+                    .border(BorderStroke(1.dp, c.outline), shape)
+                    .padding(horizontal = 5.dp, vertical = 2.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                DPMono(
+                    text = label,
+                    size = DPTextSize.Small,
+                    color = c.onContainer,
+                )
+            }
+        }
 
-private data class BadgeColours(
-    val surface: Color,
-    val text: Color,
-    val dot: Color,
-    val border: Color,
-)
+        DPBadgeKind.Status -> {
+            if (text == null) return
+            val c = intent.colors()
+            val shape = RoundedCornerShape(100.dp)
+            Row(
+                modifier = modifier
+                    .clip(shape)
+                    .background(c.container, shape)
+                    .border(BorderStroke(1.dp, c.outline), shape)
+                    .padding(horizontal = 8.dp, vertical = 3.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(5.dp)
+                        .clip(CircleShape)
+                        .background(c.accent),
+                )
+                Spacer(Modifier.width(4.dp))
+                DPMono(
+                    text = text,
+                    size = DPTextSize.Small,
+                    color = c.onContainer,
+                )
+            }
+        }
 
-@Composable
-private fun badgeColours(variant: DPStatusBadgeVariant): BadgeColours {
-    val colorScheme = MaterialTheme.colorScheme
-    return when (variant) {
-        DPStatusBadgeVariant.Healthy -> BadgeColours(
-            colorScheme.successContainer,
-            colorScheme.onSuccessContainer,
-            colorScheme.onSuccessContainer,
-            colorScheme.success
-        )
+        DPBadgeKind.Category -> {
+            val key = categoryKey ?: text.orEmpty()
+            val catColor = categoryColour(key)
+            val shape = RoundedCornerShape(4.dp)
+            val bgAlpha = if (selected) 0.20f else 0.10f
+            val borderAlpha = if (selected) 0.40f else 0.25f
+            Row(
+                modifier = modifier
+                    .clip(shape)
+                    .background(catColor.copy(alpha = bgAlpha), shape)
+                    .border(1.dp, catColor.copy(alpha = borderAlpha), shape)
+                    .then(
+                        if (onClick != null) {
+                            Modifier.clickable(
+                                indication = ripple(),
+                                interactionSource = null,
+                                onClick = onClick,
+                            )
+                        } else {
+                            Modifier
+                        },
+                    )
+                    .padding(horizontal = 8.dp, vertical = 3.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(5.dp)
+                        .clip(CircleShape)
+                        .background(catColor),
+                )
+                Spacer(Modifier.width(4.dp))
+                DPMono(
+                    text = text.orEmpty(),
+                    size = DPTextSize.Small,
+                    color = catColor,
+                )
+            }
+        }
 
-        DPStatusBadgeVariant.Degraded -> BadgeColours(
-            colorScheme.warningContainer,
-            colorScheme.onWarningContainer,
-            colorScheme.onWarningContainer,
-            colorScheme.warning,
-        )
-
-        DPStatusBadgeVariant.Outage -> BadgeColours(
-            colorScheme.errorContainer,
-            colorScheme.onErrorContainer,
-            colorScheme.onErrorContainer,
-            colorScheme.error,
-        )
-
-        DPStatusBadgeVariant.Info,
-        DPStatusBadgeVariant.New -> BadgeColours(
-            colorScheme.infoContainer,
-            colorScheme.onInfoContainer,
-            colorScheme.onInfoContainer,
-            colorScheme.info,
-        )
-
-        DPStatusBadgeVariant.Waiting -> BadgeColours(
-            colorScheme.secondaryContainer,
-            colorScheme.onSecondaryContainer,
-            colorScheme.onSecondaryContainer,
-            colorScheme.secondary,
-        )
-
-        DPStatusBadgeVariant.Neutral -> BadgeColours(
-            colorScheme.surfaceContainerHigh,
-            colorScheme.onSurfaceVariant,
-            colorScheme.outline,
-            colorScheme.outlineVariant,
-        )
-    }
-}
-
-@Composable
-fun DPStatusBadge(
-    variant: DPStatusBadgeVariant,
-    label: String,
-    modifier: Modifier = Modifier,
-) {
-    val colours = badgeColours(variant)
-    val typography = MaterialTheme.typography
-    val shape = RoundedCornerShape(100.dp)
-
-    Row(
-        modifier = modifier
-            .clip(shape)
-            .background(colours.surface, shape)
-            .border(1.dp, colours.border, shape)
-            .padding(horizontal = 8.dp, vertical = 3.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(5.dp)
-                .clip(CircleShape)
-                .background(colours.dot),
-        )
-        Spacer(Modifier.width(4.dp))
-        DPMono(
-            text = label,
-            size = DPTextSize.Small,
-            color = colours.text,
-        )
+        DPBadgeKind.Label -> {
+            val colorScheme = MaterialTheme.colorScheme
+            val shape = RoundedCornerShape(4.dp)
+            val bg = if (selected) colorScheme.primaryContainer else colorScheme.surfaceContainerHigh
+            val borderColor = if (selected) colorScheme.primary else colorScheme.outlineVariant
+            val textColor = if (selected) colorScheme.primary else colorScheme.onSurfaceVariant
+            Box(
+                modifier = modifier
+                    .clip(shape)
+                    .background(bg, shape)
+                    .border(1.dp, borderColor, shape)
+                    .then(
+                        if (onClick != null) {
+                            Modifier.clickable(
+                                indication = ripple(),
+                                interactionSource = null,
+                                onClick = onClick,
+                            )
+                        } else {
+                            Modifier
+                        },
+                    )
+                    .padding(horizontal = 8.dp, vertical = 3.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                DPLabel(
+                    text = text.orEmpty(),
+                    size = DPTextSize.Small,
+                    color = textColor,
+                )
+            }
+        }
     }
 }
 
@@ -158,172 +195,50 @@ fun DPStatusBadge(
 fun DPCountBadge(
     count: Int,
     modifier: Modifier = Modifier,
-    variant: DPStatusBadgeVariant = DPStatusBadgeVariant.Waiting,
+    intent: DPIntent = DPIntent.Danger,
 ) {
     if (count <= 0) return
-
-    val colours = badgeColours(variant)
-    val shape = RoundedCornerShape(100.dp)
     val label = if (count > 99) "99+" else count.toString()
-
-    Box(
-        modifier = modifier
-            .defaultMinSize(minWidth = 18.dp, minHeight = 18.dp)
-            .clip(shape)
-            .background(colours.surface, shape)
-            .border(1.dp, colours.border, shape)
-            .padding(horizontal = 5.dp, vertical = 2.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        DPMono(
-            text = label,
-            size = DPTextSize.Small,
-            color = colours.text,
-        )
-    }
-}
-
-@Composable
-fun DPCategoryChip(
-    category: String,
-    modifier: Modifier = Modifier,
-    isSelected: Boolean = false,
-    onClick: (() -> Unit)? = null,
-) {
-    val catColour = categoryColour(category)
-    val shape = RoundedCornerShape(4.dp)
-
-    val bgAlpha = if (isSelected) 0.20f else 0.10f
-    val borderAlpha = if (isSelected) 0.40f else 0.25f
-
-    Row(
-        modifier = modifier
-            .clip(shape)
-            .background(catColour.copy(alpha = bgAlpha), shape)
-            .border(1.dp, catColour.copy(alpha = borderAlpha), shape)
-            .then(
-                if (onClick != null)
-                    Modifier.clickable(
-                        indication = ripple(),
-                        interactionSource = null,
-                        onClick = onClick
-                    )
-                else Modifier
-            )
-            .padding(horizontal = 8.dp, vertical = 3.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(5.dp)
-                .clip(CircleShape)
-                .background(catColour),
-        )
-        Spacer(Modifier.width(4.dp))
-        DPMono(
-            text = category,
-            size = DPTextSize.Small,
-            color = catColour,
-        )
-    }
-}
-
-@Composable
-fun DPLabelChip(
-    label: String,
-    modifier: Modifier = Modifier,
-    isSelected: Boolean = false,
-    onClick: (() -> Unit)? = null,
-) {
-    val colorScheme = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(4.dp)
-
-    val bg = if (isSelected) colorScheme.primaryContainer else colorScheme.surfaceContainerHigh
-    val border = if (isSelected) colorScheme.primary else colorScheme.outlineVariant
-    val textColor = if (isSelected) colorScheme.primary else colorScheme.onSurfaceVariant
-
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .background(bg, shape)
-            .border(1.dp, border, shape)
-            .then(
-                if (onClick != null)
-                    Modifier.clickable(
-                        indication = ripple(),
-                        interactionSource = null,
-                        onClick = onClick
-                    )
-                else Modifier
-            )
-            .padding(horizontal = 8.dp, vertical = 3.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        DPLabel(
-            text = label,
-            size = DPTextSize.Small,
-            color = textColor,
-        )
-    }
+    DPBadge(modifier = modifier, text = label, kind = DPBadgeKind.Count, intent = intent)
 }
 
 @DPComponentPreview
 @Composable
-private fun DPStatusBadgePreview() {
+private fun DPBadgeKindsPreview() {
     Preview {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(DPTheme.spacing.lg),
+            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
         ) {
-            DPStatusBadgeVariant.entries.forEach { variant ->
-                DPStatusBadge(variant = variant, label = variant.name)
+            Row(horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm)) {
+                listOf(
+                    DPIntent.Success,
+                    DPIntent.Warning,
+                    DPIntent.Danger,
+                    DPIntent.Info,
+                    DPIntent.Neutral,
+                ).forEach { intent ->
+                    DPBadge(text = intent.name, kind = DPBadgeKind.Status, intent = intent)
+                }
             }
-        }
-    }
-}
-
-@DPComponentPreview
-@Composable
-private fun DPCountBadgePreview() {
-    Preview {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            DPCountBadge(count = 5)
-            DPCountBadge(count = 10, variant = DPStatusBadgeVariant.Healthy)
-            DPCountBadge(count = 99)
-            DPCountBadge(count = 120, variant = DPStatusBadgeVariant.Outage)
-        }
-    }
-}
-
-@DPComponentPreview
-@Composable
-private fun DPCategoryChipPreview() {
-    Preview {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            DPCategoryChip(category = "Android")
-            DPCategoryChip(category = "Kotlin", isSelected = true)
-            DPCategoryChip(category = "Compose")
-        }
-    }
-}
-
-@DPComponentPreview
-@Composable
-private fun DPLabelChipPreview() {
-    Preview {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            DPLabelChip(label = "Default")
-            DPLabelChip(label = "Selected", isSelected = true)
+            Row(horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm)) {
+                DPCountBadge(count = 3)
+                DPCountBadge(count = 42, intent = DPIntent.Warning)
+                DPCountBadge(count = 120, intent = DPIntent.Success)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm)) {
+                DPBadge(text = "Default", kind = DPBadgeKind.Label)
+                DPBadge(text = "Selected", kind = DPBadgeKind.Label, selected = true)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm)) {
+                DPBadge(text = "Kotlin", kind = DPBadgeKind.Category, categoryKey = "Kotlin")
+                DPBadge(
+                    text = "Android",
+                    kind = DPBadgeKind.Category,
+                    categoryKey = "Android",
+                    selected = true,
+                )
+            }
         }
     }
 }

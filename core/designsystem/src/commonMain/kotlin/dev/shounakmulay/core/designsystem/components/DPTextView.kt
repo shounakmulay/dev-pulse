@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.core.designsystem.compose.Preview
+import dev.shounakmulay.core.designsystem.theme.DPIntent
+import dev.shounakmulay.core.designsystem.theme.colors
 import dev.shounakmulay.core.designsystem.theme.monoFontFamily
 
 enum class DPTextSize { Large, Medium, Small }
@@ -101,6 +103,7 @@ fun DPTextView(
     variant: DPTextViewVariant,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
+    intent: DPIntent? = null,
     autoSize: TextAutoSize? = null,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
@@ -119,11 +122,16 @@ fun DPTextView(
 ) {
     val baseStyle = variant.textStyle()
     val mergedStyle = style?.let { baseStyle.merge(it) } ?: baseStyle
+    val resolvedColor = when {
+        color != Color.Unspecified -> color
+        intent != null -> intent.colors().accent
+        else -> Color.Unspecified
+    }
 
     Text(
         text = text,
         modifier = modifier,
-        color = color,
+        color = resolvedColor,
         autoSize = autoSize,
         fontSize = fontSize,
         fontStyle = fontStyle,
@@ -252,6 +260,7 @@ fun DPBody(
     modifier: Modifier = Modifier,
     size: DPTextSize = DPTextSize.Medium,
     color: Color = Color.Unspecified,
+    intent: DPIntent? = null,
     fontWeight: FontWeight? = null,
     textAlign: TextAlign? = null,
     maxLines: Int = Int.MAX_VALUE,
@@ -267,6 +276,7 @@ fun DPBody(
         variant = variant,
         modifier = modifier,
         color = color,
+        intent = intent,
         fontWeight = fontWeight,
         textAlign = textAlign,
         maxLines = maxLines,
@@ -280,6 +290,7 @@ fun DPLabel(
     modifier: Modifier = Modifier,
     size: DPTextSize = DPTextSize.Medium,
     color: Color = Color.Unspecified,
+    intent: DPIntent? = null,
     fontWeight: FontWeight? = null,
     textAlign: TextAlign? = null,
     maxLines: Int = Int.MAX_VALUE,
@@ -295,6 +306,7 @@ fun DPLabel(
         variant = variant,
         modifier = modifier,
         color = color,
+        intent = intent,
         fontWeight = fontWeight,
         textAlign = textAlign,
         maxLines = maxLines,

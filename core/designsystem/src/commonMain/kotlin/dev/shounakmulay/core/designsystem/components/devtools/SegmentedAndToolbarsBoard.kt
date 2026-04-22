@@ -1,17 +1,19 @@
 package dev.shounakmulay.core.designsystem.components.devtools
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.HorizontalFloatingToolbar
+import androidx.compose.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalFloatingToolbar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -21,11 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.components.DPBody
-import dev.shounakmulay.core.designsystem.components.DPHorizontalFloatingToolbar
-import dev.shounakmulay.core.designsystem.components.DPMultiChoiceSegmentedButtonRow
 import dev.shounakmulay.core.designsystem.components.DPSegmentedButton
-import dev.shounakmulay.core.designsystem.components.DPSingleChoiceSegmentedButtonRow
-import dev.shounakmulay.core.designsystem.components.DPVerticalFloatingToolbar
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -40,7 +38,7 @@ fun SegmentedAndToolbarsBoard(modifier: Modifier = Modifier) {
             Spacer(Modifier.height(8.dp))
             var selected by remember { mutableIntStateOf(0) }
             val options = listOf("Day", "Week", "Month")
-            DPSingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                 options.forEachIndexed { index, label ->
                     DPSegmentedButton(
                         selected = selected == index,
@@ -58,7 +56,7 @@ fun SegmentedAndToolbarsBoard(modifier: Modifier = Modifier) {
             var bold by remember { mutableStateOf(true) }
             var italic by remember { mutableStateOf(false) }
             var underline by remember { mutableStateOf(false) }
-            DPMultiChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+            MultiChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                 DPSegmentedButton(
                     checked = bold,
                     onCheckedChange = { bold = it },
@@ -83,7 +81,7 @@ fun SegmentedAndToolbarsBoard(modifier: Modifier = Modifier) {
         item {
             DPBody(text = "Horizontal Floating Toolbar")
             Spacer(Modifier.height(8.dp))
-            DPHorizontalFloatingToolbar(expanded = true) {
+            HorizontalFloatingToolbar(expanded = true) {
                 Text("Cut")
                 Text("Copy")
                 Text("Paste")
@@ -93,7 +91,7 @@ fun SegmentedAndToolbarsBoard(modifier: Modifier = Modifier) {
         item {
             DPBody(text = "Horizontal Floating Toolbar with FAB")
             Spacer(Modifier.height(8.dp))
-            DPHorizontalFloatingToolbar(
+            HorizontalFloatingToolbar(
                 expanded = true,
                 floatingActionButton = {
                     FloatingToolbarDefaults.StandardFloatingActionButton(onClick = {}) {
@@ -109,7 +107,7 @@ fun SegmentedAndToolbarsBoard(modifier: Modifier = Modifier) {
         item {
             DPBody(text = "Vertical Floating Toolbar")
             Spacer(Modifier.height(8.dp))
-            DPVerticalFloatingToolbar(expanded = true) {
+            VerticalFloatingToolbar(expanded = true) {
                 Text("1")
                 Text("2")
                 Text("3")
