@@ -38,6 +38,7 @@ import dev.shounakmulay.devpulse.di.koinConfiguration
 import dev.shounakmulay.feature.devtools.navigation.developerToolsFeatureEntries
 import dev.shounakmulay.feature.feed.navigation.feedFeatureEntries
 import dev.shounakmulay.feature.home.navigation.homeFeatureEntries
+import dev.shounakmulay.feature.settings.navigation.settingsFeatureEntries
 import org.koin.compose.KoinApplication
 
 
@@ -121,13 +122,16 @@ private fun NavDisplay(
             developerToolsFeatureEntries(navigator)
             homeFeatureEntries(navigator)
             feedFeatureEntries(navigator)
+            settingsFeatureEntries(navigator)
             entry<Screen.Tabs.Time> {
                 ScreenPlaceholder(
                     it,
-                    onOpenSettings = { navigator.navigate(Screen.DeveloperTools, onRootStack = true) })
-            }
-            entry<Screen.Settings> {
-                ScreenPlaceholder(it, onOpenSettings = {})
+                    onOpenSettings = {
+                        navigator.navigate(
+                            Screen.DeveloperTools.DesignSystemBoard,
+                            true
+                        )
+                    })
             }
         }
     )
