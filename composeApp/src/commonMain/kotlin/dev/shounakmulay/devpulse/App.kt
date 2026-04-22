@@ -3,7 +3,6 @@ package dev.shounakmulay.devpulse
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DynamicFeed
 import androidx.compose.material.icons.filled.ExpandMore
@@ -72,7 +71,6 @@ fun App() {
 
                 if (isTabsPageVisible) {
                     NavigationSuiteScaffold(
-                        modifier = Modifier.padding(it),
                         navigationItems = {
                             tabRoutes.forEach { tab ->
                                 NavigationSuiteItem(
@@ -128,7 +126,7 @@ private fun NavDisplay(
                     it,
                     onOpenSettings = {
                         navigator.navigate(
-                            Screen.DeveloperTools.DesignSystemBoard,
+                            Screen.Settings,
                             true
                         )
                     })

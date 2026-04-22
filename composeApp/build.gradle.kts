@@ -17,6 +17,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(Modules.Core.DESIGN_SYSTEM))
             implementation(project(Modules.Core.NAVIGATION))
+            implementation(project(Modules.Core.RESOURCES))
 
             implementation(project(Modules.Feature.HOME))
             implementation(project(Modules.Feature.FEED))
