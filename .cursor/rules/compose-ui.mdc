@@ -90,7 +90,7 @@ private fun FeedContentPreview() {
 
 ## Design System First
 
-All UI must be built from components in `core:designsystem`. Never reach for raw Material3 or Compose primitives (`Text`, `Button`, `Card`, `TextField`, etc.) directly in feature or screen composables — the design system equivalents (`DPTitle`, `DPButton`, `DPCard`, `DPTextField`, …) must be used instead.
+All UI must be built from components in `core:designsystem`. Never reach for raw Material3 or Compose primitives (`Text`, `Button`, `Card`, `TextField`, etc.) directly in feature or screen composables — the design system equivalents (`DPTextView`, `DPButton`, `DPCard`, `DPTextField`, …) must be used instead.
 
 If a required component, token, or variant is missing from the design system, **stop and ask** before reaching for a primitive or building an ad-hoc implementation:
 
