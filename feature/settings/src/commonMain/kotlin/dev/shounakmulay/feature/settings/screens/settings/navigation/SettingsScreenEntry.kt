@@ -8,6 +8,6 @@ import org.koin.compose.viewmodel.koinViewModel
 
 internal fun EntryProviderScope<Screen>.settingsScreen(navigator: Navigator) {
     entry<Screen.Settings> {
-        SettingsScreen(viewModel = koinViewModel())
+        SettingsScreen(viewModel = koinViewModel(), navigator = navigator)
     }
 }

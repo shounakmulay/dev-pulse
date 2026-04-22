@@ -1,18 +1,37 @@
 package dev.shounakmulay.feature.settings.screens.settings.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import dev.shounakmulay.core.designsystem.components.DPTextView
-import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.core.designsystem.components.DPListItem
+import dev.shounakmulay.core.designsystem.components.DPTopAppBar
+import dev.shounakmulay.core.navigation.Navigator
+import dev.shounakmulay.core.resources.stringRes
+import dev.shounakmulay.core.ui.button.DPBackNavigationIconButton
+import dev.shounakmulay.core.ui.screen.Screen
+import devpulse.core.resources.generated.resources.developer_tools
+import devpulse.core.resources.generated.resources.settings
+import org.jetbrains.compose.resources.stringResource
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel, modifier: Modifier = Modifier) {
-    val state by viewModel.collectAsState()
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        DPTextView(text = "Settings", variant = DPTextViewVariant.HeadingLarge)
+fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
+    Screen(
+        viewModel = viewModel,
+        onEffect = {},
+        topAppBar = {
+            DPTopAppBar(
+                title = stringResource(stringRes.settings),
+                navigationIcon = {
+                    DPBackNavigationIconButton(navigator::navigateBack)
+                }
+            )
+        },
+    ) {
+        Column {
+            DPListItem(
+                headlineText = stringResource(stringRes.developer_tools)
+            )
+        }
     }
 }
