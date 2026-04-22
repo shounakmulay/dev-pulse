@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.buildsrc.extensions
 
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import dev.shounakmulay.devpulse.buildsrc.constants.buildConfig
 import dev.shounakmulay.devpulse.buildsrc.plugins.PluginExtensions.applyPlugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -16,10 +17,8 @@ internal fun Project.configureAndroidKmpLibrary() {
         extensions.configure<KotlinMultiplatformExtension> {
             targets.withType(KotlinMultiplatformAndroidLibraryTarget::class.java)
                 .configureEach {
-                    compileSdk =
-                        libs.findVersion("android-compileSdk").get().requiredVersion.toInt()
-                    minSdk =
-                        libs.findVersion("android-minSdk").get().requiredVersion.toInt()
+                    compileSdk = buildConfig.android.compileSdk
+                    minSdk = buildConfig.android.minSdk
                 }
         }
     }

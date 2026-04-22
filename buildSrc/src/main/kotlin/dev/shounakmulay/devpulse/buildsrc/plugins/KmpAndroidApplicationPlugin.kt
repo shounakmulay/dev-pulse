@@ -1,13 +1,12 @@
 package dev.shounakmulay.devpulse.buildsrc.plugins
 
 import com.android.build.api.dsl.ApplicationExtension
+import dev.shounakmulay.devpulse.buildsrc.constants.buildConfig
 import dev.shounakmulay.devpulse.buildsrc.extensions.libs
 import dev.shounakmulay.devpulse.buildsrc.plugins.PluginExtensions.applyPlugin
-import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 @Suppress("unused")
@@ -20,7 +19,7 @@ class KmpAndroidApplicationPlugin : Plugin<Project> {
                 extensions.configure<KotlinMultiplatformExtension> {
                     androidTarget {
                         compilerOptions {
-                            jvmTarget.set(JvmTarget.JVM_11)
+                            jvmTarget.set(buildConfig.jvm.target)
                         }
                     }
                 }
@@ -28,11 +27,11 @@ class KmpAndroidApplicationPlugin : Plugin<Project> {
 
             plugins.withId("com.android.application") {
                 extensions.configure<ApplicationExtension> {
-                    compileSdk = libs.findVersion("android-compileSdk").get().requiredVersion.toInt()
+                    compileSdk = buildConfig.android.compileSdk
 
                     defaultConfig {
-                        minSdk = libs.findVersion("android-minSdk").get().requiredVersion.toInt()
-                        targetSdk = libs.findVersion("android-targetSdk").get().requiredVersion.toInt()
+                        minSdk = buildConfig.android.minSdk
+                        targetSdk = buildConfig.android.targetSdk
                     }
 
                     packaging {
@@ -48,8 +47,8 @@ class KmpAndroidApplicationPlugin : Plugin<Project> {
                     }
 
                     compileOptions {
-                        sourceCompatibility = JavaVersion.VERSION_11
-                        targetCompatibility = JavaVersion.VERSION_11
+                        sourceCompatibility = buildConfig.jvm.javaVersion
+                        targetCompatibility = buildConfig.jvm.javaVersion
                     }
                 }
             }
