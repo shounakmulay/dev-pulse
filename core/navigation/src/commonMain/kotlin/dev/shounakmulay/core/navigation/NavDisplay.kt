@@ -28,6 +28,12 @@ fun NavDisplay(
     }
     NavDisplay(
         modifier = modifier,
+        transitionSpec = {
+
+        },
+        popTransitionSpec = {
+
+        },
         sceneStrategies = sceneStrategies,
         entries = navigationState.toEntries(entryProvider = entryProvider {
             entryProvider()
