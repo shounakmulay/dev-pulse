@@ -43,7 +43,7 @@ fun HomeScreen(viewModel: HomeViewModel, navigator: Navigator) {
                     icon = Icons.Default.Settings,
                     intent = DPIntent.Secondary,
                     contentDescription = "",
-                    onClick = { navigator.navigate(Screen.Settings) }
+                    onClick = { navigator.navigate(Screen.Settings, onRootStack = true) }
                 )
             })
         },
