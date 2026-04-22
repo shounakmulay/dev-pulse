@@ -37,7 +37,6 @@ import dev.shounakmulay.core.designsystem.theme.DPSize
 import dev.shounakmulay.core.designsystem.theme.DPTheme
 import dev.shounakmulay.core.designsystem.theme.colors
 import dev.shounakmulay.core.designsystem.theme.iconSize
-import dev.shounakmulay.core.designsystem.theme.minHeight
 
 enum class DPIconButtonStyle { Standard, Filled, Tonal, Outlined }
 
@@ -161,7 +160,6 @@ private fun dpIconToggleBorder(
 fun DPIconButton(
     icon: ImageVector,
     contentDescription: String?,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     style: DPIconButtonStyle = DPIconButtonStyle.Standard,
     intent: DPIntent = DPIntent.Primary,
@@ -170,6 +168,7 @@ fun DPIconButton(
     colors: IconButtonColors? = null,
     shape: Shape? = null,
     border: BorderStroke? = null,
+    onClick: () -> Unit,
 ) {
     val resolvedColors = colors ?: dpIconButtonColors(style, intent)
     val resolvedShape = shape ?: dpIconButtonDefaultShape(style)

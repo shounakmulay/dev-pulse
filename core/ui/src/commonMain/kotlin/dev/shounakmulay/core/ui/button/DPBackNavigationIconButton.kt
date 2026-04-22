@@ -10,7 +10,7 @@ import devpulse.core.resources.generated.resources.navigate_back
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun DPBackNavigationIconButton(onNavigateBack: () -> Unit, modifier: Modifier = Modifier) {
+fun DPBackNavigationIconButton(modifier: Modifier = Modifier, onNavigateBack: () -> Unit, ) {
     DPIconButton(
         modifier = modifier,
         icon = Icons.AutoMirrored.Default.ArrowBack,

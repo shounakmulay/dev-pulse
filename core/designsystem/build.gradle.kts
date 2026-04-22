@@ -1,3 +1,4 @@
+import dev.shounakmulay.devpulse.buildsrc.constants.Modules
 import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
 
 plugins {
@@ -20,6 +21,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(Modules.Core.NAVIGATION))
             implementation(libs.compose.components.resources)
         }
     }
