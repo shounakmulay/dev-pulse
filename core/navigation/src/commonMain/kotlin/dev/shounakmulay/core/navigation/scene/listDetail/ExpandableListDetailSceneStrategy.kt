@@ -22,6 +22,7 @@ class ExpandableListDetailSceneStrategy<T : Any>(
 
         val detailEntry =
             entries.lastOrNull()?.takeIf { it.metadata.contains(DetailKey.toString()) }
+        val draggable = detailEntry?.metadata[DetailDraggable.toString()] as? Boolean ?: false
 
         val listEntry = entries.findLast { it.metadata.contains(ListKey.toString()) } ?: return null
 
@@ -35,19 +36,22 @@ class ExpandableListDetailSceneStrategy<T : Any>(
             previousEntries = entries.dropLast(1),
             listEntry = listEntry,
             detailEntry = detailEntry,
+            draggable = draggable
         )
     }
 
-    object ListKey : NavMetadataKey<Boolean>
-    object DetailKey : NavMetadataKey<Boolean>
+    data object ListKey : NavMetadataKey<Boolean>
+    data object DetailKey : NavMetadataKey<Boolean>
+    data object DetailDraggable : NavMetadataKey<Boolean>
     companion object {
 
         fun listPane() = metadata {
             put(ListKey, true)
         }
 
-        fun detailPane() = metadata {
+        fun detailPane(draggable: Boolean = false) = metadata {
             put(DetailKey, true)
+            put(DetailDraggable, draggable)
         }
     }
 }
