@@ -9,7 +9,8 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun EntryProviderScope<Screen>.homeScreen(navigator: Navigator) {
     entry<Screen.Tabs.Home> {
         HomeScreen(
-            viewModel = koinViewModel()
+            viewModel = koinViewModel(),
+            navigator = navigator
         )
     }
 }

@@ -1,35 +1,61 @@
 package dev.shounakmulay.feature.home.screens.home.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPButton
-import dev.shounakmulay.core.designsystem.components.DPButtonStyle
+import androidx.compose.ui.text.font.FontStyle
+import dev.shounakmulay.core.designsystem.components.DPIconButton
 import dev.shounakmulay.core.designsystem.components.DPTextView
 import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.core.designsystem.theme.DPIntent
+import dev.shounakmulay.core.designsystem.theme.monoFontFamily
+import dev.shounakmulay.core.navigation.Navigator
+import dev.shounakmulay.core.navigation.Screen
+import dev.shounakmulay.core.ui.screen.Screen
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(viewModel: HomeViewModel, navigator: Navigator) {
+    Screen(
+        viewModel = viewModel,
+        topAppBar = {
+            TopAppBar(title = {
+                Row {
+                    DPTextView(
+                        text = "DEV",
+                        variant = DPTextViewVariant.HeadingLargeEmphasized,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontFamily = monoFontFamily(),
+                    )
+                    DPTextView(
+                        "Pulse",
+                        variant = DPTextViewVariant.HeadingLargeEmphasized,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontStyle = FontStyle.Italic,
+                    )
+                }
+            }, actions = {
+                DPIconButton(
+                    icon = Icons.Default.Settings,
+                    intent = DPIntent.Secondary,
+                    contentDescription = "",
+                    onClick = { navigator.navigate(Screen.Settings) }
+                )
+            })
+        },
+        onEffect = {}
+    ) {
+        HomeScreenContent(state = this)
+    }
+}
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
-    val state by viewModel.collectAsState()
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column {
-            DPTextView(
-                text = state.count.toString(),
-                variant = DPTextViewVariant.DisplayMedium,
-            )
-            Spacer(Modifier.height(16.dp))
-            DPButton(
-                text = "Increment",
-                onClick = viewModel::increment,
-                style = DPButtonStyle.Elevated,
-            )
-        }
-    }
+fun HomeScreenContent(
+    state: HomeScreenState
+) {
+
 }
