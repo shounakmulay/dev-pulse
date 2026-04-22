@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 import org.koin.core.component.KoinComponent
 import kotlin.contracts.ExperimentalContracts
 
-abstract class StateEffectViewModel<STATE : ScreenState> : ViewModel(), KoinComponent {
+abstract class MviViewModel<STATE : ScreenState> : ViewModel(), KoinComponent {
 
     private val _state = MutableStateFlow(createInitialState())
     val state: StateFlow<STATE> = _state

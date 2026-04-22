@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.shounakmulay.core.designsystem.components.DPTopAppBar
 import dev.shounakmulay.core.ui.effect.Effect
-import dev.shounakmulay.core.ui.viewmodel.StateEffectViewModel
+import dev.shounakmulay.core.ui.viewmodel.MviViewModel
 
 data class ScreenTopAppBarState(
     val title: String,
@@ -24,8 +24,8 @@ data class ScreenTopAppBarState(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-inline fun <STATE : ScreenState, reified VM : StateEffectViewModel<STATE>> Screen(
-    viewModel: StateEffectViewModel<STATE>,
+inline fun <STATE : ScreenState, reified VM : MviViewModel<STATE>> Screen(
+    viewModel: MviViewModel<STATE>,
     crossinline onEffect: suspend STATE.(Effect) -> Unit,
     crossinline topAppBarStateProvider: STATE.() -> ScreenTopAppBarState? = { null },
     crossinline content: @Composable STATE.() -> Unit
@@ -52,8 +52,8 @@ inline fun <STATE : ScreenState, reified VM : StateEffectViewModel<STATE>> Scree
 }
 
 @Composable
-inline fun <STATE : ScreenState, reified VM : StateEffectViewModel<STATE>> Screen(
-    viewModel: StateEffectViewModel<STATE>,
+inline fun <STATE : ScreenState, reified VM : MviViewModel<STATE>> Screen(
+    viewModel: MviViewModel<STATE>,
     crossinline onEffect: suspend STATE.(Effect) -> Unit,
     noinline topAppBar: (@Composable STATE.() -> Unit)?,
     crossinline content: @Composable STATE.() -> Unit
