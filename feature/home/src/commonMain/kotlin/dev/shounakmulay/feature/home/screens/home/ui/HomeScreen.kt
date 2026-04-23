@@ -1,19 +1,13 @@
 package dev.shounakmulay.feature.home.screens.home.ui
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.graphics.Color
 import dev.shounakmulay.core.designsystem.components.DPIconButton
-import dev.shounakmulay.core.designsystem.components.DPTextView
-import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.core.designsystem.icon.DPIcons
 import dev.shounakmulay.core.designsystem.theme.DPIntent
-import dev.shounakmulay.core.designsystem.theme.monoFontFamily
 import dev.shounakmulay.core.navigation.Navigator
 import dev.shounakmulay.core.navigation.Screen
 import dev.shounakmulay.core.ui.screen.Screen
@@ -25,20 +19,11 @@ fun HomeScreen(viewModel: HomeViewModel, navigator: Navigator) {
         viewModel = viewModel,
         topAppBar = {
             TopAppBar(title = {
-                Row {
-                    DPTextView(
-                        text = "DEV",
-                        variant = DPTextViewVariant.HeadingLargeEmphasized,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontFamily = monoFontFamily(),
-                    )
-                    DPTextView(
-                        "Pulse",
-                        variant = DPTextViewVariant.HeadingLargeEmphasized,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontStyle = FontStyle.Italic,
-                    )
-                }
+                Icon(
+                    imageVector = DPIcons.devPulseIconLarge(),
+                    contentDescription = "DevPulse",
+                    tint = Color.Unspecified
+                )
             }, actions = {
                 DPIconButton(
                     icon = DPIcons.UserSettings,
