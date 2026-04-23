@@ -1,9 +1,11 @@
 package dev.shounakmulay.feature.home.screens.home.ui
 
+import androidx.compose.runtime.Immutable
 import dev.shounakmulay.core.ui.screen.ScreenState
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Immutable
 data class HomeScreenState(
     val isLoading: Boolean,
     val count: Int = 0,

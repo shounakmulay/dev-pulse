@@ -15,8 +15,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,6 +42,7 @@ class ExpandableListDetailScene<T : Any>(
     override val previousEntries: List<NavEntry<T>>,
     val listEntry: NavEntry<T>,
     val detailEntry: NavEntry<T>?,
+    draggable: Boolean,
 ) : Scene<T> {
     override val entries: List<NavEntry<T>> = listOfNotNull(listEntry, detailEntry)
     override val content: @Composable (() -> Unit) = {
@@ -75,11 +77,13 @@ class ExpandableListDetailScene<T : Any>(
                     split = split
                 )
 
-                DragIndicator(
-                    isDetailExpanded = isDetailExpanded.value,
-                    totalWidthPx = totalWidthPx,
-                    splitRatio = splitTarget
-                )
+                if (draggable) {
+                    DragIndicator(
+                        isDetailExpanded = isDetailExpanded.value,
+                        totalWidthPx = totalWidthPx,
+                        splitRatio = splitTarget
+                    )
+                }
 
                 DetailView(split = split)
             }
@@ -120,7 +124,10 @@ class ExpandableListDetailScene<T : Any>(
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(12.dp)
+                    .padding(4.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f)
+                    )
                     .pointerInput(totalWidthPx) {
                         detectDragGestures { change, dragAmount ->
                             change.consume()
@@ -128,15 +135,16 @@ class ExpandableListDetailScene<T : Any>(
                             splitRatio.value = (splitRatio.value + deltaRatio).coerceIn(0.2f, 0.8f)
                         }
                     },
+
             ) {
                 Box(
                     modifier = Modifier
-                        .width(4.dp)
-                        .fillMaxHeight()
+                        .width(8.dp)
+                        .height(40.dp)
                         .align(Alignment.Center)
                         .background(
-                            color = MaterialTheme.colorScheme.outline,
-                            shape = RoundedCornerShape(2.dp),
+                            color = MaterialTheme.colorScheme.tertiary,
+                            shape = MaterialTheme.shapes.extraLarge,
                         )
                 )
             }

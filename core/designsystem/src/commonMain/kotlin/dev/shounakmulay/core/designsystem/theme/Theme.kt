@@ -26,6 +26,7 @@ fun AppTheme(
     CompositionLocalProvider(
         LocalDPSpacing provides DefaultSpacing,
         LocalDPIconSize provides DefaultIconSize,
+        LocalDPElevation provides DefaultElevation,
     ) {
         MaterialExpressiveTheme(
             colorScheme = colorScheme,
@@ -47,4 +48,9 @@ object DPTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalDPIconSize.current
+
+    val elevation: DPElevation
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalDPElevation.current
 }

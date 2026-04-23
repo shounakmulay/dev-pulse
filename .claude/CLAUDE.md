@@ -109,7 +109,7 @@ Root DI wiring is in `composeApp/.../di/DevPulseKoinApplication.kt` via `@KoinAp
 
 All UI components come from `:core:designsystem` and are prefixed with `DP`:
 
-- **Text**: `DPTextView`, `DPDisplay`, `DPHeading`, `DPBody`, `DPTitle`, `DPLabel`, `DPMono`
+- **Text**: `DPTextView` (pick a `DPTextViewVariant` for Display/Heading/Title/Body/Label × size/emphasis; pass `fontFamily = monoFontFamily()` for mono)
 - **Buttons**: `DPButton`, `DPElevatedButton`, `DPOutlinedButton`, `DPTextButton`
 - **Lists**: `DPClickableRow`, `DPLists`
 - **Input**: `DPTextFields`

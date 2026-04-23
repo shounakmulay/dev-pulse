@@ -17,13 +17,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPCard
-import dev.shounakmulay.core.designsystem.components.DPElevatedCard
+import dev.shounakmulay.core.designsystem.components.DPCardStyle
 import dev.shounakmulay.core.designsystem.components.DPHorizontalDivider
 import dev.shounakmulay.core.designsystem.components.DPListItem
-import dev.shounakmulay.core.designsystem.components.DPOutlinedCard
 import dev.shounakmulay.core.designsystem.components.DPVerticalDivider
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.core.designsystem.theme.DPDensity
+import dev.shounakmulay.core.designsystem.theme.DPIntent
 
 @Composable
 fun CardsAndListsBoard(modifier: Modifier = Modifier) {
@@ -32,47 +34,63 @@ fun CardsAndListsBoard(modifier: Modifier = Modifier) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { DPBody(text = "DPCard") }
-        item {
-            DPCard(modifier = Modifier.fillMaxWidth()) {
-                Text("Card content", modifier = Modifier.padding(16.dp))
+        DPCardStyle.entries.forEach { style ->
+            item { DPTextView(text = "DPCard – $style", variant = DPTextViewVariant.BodyMedium) }
+            item {
+                DPCard(modifier = Modifier.fillMaxWidth(), style = style) {
+                    Text("$style card content", modifier = Modifier.padding(16.dp))
+                }
             }
-        }
-
-        item { DPBody(text = "DPElevatedCard") }
-        item {
-            DPElevatedCard(modifier = Modifier.fillMaxWidth()) {
-                Text("Elevated card content", modifier = Modifier.padding(16.dp))
-            }
-        }
-
-        item { DPBody(text = "DPOutlinedCard") }
-        item {
-            DPOutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                Text("Outlined card content", modifier = Modifier.padding(16.dp))
+            item {
+                DPCard(modifier = Modifier.fillMaxWidth(), style = style, intent = DPIntent.Success) {
+                    Text("$style / Success", modifier = Modifier.padding(16.dp))
+                }
             }
         }
 
         item { DPHorizontalDivider() }
 
-        item { DPBody(text = "DPListItem") }
+        item { DPTextView(text = "DPListItem – text-first (intent × density)", variant = DPTextViewVariant.BodyMedium) }
         item {
             DPListItem(
-                headlineContent = { Text("Headline") },
-                supportingContent = { Text("Supporting text") },
+                headlineText = "Default",
+                supportingText = "Supporting text",
                 leadingContent = { Icon(Icons.Default.Person, contentDescription = null) },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
             )
         }
+        DPIntent.entries.forEach { intent ->
+            item {
+                DPListItem(
+                    headlineText = intent.name,
+                    supportingText = "Intent = $intent",
+                    intent = intent,
+                )
+            }
+        }
+        DPDensity.entries.forEach { density ->
+            item {
+                DPListItem(
+                    headlineText = "Density: $density",
+                    onClick = {},
+                    supportingText = "Clickable, density = $density",
+                    density = density,
+                )
+            }
+        }
         item {
             DPListItem(
-                headlineContent = { Text("Headline only") },
+                headlineText = "Selected",
+                onClick = {},
+                selected = true,
+                intent = DPIntent.Primary,
+                supportingText = "Branches to M3 selectable ListItem",
             )
         }
 
         item { DPHorizontalDivider() }
 
-        item { DPBody(text = "DPVerticalDivider") }
+        item { DPTextView(text = "DPVerticalDivider", variant = DPTextViewVariant.BodyMedium) }
         item {
             Row(
                 modifier = Modifier.height(IntrinsicSize.Min),

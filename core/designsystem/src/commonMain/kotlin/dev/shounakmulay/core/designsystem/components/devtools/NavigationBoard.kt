@@ -9,12 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -22,14 +20,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPBody
+import dev.shounakmulay.core.designsystem.components.DPLeadingIconTab
 import dev.shounakmulay.core.designsystem.components.DPNavigationBar
 import dev.shounakmulay.core.designsystem.components.DPNavigationBarItem
-import dev.shounakmulay.core.designsystem.components.DPPrimaryTabRow
 import dev.shounakmulay.core.designsystem.components.DPTab
+import dev.shounakmulay.core.designsystem.components.DPTabRow
+import dev.shounakmulay.core.designsystem.components.DPTabRowVariant
 import dev.shounakmulay.core.designsystem.components.DPTopAppBar
+import dev.shounakmulay.core.designsystem.components.DPTopAppBarVariant
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationBoard(modifier: Modifier = Modifier) {
     LazyColumn(
@@ -38,52 +40,130 @@ fun NavigationBoard(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         item {
-            DPBody(text = "Top App Bar", modifier = Modifier.padding(horizontal = 16.dp))
+            DPTextView(text = "Top App Bar – variants", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
             Spacer(Modifier.height(8.dp))
-            DPTopAppBar(
-                title = { Text("Page Title") },
-                navigationIcon = { Icon(Icons.Default.Home, contentDescription = null) },
-                actions = { Icon(Icons.Default.Settings, contentDescription = null) },
-            )
+            DPTopAppBarVariant.entries.forEach { variant ->
+                DPTopAppBar(
+                    title = "Page title",
+                    subtitle = "Subtitle",
+                    variant = variant,
+                    navigationIcon = Icons.Default.Home,
+                    onNavigationClick = {},
+                )
+                Spacer(Modifier.height(8.dp))
+            }
         }
 
         item {
-            DPBody(text = "Navigation Bar", modifier = Modifier.padding(horizontal = 16.dp))
+            DPTextView(text = "Navigation Bar", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
             Spacer(Modifier.height(8.dp))
             var selectedNav by remember { mutableIntStateOf(0) }
             DPNavigationBar(Modifier.fillMaxWidth()) {
                 DPNavigationBarItem(
+                    text = "Home",
+                    icon = Icons.Default.Home,
                     selected = selectedNav == 0,
                     onClick = { selectedNav = 0 },
-                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                    label = { Text("Home") },
                 )
                 DPNavigationBarItem(
+                    text = "Search",
+                    icon = Icons.Default.Search,
                     selected = selectedNav == 1,
                     onClick = { selectedNav = 1 },
-                    icon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    label = { Text("Search") },
                 )
                 DPNavigationBarItem(
+                    text = "Inbox",
+                    icon = Icons.Default.Mail,
                     selected = selectedNav == 2,
                     onClick = { selectedNav = 2 },
-                    icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                    label = { Text("Settings") },
+                    badgeText = "3",
+                )
+                DPNavigationBarItem(
+                    text = "Settings",
+                    icon = Icons.Default.Settings,
+                    selected = selectedNav == 3,
+                    onClick = { selectedNav = 3 },
                 )
             }
         }
 
         item {
-            DPBody(text = "Primary Tab Row", modifier = Modifier.padding(horizontal = 16.dp))
+            DPTextView(text = "Tab Row – Primary", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
             Spacer(Modifier.height(8.dp))
             var selectedTab by remember { mutableIntStateOf(0) }
             val tabs = listOf("Overview", "Details", "Reviews")
-            DPPrimaryTabRow(selectedTabIndex = selectedTab, modifier = Modifier.fillMaxWidth()) {
+            DPTabRow(
+                selectedTabIndex = selectedTab,
+                variant = DPTabRowVariant.Primary,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 tabs.forEachIndexed { index, title ->
                     DPTab(
+                        text = title,
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        text = { Text(title) },
+                    )
+                }
+            }
+        }
+
+        item {
+            DPTextView(text = "Tab Row – Secondary", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
+            Spacer(Modifier.height(8.dp))
+            var selectedTab by remember { mutableIntStateOf(1) }
+            val tabs = listOf("Alpha", "Beta", "Gamma")
+            DPTabRow(
+                selectedTabIndex = selectedTab,
+                variant = DPTabRowVariant.Secondary,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    DPTab(
+                        text = title,
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        icon = Icons.Default.Home,
+                    )
+                }
+            }
+        }
+
+        item {
+            DPTextView(text = "Tab Row – Scrollable Primary", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
+            Spacer(Modifier.height(8.dp))
+            var selectedTab by remember { mutableIntStateOf(0) }
+            val tabs = listOf("One", "Two", "Three", "Four", "Five", "Six", "Seven")
+            DPTabRow(
+                selectedTabIndex = selectedTab,
+                variant = DPTabRowVariant.ScrollablePrimary,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    DPTab(
+                        text = title,
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                    )
+                }
+            }
+        }
+
+        item {
+            DPTextView(text = "Leading Icon Tab", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(horizontal = 16.dp))
+            Spacer(Modifier.height(8.dp))
+            var selectedTab by remember { mutableIntStateOf(0) }
+            val tabs = listOf("Inbox" to Icons.Default.Mail, "Settings" to Icons.Default.Settings)
+            DPTabRow(
+                selectedTabIndex = selectedTab,
+                variant = DPTabRowVariant.Primary,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                tabs.forEachIndexed { index, (title, icon) ->
+                    DPLeadingIconTab(
+                        text = title,
+                        icon = icon,
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
                     )
                 }
             }

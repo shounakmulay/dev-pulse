@@ -14,13 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.core.designsystem.components.DPBody
 import dev.shounakmulay.core.designsystem.components.DPCheckbox
 import dev.shounakmulay.core.designsystem.components.DPRadioButton
 import dev.shounakmulay.core.designsystem.components.DPRangeSlider
 import dev.shounakmulay.core.designsystem.components.DPSlider
 import dev.shounakmulay.core.designsystem.components.DPSwitch
 import dev.shounakmulay.core.designsystem.components.DPTriStateCheckbox
+import dev.shounakmulay.core.designsystem.components.DPTextView
+import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 
 @Composable
 fun SelectionControlsBoard(modifier: Modifier = Modifier) {
@@ -29,22 +30,22 @@ fun SelectionControlsBoard(modifier: Modifier = Modifier) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { DPBody(text = "DPCheckbox") }
+        item { DPTextView(text = "DPCheckbox", variant = DPTextViewVariant.BodyMedium) }
         item {
             var checked by remember { mutableStateOf(false) }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 DPCheckbox(checked = checked, onCheckedChange = { checked = it })
-                DPBody(text = "Enabled")
+                DPTextView(text = "Enabled", variant = DPTextViewVariant.BodyMedium)
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 DPCheckbox(checked = true, onCheckedChange = null, enabled = false)
-                DPBody(text = "Disabled checked")
+                DPTextView(text = "Disabled checked", variant = DPTextViewVariant.BodyMedium)
             }
         }
 
-        item { DPBody(text = "DPTriStateCheckbox") }
+        item { DPTextView(text = "DPTriStateCheckbox", variant = DPTextViewVariant.BodyMedium) }
         item {
             var state by remember { mutableStateOf(ToggleableState.Indeterminate) }
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -58,11 +59,11 @@ fun SelectionControlsBoard(modifier: Modifier = Modifier) {
                         }
                     },
                 )
-                DPBody(text = state.toString())
+                DPTextView(text = state.toString(), variant = DPTextViewVariant.BodyMedium)
             }
         }
 
-        item { DPBody(text = "DPRadioButton") }
+        item { DPTextView(text = "DPRadioButton", variant = DPTextViewVariant.BodyMedium) }
         item {
             var selected by remember { mutableStateOf(0) }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -72,13 +73,13 @@ fun SelectionControlsBoard(modifier: Modifier = Modifier) {
                             selected = selected == index,
                             onClick = { selected = index },
                         )
-                        DPBody(text = label)
+                        DPTextView(text = label, variant = DPTextViewVariant.BodyMedium)
                     }
                 }
             }
         }
 
-        item { DPBody(text = "DPSwitch") }
+        item { DPTextView(text = "DPSwitch", variant = DPTextViewVariant.BodyMedium) }
         item {
             var on by remember { mutableStateOf(true) }
             Row(
@@ -86,14 +87,14 @@ fun SelectionControlsBoard(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 DPSwitch(checked = on, onCheckedChange = { on = it })
-                DPBody(text = if (on) "On" else "Off")
+                DPTextView(text = if (on) "On" else "Off", variant = DPTextViewVariant.BodyMedium)
             }
         }
         item {
             DPSwitch(checked = false, onCheckedChange = null, enabled = false)
         }
 
-        item { DPBody(text = "DPSlider") }
+        item { DPTextView(text = "DPSlider", variant = DPTextViewVariant.BodyMedium) }
         item {
             var value by remember { mutableStateOf(0.5f) }
             DPSlider(
@@ -103,7 +104,7 @@ fun SelectionControlsBoard(modifier: Modifier = Modifier) {
             )
         }
 
-        item { DPBody(text = "DPRangeSlider") }
+        item { DPTextView(text = "DPRangeSlider", variant = DPTextViewVariant.BodyMedium) }
         item {
             var range by remember { mutableStateOf(0.2f..0.8f) }
             DPRangeSlider(

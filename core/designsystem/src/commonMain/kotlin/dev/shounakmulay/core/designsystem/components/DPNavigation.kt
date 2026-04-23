@@ -1,45 +1,46 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+
 package dev.shounakmulay.core.designsystem.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.BottomAppBarScrollBehavior
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Mail
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DismissibleDrawerSheet
-import androidx.compose.material3.DismissibleNavigationDrawer
 import androidx.compose.material3.DrawerDefaults
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemColors
-import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailDefaults
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemColors
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.PermanentDrawerSheet
-import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.SecondaryScrollableTabRow
@@ -53,774 +54,661 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.TwoRowsTopAppBar
-import androidx.compose.material3.WideNavigationRail
-import androidx.compose.material3.WideNavigationRailColors
-import androidx.compose.material3.WideNavigationRailDefaults
-import androidx.compose.material3.WideNavigationRailItem
-import androidx.compose.material3.WideNavigationRailItemDefaults
-import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.NavigationItemColors
-import androidx.compose.material3.NavigationItemIconPosition
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.ScrollState
-import androidx.compose.material3.NavigationBarItem
 import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.core.designsystem.compose.Preview
+import dev.shounakmulay.core.designsystem.theme.DPElevationLevel
+import dev.shounakmulay.core.designsystem.theme.DPTheme
+import dev.shounakmulay.core.designsystem.theme.value
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+// -----------------------------------------------------------------------------
+// Top app bar
+// -----------------------------------------------------------------------------
+
+enum class DPTopAppBarVariant {
+    Small,
+    CenterAligned,
+    Medium,
+    Large,
+    TwoRows,
+}
+
+
 @Composable
 fun DPTopAppBar(
-    title: @Composable () -> Unit,
+    title: String,
     modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
+    subtitle: String? = null,
+    variant: DPTopAppBarVariant = DPTopAppBarVariant.Small,
+    navigationIcon: ImageVector? = null,
+    onNavigationClick: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
-    expandedHeight: Dp = TopAppBarDefaults.TopAppBarExpandedHeight,
-    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    contentPadding: PaddingValues = TopAppBarDefaults.ContentPadding,
-) = TopAppBar(
-    title = title,
-    modifier = modifier,
-    navigationIcon = navigationIcon,
-    actions = actions,
-    expandedHeight = expandedHeight,
-    windowInsets = windowInsets,
-    colors = colors,
-    scrollBehavior = scrollBehavior,
-    contentPadding = contentPadding,
-)
+    colors: TopAppBarColors? = null,
+    windowInsets: WindowInsets? = null,
+) {
+    val nav: @Composable () -> Unit = {
+        if (navigationIcon != null) {
+            IconButton(onClick = onNavigationClick ?: {}) {
+                Icon(
+                    imageVector = navigationIcon,
+                    contentDescription = null,
+                )
+            }
+        }
+    }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    DPTopAppBar(
+        title = title,
+        modifier = modifier,
+        subtitle = subtitle,
+        variant = variant,
+        navigationIcon = nav,
+        actions = actions,
+        scrollBehavior = scrollBehavior,
+        colors = colors,
+        windowInsets = windowInsets
+    )
+
+}
+
 @Composable
 fun DPTopAppBar(
-    title: @Composable () -> Unit,
-    subtitle: @Composable () -> Unit,
+    title: String,
     modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    variant: DPTopAppBarVariant = DPTopAppBarVariant.Small,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    titleHorizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    expandedHeight: Dp = TopAppBarDefaults.TopAppBarExpandedHeight,
-    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    contentPadding: PaddingValues = TopAppBarDefaults.ContentPadding,
-) = TopAppBar(
-    title = title,
-    subtitle = subtitle,
-    modifier = modifier,
-    navigationIcon = navigationIcon,
-    actions = actions,
-    titleHorizontalAlignment = titleHorizontalAlignment,
-    expandedHeight = expandedHeight,
-    windowInsets = windowInsets,
-    colors = colors,
-    scrollBehavior = scrollBehavior,
-    contentPadding = contentPadding,
-)
+    colors: TopAppBarColors? = null,
+    windowInsets: WindowInsets? = null,
+) {
+    val titleSlot: @Composable () -> Unit = { DPTextView(text = title, variant = DPTextViewVariant.TitleLarge) }
+    val subtitleSlot: @Composable () -> Unit = {
+        DPTextView(
+            text = subtitle!!,
+            variant = DPTextViewVariant.LabelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+    val resolvedColors = colors ?: TopAppBarDefaults.topAppBarColors()
+    val resolvedInsets = windowInsets ?: TopAppBarDefaults.windowInsets
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
-@Composable
-fun DPCenterAlignedTopAppBar(
-    title: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    expandedHeight: Dp = TopAppBarDefaults.TopAppBarExpandedHeight,
-    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-    contentPadding: PaddingValues = TopAppBarDefaults.ContentPadding,
-) = CenterAlignedTopAppBar(
-    title = title,
-    modifier = modifier,
-    navigationIcon = navigationIcon,
-    actions = actions,
-    expandedHeight = expandedHeight,
-    windowInsets = windowInsets,
-    colors = colors,
-    scrollBehavior = scrollBehavior,
-    contentPadding = contentPadding,
-)
+    when (variant) {
+        DPTopAppBarVariant.Small -> {
+            if (subtitle != null) {
+                TopAppBar(
+                    title = titleSlot,
+                    subtitle = subtitleSlot,
+                    modifier = modifier,
+                    navigationIcon = navigationIcon,
+                    actions = actions,
+                    titleHorizontalAlignment = Alignment.Start,
+                    expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight,
+                    windowInsets = resolvedInsets,
+                    colors = resolvedColors,
+                    scrollBehavior = scrollBehavior,
+                    contentPadding = TopAppBarDefaults.ContentPadding,
+                )
+            } else {
+                TopAppBar(
+                    title = titleSlot,
+                    modifier = modifier,
+                    navigationIcon = navigationIcon,
+                    actions = actions,
+                    expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight,
+                    windowInsets = resolvedInsets,
+                    colors = resolvedColors,
+                    scrollBehavior = scrollBehavior,
+                    contentPadding = TopAppBarDefaults.ContentPadding,
+                )
+            }
+        }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
-@Composable
-fun DPMediumTopAppBar(
-    title: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    collapsedHeight: Dp = TopAppBarDefaults.MediumAppBarCollapsedHeight,
-    expandedHeight: Dp = TopAppBarDefaults.MediumAppBarExpandedHeight,
-    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-) = MediumTopAppBar(
-    title = title,
-    modifier = modifier,
-    navigationIcon = navigationIcon,
-    actions = actions,
-    collapsedHeight = collapsedHeight,
-    expandedHeight = expandedHeight,
-    windowInsets = windowInsets,
-    colors = colors,
-    scrollBehavior = scrollBehavior,
-)
+        DPTopAppBarVariant.CenterAligned -> {
+            val titleForCenter: @Composable () -> Unit = {
+                if (subtitle != null) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
+                        DPTextView(
+                            text = subtitle,
+                            variant = DPTextViewVariant.LabelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                } else {
+                    DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
+                }
+            }
+            CenterAlignedTopAppBar(
+                title = titleForCenter,
+                modifier = modifier,
+                navigationIcon = navigationIcon,
+                actions = actions,
+                expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight,
+                windowInsets = resolvedInsets,
+                colors = resolvedColors,
+                scrollBehavior = scrollBehavior,
+                contentPadding = TopAppBarDefaults.ContentPadding,
+            )
+        }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
-@Composable
-fun DPLargeTopAppBar(
-    title: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    collapsedHeight: Dp = TopAppBarDefaults.LargeAppBarCollapsedHeight,
-    expandedHeight: Dp = TopAppBarDefaults.LargeAppBarExpandedHeight,
-    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-) = LargeTopAppBar(
-    title = title,
-    modifier = modifier,
-    navigationIcon = navigationIcon,
-    actions = actions,
-    collapsedHeight = collapsedHeight,
-    expandedHeight = expandedHeight,
-    windowInsets = windowInsets,
-    colors = colors,
-    scrollBehavior = scrollBehavior,
-)
+        DPTopAppBarVariant.Medium -> {
+            val titleForMedium: @Composable () -> Unit = {
+                if (subtitle != null) {
+                    Column {
+                        DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
+                        DPTextView(
+                            text = subtitle,
+                            variant = DPTextViewVariant.LabelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                } else {
+                    DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
+                }
+            }
+            MediumTopAppBar(
+                title = titleForMedium,
+                modifier = modifier,
+                navigationIcon = navigationIcon,
+                actions = actions,
+                collapsedHeight = TopAppBarDefaults.MediumAppBarCollapsedHeight,
+                expandedHeight = TopAppBarDefaults.MediumAppBarExpandedHeight,
+                windowInsets = resolvedInsets,
+                colors = resolvedColors,
+                scrollBehavior = scrollBehavior,
+            )
+        }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun DPTwoRowsTopAppBar(
-    title: @Composable (expanded: Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    subtitle: (@Composable (expanded: Boolean) -> Unit)? = null,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    titleHorizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    collapsedHeight: Dp = Dp.Unspecified,
-    expandedHeight: Dp = Dp.Unspecified,
-    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-) = TwoRowsTopAppBar(
-    title = title,
-    modifier = modifier,
-    subtitle = subtitle,
-    navigationIcon = navigationIcon,
-    actions = actions,
-    titleHorizontalAlignment = titleHorizontalAlignment,
-    collapsedHeight = collapsedHeight,
-    expandedHeight = expandedHeight,
-    windowInsets = windowInsets,
-    colors = colors,
-    scrollBehavior = scrollBehavior,
-)
+        DPTopAppBarVariant.Large -> {
+            val titleForLarge: @Composable () -> Unit = {
+                if (subtitle != null) {
+                    Column {
+                        DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
+                        DPTextView(
+                            text = subtitle,
+                            variant = DPTextViewVariant.LabelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                } else {
+                    DPTextView(text = title, variant = DPTextViewVariant.TitleLarge)
+                }
+            }
+            LargeTopAppBar(
+                title = titleForLarge,
+                modifier = modifier,
+                navigationIcon = navigationIcon,
+                actions = actions,
+                collapsedHeight = TopAppBarDefaults.LargeAppBarCollapsedHeight,
+                expandedHeight = TopAppBarDefaults.LargeAppBarExpandedHeight,
+                windowInsets = resolvedInsets,
+                colors = resolvedColors,
+                scrollBehavior = scrollBehavior,
+            )
+        }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DPBottomAppBar(
-    actions: @Composable RowScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    floatingActionButton: @Composable (() -> Unit)? = null,
-    containerColor: Color = BottomAppBarDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
-    contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
-    windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
-) = BottomAppBar(
-    actions = actions,
-    modifier = modifier,
-    floatingActionButton = floatingActionButton,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    tonalElevation = tonalElevation,
-    contentPadding = contentPadding,
-    windowInsets = windowInsets,
-)
+        DPTopAppBarVariant.TwoRows -> {
+            TwoRowsTopAppBar(
+                title = { DPTextView(text = title, variant = DPTextViewVariant.TitleLarge) },
+                modifier = modifier,
+                subtitle = if (subtitle != null) {
+                    {
+                        DPTextView(
+                            text = subtitle,
+                            variant = DPTextViewVariant.LabelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    null
+                },
+                navigationIcon = navigationIcon,
+                actions = actions,
+                titleHorizontalAlignment = Alignment.Start,
+                collapsedHeight = Dp.Unspecified,
+                expandedHeight = Dp.Unspecified,
+                windowInsets = resolvedInsets,
+                colors = resolvedColors,
+                scrollBehavior = scrollBehavior,
+            )
+        }
+    }
+}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DPBottomAppBar(
-    actions: @Composable RowScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    floatingActionButton: @Composable (() -> Unit)? = null,
-    containerColor: Color = BottomAppBarDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
-    contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
-    windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
-    scrollBehavior: BottomAppBarScrollBehavior? = null,
-) = BottomAppBar(
-    actions = actions,
-    modifier = modifier,
-    floatingActionButton = floatingActionButton,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    tonalElevation = tonalElevation,
-    contentPadding = contentPadding,
-    windowInsets = windowInsets,
-    scrollBehavior = scrollBehavior,
-)
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DPBottomAppBar(
-    modifier: Modifier = Modifier,
-    containerColor: Color = BottomAppBarDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
-    contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
-    windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
-    content: @Composable RowScope.() -> Unit,
-) = BottomAppBar(
-    modifier = modifier,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    tonalElevation = tonalElevation,
-    contentPadding = contentPadding,
-    windowInsets = windowInsets,
-    content = content,
-)
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DPBottomAppBar(
-    modifier: Modifier = Modifier,
-    containerColor: Color = BottomAppBarDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
-    contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
-    windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
-    scrollBehavior: BottomAppBarScrollBehavior? = null,
-    content: @Composable RowScope.() -> Unit,
-) = BottomAppBar(
-    modifier = modifier,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    tonalElevation = tonalElevation,
-    contentPadding = contentPadding,
-    windowInsets = windowInsets,
-    scrollBehavior = scrollBehavior,
-    content = content,
-)
+// -----------------------------------------------------------------------------
+// Navigation bar
+// -----------------------------------------------------------------------------
 
 @Composable
 fun DPNavigationBar(
     modifier: Modifier = Modifier,
-    containerColor: Color = NavigationBarDefaults.containerColor,
-    contentColor: Color = MaterialTheme.colorScheme.contentColorFor(containerColor),
-    tonalElevation: Dp = NavigationBarDefaults.Elevation,
-    windowInsets: WindowInsets = NavigationBarDefaults.windowInsets,
+    containerColor: Color? = null,
+    contentColor: Color? = null,
+    tonalElevation: DPElevationLevel = DPElevationLevel.Level2,
+    windowInsets: WindowInsets? = null,
     content: @Composable RowScope.() -> Unit,
-) = NavigationBar(
-    modifier = modifier,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    tonalElevation = tonalElevation,
-    windowInsets = windowInsets,
-    content = content,
-)
+) {
+    val bg = containerColor ?: NavigationBarDefaults.containerColor
+    val c = contentColor ?: MaterialTheme.colorScheme.contentColorFor(bg)
+    NavigationBar(
+        modifier = modifier,
+        containerColor = bg,
+        contentColor = c,
+        tonalElevation = tonalElevation.value(),
+        windowInsets = windowInsets ?: NavigationBarDefaults.windowInsets,
+        content = content,
+    )
+}
 
 @Composable
 fun RowScope.DPNavigationBarItem(
+    text: String,
+    icon: ImageVector,
     selected: Boolean,
     onClick: () -> Unit,
-    icon: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    label: @Composable (() -> Unit)? = null,
+    selectedIcon: ImageVector = icon,
     alwaysShowLabel: Boolean = true,
-    colors: NavigationBarItemColors = NavigationBarItemDefaults.colors(),
-    interactionSource: MutableInteractionSource? = null,
+    badgeText: String? = null,
+    enabled: Boolean = true,
+    colors: NavigationBarItemColors? = null,
 ) {
+    val resolvedColors = colors ?: NavigationBarItemDefaults.colors()
     NavigationBarItem(
         selected = selected,
         onClick = onClick,
-        icon = icon,
+        icon = {
+            if (badgeText != null) {
+                BadgedBox(
+                    badge = {
+                        Badge { Text(badgeText) }
+                    },
+                ) {
+                    Icon(
+                        imageVector = if (selected) selectedIcon else icon,
+                        contentDescription = null,
+                    )
+                }
+            } else {
+                Icon(
+                    imageVector = if (selected) selectedIcon else icon,
+                    contentDescription = null,
+                )
+            }
+        },
+        label = { DPTextView(text = text, variant = DPTextViewVariant.LabelSmall) },
         modifier = modifier,
         enabled = enabled,
-        label = label,
         alwaysShowLabel = alwaysShowLabel,
-        colors = colors,
-        interactionSource = interactionSource,
+        colors = resolvedColors,
     )
 }
+
+// -----------------------------------------------------------------------------
+// Navigation rail
+// -----------------------------------------------------------------------------
 
 @Composable
 fun DPNavigationRail(
     modifier: Modifier = Modifier,
-    containerColor: Color = NavigationRailDefaults.ContainerColor,
-    contentColor: Color = contentColorFor(containerColor),
     header: @Composable (ColumnScope.() -> Unit)? = null,
-    windowInsets: WindowInsets = NavigationRailDefaults.windowInsets,
+    containerColor: Color? = null,
+    contentColor: Color? = null,
+    windowInsets: WindowInsets? = null,
     content: @Composable ColumnScope.() -> Unit,
-) = NavigationRail(
-    modifier = modifier,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    header = header,
-    windowInsets = windowInsets,
-    content = content,
-)
-
-@Composable
-fun ColumnScope.DPNavigationRailItem(
-    selected: Boolean,
-    onClick: () -> Unit,
-    icon: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    label: @Composable (() -> Unit)? = null,
-    alwaysShowLabel: Boolean = true,
-    colors: NavigationRailItemColors = NavigationRailItemDefaults.colors(),
-    interactionSource: MutableInteractionSource? = null,
 ) {
-    androidx.compose.material3.NavigationRailItem(
-        selected = selected,
-        onClick = onClick,
-        icon = icon,
+    val bg = containerColor ?: NavigationRailDefaults.ContainerColor
+    val c = contentColor ?: contentColorFor(bg)
+    NavigationRail(
         modifier = modifier,
-        enabled = enabled,
-        label = label,
-        alwaysShowLabel = alwaysShowLabel,
-        colors = colors,
-        interactionSource = interactionSource,
+        containerColor = bg,
+        contentColor = c,
+        header = header,
+        windowInsets = windowInsets ?: NavigationRailDefaults.windowInsets,
+        content = content,
     )
 }
 
 @Composable
-fun DPWideNavigationRail(
-    modifier: Modifier = Modifier,
-    state: WideNavigationRailState = rememberWideNavigationRailState(),
-    shape: Shape = WideNavigationRailDefaults.shape,
-    colors: WideNavigationRailColors = WideNavigationRailDefaults.colors(),
-    header: @Composable (() -> Unit)? = null,
-    windowInsets: WindowInsets = WideNavigationRailDefaults.windowInsets,
-    arrangement: Arrangement.Vertical = WideNavigationRailDefaults.arrangement,
-    contentPadding: PaddingValues = WideNavigationRailDefaults.ContentPadding,
-    content: @Composable () -> Unit,
-) = WideNavigationRail(
-    modifier = modifier,
-    state = state,
-    shape = shape,
-    colors = colors,
-    header = header,
-    windowInsets = windowInsets,
-    arrangement = arrangement,
-    contentPadding = contentPadding,
-    content = content,
-)
-
-@Composable
-fun DPWideNavigationRailItem(
+fun ColumnScope.DPNavigationRailItem(
+    text: String,
+    icon: ImageVector,
     selected: Boolean,
     onClick: () -> Unit,
-    icon: @Composable () -> Unit,
-    label: @Composable (() -> Unit)?,
-    railExpanded: Boolean,
+    modifier: Modifier = Modifier,
+    selectedIcon: ImageVector = icon,
+    alwaysShowLabel: Boolean = true,
+    badgeText: String? = null,
+    enabled: Boolean = true,
+    colors: NavigationRailItemColors? = null,
+) {
+    val resolvedColors = colors ?: NavigationRailItemDefaults.colors()
+    NavigationRailItem(
+        selected = selected,
+        onClick = onClick,
+        icon = {
+            if (badgeText != null) {
+                BadgedBox(
+                    badge = {
+                        Badge { Text(badgeText) }
+                    },
+                ) {
+                    Icon(
+                        imageVector = if (selected) selectedIcon else icon,
+                        contentDescription = null,
+                    )
+                }
+            } else {
+                Icon(
+                    imageVector = if (selected) selectedIcon else icon,
+                    contentDescription = null,
+                )
+            }
+        },
+        label = { DPTextView(text = text, variant = DPTextViewVariant.LabelSmall) },
+        modifier = modifier,
+        enabled = enabled,
+        alwaysShowLabel = alwaysShowLabel,
+        colors = resolvedColors,
+    )
+}
+
+// -----------------------------------------------------------------------------
+// Tabs
+// -----------------------------------------------------------------------------
+
+enum class DPTabRowVariant {
+    Primary,
+    Secondary,
+    ScrollablePrimary,
+    ScrollableSecondary,
+}
+
+@Composable
+fun DPTabRow(
+    selectedTabIndex: Int,
+    modifier: Modifier = Modifier,
+    variant: DPTabRowVariant = DPTabRowVariant.Primary,
+    containerColor: Color? = null,
+    contentColor: Color? = null,
+    edgePadding: Dp = TabRowDefaults.ScrollableTabRowEdgeStartPadding,
+    indicator: @Composable (TabIndicatorScope.() -> Unit)? = null,
+    divider: @Composable () -> Unit = { HorizontalDivider() },
+    tabs: @Composable () -> Unit,
+) {
+    val scrollState = rememberScrollState()
+    val defaultPrimaryIndicator: @Composable TabIndicatorScope.() -> Unit = {
+        TabRowDefaults.PrimaryIndicator(
+            modifier = Modifier.tabIndicatorOffset(selectedTabIndex, matchContentSize = true),
+            width = Dp.Unspecified,
+        )
+    }
+    val defaultSecondaryIndicator: @Composable TabIndicatorScope.() -> Unit = {
+        TabRowDefaults.SecondaryIndicator(
+            Modifier.tabIndicatorOffset(selectedTabIndex, matchContentSize = false),
+        )
+    }
+    val resolvedPrimaryIndicator = indicator ?: defaultPrimaryIndicator
+    val resolvedSecondaryIndicator = indicator ?: defaultSecondaryIndicator
+    when (variant) {
+        DPTabRowVariant.Primary -> PrimaryTabRow(
+            selectedTabIndex = selectedTabIndex,
+            modifier = modifier,
+            containerColor = containerColor ?: TabRowDefaults.primaryContainerColor,
+            contentColor = contentColor ?: TabRowDefaults.primaryContentColor,
+            indicator = resolvedPrimaryIndicator,
+            divider = divider,
+            tabs = tabs,
+        )
+
+        DPTabRowVariant.Secondary -> SecondaryTabRow(
+            selectedTabIndex = selectedTabIndex,
+            modifier = modifier,
+            containerColor = containerColor ?: TabRowDefaults.secondaryContainerColor,
+            contentColor = contentColor ?: TabRowDefaults.secondaryContentColor,
+            indicator = resolvedSecondaryIndicator,
+            divider = divider,
+            tabs = tabs,
+        )
+
+        DPTabRowVariant.ScrollablePrimary -> PrimaryScrollableTabRow(
+            selectedTabIndex = selectedTabIndex,
+            modifier = modifier,
+            scrollState = scrollState,
+            containerColor = containerColor ?: TabRowDefaults.primaryContainerColor,
+            contentColor = contentColor ?: TabRowDefaults.primaryContentColor,
+            edgePadding = edgePadding,
+            indicator = resolvedPrimaryIndicator,
+            divider = divider,
+            minTabWidth = TabRowDefaults.ScrollableTabRowMinTabWidth,
+            tabs = tabs,
+        )
+
+        DPTabRowVariant.ScrollableSecondary -> SecondaryScrollableTabRow(
+            selectedTabIndex = selectedTabIndex,
+            modifier = modifier,
+            scrollState = scrollState,
+            containerColor = containerColor ?: TabRowDefaults.secondaryContainerColor,
+            contentColor = contentColor ?: TabRowDefaults.secondaryContentColor,
+            edgePadding = edgePadding,
+            indicator = resolvedSecondaryIndicator,
+            divider = divider,
+            minTabWidth = TabRowDefaults.ScrollableTabRowMinTabWidth,
+            tabs = tabs,
+        )
+    }
+}
+
+@Composable
+fun DPTab(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    enabled: Boolean = true,
+    selectedContentColor: Color? = null,
+    unselectedContentColor: Color? = null,
+) {
+    val sel = selectedContentColor ?: LocalContentColor.current
+    val unsel = unselectedContentColor ?: sel
+    if (icon == null) {
+        Tab(
+            selected = selected,
+            onClick = onClick,
+            modifier = modifier,
+            enabled = enabled,
+            text = { DPTextView(text = text, variant = DPTextViewVariant.LabelMedium) },
+            selectedContentColor = sel,
+            unselectedContentColor = unsel,
+        )
+    } else {
+        Tab(
+            selected = selected,
+            onClick = onClick,
+            modifier = modifier,
+            enabled = enabled,
+            text = { DPTextView(text = text, variant = DPTextViewVariant.LabelMedium) },
+            icon = { Icon(imageVector = icon, contentDescription = null) },
+            selectedContentColor = sel,
+            unselectedContentColor = unsel,
+        )
+    }
+}
+
+@Composable
+fun DPLeadingIconTab(
+    text: String,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    iconPosition: NavigationItemIconPosition =
-        WideNavigationRailItemDefaults.iconPositionFor(railExpanded),
-    colors: NavigationItemColors = WideNavigationRailItemDefaults.colors(),
-    interactionSource: MutableInteractionSource? = null,
-    indicatorPadding: PaddingValues =
-        WideNavigationRailItemDefaults.indicatorPadding(railExpanded = railExpanded),
-) = WideNavigationRailItem(
-    selected = selected,
-    onClick = onClick,
-    icon = icon,
-    label = label,
-    railExpanded = railExpanded,
-    modifier = modifier,
-    enabled = enabled,
-    iconPosition = iconPosition,
-    colors = colors,
-    interactionSource = interactionSource,
-    indicatorPadding = indicatorPadding,
-)
+    selectedContentColor: Color? = null,
+    unselectedContentColor: Color? = null,
+) {
+    LeadingIconTab(
+        selected = selected,
+        onClick = onClick,
+        text = { DPTextView(text = text, variant = DPTextViewVariant.LabelMedium) },
+        icon = { Icon(imageVector = icon, contentDescription = null) },
+        modifier = modifier,
+        enabled = enabled,
+        selectedContentColor = selectedContentColor ?: LocalContentColor.current,
+        unselectedContentColor = unselectedContentColor ?: (selectedContentColor
+            ?: LocalContentColor.current),
+    )
+}
 
-@Composable
-fun DPModalNavigationDrawer(
-    drawerContent: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    gesturesEnabled: Boolean = true,
-    scrimColor: Color = DrawerDefaults.scrimColor,
-    content: @Composable () -> Unit,
-) = ModalNavigationDrawer(
-    drawerContent = drawerContent,
-    modifier = modifier,
-    drawerState = drawerState,
-    gesturesEnabled = gesturesEnabled,
-    scrimColor = scrimColor,
-    content = content,
-)
-
-@Composable
-fun DPDismissibleNavigationDrawer(
-    drawerContent: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    gesturesEnabled: Boolean = true,
-    content: @Composable () -> Unit,
-) = DismissibleNavigationDrawer(
-    drawerContent = drawerContent,
-    modifier = modifier,
-    drawerState = drawerState,
-    gesturesEnabled = gesturesEnabled,
-    content = content,
-)
-
-@Composable
-fun DPPermanentNavigationDrawer(
-    drawerContent: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) = PermanentNavigationDrawer(
-    drawerContent = drawerContent,
-    modifier = modifier,
-    content = content,
-)
-
-@Composable
-fun DPNavigationDrawerItem(
-    label: @Composable () -> Unit,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    icon: (@Composable () -> Unit)? = null,
-    badge: (@Composable () -> Unit)? = null,
-    colors: NavigationDrawerItemColors = NavigationDrawerItemDefaults.colors(),
-    interactionSource: MutableInteractionSource? = null,
-) = NavigationDrawerItem(
-    label = label,
-    selected = selected,
-    onClick = onClick,
-    modifier = modifier,
-    icon = icon,
-    badge = badge,
-    colors = colors,
-    interactionSource = interactionSource,
-)
+// -----------------------------------------------------------------------------
+// Drawer sheets (containers are kept as raw M3; sheets apply DPElevationLevel)
+// -----------------------------------------------------------------------------
 
 @Composable
 fun DPModalDrawerSheet(
     modifier: Modifier = Modifier,
-    drawerShape: Shape = DrawerDefaults.shape,
-    drawerContainerColor: Color = DrawerDefaults.modalContainerColor,
-    drawerContentColor: Color = contentColorFor(drawerContainerColor),
-    drawerTonalElevation: Dp = DrawerDefaults.ModalDrawerElevation,
-    windowInsets: WindowInsets = DrawerDefaults.windowInsets,
+    drawerShape: Shape? = null,
+    drawerContainerColor: Color? = null,
+    drawerContentColor: Color? = null,
+    drawerTonalElevation: DPElevationLevel = DPElevationLevel.Level1,
+    windowInsets: WindowInsets? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) = ModalDrawerSheet(
     modifier = modifier,
-    drawerShape = drawerShape,
-    drawerContainerColor = drawerContainerColor,
-    drawerContentColor = drawerContentColor,
-    drawerTonalElevation = drawerTonalElevation,
-    windowInsets = windowInsets,
-    content = content,
-)
-
-@Composable
-fun DPModalDrawerSheet(
-    drawerState: DrawerState,
-    modifier: Modifier = Modifier,
-    drawerShape: Shape = DrawerDefaults.shape,
-    drawerContainerColor: Color = DrawerDefaults.modalContainerColor,
-    drawerContentColor: Color = contentColorFor(drawerContainerColor),
-    drawerTonalElevation: Dp = DrawerDefaults.ModalDrawerElevation,
-    windowInsets: WindowInsets = DrawerDefaults.windowInsets,
-    content: @Composable ColumnScope.() -> Unit,
-) = ModalDrawerSheet(
-    drawerState = drawerState,
-    modifier = modifier,
-    drawerShape = drawerShape,
-    drawerContainerColor = drawerContainerColor,
-    drawerContentColor = drawerContentColor,
-    drawerTonalElevation = drawerTonalElevation,
-    windowInsets = windowInsets,
+    drawerShape = drawerShape ?: DrawerDefaults.shape,
+    drawerContainerColor = drawerContainerColor ?: DrawerDefaults.modalContainerColor,
+    drawerContentColor = drawerContentColor
+        ?: contentColorFor(drawerContainerColor ?: DrawerDefaults.modalContainerColor),
+    drawerTonalElevation = drawerTonalElevation.value(),
+    windowInsets = windowInsets ?: DrawerDefaults.windowInsets,
     content = content,
 )
 
 @Composable
 fun DPDismissibleDrawerSheet(
     modifier: Modifier = Modifier,
-    drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = DrawerDefaults.standardContainerColor,
-    drawerContentColor: Color = contentColorFor(drawerContainerColor),
-    drawerTonalElevation: Dp = DrawerDefaults.DismissibleDrawerElevation,
-    windowInsets: WindowInsets = DrawerDefaults.windowInsets,
+    drawerShape: Shape? = null,
+    drawerContainerColor: Color? = null,
+    drawerContentColor: Color? = null,
+    drawerTonalElevation: DPElevationLevel = DPElevationLevel.Level1,
+    windowInsets: WindowInsets? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) = DismissibleDrawerSheet(
     modifier = modifier,
-    drawerShape = drawerShape,
-    drawerContainerColor = drawerContainerColor,
-    drawerContentColor = drawerContentColor,
-    drawerTonalElevation = drawerTonalElevation,
-    windowInsets = windowInsets,
-    content = content,
-)
-
-@Composable
-fun DPDismissibleDrawerSheet(
-    drawerState: DrawerState,
-    modifier: Modifier = Modifier,
-    drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = DrawerDefaults.standardContainerColor,
-    drawerContentColor: Color = contentColorFor(drawerContainerColor),
-    drawerTonalElevation: Dp = DrawerDefaults.DismissibleDrawerElevation,
-    windowInsets: WindowInsets = DrawerDefaults.windowInsets,
-    content: @Composable ColumnScope.() -> Unit,
-) = DismissibleDrawerSheet(
-    drawerState = drawerState,
-    modifier = modifier,
-    drawerShape = drawerShape,
-    drawerContainerColor = drawerContainerColor,
-    drawerContentColor = drawerContentColor,
-    drawerTonalElevation = drawerTonalElevation,
-    windowInsets = windowInsets,
+    drawerShape = drawerShape ?: RectangleShape,
+    drawerContainerColor = drawerContainerColor ?: DrawerDefaults.standardContainerColor,
+    drawerContentColor = drawerContentColor
+        ?: contentColorFor(drawerContainerColor ?: DrawerDefaults.standardContainerColor),
+    drawerTonalElevation = drawerTonalElevation.value(),
+    windowInsets = windowInsets ?: DrawerDefaults.windowInsets,
     content = content,
 )
 
 @Composable
 fun DPPermanentDrawerSheet(
     modifier: Modifier = Modifier,
-    drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = DrawerDefaults.standardContainerColor,
-    drawerContentColor: Color = contentColorFor(drawerContainerColor),
-    drawerTonalElevation: Dp = DrawerDefaults.PermanentDrawerElevation,
-    windowInsets: WindowInsets = DrawerDefaults.windowInsets,
+    drawerShape: Shape? = null,
+    drawerContainerColor: Color? = null,
+    drawerContentColor: Color? = null,
+    drawerTonalElevation: DPElevationLevel = DPElevationLevel.Level1,
+    windowInsets: WindowInsets? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) = PermanentDrawerSheet(
     modifier = modifier,
-    drawerShape = drawerShape,
-    drawerContainerColor = drawerContainerColor,
-    drawerContentColor = drawerContentColor,
-    drawerTonalElevation = drawerTonalElevation,
-    windowInsets = windowInsets,
+    drawerShape = drawerShape ?: RectangleShape,
+    drawerContainerColor = drawerContainerColor ?: DrawerDefaults.standardContainerColor,
+    drawerContentColor = drawerContentColor
+        ?: contentColorFor(drawerContainerColor ?: DrawerDefaults.standardContainerColor),
+    drawerTonalElevation = drawerTonalElevation.value(),
+    windowInsets = windowInsets ?: DrawerDefaults.windowInsets,
     content = content,
 )
 
-@Composable
-fun DPPrimaryTabRow(
-    selectedTabIndex: Int,
-    modifier: Modifier = Modifier,
-    containerColor: Color = TabRowDefaults.primaryContainerColor,
-    contentColor: Color = TabRowDefaults.primaryContentColor,
-    indicator: @Composable TabIndicatorScope.() -> Unit = {
-        TabRowDefaults.PrimaryIndicator(
-            modifier = Modifier.tabIndicatorOffset(selectedTabIndex, matchContentSize = true),
-            width = Dp.Unspecified,
-        )
-    },
-    divider: @Composable () -> Unit = @Composable { HorizontalDivider() },
-    tabs: @Composable () -> Unit,
-) = PrimaryTabRow(
-    selectedTabIndex = selectedTabIndex,
-    modifier = modifier,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    indicator = indicator,
-    divider = divider,
-    tabs = tabs,
-)
-
-@Composable
-fun DPSecondaryTabRow(
-    selectedTabIndex: Int,
-    modifier: Modifier = Modifier,
-    containerColor: Color = TabRowDefaults.secondaryContainerColor,
-    contentColor: Color = TabRowDefaults.secondaryContentColor,
-    indicator: @Composable TabIndicatorScope.() -> Unit =
-        @Composable {
-            TabRowDefaults.SecondaryIndicator(
-                Modifier.tabIndicatorOffset(selectedTabIndex, matchContentSize = false),
-            )
-        },
-    divider: @Composable () -> Unit = @Composable { HorizontalDivider() },
-    tabs: @Composable () -> Unit,
-) = SecondaryTabRow(
-    selectedTabIndex = selectedTabIndex,
-    modifier = modifier,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    indicator = indicator,
-    divider = divider,
-    tabs = tabs,
-)
-
-@Composable
-fun DPPrimaryScrollableTabRow(
-    selectedTabIndex: Int,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
-    containerColor: Color = TabRowDefaults.primaryContainerColor,
-    contentColor: Color = TabRowDefaults.primaryContentColor,
-    edgePadding: Dp = TabRowDefaults.ScrollableTabRowEdgeStartPadding,
-    indicator: @Composable TabIndicatorScope.() -> Unit =
-        @Composable {
-            TabRowDefaults.PrimaryIndicator(
-                Modifier.tabIndicatorOffset(selectedTabIndex, matchContentSize = true),
-                width = Dp.Unspecified,
-            )
-        },
-    divider: @Composable () -> Unit = @Composable { HorizontalDivider() },
-    minTabWidth: Dp = TabRowDefaults.ScrollableTabRowMinTabWidth,
-    tabs: @Composable () -> Unit,
-) = PrimaryScrollableTabRow(
-    selectedTabIndex = selectedTabIndex,
-    modifier = modifier,
-    scrollState = scrollState,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    edgePadding = edgePadding,
-    indicator = indicator,
-    divider = divider,
-    minTabWidth = minTabWidth,
-    tabs = tabs,
-)
-
-@Composable
-fun DPSecondaryScrollableTabRow(
-    selectedTabIndex: Int,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
-    containerColor: Color = TabRowDefaults.secondaryContainerColor,
-    contentColor: Color = TabRowDefaults.secondaryContentColor,
-    edgePadding: Dp = TabRowDefaults.ScrollableTabRowEdgeStartPadding,
-    indicator: @Composable TabIndicatorScope.() -> Unit =
-        @Composable {
-            TabRowDefaults.SecondaryIndicator(
-                Modifier.tabIndicatorOffset(selectedTabIndex, matchContentSize = false),
-            )
-        },
-    divider: @Composable () -> Unit = @Composable { HorizontalDivider() },
-    minTabWidth: Dp = TabRowDefaults.ScrollableTabRowMinTabWidth,
-    tabs: @Composable () -> Unit,
-) = SecondaryScrollableTabRow(
-    selectedTabIndex = selectedTabIndex,
-    modifier = modifier,
-    scrollState = scrollState,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    edgePadding = edgePadding,
-    indicator = indicator,
-    divider = divider,
-    minTabWidth = minTabWidth,
-    tabs = tabs,
-)
-
-@Composable
-fun DPTab(
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    text: @Composable (() -> Unit)? = null,
-    icon: @Composable (() -> Unit)? = null,
-    selectedContentColor: Color = LocalContentColor.current,
-    unselectedContentColor: Color = selectedContentColor,
-    interactionSource: MutableInteractionSource? = null,
-) = Tab(
-    selected = selected,
-    onClick = onClick,
-    modifier = modifier,
-    enabled = enabled,
-    text = text,
-    icon = icon,
-    selectedContentColor = selectedContentColor,
-    unselectedContentColor = unselectedContentColor,
-    interactionSource = interactionSource,
-)
-
-@Composable
-fun DPTab(
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    selectedContentColor: Color = LocalContentColor.current,
-    unselectedContentColor: Color = selectedContentColor,
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable ColumnScope.() -> Unit,
-) = Tab(
-    selected = selected,
-    onClick = onClick,
-    modifier = modifier,
-    enabled = enabled,
-    selectedContentColor = selectedContentColor,
-    unselectedContentColor = unselectedContentColor,
-    interactionSource = interactionSource,
-    content = content,
-)
-
-@Composable
-fun DPLeadingIconTab(
-    selected: Boolean,
-    onClick: () -> Unit,
-    text: @Composable () -> Unit,
-    icon: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    selectedContentColor: Color = LocalContentColor.current,
-    unselectedContentColor: Color = selectedContentColor,
-    interactionSource: MutableInteractionSource? = null,
-) = LeadingIconTab(
-    selected = selected,
-    onClick = onClick,
-    text = text,
-    icon = icon,
-    modifier = modifier,
-    enabled = enabled,
-    selectedContentColor = selectedContentColor,
-    unselectedContentColor = unselectedContentColor,
-    interactionSource = interactionSource,
-)
+// -----------------------------------------------------------------------------
+// Previews
+// -----------------------------------------------------------------------------
 
 @OptIn(ExperimentalMaterial3Api::class)
 @DPComponentPreview
 @Composable
-private fun DPNavigationPreview() {
+private fun DPTopAppBarAllVariantsPreview() {
     Preview {
         Column(
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = DPTheme.spacing.lg, vertical = DPTheme.spacing.md),
+            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.md),
         ) {
-            DPTopAppBar(title = { Text("Title") })
-            DPNavigationBar {
-                DPNavigationBarItem(
-                    selected = true,
-                    onClick = {},
-                    icon = { Icon(Icons.Filled.Home, contentDescription = null) },
-                    label = { Text("Home") },
+            DPTopAppBarVariant.entries.forEach { v ->
+                DPTopAppBar(
+                    title = "Title",
+                    subtitle = "Subtitle",
+                    variant = v,
                 )
-                DPNavigationBarItem(
-                    selected = false,
-                    onClick = {},
-                    icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
-                    label = { Text("More") },
-                )
+            }
+        }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun DPNavigationBarPreview() {
+    Preview {
+        DPNavigationBar {
+            DPNavigationBarItem(
+                text = "Home",
+                icon = Icons.Filled.Home,
+                selected = true,
+                onClick = {},
+            )
+            DPNavigationBarItem(
+                text = "Mail",
+                icon = Icons.Filled.Mail,
+                selected = false,
+                onClick = {},
+            )
+            DPNavigationBarItem(
+                text = "Settings",
+                icon = Icons.Filled.Settings,
+                selected = false,
+                badgeText = "3",
+                onClick = {},
+            )
+        }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun DPTabRowPrimarySecondaryPreview() {
+    Preview {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = DPTheme.spacing.lg, vertical = DPTheme.spacing.md),
+            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.lg),
+        ) {
+            DPTabRow(selectedTabIndex = 0, variant = DPTabRowVariant.Primary) {
+                DPTab("Tab 1", selected = true, onClick = {})
+                DPTab("Tab 2", selected = false, onClick = {})
+                DPTab("Tab 3", selected = false, onClick = {})
+            }
+            DPTabRow(selectedTabIndex = 1, variant = DPTabRowVariant.Secondary) {
+                DPTab("Alpha", selected = true, onClick = {})
+                DPTab("Beta", selected = false, onClick = {})
+                DPTab("Gamma", selected = false, onClick = {})
             }
         }
     }

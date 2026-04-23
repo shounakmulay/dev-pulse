@@ -1,4 +1,5 @@
 import dev.shounakmulay.devpulse.buildsrc.constants.Modules
+import dev.shounakmulay.devpulse.buildsrc.constants.buildConfig
 import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
@@ -16,10 +17,12 @@ kotlin {
         commonMain.dependencies {
             implementation(project(Modules.Core.DESIGN_SYSTEM))
             implementation(project(Modules.Core.NAVIGATION))
+            implementation(project(Modules.Core.RESOURCES))
 
             implementation(project(Modules.Feature.HOME))
             implementation(project(Modules.Feature.FEED))
             implementation(project(Modules.Feature.DEVTOOLS))
+            implementation(project(Modules.Feature.SETTINGS))
 
             implementation(libs.navigation3.ui)
         }
@@ -43,7 +46,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "dev.shounakmulay.devpulse"
-            packageVersion = "1.0.0"
+            packageVersion = buildConfig.desktop.packageVersion
         }
     }
 }

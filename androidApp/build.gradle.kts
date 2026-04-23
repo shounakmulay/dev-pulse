@@ -1,5 +1,6 @@
 import com.android.build.api.dsl.ApplicationExtension
 import dev.shounakmulay.devpulse.buildsrc.constants.Modules
+import dev.shounakmulay.devpulse.buildsrc.constants.buildConfig
 import org.gradle.kotlin.dsl.configure
 
 plugins {
@@ -11,8 +12,8 @@ configure<ApplicationExtension> {
     namespace = "dev.shounakmulay.devpulse.android"
     defaultConfig {
         applicationId = "dev.shounakmulay.devpulse"
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = buildConfig.android.versionCode
+        versionName = buildConfig.android.versionName
     }
 }
 

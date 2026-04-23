@@ -5,16 +5,18 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuBoxScope
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.MenuItemShapes
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -26,11 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.core.designsystem.compose.Preview
+import dev.shounakmulay.core.designsystem.theme.*
 
 @Composable
 fun DPDropdownMenu(
@@ -40,13 +44,18 @@ fun DPDropdownMenu(
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(focusable = true),
-    shape: Shape = MenuDefaults.shape,
-    containerColor: Color = MenuDefaults.containerColor,
-    tonalElevation: androidx.compose.ui.unit.Dp = MenuDefaults.TonalElevation,
-    shadowElevation: androidx.compose.ui.unit.Dp = MenuDefaults.ShadowElevation,
+    shape: Shape? = null,
+    containerColor: Color? = null,
+    tonalElevation: DPElevationLevel = DPElevationLevel.Level2,
+    shadowElevation: DPElevationLevel = DPElevationLevel.Level2,
     border: BorderStroke? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val resolvedShape = shape ?: MenuDefaults.shape
+    val resolvedContainer = containerColor ?: MenuDefaults.containerColor
+    val resolvedTonal = tonalElevation.value()
+    val resolvedShadow = shadowElevation.value()
+
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
@@ -54,38 +63,72 @@ fun DPDropdownMenu(
         offset = offset,
         scrollState = scrollState,
         properties = properties,
-        shape = shape,
-        containerColor = containerColor,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
+        shape = resolvedShape,
+        containerColor = resolvedContainer,
+        tonalElevation = resolvedTonal,
+        shadowElevation = resolvedShadow,
         border = border,
         content = content,
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DPDropdownMenuItem(
-    text: @Composable () -> Unit,
+    text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
+    leadingIcon: ImageVector? = null,
+    trailingIcon: ImageVector? = null,
+    supportingText: String? = null,
+    intent: DPIntent = DPIntent.Neutral,
     enabled: Boolean = true,
-    colors: MenuItemColors = MenuDefaults.itemColors(),
+    colors: MenuItemColors? = null,
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuItemContentPadding,
     interactionSource: MutableInteractionSource? = null,
 ) {
-    DropdownMenuItem(
-        text = text,
-        onClick = onClick,
-        modifier = modifier,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        enabled = enabled,
-        colors = colors,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-    )
+    val error = MaterialTheme.colorScheme.error
+    val effectiveColors: MenuItemColors =
+        when {
+            intent == DPIntent.Danger && colors == null ->
+                MenuDefaults.itemColors(
+                    textColor = error,
+                    leadingIconColor = error,
+                )
+            else -> colors ?: MenuDefaults.itemColors()
+        }
+
+    val leading: (@Composable () -> Unit)? = leadingIcon?.let { v -> { Icon(v, null, Modifier.size(DPTheme.iconSize.md)) } }
+    val trailing: (@Composable () -> Unit)? = trailingIcon?.let { v -> { Icon(v, null, Modifier.size(DPTheme.iconSize.md)) } }
+    val supporting: (@Composable () -> Unit)? = supportingText?.let { st -> { Text(st) } }
+
+    if (supporting == null) {
+        DropdownMenuItem(
+            text = { Text(text) },
+            onClick = onClick,
+            modifier = modifier,
+            leadingIcon = leading,
+            trailingIcon = trailing,
+            enabled = enabled,
+            colors = effectiveColors,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+        )
+    } else {
+        DropdownMenuItem(
+            onClick = onClick,
+            text = { Text(text) },
+            shape = MenuDefaults.middleItemShape,
+            modifier = modifier,
+            leadingIcon = leading,
+            trailingIcon = trailing,
+            enabled = enabled,
+            colors = effectiveColors,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+            supportingText = supporting,
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -186,29 +229,13 @@ fun DPDropdownMenuItem(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DPExposedDropdownMenuBox(
-    expanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable ExposedDropdownMenuBoxScope.() -> Unit,
-) {
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = onExpandedChange,
-        modifier = modifier,
-        content = content,
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @DPComponentPreview
 @Composable
 private fun DPMenusPreview() {
     Preview {
         var expanded by remember { mutableStateOf(true) }
-        DPExposedDropdownMenuBox(
+        ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = it },
         ) {
@@ -222,7 +249,7 @@ private fun DPMenusPreview() {
                 readOnly = true,
             )
             DPDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                DPDropdownMenuItem(text = { Text("One") }, onClick = { expanded = false })
+                DPDropdownMenuItem(text = "One", onClick = { expanded = false })
             }
         }
     }

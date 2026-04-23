@@ -3,7 +3,6 @@ package dev.shounakmulay.core.designsystem.components.devtools
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -42,6 +41,7 @@ import dev.shounakmulay.core.designsystem.theme.darkScheme
 import dev.shounakmulay.core.designsystem.theme.dpShapes
 import dev.shounakmulay.core.designsystem.theme.getColorScheme
 import dev.shounakmulay.core.designsystem.theme.lightScheme
+import dev.shounakmulay.core.navigation.Navigator
 
 enum class BoardSection(val title: String) {
     Colors("Colors"),
@@ -67,7 +67,7 @@ enum class BoardSection(val title: String) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun DesignSystemBoard(modifier: Modifier = Modifier) {
+fun DesignSystemBoard(navigator: Navigator) {
     var selected by remember { mutableStateOf<BoardSection?>(null) }
     var themeMode by remember { mutableStateOf<ThemeMode>(ThemeMode.Light) }
     var showThemePicker by remember { mutableStateOf(false) }
@@ -85,15 +85,21 @@ fun DesignSystemBoard(modifier: Modifier = Modifier) {
             LocalDPIconSize provides DefaultIconSize,
         ) {
             Scaffold(
-                modifier = modifier,
                 topBar = {
                     TopAppBar(
                         title = { Text(selected?.title ?: "Design System") },
                         navigationIcon = {
-                            if (selected != null) {
-                                IconButton(onClick = { selected = null }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            IconButton(onClick = {
+                                if (selected != null) {
+                                    selected = null
+                                } else {
+                                    navigator.navigateBack()
                                 }
+                            }) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back"
+                                )
                             }
                         },
                         actions = {

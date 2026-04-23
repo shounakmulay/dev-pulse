@@ -12,6 +12,7 @@ import androidx.compose.material3.SnackbarDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,132 +22,137 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.core.designsystem.compose.Preview
+import dev.shounakmulay.core.designsystem.theme.*
 
-@Composable
-fun DPLinearProgressIndicator(
-    modifier: Modifier = Modifier,
-    color: Color = ProgressIndicatorDefaults.linearColor,
-    trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
-    strokeCap: StrokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
-) {
-    LinearProgressIndicator(
-        modifier = modifier,
-        color = color,
-        trackColor = trackColor,
-        strokeCap = strokeCap,
-    )
+enum class DPSnackbarVariant {
+    Info,
+    Success,
+    Warning,
+    Danger,
+    Neutral,
 }
 
 @Composable
 fun DPLinearProgressIndicator(
-    progress: () -> Float,
     modifier: Modifier = Modifier,
-    color: Color = ProgressIndicatorDefaults.linearColor,
-    trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
+    progress: (() -> Float)? = null,
+    intent: DPIntent = DPIntent.Primary,
+    trackColor: Color? = null,
     strokeCap: StrokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
 ) {
-    LinearProgressIndicator(
-        progress = progress,
-        modifier = modifier,
-        color = color,
-        trackColor = trackColor,
-        strokeCap = strokeCap,
-    )
+    val c = intent.colors()
+    val color = c.accent
+    val resolvedTrack = trackColor ?: c.containerVariant
+    if (progress == null) {
+        LinearProgressIndicator(
+            modifier = modifier,
+            color = color,
+            trackColor = resolvedTrack,
+            strokeCap = strokeCap,
+        )
+    } else {
+        LinearProgressIndicator(
+            progress = progress,
+            modifier = modifier,
+            color = color,
+            trackColor = resolvedTrack,
+            strokeCap = strokeCap,
+        )
+    }
 }
 
 @Composable
 fun DPCircularProgressIndicator(
     modifier: Modifier = Modifier,
-    color: Color = ProgressIndicatorDefaults.circularColor,
+    progress: (() -> Float)? = null,
+    intent: DPIntent = DPIntent.Primary,
     strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
-    trackColor: Color = ProgressIndicatorDefaults.circularDeterminateTrackColor,
+    trackColor: Color? = null,
     strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularIndeterminateStrokeCap,
 ) {
-    CircularProgressIndicator(
-        modifier = modifier,
-        color = color,
-        strokeWidth = strokeWidth,
-        trackColor = trackColor,
-        strokeCap = strokeCap,
-    )
-}
-
-@Composable
-fun DPCircularProgressIndicator(
-    progress: () -> Float,
-    modifier: Modifier = Modifier,
-    color: Color = ProgressIndicatorDefaults.circularColor,
-    strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
-    trackColor: Color = ProgressIndicatorDefaults.circularDeterminateTrackColor,
-    strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
-) {
-    CircularProgressIndicator(
-        progress = progress,
-        modifier = modifier,
-        color = color,
-        strokeWidth = strokeWidth,
-        trackColor = trackColor,
-        strokeCap = strokeCap,
-    )
+    val c = intent.colors()
+    val color = c.accent
+    val resolvedTrack = trackColor ?: c.containerVariant
+    if (progress == null) {
+        CircularProgressIndicator(
+            modifier = modifier,
+            color = color,
+            strokeWidth = strokeWidth,
+            trackColor = resolvedTrack,
+            strokeCap = strokeCap,
+        )
+    } else {
+        CircularProgressIndicator(
+            progress = progress,
+            modifier = modifier,
+            color = color,
+            strokeWidth = strokeWidth,
+            trackColor = resolvedTrack,
+            strokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
+        )
+    }
 }
 
 @Composable
 fun DPSnackbar(
-    snackbarData: SnackbarData,
+    message: String,
     modifier: Modifier = Modifier,
-    actionOnNewLine: Boolean = false,
-    shape: Shape = SnackbarDefaults.shape,
-    containerColor: Color = SnackbarDefaults.color,
-    contentColor: Color = SnackbarDefaults.contentColor,
-    actionColor: Color = SnackbarDefaults.actionColor,
-    actionContentColor: Color = SnackbarDefaults.actionContentColor,
-    dismissActionContentColor: Color = SnackbarDefaults.dismissActionContentColor,
+    variant: DPSnackbarVariant = DPSnackbarVariant.Neutral,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
+    dismissLabel: String? = null,
+    onDismiss: (() -> Unit)? = null,
+    shape: Shape? = null,
 ) {
-    Snackbar(
-        snackbarData = snackbarData,
-        modifier = modifier,
-        actionOnNewLine = actionOnNewLine,
-        shape = shape,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        actionColor = actionColor,
-        actionContentColor = actionContentColor,
-        dismissActionContentColor = dismissActionContentColor,
-    )
-}
-
-@Composable
-fun DPSnackbar(
-    modifier: Modifier = Modifier,
-    action: @Composable (() -> Unit)? = null,
-    dismissAction: @Composable (() -> Unit)? = null,
-    actionOnNewLine: Boolean = false,
-    shape: Shape = SnackbarDefaults.shape,
-    containerColor: Color = SnackbarDefaults.color,
-    contentColor: Color = SnackbarDefaults.contentColor,
-    actionContentColor: Color = SnackbarDefaults.actionContentColor,
-    dismissActionContentColor: Color = SnackbarDefaults.dismissActionContentColor,
-    content: @Composable () -> Unit,
-) {
+    val intent = when (variant) {
+        DPSnackbarVariant.Info -> DPIntent.Info
+        DPSnackbarVariant.Success -> DPIntent.Success
+        DPSnackbarVariant.Warning -> DPIntent.Warning
+        DPSnackbarVariant.Danger -> DPIntent.Danger
+        DPSnackbarVariant.Neutral -> DPIntent.Neutral
+    }
+    val ic = intent.colors()
+    val action: (@Composable () -> Unit)? = actionLabel?.let { label ->
+        @Composable {
+            TextButton(onClick = onAction ?: {}) {
+                Text(label)
+            }
+        }
+    }
+    val dismissAction: (@Composable () -> Unit)? = dismissLabel?.let { label ->
+        @Composable {
+            TextButton(onClick = onDismiss ?: {}) {
+                Text(label)
+            }
+        }
+    }
     Snackbar(
         modifier = modifier,
         action = action,
         dismissAction = dismissAction,
-        actionOnNewLine = actionOnNewLine,
-        shape = shape,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        actionContentColor = actionContentColor,
-        dismissActionContentColor = dismissActionContentColor,
-        content = content,
-    )
+        shape = shape ?: SnackbarDefaults.shape,
+        containerColor = ic.containerVariant,
+        contentColor = ic.onContainer,
+        actionContentColor = ic.accent,
+        dismissActionContentColor = ic.accent,
+    ) {
+        Text(message)
+    }
 }
 
 @Composable
 fun DPSnackbarHost(
     hostState: SnackbarHostState,
     modifier: Modifier = Modifier,
-    snackbar: @Composable (SnackbarData) -> Unit = { DPSnackbar(it) },
+    variant: DPSnackbarVariant = DPSnackbarVariant.Neutral,
+    snackbar: @Composable (SnackbarData) -> Unit = { data ->
+        DPSnackbar(
+            message = data.visuals.message,
+            variant = variant,
+            actionLabel = data.visuals.actionLabel,
+            onAction = { data.performAction() },
+        )
+    },
 ) {
     SnackbarHost(
         hostState = hostState,
@@ -163,11 +169,23 @@ private fun DPFeedbackPreview() {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            DPSnackbarVariant.entries.forEach { v ->
+                DPSnackbar(message = "Variant: $v", variant = v)
+            }
             DPLinearProgressIndicator()
             DPLinearProgressIndicator(progress = { 0.6f })
+            DPLinearProgressIndicator(intent = DPIntent.Secondary)
+            DPLinearProgressIndicator(
+                progress = { 0.4f },
+                intent = DPIntent.Secondary,
+            )
             DPCircularProgressIndicator()
             DPCircularProgressIndicator(progress = { 0.7f })
-            DPSnackbar { Text("Snackbar content") }
+            DPCircularProgressIndicator(intent = DPIntent.Secondary)
+            DPCircularProgressIndicator(
+                progress = { 0.5f },
+                intent = DPIntent.Secondary,
+            )
         }
     }
 }

@@ -23,9 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.core.designsystem.compose.Preview
+import dev.shounakmulay.core.designsystem.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,27 +35,33 @@ fun DPModalBottomSheet(
     sheetState: SheetState = rememberModalBottomSheetState(),
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
     sheetGesturesEnabled: Boolean = true,
-    shape: Shape = BottomSheetDefaults.ExpandedShape,
-    containerColor: Color = BottomSheetDefaults.ContainerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = 0.dp,
-    scrimColor: Color = BottomSheetDefaults.ScrimColor,
+    shape: Shape? = null,
+    containerColor: Color? = null,
+    contentColor: Color? = null,
+    tonalElevation: DPElevationLevel = DPElevationLevel.Level1,
+    scrimColor: Color? = null,
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.modalWindowInsets },
     properties: ModalBottomSheetProperties = ModalBottomSheetProperties(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val resolvedShape = shape ?: BottomSheetDefaults.ExpandedShape
+    val resolvedContainer = containerColor ?: BottomSheetDefaults.ContainerColor
+    val resolvedContent = contentColor ?: contentColorFor(resolvedContainer)
+    val resolvedScrim = scrimColor ?: BottomSheetDefaults.ScrimColor
+    val resolvedTonal = tonalElevation.value()
+
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
         sheetState = sheetState,
         sheetMaxWidth = sheetMaxWidth,
         sheetGesturesEnabled = sheetGesturesEnabled,
-        shape = shape,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation,
-        scrimColor = scrimColor,
+        shape = resolvedShape,
+        containerColor = resolvedContainer,
+        contentColor = resolvedContent,
+        tonalElevation = resolvedTonal,
+        scrimColor = resolvedScrim,
         dragHandle = dragHandle,
         contentWindowInsets = contentWindowInsets,
         properties = properties,
@@ -71,36 +77,42 @@ fun DPBottomSheetScaffold(
     scaffoldState: BottomSheetScaffoldState = rememberBottomSheetScaffoldState(),
     sheetPeekHeight: Dp = BottomSheetDefaults.SheetPeekHeight,
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
-    sheetShape: Shape = BottomSheetDefaults.ExpandedShape,
-    sheetContainerColor: Color = BottomSheetDefaults.ContainerColor,
-    sheetContentColor: Color = contentColorFor(sheetContainerColor),
-    sheetTonalElevation: Dp = 0.dp,
-    sheetShadowElevation: Dp = BottomSheetDefaults.Elevation,
+    sheetShape: Shape? = null,
+    sheetContainerColor: Color? = null,
+    sheetContentColor: Color? = null,
+    sheetTonalElevation: DPElevationLevel = DPElevationLevel.Level1,
+    sheetShadowElevation: DPElevationLevel = DPElevationLevel.Level1,
     sheetDragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     sheetSwipeEnabled: Boolean = true,
     topBar: @Composable (() -> Unit)? = null,
     snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) },
-    containerColor: Color = MaterialTheme.colorScheme.surface,
-    contentColor: Color = contentColorFor(containerColor),
+    containerColor: Color? = null,
+    contentColor: Color? = null,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val resolvedSheetShape = sheetShape ?: BottomSheetDefaults.ExpandedShape
+    val resolvedSheetContainer = sheetContainerColor ?: BottomSheetDefaults.ContainerColor
+    val resolvedSheetContent = sheetContentColor ?: contentColorFor(resolvedSheetContainer)
+    val resolvedContainer = containerColor ?: MaterialTheme.colorScheme.surface
+    val resolvedContent = contentColor ?: contentColorFor(resolvedContainer)
+
     BottomSheetScaffold(
         sheetContent = sheetContent,
         modifier = modifier,
         scaffoldState = scaffoldState,
         sheetPeekHeight = sheetPeekHeight,
         sheetMaxWidth = sheetMaxWidth,
-        sheetShape = sheetShape,
-        sheetContainerColor = sheetContainerColor,
-        sheetContentColor = sheetContentColor,
-        sheetTonalElevation = sheetTonalElevation,
-        sheetShadowElevation = sheetShadowElevation,
+        sheetShape = resolvedSheetShape,
+        sheetContainerColor = resolvedSheetContainer,
+        sheetContentColor = resolvedSheetContent,
+        sheetTonalElevation = sheetTonalElevation.value(),
+        sheetShadowElevation = sheetShadowElevation.value(),
         sheetDragHandle = sheetDragHandle,
         sheetSwipeEnabled = sheetSwipeEnabled,
         topBar = topBar,
         snackbarHost = snackbarHost,
-        containerColor = containerColor,
-        contentColor = contentColor,
+        containerColor = resolvedContainer,
+        contentColor = resolvedContent,
         content = content,
     )
 }

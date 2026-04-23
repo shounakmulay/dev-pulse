@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,13 +20,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import dev.shounakmulay.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.core.designsystem.compose.Preview
+import dev.shounakmulay.core.designsystem.theme.DPIntent
+import dev.shounakmulay.core.designsystem.theme.colors
 import dev.shounakmulay.core.designsystem.theme.monoFontFamily
-
-enum class DPTextSize { Large, Medium, Small }
 
 enum class DPTextViewVariant {
     DisplayLarge,
@@ -101,6 +100,7 @@ fun DPTextView(
     variant: DPTextViewVariant,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
+    intent: DPIntent? = null,
     autoSize: TextAutoSize? = null,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
@@ -119,11 +119,16 @@ fun DPTextView(
 ) {
     val baseStyle = variant.textStyle()
     val mergedStyle = style?.let { baseStyle.merge(it) } ?: baseStyle
+    val resolvedColor = when {
+        color != Color.Unspecified -> color
+        intent != null -> intent.colors().accent
+        else -> Color.Unspecified
+    }
 
     Text(
         text = text,
         modifier = modifier,
-        color = color,
+        color = resolvedColor,
         autoSize = autoSize,
         fontSize = fontSize,
         fontStyle = fontStyle,
@@ -142,425 +147,44 @@ fun DPTextView(
     )
 }
 
-@Composable
-fun DPDisplay(
-    text: String,
-    modifier: Modifier = Modifier,
-    size: DPTextSize = DPTextSize.Large,
-    color: Color = Color.Unspecified,
-    textAlign: TextAlign? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-) {
-    val variant = when (size) {
-        DPTextSize.Large -> DPTextViewVariant.DisplayLarge
-        DPTextSize.Medium -> DPTextViewVariant.DisplayMedium
-        DPTextSize.Small -> DPTextViewVariant.DisplaySmall
-    }
-    DPTextView(
-        text = text,
-        variant = variant,
-        modifier = modifier,
-        color = color,
-        textAlign = textAlign,
-        maxLines = maxLines,
-        overflow = overflow,
-    )
-}
-
-@Composable
-fun DPDisplayEmphasized(
-    text: String,
-    modifier: Modifier = Modifier,
-    size: DPTextSize = DPTextSize.Large,
-    color: Color = Color.Unspecified,
-    textAlign: TextAlign? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-) {
-    val variant = when (size) {
-        DPTextSize.Large -> DPTextViewVariant.DisplayLargeEmphasized
-        DPTextSize.Medium -> DPTextViewVariant.DisplayMediumEmphasized
-        DPTextSize.Small -> DPTextViewVariant.DisplaySmallEmphasized
-    }
-    DPTextView(
-        text = text,
-        variant = variant,
-        modifier = modifier,
-        color = color,
-        textAlign = textAlign,
-        maxLines = maxLines,
-        overflow = overflow,
-    )
-}
-
-@Composable
-fun DPHeading(
-    text: String,
-    modifier: Modifier = Modifier,
-    size: DPTextSize = DPTextSize.Large,
-    color: Color = Color.Unspecified,
-    textAlign: TextAlign? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-) {
-    val variant = when (size) {
-        DPTextSize.Large -> DPTextViewVariant.HeadingLarge
-        DPTextSize.Medium -> DPTextViewVariant.HeadingMedium
-        DPTextSize.Small -> DPTextViewVariant.HeadingSmall
-    }
-    DPTextView(
-        text = text,
-        variant = variant,
-        modifier = modifier,
-        color = color,
-        textAlign = textAlign,
-        maxLines = maxLines,
-        overflow = overflow,
-    )
-}
-
-@Composable
-fun DPTitle(
-    text: String,
-    modifier: Modifier = Modifier,
-    size: DPTextSize = DPTextSize.Large,
-    color: Color = Color.Unspecified,
-    textAlign: TextAlign? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-) {
-    val variant = when (size) {
-        DPTextSize.Large -> DPTextViewVariant.TitleLarge
-        DPTextSize.Medium -> DPTextViewVariant.TitleMedium
-        DPTextSize.Small -> DPTextViewVariant.TitleSmall
-    }
-    DPTextView(
-        text = text,
-        variant = variant,
-        modifier = modifier,
-        color = color,
-        textAlign = textAlign,
-        maxLines = maxLines,
-        overflow = overflow,
-    )
-}
-
-@Composable
-fun DPBody(
-    text: String,
-    modifier: Modifier = Modifier,
-    size: DPTextSize = DPTextSize.Medium,
-    color: Color = Color.Unspecified,
-    fontWeight: FontWeight? = null,
-    textAlign: TextAlign? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-) {
-    val variant = when (size) {
-        DPTextSize.Large -> DPTextViewVariant.BodyLarge
-        DPTextSize.Medium -> DPTextViewVariant.BodyMedium
-        DPTextSize.Small -> DPTextViewVariant.BodySmall
-    }
-    DPTextView(
-        text = text,
-        variant = variant,
-        modifier = modifier,
-        color = color,
-        fontWeight = fontWeight,
-        textAlign = textAlign,
-        maxLines = maxLines,
-        overflow = overflow,
-    )
-}
-
-@Composable
-fun DPLabel(
-    text: String,
-    modifier: Modifier = Modifier,
-    size: DPTextSize = DPTextSize.Medium,
-    color: Color = Color.Unspecified,
-    fontWeight: FontWeight? = null,
-    textAlign: TextAlign? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-) {
-    val variant = when (size) {
-        DPTextSize.Large -> DPTextViewVariant.LabelLarge
-        DPTextSize.Medium -> DPTextViewVariant.LabelMedium
-        DPTextSize.Small -> DPTextViewVariant.LabelSmall
-    }
-    DPTextView(
-        text = text,
-        variant = variant,
-        modifier = modifier,
-        color = color,
-        fontWeight = fontWeight,
-        textAlign = textAlign,
-        maxLines = maxLines,
-        overflow = overflow,
-    )
-}
-
-@Composable
-fun DPMono(
-    text: String,
-    modifier: Modifier = Modifier,
-    size: DPTextSize = DPTextSize.Medium,
-    color: Color = Color.Unspecified,
-    fontWeight: FontWeight? = null,
-    textAlign: TextAlign? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-) {
-    val monoFamily = monoFontFamily()
-    val variant = when (size) {
-        DPTextSize.Large -> DPTextViewVariant.LabelLarge
-        DPTextSize.Medium -> DPTextViewVariant.LabelMedium
-        DPTextSize.Small -> DPTextViewVariant.LabelSmall
-    }
-    DPTextView(
-        text = text,
-        variant = variant,
-        modifier = modifier,
-        color = color,
-        fontFamily = monoFamily,
-        fontWeight = fontWeight,
-        textAlign = textAlign,
-        maxLines = maxLines,
-        overflow = overflow,
-    )
-}
-
-@Composable
-fun DPHeadingEmphasized(
-    text: String,
-    modifier: Modifier = Modifier,
-    size: DPTextSize = DPTextSize.Large,
-    color: Color = Color.Unspecified,
-    textAlign: TextAlign? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-) {
-    val variant = when (size) {
-        DPTextSize.Large -> DPTextViewVariant.HeadingLargeEmphasized
-        DPTextSize.Medium -> DPTextViewVariant.HeadingMediumEmphasized
-        DPTextSize.Small -> DPTextViewVariant.HeadingSmallEmphasized
-    }
-    DPTextView(
-        text = text,
-        variant = variant,
-        modifier = modifier,
-        color = color,
-        textAlign = textAlign,
-        maxLines = maxLines,
-        overflow = overflow,
-    )
-}
-
-@Composable
-fun DPTitleEmphasized(
-    text: String,
-    modifier: Modifier = Modifier,
-    size: DPTextSize = DPTextSize.Large,
-    color: Color = Color.Unspecified,
-    textAlign: TextAlign? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-) {
-    val variant = when (size) {
-        DPTextSize.Large -> DPTextViewVariant.TitleLargeEmphasized
-        DPTextSize.Medium -> DPTextViewVariant.TitleMediumEmphasized
-        DPTextSize.Small -> DPTextViewVariant.TitleSmallEmphasized
-    }
-    DPTextView(
-        text = text,
-        variant = variant,
-        modifier = modifier,
-        color = color,
-        textAlign = textAlign,
-        maxLines = maxLines,
-        overflow = overflow,
-    )
-}
-
-@Composable
-fun DPBodyEmphasized(
-    text: String,
-    modifier: Modifier = Modifier,
-    size: DPTextSize = DPTextSize.Medium,
-    color: Color = Color.Unspecified,
-    textAlign: TextAlign? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-) {
-    val variant = when (size) {
-        DPTextSize.Large -> DPTextViewVariant.BodyLargeEmphasized
-        DPTextSize.Medium -> DPTextViewVariant.BodyMediumEmphasized
-        DPTextSize.Small -> DPTextViewVariant.BodySmallEmphasized
-    }
-    DPTextView(
-        text = text,
-        variant = variant,
-        modifier = modifier,
-        color = color,
-        textAlign = textAlign,
-        maxLines = maxLines,
-        overflow = overflow,
-    )
-}
-
-@Composable
-fun DPLabelEmphasized(
-    text: String,
-    modifier: Modifier = Modifier,
-    size: DPTextSize = DPTextSize.Medium,
-    color: Color = Color.Unspecified,
-    textAlign: TextAlign? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-) {
-    val variant = when (size) {
-        DPTextSize.Large -> DPTextViewVariant.LabelLargeEmphasized
-        DPTextSize.Medium -> DPTextViewVariant.LabelMediumEmphasized
-        DPTextSize.Small -> DPTextViewVariant.LabelSmallEmphasized
-    }
-    DPTextView(
-        text = text,
-        variant = variant,
-        modifier = modifier,
-        color = color,
-        textAlign = textAlign,
-        maxLines = maxLines,
-        overflow = overflow,
-    )
-}
-
 @DPComponentPreview
 @Composable
-private fun DPEmphasizedPreview() {
+private fun DPTextViewAllVariantsPreview() {
     Preview {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            DPHeadingEmphasized(text = "Heading Large Emphasized", size = DPTextSize.Large)
-            DPHeadingEmphasized(text = "Heading Medium Emphasized", size = DPTextSize.Medium)
-            DPHeadingEmphasized(text = "Heading Small Emphasized", size = DPTextSize.Small)
-            DPTitleEmphasized(text = "Title Large Emphasized", size = DPTextSize.Large)
-            DPTitleEmphasized(text = "Title Medium Emphasized", size = DPTextSize.Medium)
-            DPTitleEmphasized(text = "Title Small Emphasized", size = DPTextSize.Small)
-            DPBodyEmphasized(text = "Body Large Emphasized", size = DPTextSize.Large)
-            DPBodyEmphasized(text = "Body Medium Emphasized", size = DPTextSize.Medium)
-            DPBodyEmphasized(text = "Body Small Emphasized", size = DPTextSize.Small)
-            DPLabelEmphasized(text = "Label Large Emphasized", size = DPTextSize.Large)
-            DPLabelEmphasized(text = "Label Medium Emphasized", size = DPTextSize.Medium)
-            DPLabelEmphasized(text = "Label Small Emphasized", size = DPTextSize.Small)
+            DPTextViewVariant.entries.forEach { variant ->
+                DPTextView(text = variant.name, variant = variant)
+            }
         }
     }
 }
 
 @DPComponentPreview
 @Composable
-private fun DPDisplayPreview() {
+private fun DPTextViewMonoPreview() {
     Preview {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            DPDisplay(text = "Display Large", size = DPTextSize.Large)
-            DPDisplay(text = "Display Medium", size = DPTextSize.Medium)
-            DPDisplay(text = "Display Small", size = DPTextSize.Small)
-        }
-    }
-}
-
-@DPComponentPreview
-@Composable
-private fun DPDisplayEmphasizedPreview() {
-    Preview {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            DPDisplayEmphasized(text = "Display Large Emphasized", size = DPTextSize.Large)
-            DPDisplayEmphasized(text = "Display Medium Emphasized", size = DPTextSize.Medium)
-            DPDisplayEmphasized(text = "Display Small Emphasized", size = DPTextSize.Small)
-        }
-    }
-}
-
-@DPComponentPreview
-@Composable
-private fun DPHeadingPreview() {
-    Preview {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            DPHeading(text = "Heading Large", size = DPTextSize.Large)
-            DPHeading(text = "Heading Medium", size = DPTextSize.Medium)
-            DPHeading(text = "Heading Small", size = DPTextSize.Small)
-        }
-    }
-}
-
-@DPComponentPreview
-@Composable
-private fun DPTitlePreview() {
-    Preview {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            DPTitle(text = "Title Large", size = DPTextSize.Large)
-            DPTitle(text = "Title Medium", size = DPTextSize.Medium)
-            DPTitle(text = "Title Small", size = DPTextSize.Small)
-        }
-    }
-}
-
-@DPComponentPreview
-@Composable
-private fun DPBodyPreview() {
-    Preview {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            DPBody(text = "Body Large", size = DPTextSize.Large)
-            DPBody(text = "Body Medium", size = DPTextSize.Medium)
-            DPBody(text = "Body Small", size = DPTextSize.Small)
-        }
-    }
-}
-
-@DPComponentPreview
-@Composable
-private fun DPLabelPreview() {
-    Preview {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            DPLabel(text = "Label Large", size = DPTextSize.Large)
-            DPLabel(text = "Label Medium", size = DPTextSize.Medium)
-            DPLabel(text = "Label Small", size = DPTextSize.Small)
-        }
-    }
-}
-
-@DPComponentPreview
-@Composable
-private fun DPMonoPreview() {
-    Preview {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            DPMono(text = "Mono Large", size = DPTextSize.Large)
-            DPMono(text = "Mono Medium", size = DPTextSize.Medium)
-            DPMono(text = "Mono Small", size = DPTextSize.Small)
+            DPTextView(
+                text = "Mono Large",
+                variant = DPTextViewVariant.LabelLarge,
+                fontFamily = monoFontFamily(),
+            )
+            DPTextView(
+                text = "Mono Medium",
+                variant = DPTextViewVariant.LabelMedium,
+                fontFamily = monoFontFamily(),
+            )
+            DPTextView(
+                text = "Mono Small",
+                variant = DPTextViewVariant.LabelSmall,
+                fontFamily = monoFontFamily(),
+            )
         }
     }
 }
