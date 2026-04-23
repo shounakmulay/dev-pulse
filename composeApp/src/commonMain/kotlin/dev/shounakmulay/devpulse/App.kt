@@ -4,13 +4,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DynamicFeed
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SpaceDashboard
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
@@ -28,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.NavKey
 import dev.shounakmulay.core.designsystem.icon.DPIcons
@@ -100,12 +102,13 @@ fun App() {
                                 icon = {
                                     Icon(
                                         imageVector = when (tab) {
-                                            Screen.Tabs.Home -> DPIcons.DevPulse
-                                            Screen.Tabs.Feed -> Icons.Default.DynamicFeed
+                                            Screen.Tabs.Home -> DPIcons.devPulseIconSmall()
+                                            Screen.Tabs.Feed -> Icons.Default.SpaceDashboard
                                             Screen.Tabs.Time -> Icons.Default.Timer
                                             else -> Icons.Default.ExpandMore
                                         },
-                                        contentDescription = ""
+                                        contentDescription = "",
+                                        tint = if (tab == Screen.Tabs.Home) Color.Unspecified else LocalContentColor.current
                                     )
                                 },
                                 label = null,
