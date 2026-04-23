@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontStyle
 import dev.shounakmulay.core.designsystem.components.DPIconButton
 import dev.shounakmulay.core.designsystem.components.DPTextView
 import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.core.designsystem.icon.DPIcons
 import dev.shounakmulay.core.designsystem.theme.DPIntent
 import dev.shounakmulay.core.designsystem.theme.monoFontFamily
 import dev.shounakmulay.core.navigation.Navigator
@@ -40,7 +41,7 @@ fun HomeScreen(viewModel: HomeViewModel, navigator: Navigator) {
                 }
             }, actions = {
                 DPIconButton(
-                    icon = Icons.Default.Settings,
+                    icon = DPIcons.UserSettings,
                     intent = DPIntent.Secondary,
                     contentDescription = "",
                     onClick = { navigator.navigate(Screen.Settings, onRootStack = true) }

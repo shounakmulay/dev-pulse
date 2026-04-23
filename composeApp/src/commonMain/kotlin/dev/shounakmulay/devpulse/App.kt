@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DynamicFeed
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -14,9 +13,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItem
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
+import androidx.compose.material3.adaptive.navigationsuite.rememberNavigationSuiteScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,8 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.NavKey
-import dev.shounakmulay.core.designsystem.components.DPTextView
-import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.core.designsystem.icon.DPIcons
 import dev.shounakmulay.core.designsystem.theme.AppTheme
 import dev.shounakmulay.core.navigation.NavDisplay
 import dev.shounakmulay.core.navigation.NavigationState
@@ -38,6 +42,8 @@ import dev.shounakmulay.feature.devtools.navigation.developerToolsFeatureEntries
 import dev.shounakmulay.feature.feed.navigation.feedFeatureEntries
 import dev.shounakmulay.feature.home.navigation.homeFeatureEntries
 import dev.shounakmulay.feature.settings.navigation.settingsFeatureEntries
+import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.persistentSetOf
 import org.koin.compose.KoinApplication
 
 
@@ -48,7 +54,7 @@ fun App() {
     KoinApplication(configuration = koinConfiguration) {
         val tabRoutes by remember {
             mutableStateOf(
-                setOf(
+                persistentSetOf(
                     Screen.Tabs.Home,
                     Screen.Tabs.Feed,
                     Screen.Tabs.Time
@@ -62,45 +68,58 @@ fun App() {
             tabRoutes = tabRoutes
         )
         val navigator = remember { Navigator(navigationState) }
+        val navigationSuiteState = rememberNavigationSuiteScaffoldState()
+        val windowAdaptiveInfo = currentWindowAdaptiveInfo()
+        val navigationSuiteLayoutType =
+            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(windowAdaptiveInfo)
 
         AppTheme {
             Scaffold {
-                val isTabsPageVisible by derivedStateOf {
-                    navigationState.rootStack.last() == Screen.Tabs
+                val isTabsPageVisible by remember(navigationState.rootStack) {
+                    derivedStateOf {
+                        navigationState.rootStack.last() == Screen.Tabs
+                    }
+                }
+                LaunchedEffect(isTabsPageVisible) {
+                    if (isTabsPageVisible) {
+                        navigationSuiteState.show()
+                    } else {
+                        navigationSuiteState.hide()
+                    }
                 }
 
-                if (isTabsPageVisible) {
-                    NavigationSuiteScaffold(
-                        navigationItems = {
-                            tabRoutes.forEach { tab ->
-                                NavigationSuiteItem(
-                                    selected = tab == navigationState.selectedTab,
-                                    onClick = { navigator.navigate(tab, false) },
-                                    icon = {
-                                        Icon(
-                                            imageVector = when (tab) {
-                                                Screen.Tabs.Home -> Icons.Default.Home
-                                                Screen.Tabs.Feed -> Icons.Default.DynamicFeed
-                                                Screen.Tabs.Time -> Icons.Default.Timer
-                                                else -> Icons.Default.ExpandMore
-                                            },
-                                            contentDescription = ""
-                                        )
-                                    },
-                                    label = {
-                                        DPTextView(
-                                            text = tab.toString(),
-                                            variant = DPTextViewVariant.LabelMedium
-                                        )
-                                    },
-                                )
-                            }
+                NavigationSuiteScaffold(
+                    state = navigationSuiteState,
+//                    layoutType = navigationSuiteLayoutType,
+                    primaryActionContent = {},
+                    navigationItems = {
+                        tabRoutes.forEach { tab ->
+                            NavigationSuiteItem(
+                                selected = tab == navigationState.selectedTab,
+                                onClick = { navigator.navigate(tab, false) },
+                                icon = {
+                                    Icon(
+                                        imageVector = when (tab) {
+                                            Screen.Tabs.Home -> DPIcons.DevPulse
+                                            Screen.Tabs.Feed -> Icons.Default.DynamicFeed
+                                            Screen.Tabs.Time -> Icons.Default.Timer
+                                            else -> Icons.Default.ExpandMore
+                                        },
+                                        contentDescription = ""
+                                    )
+                                },
+                                label = null,
+                            )
                         }
-                    ) {
-                        NavDisplay(navigationState, navigator)
                     }
-                } else {
-                    NavDisplay(navigationState, navigator)
+                ) {
+                    NavDisplay(
+                        navigationState = navigationState,
+                        navigator = navigator,
+                        tabRoutes = tabRoutes,
+                        windowAdaptiveInfo = windowAdaptiveInfo,
+                        navigationSuiteType = navigationSuiteLayoutType
+                    )
                 }
             }
         }
@@ -110,12 +129,18 @@ fun App() {
 @Composable
 private fun NavDisplay(
     navigationState: NavigationState,
-    navigator: Navigator
+    navigator: Navigator,
+    tabRoutes: PersistentSet<Screen>,
+    windowAdaptiveInfo: WindowAdaptiveInfo,
+    navigationSuiteType: NavigationSuiteType,
 ) {
     NavDisplay(
         modifier = Modifier,
         navigationState = navigationState,
         navigator = navigator,
+        tabRoutes = tabRoutes,
+        windowAdaptiveInfo = windowAdaptiveInfo,
+        navigationSuiteType = navigationSuiteType,
         entryProvider = {
             developerToolsFeatureEntries(navigator)
             homeFeatureEntries(navigator)
