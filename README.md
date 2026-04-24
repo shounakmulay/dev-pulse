@@ -1,3 +1,5 @@
+<img width="470" height="160" alt="Dev Pulse" src="https://github.com/user-attachments/assets/b56a916f-5727-4ffb-9801-e90991726f59" />
+
 This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
 
 * [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
