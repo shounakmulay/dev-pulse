@@ -1,7 +1,7 @@
+
 import com.android.build.api.dsl.ApplicationExtension
 import dev.shounakmulay.devpulse.buildsrc.constants.Modules
 import dev.shounakmulay.devpulse.buildsrc.constants.buildConfig
-import org.gradle.kotlin.dsl.configure
 
 plugins {
     alias(libs.plugins.devpulse.kmp.android.application)
@@ -20,4 +20,5 @@ configure<ApplicationExtension> {
 dependencies {
     implementation(project(Modules.COMPOSE_APP))
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.splashscreen)
 }
