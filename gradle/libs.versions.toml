@@ -6,6 +6,7 @@ android-targetSdk = "36"
 app-versionCode = "1"
 app-versionName = "1.0"
 app-desktopPackageVersion = "1.0.0"
+coreSplashscreen = "1.2.0"
 jvm-target = "11"
 ios-deploymentTarget = "18.2"
 ios-marketingVersion = "1.0"
@@ -38,6 +39,7 @@ koin = "4.2.1"
 koin-compiler-plugin = "1.0.0-RC1"
 
 [libraries]
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 compose-material3-window-size = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "material3" }
 compose-material3-adaptive-navigation-suite = { module = "org.jetbrains.compose.material3:material3-adaptive-navigation-suite", version.ref = "material3" }
 compose-material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "material3-adaptive" }
