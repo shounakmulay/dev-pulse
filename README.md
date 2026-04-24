@@ -1,5 +1,10 @@
-<img width="470" height="160" alt="Dev Pulse" src="https://github.com/user-attachments/assets/b56a916f-5727-4ffb-9801-e90991726f59" />
-
+<p align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" width="470" height="160" srcset="https://github.com/user-attachments/assets/5481b111-6e70-4296-9f07-03e8cf55836a">
+  <source media="(prefers-color-scheme: light)" width="470" height="160" srcset="https://github.com/user-attachments/assets/b56a916f-5727-4ffb-9801-e90991726f59">
+  <img alt="Project Logo" src="path/to/default-image.png">
+</picture>
+</p>
 This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
 
 * [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
