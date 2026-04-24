@@ -30,6 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.NavKey
 import dev.shounakmulay.core.designsystem.icon.DPIcons
@@ -90,15 +92,17 @@ fun App() {
                     }
                 }
 
+                val haptic = LocalHapticFeedback.current
                 NavigationSuiteScaffold(
                     state = navigationSuiteState,
-//                    layoutType = navigationSuiteLayoutType,
-                    primaryActionContent = {},
                     navigationItems = {
                         tabRoutes.forEach { tab ->
                             NavigationSuiteItem(
                                 selected = tab == navigationState.selectedTab,
-                                onClick = { navigator.navigate(tab, false) },
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    navigator.navigate(tab, false)
+                                },
                                 icon = {
                                     Icon(
                                         imageVector = when (tab) {
