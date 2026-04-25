@@ -22,6 +22,7 @@ class KmpComposePlugin : Plugin<Project> {
                 extensions.configure<KotlinMultiplatformExtension> {
                     sourceSets.getByName("commonMain") {
                         dependencies {
+                            api(project(Modules.Core.RESOURCES))
                             implementation(libs.findLibrary("compose-runtime").get())
                             implementation(libs.findLibrary("compose-foundation").get())
                             implementation(libs.findLibrary("compose-foundation-layout").get())
@@ -66,7 +67,9 @@ class KmpComposePlugin : Plugin<Project> {
                             implementation(libs.findLibrary("koin-compose-viewmodel").get())
                             implementation(libs.findLibrary("kotlinx-serialization-json").get())
                             implementation(libs.findLibrary("kotlinx-collections-immutable").get())
-                            api(project(Modules.Core.RESOURCES))
+                            implementation(libs.findLibrary("orbit-compose").get())
+                            implementation(libs.findLibrary("orbit-core").get())
+                            implementation(libs.findLibrary("orbit-viewmodel").get())
                         }
                     }
                 }

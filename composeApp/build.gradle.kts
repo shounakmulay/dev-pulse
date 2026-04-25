@@ -24,6 +24,7 @@ kotlin {
             implementation(project(Modules.Feature.DEVTOOLS))
             implementation(project(Modules.Feature.SETTINGS))
 
+            implementation(project(Modules.Core.NETWORK))
             implementation(libs.navigation3.ui)
         }
         androidMain.dependencies {
@@ -33,9 +34,9 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
         }
-    }
-    sourceSets.commonTest.dependencies {
-        implementation(kotlin("test"))
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
     }
 }
 

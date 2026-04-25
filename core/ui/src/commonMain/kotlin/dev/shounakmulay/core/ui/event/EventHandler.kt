@@ -1,5 +1,5 @@
 package dev.shounakmulay.core.ui.event
 
-interface EventHandler<T: ScreenEvent> {
+interface EventHandler<in T: ScreenEvent> {
     fun onEvent(event: T)
 }

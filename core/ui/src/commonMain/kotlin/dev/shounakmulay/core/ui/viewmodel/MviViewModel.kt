@@ -1,48 +1,41 @@
 package dev.shounakmulay.core.ui.viewmodel
 
-import androidx.compose.runtime.Composable
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.core.ui.effect.Effect
 import dev.shounakmulay.core.ui.screen.ScreenState
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.flow.update
+import kotlinx.serialization.KSerializer
 import org.koin.core.component.KoinComponent
-import kotlin.contracts.ExperimentalContracts
+import org.koin.core.component.inject
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.syntax.Syntax
+import org.orbitmvi.orbit.viewmodel.container
 
-abstract class MviViewModel<STATE : ScreenState> : ViewModel(), KoinComponent {
+abstract class MviViewModel<STATE : ScreenState, EFFECT : Effect> :
+    ContainerHost<STATE, EFFECT>, ViewModel(), KoinComponent {
+    private val savedStateHandle: SavedStateHandle by inject()
+    override val container = container<STATE, EFFECT>(
+        initialState = createInitialState(),
+        savedStateHandle = savedStateHandle,
+        serializer = createStateSerializer(),
+    )
+    val state: StateFlow<STATE> = container.stateFlow
 
-    private val _state = MutableStateFlow(createInitialState())
-    val state: StateFlow<STATE> = _state
-
-    private val _effect = Channel<Effect>()
-    val effect: Flow<Effect> =
-        _effect.consumeAsFlow().shareIn(viewModelScope, SharingStarted.Lazily)
-
-    protected fun setState(block: STATE.() -> STATE) {
-        _state.update(block)
+    protected fun setState(block: STATE.() -> STATE) = intent {
+        reduce {
+            state.block()
+        }
     }
 
-    protected suspend fun <T> withState(block: suspend STATE.() -> T): T = block(state.value)
-
-    @OptIn(ExperimentalContracts::class)
-    protected suspend fun setEffect(effect: Effect) {
-        _effect.send(effect)
+    protected suspend fun Syntax<STATE, EFFECT>.setState(block: STATE.() -> STATE) {
+        reduce { state.block() }
     }
 
     abstract fun createInitialState(): STATE
+    abstract fun createStateSerializer(): KSerializer<STATE>
 
     final fun unhandledEffect(effect: Effect): Unit = throw IllegalStateException(
         "Effect $effect is not handled by ViewModel $this.",
     )
-
-    @Composable
-    fun collectAsState() = state.collectAsStateWithLifecycle()
 }
