@@ -1,4 +1,4 @@
-package dev.shounakmulay.feature.settings.screens.settings.ui
+package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui
 
 import dev.shounakmulay.devpulse.core.ui.event.ScreenEvent
 

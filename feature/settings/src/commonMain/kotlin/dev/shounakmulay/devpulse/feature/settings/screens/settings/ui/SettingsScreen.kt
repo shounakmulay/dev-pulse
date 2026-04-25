@@ -1,4 +1,4 @@
-package dev.shounakmulay.feature.settings.screens.settings.ui
+package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
