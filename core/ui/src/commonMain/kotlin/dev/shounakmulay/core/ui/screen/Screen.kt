@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -14,6 +13,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import dev.shounakmulay.core.designsystem.components.DPTopAppBar
 import dev.shounakmulay.core.ui.effect.Effect
 import dev.shounakmulay.core.ui.viewmodel.MviViewModel
+import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 
 data class ScreenTopAppBarState(
     val title: String,
@@ -24,13 +25,13 @@ data class ScreenTopAppBarState(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-inline fun <STATE : ScreenState, reified VM : MviViewModel<STATE>> Screen(
-    viewModel: MviViewModel<STATE>,
-    crossinline onEffect: suspend STATE.(Effect) -> Unit,
+inline fun <STATE : ScreenState, EFFECT : Effect, reified VM : MviViewModel<STATE, EFFECT>> Screen(
+    viewModel: VM,
+    crossinline onEffect: suspend (Effect) -> Unit,
     crossinline topAppBarStateProvider: STATE.() -> ScreenTopAppBarState? = { null },
     crossinline content: @Composable STATE.() -> Unit
 ) {
-    Screen<STATE, VM>(
+    Screen<STATE, EFFECT, VM>(
         viewModel = viewModel,
         onEffect = onEffect,
         topAppBar = {
@@ -44,7 +45,7 @@ inline fun <STATE : ScreenState, reified VM : MviViewModel<STATE>> Screen(
                     title = it.title,
                     subtitle = it.subTitle,
 
-                )
+                    )
             }
         },
         content = content
@@ -52,18 +53,16 @@ inline fun <STATE : ScreenState, reified VM : MviViewModel<STATE>> Screen(
 }
 
 @Composable
-inline fun <STATE : ScreenState, reified VM : MviViewModel<STATE>> Screen(
-    viewModel: MviViewModel<STATE>,
-    crossinline onEffect: suspend STATE.(Effect) -> Unit,
+inline fun <STATE : ScreenState, EFFECT : Effect, reified VM : MviViewModel<STATE, EFFECT>> Screen(
+    viewModel: VM,
+    crossinline onEffect: suspend (Effect) -> Unit,
     noinline topAppBar: (@Composable STATE.() -> Unit)?,
     crossinline content: @Composable STATE.() -> Unit
 ) {
     val state by viewModel.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.effect.collect { effect ->
-            onEffect(viewModel.state.value, effect)
-        }
+    viewModel.collectSideEffect {
+        onEffect(it)
     }
 
     Scaffold(
