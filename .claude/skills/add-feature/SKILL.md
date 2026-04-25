@@ -17,7 +17,7 @@ From the feature name `$0` (e.g. `notifications`):
 - Class prefix: PascalCase (e.g. `Notifications`)
 - Module path: `:feature:$0`
 - iOS framework base name: `core:$0Kit`
-- Gradle namespace: `dev.shounakmulay.feature.$0`
+- Gradle namespace: `dev.shounakmulay.devpulse.feature.$0`
 
 ## Step 1 — Add Screen type to `Screen.kt`
 
@@ -66,7 +66,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "dev.shounakmulay.feature.$0"
+        namespace = "dev.shounakmulay.devpulse.feature.$0"
 
         withHostTestBuilder {}
 
@@ -92,13 +92,13 @@ kotlin {
 
 Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/di/<Name>Module.kt`:
 ```kotlin
-package dev.shounakmulay.feature.$0.di
+package dev.shounakmulay.devpulse.feature.$0.di
 
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 
 @Module
-@ComponentScan("dev.shounakmulay.feature.$0")
+@ComponentScan("dev.shounakmulay.devpulse.feature.$0")
 class <Name>Module
 ```
 
@@ -106,10 +106,10 @@ class <Name>Module
 
 Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$0/ui/<Name>ScreenState.kt`:
 ```kotlin
-package dev.shounakmulay.feature.$0.screens.$0.ui
+package dev.shounakmulay.devpulse.feature.$0.screens.$0.ui
 
 import androidx.compose.runtime.Immutable
-import dev.shounakmulay.core.ui.screen.ScreenState
+import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -123,9 +123,9 @@ data class <Name>ScreenState(
 
 Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$0/ui/<Name>ViewModel.kt`:
 ```kotlin
-package dev.shounakmulay.feature.$0.screens.$0.ui
+package dev.shounakmulay.devpulse.feature.$0.screens.$0.ui
 
-import dev.shounakmulay.core.ui.viewmodel.StateEffectViewModel
+import dev.shounakmulay.devpulse.core.ui.viewmodel.StateEffectViewModel
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
@@ -138,7 +138,7 @@ class <Name>ViewModel : StateEffectViewModel<<Name>ScreenState>() {
 
 Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$0/ui/<Name>Screen.kt`:
 ```kotlin
-package dev.shounakmulay.feature.$0.screens.$0.ui
+package dev.shounakmulay.devpulse.feature.$0.screens.$0.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -146,8 +146,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import dev.shounakmulay.core.designsystem.components.DPTextView
-import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 
 @Composable
 fun <Name>Screen(viewModel: <Name>ViewModel, modifier: Modifier = Modifier) {
@@ -162,12 +162,12 @@ fun <Name>Screen(viewModel: <Name>ViewModel, modifier: Modifier = Modifier) {
 
 Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$0/navigation/<Name>ScreenEntry.kt`:
 ```kotlin
-package dev.shounakmulay.feature.$0.screens.$0.navigation
+package dev.shounakmulay.devpulse.feature.$0.screens.$0.navigation
 
 import androidx.navigation3.runtime.EntryProviderScope
-import dev.shounakmulay.core.navigation.Navigator
-import dev.shounakmulay.core.navigation.Screen
-import dev.shounakmulay.feature.$0.screens.$0.ui.<Name>Screen
+import dev.shounakmulay.devpulse.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.feature.$0.screens.$0.ui.<Name>Screen
 import org.koin.compose.viewmodel.koinViewModel
 
 internal fun EntryProviderScope<Screen>.<$0>Screen(navigator: Navigator) {
@@ -181,12 +181,12 @@ internal fun EntryProviderScope<Screen>.<$0>Screen(navigator: Navigator) {
 
 Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/navigation/<Name>FeatureEntries.kt`:
 ```kotlin
-package dev.shounakmulay.feature.$0.navigation
+package dev.shounakmulay.devpulse.feature.$0.navigation
 
 import androidx.navigation3.runtime.EntryProviderScope
-import dev.shounakmulay.core.navigation.Navigator
-import dev.shounakmulay.core.navigation.Screen
-import dev.shounakmulay.feature.$0.screens.$0.navigation.<$0>Screen
+import dev.shounakmulay.devpulse.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.feature.$0.screens.$0.navigation.<$0>Screen
 
 fun EntryProviderScope<Screen>.<$0>FeatureEntries(navigator: Navigator) {
     <$0>Screen(navigator)

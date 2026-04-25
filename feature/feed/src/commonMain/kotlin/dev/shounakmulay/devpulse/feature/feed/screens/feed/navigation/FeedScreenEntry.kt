@@ -1,0 +1,22 @@
+package dev.shounakmulay.devpulse.feature.feed.screens.feed.navigation
+
+import androidx.navigation3.runtime.EntryProviderScope
+import dev.shounakmulay.devpulse.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.core.navigation.scene.listDetail.ExpandableListDetailSceneStrategy
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.FeedDetailScreen
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.FeedScreen
+import org.koin.compose.viewmodel.koinViewModel
+
+internal fun EntryProviderScope<Screen>.feedScreen(navigator: Navigator) {
+    entry<Screen.Tabs.Feed>(
+        metadata = ExpandableListDetailSceneStrategy.listPane()
+    ) {
+        FeedScreen(navigator = navigator, viewModel = koinViewModel())
+    }
+    entry<Screen.Tabs.Feed.FeedDetail>(
+        metadata = ExpandableListDetailSceneStrategy.detailPane(draggable = true)
+    ) {
+        FeedDetailScreen(it)
+    }
+}

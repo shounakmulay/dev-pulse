@@ -1,0 +1,16 @@
+package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui
+
+import dev.shounakmulay.devpulse.core.ui.event.EventHandler
+import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
+import org.koin.core.annotation.KoinViewModel
+
+@KoinViewModel
+class FeedViewModel : MviViewModel<FeedScreenState, FeedScreenEffect>(),
+    EventHandler<FeedScreenEvent> {
+    override fun createInitialState(): FeedScreenState = FeedScreenState(isLoading = false)
+    override fun createStateSerializer() = FeedScreenState.serializer()
+
+    override fun onEvent(event: FeedScreenEvent) {
+        TODO("Not yet implemented")
+    }
+}

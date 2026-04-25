@@ -6,7 +6,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "dev.shounakmulay.core.network"
+        namespace = "dev.shounakmulay.devpulse.core.network"
     }
     iosFrameworks(baseName = "core:network")
 
