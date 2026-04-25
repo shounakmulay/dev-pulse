@@ -31,7 +31,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
         viewModel = viewModel,
         onEffect = {
             when (it) {
-                SettingsEffect.NavigateToDesignSystemBoard -> navigator.navigate(Screen.DeveloperTools.DesignSystemBoard)
+                SettingsScreenEffect.NavigateToDesignSystemBoard -> navigator.navigate(Screen.DeveloperTools.DesignSystemBoard)
                 else -> viewModel.unhandledEffect(it)
             }
         },
@@ -52,7 +52,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                 headlineText = stringResource(stringRes.design_system_board),
                 supportingText = "Just supporting",
                 onClick = {
-                    viewModel.onEvent(SettingsEvent.NavigateToDesignSystemBoard)
+                    viewModel.onEvent(SettingsScreenEvent.NavigateToDesignSystemBoard)
                 },
                 density = DPDensity.Dense,
                 trailingContent = {
@@ -60,7 +60,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                         icon = Icons.Default.ChevronRight,
                         contentDescription = "",
                     ) {
-                        viewModel.onEvent(SettingsEvent.NavigateToDesignSystemBoard)
+                        viewModel.onEvent(SettingsScreenEvent.NavigateToDesignSystemBoard)
                     }
                 }
             )

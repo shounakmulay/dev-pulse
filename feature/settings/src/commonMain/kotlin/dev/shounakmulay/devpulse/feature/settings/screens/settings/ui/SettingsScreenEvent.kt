@@ -2,6 +2,6 @@ package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui
 
 import dev.shounakmulay.devpulse.core.ui.event.ScreenEvent
 
-sealed interface SettingsEvent : ScreenEvent {
-    data object NavigateToDesignSystemBoard : SettingsEvent
+sealed interface SettingsScreenEvent : ScreenEvent {
+    data object NavigateToDesignSystemBoard : SettingsScreenEvent
 }
