@@ -10,7 +10,7 @@ import dev.shounakmulay.core.designsystem.icon.DPIcons
 import dev.shounakmulay.core.designsystem.theme.DPIntent
 import dev.shounakmulay.core.navigation.Navigator
 import dev.shounakmulay.core.navigation.Screen
-import dev.shounakmulay.core.ui.screen.Screen
+import dev.shounakmulay.devpulse.core.ui.screen.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

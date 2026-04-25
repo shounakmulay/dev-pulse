@@ -1,9 +1,9 @@
-package dev.shounakmulay.core.ui.viewmodel
+package dev.shounakmulay.devpulse.core.ui.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import dev.shounakmulay.core.ui.effect.Effect
-import dev.shounakmulay.core.ui.screen.ScreenState
+import dev.shounakmulay.devpulse.core.ui.effect.Effect
+import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.KSerializer
 import org.koin.core.component.KoinComponent

@@ -1,6 +1,6 @@
 package dev.shounakmulay.feature.feed.screens.feed.ui
 
-import dev.shounakmulay.core.ui.screen.ScreenState
+import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
 import kotlinx.serialization.Serializable
 
 @Serializable

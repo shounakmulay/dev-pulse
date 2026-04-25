@@ -17,8 +17,8 @@ import dev.shounakmulay.core.designsystem.theme.DPDensity
 import dev.shounakmulay.core.navigation.Navigator
 import dev.shounakmulay.core.navigation.Screen
 import dev.shounakmulay.core.resources.stringRes
-import dev.shounakmulay.core.ui.button.DPBackNavigationIconButton
-import dev.shounakmulay.core.ui.screen.Screen
+import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
+import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import devpulse.core.resources.generated.resources.design_system_board
 import devpulse.core.resources.generated.resources.developer_tools
 import devpulse.core.resources.generated.resources.settings

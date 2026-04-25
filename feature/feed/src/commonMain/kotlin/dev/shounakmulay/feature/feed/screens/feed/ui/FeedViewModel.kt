@@ -1,7 +1,7 @@
 package dev.shounakmulay.feature.feed.screens.feed.ui
 
-import dev.shounakmulay.core.ui.event.EventHandler
-import dev.shounakmulay.core.ui.viewmodel.MviViewModel
+import dev.shounakmulay.devpulse.core.ui.event.EventHandler
+import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel

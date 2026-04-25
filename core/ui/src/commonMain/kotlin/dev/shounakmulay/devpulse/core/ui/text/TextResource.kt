@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.ui.text
+package dev.shounakmulay.devpulse.core.ui.text
 //
 //import android.content.res.Resources
 //import android.graphics.Typeface

@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.ui.button
+package dev.shounakmulay.devpulse.core.ui.button
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack

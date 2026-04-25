@@ -1,8 +1,8 @@
 package dev.shounakmulay.feature.settings.screens.settings.ui
 
 import androidx.lifecycle.viewModelScope
-import dev.shounakmulay.core.ui.event.EventHandler
-import dev.shounakmulay.core.ui.viewmodel.MviViewModel
+import dev.shounakmulay.devpulse.core.ui.event.EventHandler
+import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 

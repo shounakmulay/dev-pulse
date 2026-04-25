@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.ui.screen
+package dev.shounakmulay.devpulse.core.ui.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -11,8 +11,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.shounakmulay.core.designsystem.components.DPTopAppBar
-import dev.shounakmulay.core.ui.effect.Effect
-import dev.shounakmulay.core.ui.viewmodel.MviViewModel
+import dev.shounakmulay.devpulse.core.ui.effect.Effect
+import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
