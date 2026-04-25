@@ -23,6 +23,6 @@ kotlin {
         commonMain.dependencies {
             api(project(Modules.Core.DESIGN_SYSTEM))
             implementation(libs.compose.components.resources)
-        }
+            }
     }
 }

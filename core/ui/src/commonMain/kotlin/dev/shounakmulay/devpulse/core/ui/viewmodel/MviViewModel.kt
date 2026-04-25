@@ -32,6 +32,10 @@ abstract class MviViewModel<STATE : ScreenState, EFFECT : Effect> :
         reduce { state.block() }
     }
 
+    protected fun postEffect(effect: EFFECT) = intent {
+        postSideEffect(effect)
+    }
+
     abstract fun createInitialState(): STATE
     abstract fun createStateSerializer(): KSerializer<STATE>
 
