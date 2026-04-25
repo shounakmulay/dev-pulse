@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.di
 
+import dev.shounakmulay.core.network.di.NetworkModule
 import dev.shounakmulay.feature.feed.di.FeedModule
 import dev.shounakmulay.feature.home.di.HomeModule
 import dev.shounakmulay.feature.settings.di.SettingsModule
@@ -8,6 +9,7 @@ import org.koin.plugin.module.dsl.koinConfiguration
 
 @KoinApplication(
     modules = [
+        NetworkModule::class,
         HomeModule::class,
         FeedModule::class,
         SettingsModule::class
