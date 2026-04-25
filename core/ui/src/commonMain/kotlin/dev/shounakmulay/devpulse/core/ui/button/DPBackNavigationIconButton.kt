@@ -4,7 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import dev.shounakmulay.core.designsystem.components.DPIconButton
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.navigate_back
 import org.jetbrains.compose.resources.stringResource

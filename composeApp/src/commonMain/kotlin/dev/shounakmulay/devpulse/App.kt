@@ -34,8 +34,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.NavKey
-import dev.shounakmulay.core.designsystem.icon.DPIcons
-import dev.shounakmulay.core.designsystem.theme.AppTheme
+import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
+import dev.shounakmulay.devpulse.core.designsystem.theme.AppTheme
 import dev.shounakmulay.devpulse.core.navigation.NavDisplay
 import dev.shounakmulay.devpulse.core.navigation.NavigationState
 import dev.shounakmulay.devpulse.core.navigation.Navigator

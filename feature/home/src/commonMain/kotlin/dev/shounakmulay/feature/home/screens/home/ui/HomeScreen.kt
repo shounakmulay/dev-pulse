@@ -5,9 +5,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import dev.shounakmulay.core.designsystem.components.DPIconButton
-import dev.shounakmulay.core.designsystem.icon.DPIcons
-import dev.shounakmulay.core.designsystem.theme.DPIntent
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
+import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
+import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.ui.screen.Screen

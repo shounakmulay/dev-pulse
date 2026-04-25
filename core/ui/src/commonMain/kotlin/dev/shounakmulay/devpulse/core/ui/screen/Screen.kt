@@ -10,7 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import dev.shounakmulay.core.designsystem.components.DPTopAppBar
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBar
 import dev.shounakmulay.devpulse.core.ui.effect.Effect
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import org.orbitmvi.orbit.compose.collectAsState

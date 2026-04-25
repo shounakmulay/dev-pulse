@@ -6,9 +6,9 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import dev.shounakmulay.core.designsystem.components.DPClickableRow
-import dev.shounakmulay.core.designsystem.components.DPTextView
-import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPClickableRow
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import org.orbitmvi.orbit.compose.collectAsState
