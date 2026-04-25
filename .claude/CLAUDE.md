@@ -92,7 +92,7 @@ On wide screens (≥ breakpoint, typically 600.dp) both panes appear side by sid
 
 **Koin** with annotation-based zero-boilerplate DI across all platforms.
 
-- `@Module @ComponentScan("dev.shounakmulay.feature.<name>")` on a class in each feature's `di/` package
+- `@Module @ComponentScan("dev.shounakmulay.devpulse.feature.<name>")` on a class in each feature's `di/` package
 - `@KoinViewModel` on every ViewModel class
 - ViewModels obtained via `koinViewModel()` from koin-compose-viewmodel
 
@@ -100,7 +100,7 @@ Feature module DI structure:
 ```
 feature:xxx/
 └── di/
-    └── XxxModule.kt   # @Module @ComponentScan("dev.shounakmulay.feature.xxx")
+    └── XxxModule.kt   # @Module @ComponentScan("dev.shounakmulay.devpulse.feature.xxx")
 ```
 
 Root DI wiring is in `composeApp/.../di/DevPulseKoinApplication.kt` via `@KoinApplication`.

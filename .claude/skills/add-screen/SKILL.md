@@ -30,10 +30,10 @@ Use `data object` when the screen has no parameters, `data class` when it carrie
 
 Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$1/ui/<Name>ScreenState.kt`:
 ```kotlin
-package dev.shounakmulay.feature.$0.screens.$1.ui
+package dev.shounakmulay.devpulse.feature.$0.screens.$1.ui
 
 import androidx.compose.runtime.Immutable
-import dev.shounakmulay.core.ui.screen.ScreenState
+import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -47,9 +47,9 @@ data class <Name>ScreenState(
 
 Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$1/ui/<Name>ViewModel.kt`:
 ```kotlin
-package dev.shounakmulay.feature.$0.screens.$1.ui
+package dev.shounakmulay.devpulse.feature.$0.screens.$1.ui
 
-import dev.shounakmulay.core.ui.viewmodel.StateEffectViewModel
+import dev.shounakmulay.devpulse.core.ui.viewmodel.StateEffectViewModel
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
@@ -62,7 +62,7 @@ class <Name>ViewModel : StateEffectViewModel<<Name>ScreenState>() {
 
 Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$1/ui/<Name>Screen.kt`:
 ```kotlin
-package dev.shounakmulay.feature.$0.screens.$1.ui
+package dev.shounakmulay.devpulse.feature.$0.screens.$1.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -70,8 +70,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import dev.shounakmulay.core.designsystem.components.DPTextView
-import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 
 @Composable
 fun <Name>Screen(viewModel: <Name>ViewModel, modifier: Modifier = Modifier) {
@@ -86,12 +86,12 @@ fun <Name>Screen(viewModel: <Name>ViewModel, modifier: Modifier = Modifier) {
 
 Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$1/navigation/<Name>ScreenEntry.kt`:
 ```kotlin
-package dev.shounakmulay.feature.$0.screens.$1.navigation
+package dev.shounakmulay.devpulse.feature.$0.screens.$1.navigation
 
 import androidx.navigation3.runtime.EntryProviderScope
-import dev.shounakmulay.core.navigation.Navigator
-import dev.shounakmulay.core.navigation.Screen
-import dev.shounakmulay.feature.$0.screens.$1.ui.<Name>Screen
+import dev.shounakmulay.devpulse.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.feature.$0.screens.$1.ui.<Name>Screen
 import org.koin.compose.viewmodel.koinViewModel
 
 internal fun EntryProviderScope<Screen>.<$1>Screen(navigator: Navigator) {
