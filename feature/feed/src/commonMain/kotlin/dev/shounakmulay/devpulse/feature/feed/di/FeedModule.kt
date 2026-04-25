@@ -1,8 +1,8 @@
-package dev.shounakmulay.feature.feed.di
+package dev.shounakmulay.devpulse.feature.feed.di
 
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 
 @Module
-@ComponentScan("dev.shounakmulay.feature.feed")
+@ComponentScan("dev.shounakmulay.devpulse.feature.feed")
 class FeedModule

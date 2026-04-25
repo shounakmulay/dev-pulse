@@ -1,4 +1,4 @@
-package dev.shounakmulay.feature.feed.screens.feed.ui
+package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn

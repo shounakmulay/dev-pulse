@@ -7,7 +7,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "dev.shounakmulay.feature.feed"
+        namespace = "dev.shounakmulay.devpulse.feature.feed"
 
         withHostTestBuilder {}
 

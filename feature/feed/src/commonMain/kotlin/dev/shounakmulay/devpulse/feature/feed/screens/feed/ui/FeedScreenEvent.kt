@@ -1,4 +1,4 @@
-package dev.shounakmulay.feature.feed.screens.feed.ui
+package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui
 
 import dev.shounakmulay.devpulse.core.ui.event.ScreenEvent
 
