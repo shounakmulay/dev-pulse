@@ -1,4 +1,4 @@
-package dev.shounakmulay.feature.home.screens.home.ui
+package dev.shounakmulay.devpulse.feature.home.screens.home.ui
 
 import dev.shounakmulay.devpulse.core.ui.effect.HideKeyboardEffect
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler

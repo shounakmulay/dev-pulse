@@ -1,4 +1,4 @@
-package dev.shounakmulay.feature.home
+package dev.shounakmulay.devpulse.feature.home
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

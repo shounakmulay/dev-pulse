@@ -1,4 +1,4 @@
-package dev.shounakmulay.feature.home.screens.home.ui
+package dev.shounakmulay.devpulse.feature.home.screens.home.ui
 
 import androidx.compose.runtime.Immutable
 import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
