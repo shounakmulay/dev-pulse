@@ -1,4 +1,4 @@
-package dev.shounakmulay.feature.devtools.navigation
+package dev.shounakmulay.devpulse.feature.devtools.navigation
 
 import androidx.navigation3.runtime.EntryProviderScope
 import dev.shounakmulay.devpulse.core.navigation.Navigator

@@ -1,4 +1,4 @@
-package dev.shounakmulay.feature.devtools.ui
+package dev.shounakmulay.devpulse.feature.devtools.ui
 
 import androidx.compose.runtime.Composable
 import dev.shounakmulay.devpulse.core.designsystem.components.devtools.DesignSystemBoard

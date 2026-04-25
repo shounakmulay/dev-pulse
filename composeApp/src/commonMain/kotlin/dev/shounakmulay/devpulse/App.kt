@@ -42,7 +42,7 @@ import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.rememberNavigationState
 import dev.shounakmulay.devpulse.di.koinConfiguration
-import dev.shounakmulay.feature.devtools.navigation.developerToolsFeatureEntries
+import dev.shounakmulay.devpulse.feature.devtools.navigation.developerToolsFeatureEntries
 import dev.shounakmulay.feature.feed.navigation.feedFeatureEntries
 import dev.shounakmulay.feature.home.navigation.homeFeatureEntries
 import dev.shounakmulay.feature.settings.navigation.settingsFeatureEntries

@@ -1,4 +1,4 @@
-package dev.shounakmulay.feature.devtools
+package dev.shounakmulay.devpulse.feature.devtools
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("dev.shounakmulay.feature.devtools.test", appContext.packageName)
+        assertEquals("dev.shounakmulay.devpulse.feature.devtools.test", appContext.packageName)
     }
 }

@@ -7,7 +7,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "dev.shounakmulay.feature.devtools"
+        namespace = "dev.shounakmulay.devpulse.feature.devtools"
 
         withHostTestBuilder {}
 
