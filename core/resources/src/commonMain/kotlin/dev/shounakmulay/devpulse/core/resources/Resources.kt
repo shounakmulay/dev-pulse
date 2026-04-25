@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.resources
+package dev.shounakmulay.devpulse.core.resources
 
 import devpulse.core.resources.generated.resources.Res
 

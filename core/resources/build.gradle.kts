@@ -10,7 +10,7 @@ compose.resources {
 }
 kotlin {
     android {
-        namespace = "dev.shounakmulay.core.resources"
+        namespace = "dev.shounakmulay.devpulse.core.resources"
         androidResources.enable = true
     }
 
