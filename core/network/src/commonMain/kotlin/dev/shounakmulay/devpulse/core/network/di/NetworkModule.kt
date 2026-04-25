@@ -1,6 +1,6 @@
-package dev.shounakmulay.core.network.di
+package dev.shounakmulay.devpulse.core.network.di
 
-import dev.shounakmulay.core.network.createHttpClient
+import dev.shounakmulay.devpulse.core.network.createHttpClient
 import io.ktor.client.HttpClient
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single

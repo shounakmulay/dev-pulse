@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.network
+package dev.shounakmulay.devpulse.core.network
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
