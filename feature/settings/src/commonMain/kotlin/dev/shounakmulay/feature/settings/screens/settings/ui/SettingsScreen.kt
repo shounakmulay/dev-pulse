@@ -14,8 +14,8 @@ import dev.shounakmulay.core.designsystem.components.DPTextView
 import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.core.designsystem.components.DPTopAppBar
 import dev.shounakmulay.core.designsystem.theme.DPDensity
-import dev.shounakmulay.core.navigation.Navigator
-import dev.shounakmulay.core.navigation.Screen
+import dev.shounakmulay.devpulse.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.screen.Screen

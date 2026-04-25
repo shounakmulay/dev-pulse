@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.navigation
+package dev.shounakmulay.devpulse.core.navigation
 
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
@@ -9,9 +9,9 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
-import dev.shounakmulay.core.navigation.scene.listDetail.ExpandableListDetailSceneStrategy
-import dev.shounakmulay.core.navigation.transition.NavTransitionSpecType
-import dev.shounakmulay.core.navigation.transition.createTransitionSpec
+import dev.shounakmulay.devpulse.core.navigation.scene.listDetail.ExpandableListDetailSceneStrategy
+import dev.shounakmulay.devpulse.core.navigation.transition.NavTransitionSpecType
+import dev.shounakmulay.devpulse.core.navigation.transition.createTransitionSpec
 import kotlinx.collections.immutable.PersistentSet
 
 @Composable

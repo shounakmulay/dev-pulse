@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.navigation.scene.listDetail
+package dev.shounakmulay.devpulse.core.navigation.scene.listDetail
 
 data class ListDetailScreenStrategyConfig(
     val widthBreakpoint: Int,

@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.navigation
+package dev.shounakmulay.devpulse.core.navigation
 
 import androidx.compose.runtime.Immutable
 import androidx.navigation3.runtime.NavKey

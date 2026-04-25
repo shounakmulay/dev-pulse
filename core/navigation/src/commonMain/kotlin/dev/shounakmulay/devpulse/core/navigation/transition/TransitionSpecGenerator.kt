@@ -1,11 +1,11 @@
-package dev.shounakmulay.core.navigation.transition
+package dev.shounakmulay.devpulse.core.navigation.transition
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.Scene
-import dev.shounakmulay.core.navigation.Screen
+import dev.shounakmulay.devpulse.core.navigation.Screen
 import kotlinx.collections.immutable.PersistentSet
 
 internal fun createTransitionSpec(

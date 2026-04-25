@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.navigation
+package dev.shounakmulay.devpulse.core.navigation
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

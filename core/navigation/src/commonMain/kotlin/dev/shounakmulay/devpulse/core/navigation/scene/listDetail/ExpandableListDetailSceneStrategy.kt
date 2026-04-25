@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.navigation.scene.listDetail
+package dev.shounakmulay.devpulse.core.navigation.scene.listDetail
 
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavMetadataKey

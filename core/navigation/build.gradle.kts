@@ -6,7 +6,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "dev.shounakmulay.core.navigation"
+        namespace = "dev.shounakmulay.devpulse.core.navigation"
 
         withHostTestBuilder {}
 

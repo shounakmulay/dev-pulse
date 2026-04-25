@@ -1,4 +1,4 @@
-package dev.shounakmulay.core.navigation.transition
+package dev.shounakmulay.devpulse.core.navigation.transition
 
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.slideInHorizontally

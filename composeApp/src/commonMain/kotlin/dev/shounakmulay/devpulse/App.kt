@@ -36,11 +36,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.NavKey
 import dev.shounakmulay.core.designsystem.icon.DPIcons
 import dev.shounakmulay.core.designsystem.theme.AppTheme
-import dev.shounakmulay.core.navigation.NavDisplay
-import dev.shounakmulay.core.navigation.NavigationState
-import dev.shounakmulay.core.navigation.Navigator
-import dev.shounakmulay.core.navigation.Screen
-import dev.shounakmulay.core.navigation.rememberNavigationState
+import dev.shounakmulay.devpulse.core.navigation.NavDisplay
+import dev.shounakmulay.devpulse.core.navigation.NavigationState
+import dev.shounakmulay.devpulse.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.core.navigation.rememberNavigationState
 import dev.shounakmulay.devpulse.di.koinConfiguration
 import dev.shounakmulay.feature.devtools.navigation.developerToolsFeatureEntries
 import dev.shounakmulay.feature.feed.navigation.feedFeatureEntries

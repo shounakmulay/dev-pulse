@@ -41,7 +41,7 @@ import dev.shounakmulay.core.designsystem.theme.darkScheme
 import dev.shounakmulay.core.designsystem.theme.dpShapes
 import dev.shounakmulay.core.designsystem.theme.getColorScheme
 import dev.shounakmulay.core.designsystem.theme.lightScheme
-import dev.shounakmulay.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.navigation.Navigator
 
 enum class BoardSection(val title: String) {
     Colors("Colors"),

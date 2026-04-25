@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import dev.shounakmulay.core.designsystem.components.DPClickableRow
 import dev.shounakmulay.core.designsystem.components.DPTextView
 import dev.shounakmulay.core.designsystem.components.DPTextViewVariant
-import dev.shounakmulay.core.navigation.Navigator
-import dev.shounakmulay.core.navigation.Screen
+import dev.shounakmulay.devpulse.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.navigation.Screen
 import org.orbitmvi.orbit.compose.collectAsState
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
