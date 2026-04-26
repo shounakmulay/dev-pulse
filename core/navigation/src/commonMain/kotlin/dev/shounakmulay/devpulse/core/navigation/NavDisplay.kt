@@ -3,6 +3,8 @@ package dev.shounakmulay.devpulse.core.navigation
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.EntryProviderScope
@@ -24,13 +26,15 @@ fun NavDisplay(
     navigationSuiteType: NavigationSuiteType,
     entryProvider: EntryProviderScope<Screen>.() -> Unit
 ) {
-    val sceneStrategies = remember {
-        listOf(
-            ExpandableListDetailSceneStrategy(
-                windowSizeClass = windowAdaptiveInfo.windowSizeClass,
-            ),
-            SinglePaneSceneStrategy<Screen>()
-        )
+    val sceneStrategies by remember(windowAdaptiveInfo) {
+        derivedStateOf {
+            listOf(
+                ExpandableListDetailSceneStrategy(
+                    windowSizeClass = windowAdaptiveInfo.windowSizeClass,
+                ),
+                SinglePaneSceneStrategy<Screen>()
+            )
+        }
     }
     NavDisplay(
         modifier = modifier,
