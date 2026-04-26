@@ -48,12 +48,7 @@ private fun evaluateTransitionType(
     val toTabIndex = toStack.findRootTabIndex(tabRoutes)
 
     if (fromTabIndex != null && toTabIndex != null && fromTabIndex != toTabIndex) {
-        val isVertical = navigationSuiteType in listOf(
-            NavigationSuiteType.NavigationRail,
-            NavigationSuiteType.WideNavigationRailExpanded,
-            NavigationSuiteType.WideNavigationRailCollapsed,
-            NavigationSuiteType.NavigationDrawer
-        )
+        val isVertical = navigationSuiteType.isSideNavigation()
 
         val direction = when {
             fromTabIndex > toTabIndex -> {
