@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -20,7 +21,11 @@ fun AppTheme(
     )
     val colorScheme = when {
         platformColorScheme != null -> platformColorScheme
-        darkTheme -> darkScheme
+        darkTheme -> darkScheme.copy(
+            background = Color(0xFF000000),
+            surface = Color(0xFF000000)
+        )
+
         else -> lightScheme
     }
     CompositionLocalProvider(
