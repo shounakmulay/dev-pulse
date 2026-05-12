@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -130,6 +131,57 @@ fun DPTextView(
         modifier = modifier,
         color = resolvedColor,
         autoSize = autoSize,
+        fontSize = fontSize,
+        fontStyle = fontStyle,
+        fontWeight = fontWeight,
+        fontFamily = fontFamily,
+        letterSpacing = letterSpacing,
+        textDecoration = textDecoration,
+        textAlign = textAlign,
+        lineHeight = lineHeight,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        onTextLayout = onTextLayout,
+        style = mergedStyle,
+    )
+}
+
+@Composable
+fun DPTextView(
+    text: AnnotatedString,
+    variant: DPTextViewVariant,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    intent: DPIntent? = null,
+    fontSize: TextUnit = TextUnit.Unspecified,
+    fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
+    fontFamily: FontFamily? = null,
+    letterSpacing: TextUnit = TextUnit.Unspecified,
+    textDecoration: TextDecoration? = null,
+    textAlign: TextAlign? = null,
+    lineHeight: TextUnit = TextUnit.Unspecified,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    onTextLayout: ((TextLayoutResult) -> Unit) = {},
+    style: TextStyle? = null,
+) {
+    val baseStyle = variant.textStyle()
+    val mergedStyle = style?.let { baseStyle.merge(it) } ?: baseStyle
+    val resolvedColor = when {
+        color != Color.Unspecified -> color
+        intent != null -> intent.colors().accent
+        else -> Color.Unspecified
+    }
+
+    Text(
+        text = text,
+        modifier = modifier,
+        color = resolvedColor,
         fontSize = fontSize,
         fontStyle = fontStyle,
         fontWeight = fontWeight,

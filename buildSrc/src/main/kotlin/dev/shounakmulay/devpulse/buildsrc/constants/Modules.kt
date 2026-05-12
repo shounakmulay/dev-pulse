@@ -17,5 +17,16 @@ object Modules {
         const val UI = ":core:ui"
         const val RESOURCES = ":core:resources"
         const val NETWORK = ":core:network"
+        const val PREFERENCES = ":core:preferences"
+        const val COMMON = ":core:common"
+
+        object Domain {
+            const val MODELS = ":core:domain:models"
+            const val SETTINGS = ":core:domain:settings"
+        }
+
+        object Data {
+            const val SETTINGS = ":core:data:settings"
+        }
     }
 }

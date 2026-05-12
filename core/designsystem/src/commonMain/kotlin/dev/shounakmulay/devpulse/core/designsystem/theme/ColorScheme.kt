@@ -105,6 +105,11 @@ val darkScheme = darkColorScheme(
     onTertiaryFixedVariant = onInfoContainerDark,
 )
 
+val blackScheme = darkScheme.copy(
+    background = Color(0xFF000000),
+    surface = Color(0xFF000000)
+)
+
 internal val mediumContrastLightColorScheme = lightColorScheme(
     primary = primaryLightMediumContrast,
     onPrimary = onPrimaryLightMediumContrast,

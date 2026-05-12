@@ -6,11 +6,11 @@ import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppTheme(
+    isBlackMode: Boolean = false,
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
@@ -21,17 +21,15 @@ fun AppTheme(
     )
     val colorScheme = when {
         platformColorScheme != null -> platformColorScheme
-        darkTheme -> darkScheme.copy(
-            background = Color(0xFF000000),
-            surface = Color(0xFF000000)
-        )
-
+        darkTheme && isBlackMode -> blackScheme
+        darkTheme -> darkScheme
         else -> lightScheme
     }
     CompositionLocalProvider(
         LocalDPSpacing provides DefaultSpacing,
         LocalDPIconSize provides DefaultIconSize,
         LocalDPElevation provides DefaultElevation,
+        LocalDPDarkTheme provides darkTheme,
     ) {
         MaterialExpressiveTheme(
             colorScheme = colorScheme,
@@ -58,4 +56,9 @@ object DPTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalDPElevation.current
+
+    val isDarkTheme: Boolean
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalDPDarkTheme.current
 }

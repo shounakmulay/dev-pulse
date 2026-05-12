@@ -9,15 +9,15 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import devpulse.core.designsystem.generated.resources.Res
-import devpulse.core.designsystem.generated.resources.dmmono_italic
-import devpulse.core.designsystem.generated.resources.dmmono_light
-import devpulse.core.designsystem.generated.resources.dmmono_light_italic
-import devpulse.core.designsystem.generated.resources.dmmono_medium
-import devpulse.core.designsystem.generated.resources.dmmono_medium_italic
-import devpulse.core.designsystem.generated.resources.dmmono_regular
-import devpulse.core.designsystem.generated.resources.inter
-import devpulse.core.designsystem.generated.resources.newsreader
+import devpulse.core.resources.generated.resources.Res
+import devpulse.core.resources.generated.resources.dmmono_italic
+import devpulse.core.resources.generated.resources.dmmono_light
+import devpulse.core.resources.generated.resources.dmmono_light_italic
+import devpulse.core.resources.generated.resources.dmmono_medium
+import devpulse.core.resources.generated.resources.dmmono_medium_italic
+import devpulse.core.resources.generated.resources.dmmono_regular
+import devpulse.core.resources.generated.resources.inter
+import devpulse.core.resources.generated.resources.newsreader
 import org.jetbrains.compose.resources.Font
 
 @Composable
@@ -384,7 +384,7 @@ class DPTextVariants(
 
 @Composable
 fun dpTextVariants(): DPTextVariants = DPTextVariants(
-    displayFont = displayFontFamily(),
+    displayFont = bodyFontFamily(),
     bodyFont = bodyFontFamily(),
 )
 

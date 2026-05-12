@@ -86,6 +86,8 @@ val DefaultElevation = DPElevation(
 
 val LocalDPElevation = staticCompositionLocalOf { DefaultElevation }
 
+val LocalDPDarkTheme = staticCompositionLocalOf { false }
+
 val dpShapes: Shapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
     small = RoundedCornerShape(6.dp),
