@@ -23,6 +23,7 @@ class KmpComposePlugin : Plugin<Project> {
                     sourceSets.getByName("commonMain") {
                         dependencies {
                             api(project(Modules.Core.RESOURCES))
+                            implementation(libs.findLibrary("kotlinx-coroutines-core").get())
                             implementation(libs.findLibrary("compose-runtime").get())
                             implementation(libs.findLibrary("compose-foundation").get())
                             implementation(libs.findLibrary("compose-foundation-layout").get())

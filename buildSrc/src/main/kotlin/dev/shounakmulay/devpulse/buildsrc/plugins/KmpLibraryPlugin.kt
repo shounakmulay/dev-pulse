@@ -8,6 +8,7 @@ import dev.shounakmulay.devpulse.buildsrc.plugins.PluginExtensions.applyPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.koin.compiler.plugin.KoinGradleExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 @Suppress("unused")
@@ -19,6 +20,9 @@ class KmpLibraryPlugin : Plugin<Project> {
                 applyPlugin("kotlinSerialization", libs.findPlugin("kotlinSerialization"))
                 applyPlugin("koin-compiler", libs.findPlugin("koin-compiler"))
             }
+            extensions.configure<KoinGradleExtension> {
+                compileSafety.set(false)
+            }
             configureAndroidKmpLibrary()
             configureIosTargets()
             configureJvmTarget()
@@ -28,6 +32,7 @@ class KmpLibraryPlugin : Plugin<Project> {
                     sourceSets.getByName("commonMain") {
                         dependencies {
                             implementation(libs.findLibrary("kotlin-stdlib").get())
+                            implementation(libs.findLibrary("kotlinx-coroutines-core").get())
                             implementation(project.dependencies.platform(libs.findLibrary("koin-bom").get()))
                             implementation(libs.findLibrary("koin-core").get())
                             implementation(libs.findLibrary("koin-annotations").get())
