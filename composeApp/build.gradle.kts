@@ -10,14 +10,18 @@ plugins {
 kotlin {
     android {
         namespace = "dev.shounakmulay.devpulse"
-        androidResources.enable = true
     }
     iosFrameworks(baseName = "ComposeApp", isStatic = true)
     sourceSets {
         commonMain.dependencies {
-            implementation(project(Modules.Core.DESIGN_SYSTEM))
+            implementation(project(Modules.Core.UI))
             implementation(project(Modules.Core.NAVIGATION))
             implementation(project(Modules.Core.RESOURCES))
+            implementation(project(Modules.Core.PREFERENCES))
+            implementation(project(Modules.Core.COMMON))
+            implementation(project(Modules.Core.Domain.MODELS))
+            implementation(project(Modules.Core.Domain.SETTINGS))
+            implementation(project(Modules.Core.Data.SETTINGS))
 
             implementation(project(Modules.Feature.HOME))
             implementation(project(Modules.Feature.FEED))
@@ -36,6 +40,10 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(kotlin("test-annotations-common"))
+        }
+        jvmTest.dependencies {
+            implementation(kotlin("test-junit"))
         }
     }
 }

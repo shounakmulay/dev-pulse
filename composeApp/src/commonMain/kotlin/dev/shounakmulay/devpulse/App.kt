@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.adaptive.navigationsuite.rememberNavigationSuiteScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,9 +48,11 @@ import dev.shounakmulay.devpulse.feature.devtools.navigation.developerToolsFeatu
 import dev.shounakmulay.devpulse.feature.feed.navigation.feedFeatureEntries
 import dev.shounakmulay.devpulse.feature.home.navigation.homeFeatureEntries
 import dev.shounakmulay.devpulse.feature.settings.navigation.settingsFeatureEntries
+import dev.shounakmulay.devpulse.theme.ThemeSettingsViewModel
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentSetOf
 import org.koin.compose.KoinApplication
+import org.koin.compose.viewmodel.koinViewModel
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -76,8 +80,18 @@ fun App() {
         val windowAdaptiveInfo = currentWindowAdaptiveInfo()
         val navigationSuiteLayoutType =
             NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(windowAdaptiveInfo)
+        val themeSettingsViewModel = koinViewModel<ThemeSettingsViewModel>()
+        val themeSettingsState by themeSettingsViewModel.state.collectAsState()
+        val systemDarkTheme = isSystemInDarkTheme()
 
-        AppTheme {
+        LaunchedEffect(systemDarkTheme) {
+            themeSettingsViewModel.updateSystemDarkTheme(systemDarkTheme)
+        }
+
+        AppTheme(
+            isBlackMode = themeSettingsState.isBlackMode,
+            darkTheme = themeSettingsState.darkTheme
+        ) {
             Scaffold {
                 val isTabsPageVisible by remember(navigationState.rootStack) {
                     derivedStateOf {
