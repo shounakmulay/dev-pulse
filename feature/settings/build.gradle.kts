@@ -23,6 +23,8 @@ kotlin {
         commonMain.dependencies {
             implementation(project(Modules.Core.NAVIGATION))
             implementation(project(Modules.Core.UI))
+            implementation(project(Modules.Core.Domain.SETTINGS))
+            implementation(project(Modules.Core.COMMON))
             implementation(libs.compose.components.resources)
         }
     }
