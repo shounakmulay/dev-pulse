@@ -18,13 +18,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(compose.runtime)
+                implementation(libs.compose.runtime)
                 implementation(libs.compose.components.resources)
             }
-        }
-
-        val androidMain by getting {
-            dependsOn(commonMain)
         }
     }
 }
