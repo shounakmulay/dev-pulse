@@ -78,6 +78,7 @@ fun DPListItem(
     headlineText: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues? = null,
     overlineText: String? = null,
     supportingText: String? = null,
     leadingContent: @Composable (() -> Unit)? = null,
@@ -91,7 +92,7 @@ fun DPListItem(
     val resolvedColors = colors ?: resolveListItemColors(intent)
     val vPad = density.verticalPadding()
     val hPad = DPTheme.spacing.screenHorizontal
-    val contentPadding = PaddingValues(horizontal = hPad, vertical = vPad)
+    val contentPadding = contentPadding ?: PaddingValues(horizontal = hPad, vertical = vPad)
 
     if (selected) {
         ListItem(

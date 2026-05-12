@@ -2,11 +2,13 @@ package dev.shounakmulay.devpulse.core.network.di
 
 import dev.shounakmulay.devpulse.core.network.createHttpClient
 import io.ktor.client.HttpClient
+import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
+import org.koin.core.annotation.Singleton
 
 @Module
-class NetworkModule {
-    @Single
-    fun httpClient(): HttpClient = createHttpClient()
-}
+@ComponentScan("dev.shounakmulay.devpulse.core.network")
+class NetworkModule
+
+@Singleton
+fun httpClient(): HttpClient = createHttpClient()
