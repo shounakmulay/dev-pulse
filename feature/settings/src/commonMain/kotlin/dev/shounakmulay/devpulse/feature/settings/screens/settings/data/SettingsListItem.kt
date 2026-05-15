@@ -22,6 +22,7 @@ enum class SettingsSingleChoiceKey(val values: ImmutableList<SettingsListItem.Si
 }
 
 @Serializable
+@Immutable
 sealed interface SettingsListItem {
     @Serializable
     data class SectionHeading(val title: TextResource) : SettingsListItem

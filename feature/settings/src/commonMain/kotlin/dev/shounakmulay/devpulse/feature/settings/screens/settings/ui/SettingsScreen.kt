@@ -112,9 +112,11 @@ fun SettingsSingleChoice(
         ) {
             item.key.values.forEach { option ->
                 val themeOption = option as? ThemeSingleChoiceOptions ?: return@forEach
+                val isSelected = themeOption.toThemeMode() == selectedThemeMode
+
                 toggleableItem(
-                    weight = 1f,
-                    checked = themeOption.toThemeMode() == selectedThemeMode,
+                    weight = if (isSelected) 1.5f else  1f,
+                    checked = isSelected,
                     label = themeOption.label(),
                     onCheckedChange = { checked ->
                         if (checked) {
