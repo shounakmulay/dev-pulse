@@ -8,7 +8,7 @@ DevPulse — a Kotlin Multiplatform (KMP) app with Compose Multiplatform UI targ
 
 ## Architecture
 
-Clean Architecture with MVVM/MVI presentation layer. Domain and data layers are planned but not yet implemented — all features are currently presentation-only.
+Clean Architecture with an MVI presentation layer. Domain and data modules exist for settings, and feed has a scaffolded data module for network-backed implementation work.
 
 **Dependency direction**: Presentation → Domain → Data. Never reverse.
 
@@ -16,13 +16,22 @@ Clean Architecture with MVVM/MVI presentation layer. Domain and data layers are 
 ```
 :composeApp              # Desktop entry point (also Android via androidApp)
 :androidApp              # Android-specific entry point
-:iosApp                  # iOS entry point
+:iosApp                  # iOS Xcode project, not included as a Gradle module
 :feature:home            # Home tab — counter example
 :feature:feed            # Feed tab — list/detail adaptive layout
 :feature:devtools        # Developer tools & design system showcase
+:feature:settings        # Settings tab and developer links
 :core:designsystem       # Material3 design tokens, DP-prefixed components, AppTheme
 :core:navigation         # Navigation3 integration, Screen hierarchy, Navigator
-:core:ui                 # StateEffectViewModel base class, ScreenState, Effect interfaces
+:core:ui                 # MviViewModel base class, ScreenState, Effect, EventHandler, text helpers
+:core:resources          # Compose resources and generated resource access
+:core:network            # Ktor client and platform engines
+:core:preferences        # Multiplatform DataStore preferences
+:core:common             # Shared utilities and extensions
+:core:domain:models      # Shared domain models
+:core:domain:settings    # Settings use cases
+:core:data:settings      # Settings repository implementation
+:core:data:feed          # Feed data module scaffold, depends on network
 ```
 
 Use `Modules.kt` constants for all module references — never raw strings.
@@ -31,16 +40,16 @@ Use `Modules.kt` constants for all module references — never raw strings.
 
 ### ViewModel (State / Effect)
 
-Base class is `StateEffectViewModel<STATE : ScreenState>` in `:core:ui`.
+Base class is `MviViewModel<STATE : ScreenState, EFFECT : Effect>` in `:core:ui`.
 
 Every screen has:
 - `MyScreenState` — `@Immutable @Serializable data class` implementing `ScreenState`, everything the UI needs to render
 - `MyScreenEffect` — `sealed interface` extending `Effect`, one-time side effects (navigation, toasts)
+- `MyScreenEvent` — sealed event type handled by the ViewModel through `EventHandler<MyScreenEvent>` when the screen has user events
 
-`state` exposed as `StateFlow`, updated via `setState { copy(...) }`.
-`effect` backed by a `Channel`, exposed as `SharedFlow`, emitted via `setEffect(...)`.
-Collect state in composables via `val state by viewModel.collectAsState()` (lifecycle-aware).
-No business logic in the ViewModel — delegate to use cases when the domain layer exists.
+`state` is exposed as `StateFlow` from Orbit's container and updated via `setState { copy(...) }`. One-time effects are posted with `postEffect(...)`.
+Collect state in composables via Orbit's `val state by viewModel.collectAsState()`, or use the shared `core:ui` screen helpers when appropriate.
+No business logic in the ViewModel — delegate to use cases when a domain boundary exists.
 
 ### Screen Composables
 
@@ -58,14 +67,16 @@ Navigation uses **androidx.navigation3** with a type-safe sealed interface hiera
 **Screen definitions** (`core/navigation/.../Screen.kt`):
 ```kotlin
 sealed interface Screen : NavKey {
-    @Serializable data object DeveloperTools : Screen
-    @Serializable data object DesignSystemBoard : Screen
+    @Serializable data object DeveloperTools {
+        @Serializable data object DesignSystemBoard : Screen
+    }
 
-    sealed interface Tabs : Screen {
-        @Serializable data object Home : Tabs
-        @Serializable data object Feed : Tabs
-        @Serializable data class FeedDetail(val id: Int) : Tabs
-        @Serializable data object Time : Tabs
+    @Serializable data object Tabs : Screen {
+        @Serializable data object Home : Screen
+        @Serializable data object Feed : Screen {
+            @Serializable data class FeedDetail(val id: Int) : Screen
+        }
+        @Serializable data object Time : Screen
     }
 
     @Serializable data object Monitors : Screen
@@ -93,6 +104,7 @@ On wide screens (≥ breakpoint, typically 600.dp) both panes appear side by sid
 **Koin** with annotation-based zero-boilerplate DI across all platforms.
 
 - `@Module @ComponentScan("dev.shounakmulay.devpulse.feature.<name>")` on a class in each feature's `di/` package
+- Core/data/domain modules use the same annotation pattern with their package root, e.g. `dev.shounakmulay.devpulse.core.data.settings`
 - `@KoinViewModel` on every ViewModel class
 - ViewModels obtained via `koinViewModel()` from koin-compose-viewmodel
 
@@ -103,7 +115,7 @@ feature:xxx/
     └── XxxModule.kt   # @Module @ComponentScan("dev.shounakmulay.devpulse.feature.xxx")
 ```
 
-Root DI wiring is in `composeApp/.../di/DevPulseKoinApplication.kt` via `@KoinApplication`.
+Root DI wiring is in `composeApp/.../di/DevPulseKoinApplication.kt` via `@KoinApplication`. Keep module composition at the app root when a module needs to participate in the app graph.
 
 ### Design System
 
@@ -155,9 +167,12 @@ Platform variation uses `expect`/`actual`. The most common uses are `Platform.kt
 - **Koin** — DI (annotations + compiler plugin)
 - **androidx.navigation3** — Type-safe navigation
 - **Compose Multiplatform + Material3** — UI (Adaptive, NavigationSuite, WindowSizeClass, Expressive)
-- **Lifecycle + ViewModel** — `collectAsStateWithLifecycle()`, `viewModelCompose`
+- **Lifecycle + ViewModel** — lifecycle ViewModel + Compose integration
+- **Orbit MVI** — container-backed ViewModel state and side effects
+- **Ktor** — network client in `:core:network`
+- **DataStore Preferences** — persistence in `:core:preferences`
 
-Ktor and Room are planned but not yet present in the codebase.
+Room is planned but not yet present in the codebase.
 
 ## Coding Standards
 
@@ -167,7 +182,7 @@ Ktor and Room are planned but not yet present in the codebase.
 - **`Result<T>`** — never throw exceptions from use cases or repositories
 - **Named arguments** for functions with 3+ parameters or non-obvious booleans
 - **`when` over if-else chains** for sealed types or 3+ conditions
-- **`StateFlow`** for UI state, **`SharedFlow`** for one-time effects
+- **`StateFlow`** for UI state, Orbit side effects for one-time effects
 - **`@Serializable`** on all `Screen` types and `ScreenState` data classes
 - **`@KoinViewModel`** on all ViewModel classes
 - **Design system first** — always use `core:designsystem` DP-prefixed components; stop and ask if something is missing before using raw Material3 primitives
@@ -175,9 +190,8 @@ Ktor and Room are planned but not yet present in the codebase.
 
 ## Testing
 
-- **Frameworks**: `kotlin.test`, MockK, Turbine, `kotlinx-coroutines-test`
+- **Frameworks currently wired**: `kotlin.test`, JUnit, AndroidX test, Orbit test
 - **Naming**: Given-When-Then — `` `Given X When Y Then Z`() ``
-- **Turbine is the only way to assert on Flows** — never `first()`, `toList()`, or manual `collect`
 - **Mock only external boundaries** — real instances for mappers, data classes, pure utilities
 - Test files live in `commonTest` or `androidHostTest`, mirroring the production package
 
@@ -191,8 +205,10 @@ Ktor and Room are planned but not yet present in the codebase.
 
 1. **Understand** — read only the directly affected files
 2. **Plan** — state what you'll change and why; wait for confirmation on non-trivial tasks
-3. **Execute** — make changes, then run `./gradlew ktlintCheck test`
+3. **Execute** — make changes, then run a targeted Gradle verification for the affected module, usually `./gradlew :<module>:compileKotlinIosSimulatorArm64` for shared KMP changes or the relevant `:<module>:jvmTest` when tests exist
 4. **Stop** — no explanatory prose, no extra files
+
+`ktlintCheck` and `ktlintFormat` are not registered tasks in this repo.
 
 For commit workflows, extract the ticket prefix from the current branch name using the first `ABC-123`-style match. If no ticket-style prefix exists, proceed without one when the user approves.
 
