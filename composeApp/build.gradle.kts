@@ -19,16 +19,18 @@ kotlin {
             implementation(project(Modules.Core.RESOURCES))
             implementation(project(Modules.Core.PREFERENCES))
             implementation(project(Modules.Core.COMMON))
+            implementation(project(Modules.Core.NETWORK))
             implementation(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Domain.SETTINGS))
             implementation(project(Modules.Core.Data.SETTINGS))
+            implementation(project(Modules.Core.Data.DB))
+            implementation(project(Modules.Core.Data.FEED))
 
             implementation(project(Modules.Feature.HOME))
             implementation(project(Modules.Feature.FEED))
             implementation(project(Modules.Feature.DEVTOOLS))
             implementation(project(Modules.Feature.SETTINGS))
 
-            implementation(project(Modules.Core.NETWORK))
             implementation(libs.navigation3.ui)
         }
         androidMain.dependencies {
