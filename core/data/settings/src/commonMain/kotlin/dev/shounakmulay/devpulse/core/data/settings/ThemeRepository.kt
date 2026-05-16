@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.settings
 
-import dev.shounakmulay.devpulse.core.domain.models.ThemeMode
-import dev.shounakmulay.devpulse.core.domain.models.ThemeSettings
+import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
+import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeSettings
 import kotlinx.coroutines.flow.Flow
 
 interface ThemeRepository {

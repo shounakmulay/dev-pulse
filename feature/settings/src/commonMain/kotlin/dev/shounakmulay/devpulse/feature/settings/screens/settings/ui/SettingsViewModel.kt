@@ -1,8 +1,7 @@
 package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui
-import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
-import dev.shounakmulay.devpulse.core.domain.models.ThemeSettings
+import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeSettings
 import dev.shounakmulay.devpulse.core.domain.settings.ObserveThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.SetThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.navigation.Screen

@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.domain.models
+package dev.shounakmulay.devpulse.core.domain.models.theme
 
 enum class ThemeMode {
     LIGHT, DARK, SYSTEM;
