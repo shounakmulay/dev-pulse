@@ -27,6 +27,8 @@ object Modules {
 
         object Data {
             const val SETTINGS = ":core:data:settings"
+            const val FEED = ":core:data:feed"
+            const val DB = ":core:data:db"
         }
     }
 }

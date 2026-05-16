@@ -10,7 +10,9 @@ dependencies {
     implementation(libs.compose.multiplatform.gradle.plugin)
     implementation(libs.compose.compiler.gradle.plugin)
     implementation(libs.compose.hot.reload.gradle.plugin)
+    implementation(libs.ksp.gradle.plugin)
     implementation(libs.koin.compiler.gradle.plugin)
+    implementation(libs.androidx.room.gradle.plugin)
 }
 
 gradlePlugin {
@@ -30,6 +32,10 @@ gradlePlugin {
         register("kmpLibraryCompose") {
             id = "devpulse.kmp.library.compose"
             implementationClass = "dev.shounakmulay.devpulse.buildsrc.plugins.KmpLibraryComposePlugin"
+        }
+        register("kmpRoom") {
+            id = "devpulse.kmp.room"
+            implementationClass = "dev.shounakmulay.devpulse.buildsrc.plugins.KmpRoomPlugin"
         }
     }
 }

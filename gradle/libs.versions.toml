@@ -35,12 +35,17 @@ kotlinStdlib = "2.3.20"
 navigationCompose = "2.9.2"
 navigation3 = "1.1.0-rc01"
 orbitMVI = "11.0.0"
+rssparser = "6.1.5"
 runner = "1.7.0"
 core = "1.7.0"
 material = "1.10.0"
 materialKolor = "1.7.0"
 koin = "4.2.1"
 koin-compiler-plugin = "1.0.0-RC2"
+room = "2.8.4"
+room3 = "3.0.0-alpha04"
+sqlite = "2.6.2"
+ksp = "2.3.7"
 
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
@@ -92,6 +97,8 @@ compose-multiplatform-gradle-plugin = { module = "org.jetbrains.compose:compose-
 compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 compose-hot-reload-gradle-plugin = { module = "org.jetbrains.compose.hot-reload:org.jetbrains.compose.hot-reload.gradle.plugin", version.ref = "composeHotReload" }
 koin-compiler-gradle-plugin = { module = "io.insert-koin.compiler.plugin:io.insert-koin.compiler.plugin.gradle.plugin", version.ref = "koin-compiler-plugin" }
+androidx-room-gradle-plugin = { module = "androidx.room:room-gradle-plugin", version.ref = "room" }
+ksp-gradle-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktorClientCore" }
 ktor-client-core = { module = "io.ktor:ktor-client-core" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp" }
@@ -114,6 +121,13 @@ orbit-compose = { module = "org.orbit-mvi:orbit-compose", version.ref = "orbitMV
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbitMVI" }
 orbit-viewmodel = { module = "org.orbit-mvi:orbit-viewmodel", version.ref = "orbitMVI" }
 orbit-test = { module = "org.orbit-mvi:orbit-test", version.ref = "orbitMVI" }
+rssparser = { module = "com.prof18.rssparser:rssparser", version.ref = "rssparser" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }
+androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
+androidx-room-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+androidx-room-sqlite-wrapper = { module = "androidx.room:room-sqlite-wrapper", version.ref = "room" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -129,3 +143,7 @@ devpulse-kmp-library = { id = "devpulse.kmp.library", version = "" }
 devpulse-kmp-library-compose = { id = "devpulse.kmp.library.compose", version = "" }
 devpulse-kmp-compose = { id = "devpulse.kmp.compose", version = "" }
 devpulse-kmp-android-application = { id = "devpulse.kmp.android.application", version = "" }
+androidx-room = { id = "androidx.room", version.ref = "room" }
+androidx-room3 = { id = "androidx.room3", version.ref = "room3" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+devpulse-kmp-room = { id = "devpulse.kmp.room", version = "" }
