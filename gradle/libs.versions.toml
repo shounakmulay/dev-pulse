@@ -1,6 +1,6 @@
 [versions]
-agp = "9.1.0"
-android-compileSdk = "36"
+agp = "9.1.1"
+android-compileSdk = "37"
 android-minSdk = "24"
 android-targetSdk = "36"
 app-versionCode = "1"
@@ -16,30 +16,31 @@ androidx-activity = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.18.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.11.0-alpha03"
+androidx-lifecycle = "2.11.0-beta01"
 androidx-testExt = "1.3.0"
 componentsResources = "1.11.0-beta02"
-composeHotReload = "1.0.0"
-composeMultiplatform = "1.11.0-beta02"
+composeHotReload = "1.1.1"
+composeMultiplatform = "1.11.0-rc01"
 composeIcons = "1.7.3"
 kotlinxCollectionsImmutable = "0.4.0"
-kotlin-logging = "7.0.7"
+kotlin-logging = "8.0.02"
 ktorClientCore = "3.4.3"
-material3 = "1.11.0-alpha06"
-material3-adaptive = "1.3.0-alpha06"
+material3 = "1.11.0-alpha07"
+material3-adaptive = "1.3.0-alpha07"
 junit = "4.13.2"
-kotlin = "2.3.20"
-kotlinx-coroutines = "1.10.2"
-kotlinx-serialization = "1.8.1"
+kotlin = "2.3.21"
+kotlinx-coroutines = "1.11.0"
+kotlinx-serialization = "1.11.0"
 kotlinStdlib = "2.3.20"
 navigationCompose = "2.9.2"
-navigation3 = "1.1.0-rc01"
+navigation3 = "1.1.1"
 orbitMVI = "11.0.0"
+pagingRuntime = "3.5.0"
 rssparser = "6.1.5"
 runner = "1.7.0"
 core = "1.7.0"
-material = "1.10.0"
-materialKolor = "1.7.0"
+material = "1.14.0"
+materialKolor = "4.1.1"
 koin = "4.2.1"
 koin-compiler-plugin = "1.0.0-RC2"
 room = "2.8.4"
@@ -51,6 +52,8 @@ ksp = "2.3.7"
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "pagingRuntime" }
+androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "pagingRuntime" }
 compose-material3-window-size = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "material3" }
 compose-material3-adaptive-navigation-suite = { module = "org.jetbrains.compose.material3:material3-adaptive-navigation-suite", version.ref = "material3" }
 compose-material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "material3-adaptive" }
@@ -126,6 +129,7 @@ androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }
 androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
+androidx-room3-paging = { module = "androidx.room3:room3-paging", version.ref = "room3" }
 androidx-room-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 androidx-room-sqlite-wrapper = { module = "androidx.room:room-sqlite-wrapper", version.ref = "room" }
 
