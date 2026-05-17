@@ -2,12 +2,23 @@ package dev.shounakmulay.devpulse.core.data.db.model.feed
 
 import androidx.room3.Embedded
 import androidx.room3.Entity
+import androidx.room3.ForeignKey
 import androidx.room3.PrimaryKey
 
-@Entity
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = LocalRssFeed::class,
+            parentColumns = ["id"],
+            childColumns = ["feedId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class LocalRssContentFeedPost(
     @PrimaryKey
     val id: String,
+    val feedId: Int,
     val guid: String?,
     val title: String?,
     val author: String?,

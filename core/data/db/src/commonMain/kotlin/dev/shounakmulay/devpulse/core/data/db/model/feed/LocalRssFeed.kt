@@ -8,7 +8,7 @@ import androidx.room3.PrimaryKey
 @Entity
 data class LocalRssFeed(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Int = 0,
     val title: String?,
     val link: String?,
     val description: String?,

@@ -18,7 +18,9 @@ kotlin {
             implementation(project(Modules.Core.COMMON))
 
             implementation(libs.androidx.room3.runtime)
+            implementation(libs.androidx.room3.paging)
             implementation(libs.androidx.room.sqlite.bundled)
+            implementation(libs.androidx.paging.common)
         }
     }
 }

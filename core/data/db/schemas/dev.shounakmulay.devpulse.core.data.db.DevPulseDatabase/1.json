@@ -1,0 +1,266 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "6861f760ae852ac96001697968f11fa2",
+    "entities": [
+      {
+        "tableName": "LocalRssFeed",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT, `link` TEXT, `description` TEXT, `lastBuildDate` TEXT, `updatePeriod` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `image_title` TEXT, `image_url` TEXT, `image_link` TEXT, `image_description` TEXT, `youtubeChannel_channelId` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "link",
+            "columnName": "link",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastBuildDate",
+            "columnName": "lastBuildDate",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "updatePeriod",
+            "columnName": "updatePeriod",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "image.title",
+            "columnName": "image_title",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "image.url",
+            "columnName": "image_url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "image.link",
+            "columnName": "image_link",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "image.description",
+            "columnName": "image_description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeChannel.channelId",
+            "columnName": "youtubeChannel_channelId",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "LocalRssContentFeedPost",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `feedId` INTEGER NOT NULL, `guid` TEXT, `title` TEXT, `author` TEXT, `link` TEXT, `pubDate` TEXT, `description` TEXT, `content` TEXT, `image` TEXT, `audio` TEXT, `video` TEXT, `sourceName` TEXT, `sourceUrl` TEXT, `categories` TEXT NOT NULL, `commentsUrl` TEXT, `youtubeData_videoId` TEXT, `youtubeData_title` TEXT, `youtubeData_videoUrl` TEXT, `youtubeData_thumbnailUrl` TEXT, `youtubeData_description` TEXT, `youtubeData_viewsCount` INTEGER, `youtubeData_likesCount` INTEGER, `rawEnclosure_url` TEXT, `rawEnclosure_length` INTEGER, `rawEnclosure_type` TEXT, `rawMedia_url` TEXT, `rawMedia_type` TEXT, `rawMedia_medium` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`feedId`) REFERENCES `LocalRssFeed`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "feedId",
+            "columnName": "feedId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "guid",
+            "columnName": "guid",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "author",
+            "columnName": "author",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "link",
+            "columnName": "link",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pubDate",
+            "columnName": "pubDate",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audio",
+            "columnName": "audio",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "video",
+            "columnName": "video",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceName",
+            "columnName": "sourceName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceUrl",
+            "columnName": "sourceUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "categories",
+            "columnName": "categories",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "commentsUrl",
+            "columnName": "commentsUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeData.videoId",
+            "columnName": "youtubeData_videoId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeData.title",
+            "columnName": "youtubeData_title",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeData.videoUrl",
+            "columnName": "youtubeData_videoUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeData.thumbnailUrl",
+            "columnName": "youtubeData_thumbnailUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeData.description",
+            "columnName": "youtubeData_description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeData.viewsCount",
+            "columnName": "youtubeData_viewsCount",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "youtubeData.likesCount",
+            "columnName": "youtubeData_likesCount",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "rawEnclosure.url",
+            "columnName": "rawEnclosure_url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rawEnclosure.length",
+            "columnName": "rawEnclosure_length",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "rawEnclosure.type",
+            "columnName": "rawEnclosure_type",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rawMedia.url",
+            "columnName": "rawMedia_url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rawMedia.type",
+            "columnName": "rawMedia_type",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rawMedia.medium",
+            "columnName": "rawMedia_medium",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "LocalRssFeed",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "feedId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6861f760ae852ac96001697968f11fa2')"
+    ]
+  }
+}
