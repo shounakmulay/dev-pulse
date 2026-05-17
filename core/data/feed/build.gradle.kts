@@ -15,7 +15,10 @@ kotlin {
         commonMain.dependencies {
             implementation(project(Modules.Core.NETWORK))
             implementation(project(Modules.Core.Domain.MODELS))
+            implementation(project(Modules.Core.Data.DB))
+
             implementation(libs.rssparser)
+            implementation(libs.androidx.paging.common)
         }
     }
 }

@@ -6,6 +6,7 @@ import dev.shounakmulay.devpulse.core.data.db.DevPulseDatabase
 import dev.shounakmulay.devpulse.core.data.db.getDevPulseDatabase
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
 import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
@@ -27,4 +28,14 @@ class DatabaseModule {
             dispatcherProvider = dispatcherProvider
         )
     }
+
+    @Factory
+    fun provideFeedDao(
+        db: DevPulseDatabase
+    ) = db.getFeedDao()
+
+    @Factory
+    fun provideFeedContentDao(
+        db: DevPulseDatabase
+    ) = db.getFeedContentDao()
 }
