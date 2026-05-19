@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.di
 import dev.shounakmulay.devpulse.core.common.di.CoreModule
 import dev.shounakmulay.devpulse.core.data.db.di.DatabaseModule
 import dev.shounakmulay.devpulse.core.data.db.di.DatabasePlatformModule
+import dev.shounakmulay.devpulse.core.data.feed.di.FeedDataModule
 import dev.shounakmulay.devpulse.core.data.settings.di.SettingsDataModule
 import dev.shounakmulay.devpulse.core.domain.settings.di.DomainSettingsModule
 import dev.shounakmulay.devpulse.core.network.di.NetworkModule
@@ -23,12 +24,12 @@ import org.koin.plugin.module.dsl.koinConfiguration as generatedKoinConfiguratio
         SettingsDataModule::class,
         DomainSettingsModule::class,
         HomeModule::class,
-        FeedModule::class,
         SettingsModule::class,
         PreferencesModule::class,
         DatabasePlatformModule::class,
         DatabaseModule::class,
-        FeedModule::class
+        FeedModule::class,
+        FeedDataModule::class
     ]
 )
 class DevPulseKoinApplication
