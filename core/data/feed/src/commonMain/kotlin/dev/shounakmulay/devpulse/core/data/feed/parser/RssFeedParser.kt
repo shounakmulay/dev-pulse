@@ -4,12 +4,11 @@ import com.prof18.rssparser.RssParser
 import com.prof18.rssparser.model.RssChannel
 import org.koin.core.annotation.Factory
 
-@Factory
+@Factory(binds = [FeedParser::class])
 class RssFeedParser(
     private val rssParser: RssParser
 ) : FeedParser<RssChannel> {
     override suspend fun parseFeed(url: String): RssChannel {
-        val channel = rssParser.getRssChannel(url)
-
+        return rssParser.getRssChannel(url)
     }
 }

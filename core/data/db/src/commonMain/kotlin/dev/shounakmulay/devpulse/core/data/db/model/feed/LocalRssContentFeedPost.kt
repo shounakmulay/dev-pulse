@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.core.data.db.model.feed
 import androidx.room3.Embedded
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
+import androidx.room3.Index
 import androidx.room3.PrimaryKey
 
 @Entity(
@@ -13,12 +14,19 @@ import androidx.room3.PrimaryKey
             childColumns = ["feedId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["feedId"]),
+        Index(value = ["lastSeenAt"])
     ]
 )
 data class LocalRssContentFeedPost(
     @PrimaryKey
     val id: String,
-    val feedId: Int,
+    val feedId: String,
+    val fingerprint: String,
+    val lastSeenAt: Long,
+    val userBookmarked: Boolean = false,
     val guid: String?,
     val title: String?,
     val author: String?,

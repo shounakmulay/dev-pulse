@@ -1,6 +1,9 @@
 package dev.shounakmulay.devpulse.core.domain.models.feed
 
 data class RssFeedItem(
+    val id: String,
+    val feedId: String,
+    val fingerprint: String?,
     val guid: String?,
     val title: String?,
     val author: String?,
@@ -19,4 +22,3 @@ data class RssFeedItem(
     val rawEnclosure: RssFeedItemRawEnclosure?,
     val rawMediaContent: RssFeedItemMediaContent? = null,
 )
-

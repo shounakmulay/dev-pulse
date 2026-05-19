@@ -1,7 +1,8 @@
 package dev.shounakmulay.devpulse.core.domain.models.feed
 
 data class RssFeed(
-    val id: Int,
+    val id: String,
+    val sourceUrl: String,
     val title: String?,
     val link: String?,
     val description: String?,

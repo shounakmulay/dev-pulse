@@ -34,6 +34,7 @@ kotlinx-serialization = "1.11.0"
 kotlinStdlib = "2.3.20"
 navigationCompose = "2.9.2"
 navigation3 = "1.1.1"
+okio = "3.17.0"
 orbitMVI = "11.0.0"
 pagingRuntime = "3.5.0"
 rssparser = "6.1.5"
@@ -47,6 +48,8 @@ room = "2.8.4"
 room3 = "3.0.0-alpha04"
 sqlite = "2.6.2"
 ksp = "2.3.7"
+turbine = "1.2.1"
+mokkery = "3.3.0"
 
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
@@ -88,8 +91,11 @@ compose-components-resources = { module = "org.jetbrains.compose.components:comp
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
@@ -151,3 +157,4 @@ androidx-room = { id = "androidx.room", version.ref = "room" }
 androidx-room3 = { id = "androidx.room3", version.ref = "room3" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 devpulse-kmp-room = { id = "devpulse.kmp.room", version = "" }
+mokkery = { id = "dev.mokkery", version.ref = "mokkery" }

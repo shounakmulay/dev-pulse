@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.db.di
 
 import androidx.room3.RoomDatabase
-import dev.shounakmulay.devpulse.core.common.DispatcherProvider
+import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.db.DevPulseDatabase
 import dev.shounakmulay.devpulse.core.data.db.getDevPulseDatabase
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor

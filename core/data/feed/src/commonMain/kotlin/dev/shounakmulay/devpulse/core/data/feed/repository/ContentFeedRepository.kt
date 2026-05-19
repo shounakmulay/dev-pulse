@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface ContentFeedRepository {
     fun getFeedFlow(): Flow<PagingData<RssFeed>>
-    suspend fun parseRssFeed(url: String)
-    suspend fun deleteFeed(id: Int)
+    suspend fun addRssFeed(url: String)
+    suspend fun deleteFeed(id: String)
 }

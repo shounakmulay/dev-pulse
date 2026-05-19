@@ -13,7 +13,10 @@ interface FeedDao {
     fun getFeedPagingSource(): PagingSource<Int, LocalRssFeed>
 
     @Query("SELECT * FROM LocalRssFeed WHERE id = :id")
-    suspend fun getFeed(id: Int): LocalRssFeed
+    suspend fun getFeed(id: String): LocalRssFeed
+
+    @Query("SELECT * FROM LocalRssFeed WHERE sourceUrl = :sourceUrl")
+    suspend fun getFeedBySourceUrl(sourceUrl: String): LocalRssFeed?
 
     @Upsert
     suspend fun upsertFeed(feed: LocalRssFeed)
@@ -22,5 +25,5 @@ interface FeedDao {
     suspend fun upsertFeeds(feeds: List<LocalRssFeed>)
 
     @Query("DELETE from LocalRssFeed WHERE id IN (:feeds)")
-    suspend fun deleteFeeds(feeds: List<Int>)
+    suspend fun deleteFeeds(feeds: List<String>)
 }

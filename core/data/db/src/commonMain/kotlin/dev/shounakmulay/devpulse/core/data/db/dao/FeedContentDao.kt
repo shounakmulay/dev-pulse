@@ -12,11 +12,17 @@ interface FeedContentDao {
     @Upsert
     suspend fun upsertPost(post: LocalRssContentFeedPost)
 
+    @Upsert
+    suspend fun upsertPosts(posts: List<LocalRssContentFeedPost>)
+
     @Delete
     suspend fun deletePosts(posts: List<LocalRssContentFeedPost>)
 
     @Query("SELECT * FROM LocalRssContentFeedPost WHERE id = :id")
     suspend fun getPost(id: String): LocalRssContentFeedPost
+
+    @Query("SELECT * FROM LocalRssContentFeedPost WHERE feedId = :feedId ORDER BY id DESC")
+    suspend fun getPostsForFeed(feedId: String): List<LocalRssContentFeedPost>
 
     @Query(
         """

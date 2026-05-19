@@ -9,11 +9,15 @@ import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import androidx.room3.withReadTransaction
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import dev.shounakmulay.devpulse.core.common.DispatcherProvider
+import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedQueueDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
+import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedQueue
+import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostTag
+import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostToTagMapping
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionScope
 import dev.shounakmulay.devpulse.core.data.db.transaction.RoomTransactionScopeWrapper
@@ -21,7 +25,10 @@ import dev.shounakmulay.devpulse.core.data.db.transaction.RoomTransactionScopeWr
 @Database(
     entities = [
         LocalRssFeed::class,
-        LocalRssContentFeedPost::class
+        LocalRssContentFeedPost::class,
+        LocalRssFeedQueue::class,
+        LocalRssPostTag::class,
+        LocalRssPostToTagMapping::class,
     ],
     autoMigrations = [],
     version = 1
@@ -32,6 +39,7 @@ abstract class DevPulseDatabase : RoomDatabase(), DevPulseDatabaseTransactionAcc
 
     abstract fun getFeedContentDao(): FeedContentDao
     abstract fun getFeedDao(): FeedDao
+    abstract fun getFeedQueueDao(): FeedQueueDao
     override suspend fun clearAllTables() {
     }
 

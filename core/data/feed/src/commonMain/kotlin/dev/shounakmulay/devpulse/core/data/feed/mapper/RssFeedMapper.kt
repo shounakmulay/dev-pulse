@@ -14,6 +14,7 @@ object RssFeedMapper {
 
     fun toRssFeed(from: LocalRssFeed) = RssFeed(
         id = from.id,
+        sourceUrl = from.sourceUrl,
         title = from.title,
         link = from.link,
         description = from.description,
@@ -37,7 +38,6 @@ object RssFeedMapper {
     )
 
 }
-
 
 
 
