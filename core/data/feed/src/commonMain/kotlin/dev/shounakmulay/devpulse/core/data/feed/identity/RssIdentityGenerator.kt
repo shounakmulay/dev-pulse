@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.data.feed
+package dev.shounakmulay.devpulse.core.data.feed.identity
 
 import okio.ByteString.Companion.encodeUtf8
 import org.koin.core.annotation.Factory
@@ -12,10 +12,9 @@ class RssIdentityGenerator : IdentityGenerator {
         return Uuid.generateV7().toString()
     }
 
-    override fun generateHash(vararg strings: String): String {
+    override fun generateFingerprint(vararg strings: String): String {
         val stringToHash = strings.joinToString(separator = "-")
         val encoded = stringToHash.encodeUtf8()
         return encoded.sha256().toString()
     }
-
 }
