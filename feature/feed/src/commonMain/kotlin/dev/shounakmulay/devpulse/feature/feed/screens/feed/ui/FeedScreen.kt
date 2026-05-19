@@ -24,7 +24,7 @@ fun FeedScreen(
     LazyColumn {
         items(100) {
             DPClickableRow(
-                onClick = { navigator.replaceOfSameType(Screen.Tabs.Feed.FeedDetail(it)) },
+                onClick = { navigator.replaceOfSameType(Screen.Tabs.Feed.FeedDetail(it.toString())) },
                 content = {
                     DPTextView(
                         text = "Item $it",
