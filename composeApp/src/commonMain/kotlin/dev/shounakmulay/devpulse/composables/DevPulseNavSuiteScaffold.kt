@@ -13,6 +13,7 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
@@ -34,28 +35,7 @@ internal fun DevPulseNavSuiteScaffold(
     NavigationSuiteScaffold(
         state = navigationSuiteState,
         navigationItems = {
-            tabRoutes.forEach { tab ->
-                NavigationSuiteItem(
-                    selected = tab == navigationState.selectedTab,
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        navigator.navigate(tab, false)
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = when (tab) {
-                                Screen.Tabs.Home -> DPIcons.devPulseIconSmall()
-                                Screen.Tabs.Feed -> Icons.Default.SpaceDashboard
-                                Screen.Tabs.Time -> Icons.Default.Timer
-                                else -> Icons.Default.ExpandMore
-                            },
-                            contentDescription = "",
-                            tint = if (tab == Screen.Tabs.Home) Color.Unspecified else LocalContentColor.current
-                        )
-                    },
-                    label = null,
-                )
-            }
+            NavigationSuiteTabs(tabRoutes, navigationState, haptic, navigator)
         }
     ) {
         DevPulseNavDisplay(
@@ -64,6 +44,37 @@ internal fun DevPulseNavSuiteScaffold(
             tabRoutes = tabRoutes,
             windowAdaptiveInfo = windowAdaptiveInfo,
             navigationSuiteType = navigationSuiteLayoutType
+        )
+    }
+}
+
+@Composable
+private fun NavigationSuiteTabs(
+    tabRoutes: PersistentSet<Screen>,
+    navigationState: NavigationState,
+    haptic: HapticFeedback,
+    navigator: Navigator
+) {
+    tabRoutes.forEach { tab ->
+        NavigationSuiteItem(
+            selected = tab == navigationState.selectedTab,
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                navigator.navigate(tab, false)
+            },
+            icon = {
+                Icon(
+                    imageVector = when (tab) {
+                        Screen.Tabs.Home -> DPIcons.devPulseIconSmall()
+                        Screen.Tabs.Feed -> Icons.Default.SpaceDashboard
+                        Screen.Tabs.Time -> Icons.Default.Timer
+                        else -> Icons.Default.ExpandMore
+                    },
+                    contentDescription = "",
+                    tint = if (tab == Screen.Tabs.Home) Color.Unspecified else LocalContentColor.current
+                )
+            },
+            label = null,
         )
     }
 }

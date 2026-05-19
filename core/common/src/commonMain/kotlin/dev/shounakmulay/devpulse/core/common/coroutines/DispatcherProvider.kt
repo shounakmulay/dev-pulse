@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.common
+package dev.shounakmulay.devpulse.core.common.coroutines
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher

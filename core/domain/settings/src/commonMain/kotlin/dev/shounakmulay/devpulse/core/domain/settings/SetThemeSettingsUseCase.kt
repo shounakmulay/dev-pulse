@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.core.domain.settings
 
-import dev.shounakmulay.devpulse.core.common.DispatcherProvider
-import dev.shounakmulay.devpulse.core.common.runCatchingOnDefault
+import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
+import dev.shounakmulay.devpulse.core.common.coroutines.runCatchingOnDefault
 import dev.shounakmulay.devpulse.core.data.settings.ThemeRepository
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeSettings
 import org.koin.core.annotation.Factory
