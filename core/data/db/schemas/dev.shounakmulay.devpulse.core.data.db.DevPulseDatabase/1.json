@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "85e4bf9e5720b6afb415050f00aa81a5",
+    "identityHash": "ce08a4a478ae92c9c2ddffedde50c884",
     "entities": [
       {
         "tableName": "LocalRssFeed",
@@ -98,21 +98,12 @@
             ],
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_LocalRssFeed_sourceUrl` ON `${TABLE_NAME}` (`sourceUrl`)"
-          },
-          {
-            "name": "index_LocalRssFeed_title",
-            "unique": false,
-            "columnNames": [
-              "title"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_LocalRssFeed_title` ON `${TABLE_NAME}` (`title`)"
           }
         ]
       },
       {
         "tableName": "LocalRssContentFeedPost",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `feedId` TEXT NOT NULL, `fingerprint` TEXT NOT NULL, `lastSeenAt` INTEGER NOT NULL, `userBookmarked` INTEGER NOT NULL, `guid` TEXT, `title` TEXT, `author` TEXT, `link` TEXT, `pubDate` TEXT, `description` TEXT, `content` TEXT, `image` TEXT, `audio` TEXT, `video` TEXT, `sourceName` TEXT, `sourceUrl` TEXT, `categories` TEXT NOT NULL, `commentsUrl` TEXT, `youtubeData_videoId` TEXT, `youtubeData_title` TEXT, `youtubeData_videoUrl` TEXT, `youtubeData_thumbnailUrl` TEXT, `youtubeData_description` TEXT, `youtubeData_viewsCount` INTEGER, `youtubeData_likesCount` INTEGER, `rawEnclosure_url` TEXT, `rawEnclosure_length` INTEGER, `rawEnclosure_type` TEXT, `rawMedia_url` TEXT, `rawMedia_type` TEXT, `rawMedia_medium` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`feedId`) REFERENCES `LocalRssFeed`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `feedId` TEXT NOT NULL, `fingerprint` TEXT NOT NULL, `guid` TEXT, `title` TEXT, `author` TEXT, `link` TEXT, `pubDate` TEXT, `description` TEXT, `content` TEXT, `image` TEXT, `audio` TEXT, `video` TEXT, `sourceName` TEXT, `sourceUrl` TEXT, `categories` TEXT NOT NULL, `commentsUrl` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `youtubeData_videoId` TEXT, `youtubeData_title` TEXT, `youtubeData_videoUrl` TEXT, `youtubeData_thumbnailUrl` TEXT, `youtubeData_description` TEXT, `youtubeData_viewsCount` INTEGER, `youtubeData_likesCount` INTEGER, `rawEnclosure_url` TEXT, `rawEnclosure_length` INTEGER, `rawEnclosure_type` TEXT, `rawMedia_url` TEXT, `rawMedia_type` TEXT, `rawMedia_medium` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`feedId`) REFERENCES `LocalRssFeed`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -130,18 +121,6 @@
             "fieldPath": "fingerprint",
             "columnName": "fingerprint",
             "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lastSeenAt",
-            "columnName": "lastSeenAt",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "userBookmarked",
-            "columnName": "userBookmarked",
-            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -214,6 +193,18 @@
             "fieldPath": "commentsUrl",
             "columnName": "commentsUrl",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "youtubeData.videoId",
@@ -298,13 +289,13 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_LocalRssContentFeedPost_feedId` ON `${TABLE_NAME}` (`feedId`)"
           },
           {
-            "name": "index_LocalRssContentFeedPost_lastSeenAt",
-            "unique": false,
+            "name": "index_LocalRssContentFeedPost_fingerprint",
+            "unique": true,
             "columnNames": [
-              "lastSeenAt"
+              "fingerprint"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_LocalRssContentFeedPost_lastSeenAt` ON `${TABLE_NAME}` (`lastSeenAt`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_LocalRssContentFeedPost_fingerprint` ON `${TABLE_NAME}` (`fingerprint`)"
           }
         ],
         "foreignKeys": [
@@ -471,7 +462,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '85e4bf9e5720b6afb415050f00aa81a5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ce08a4a478ae92c9c2ddffedde50c884')"
     ]
   }
 }

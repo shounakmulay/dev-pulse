@@ -5,6 +5,7 @@ import androidx.room3.Dao
 import androidx.room3.Query
 import androidx.room3.Upsert
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
+import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentity
 
 @Dao
 interface FeedDao {
@@ -17,6 +18,15 @@ interface FeedDao {
 
     @Query("SELECT * FROM LocalRssFeed WHERE sourceUrl = :sourceUrl")
     suspend fun getFeedBySourceUrl(sourceUrl: String): LocalRssFeed?
+
+    @Query(
+        """
+        SELECT id, sourceUrl, link, createdAt, updatedAt
+        FROM LocalRssFeed
+        WHERE sourceUrl = :sourceUrl
+    """
+    )
+    suspend fun getFeedIdentityBySourceUrl(sourceUrl: String): LocalRssFeedIdentity?
 
     @Upsert
     suspend fun upsertFeed(feed: LocalRssFeed)

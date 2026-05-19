@@ -9,11 +9,12 @@ import kotlin.uuid.Uuid
 class RssIdentityGenerator : IdentityGenerator {
     @OptIn(ExperimentalUuidApi::class)
     override fun generateSortableId(): String {
-        return Uuid.Companion.generateV7().toString()
+        return Uuid.generateV7().toString()
     }
 
-    override fun generateHash(string: String): String {
-        val encoded = string.encodeUtf8()
+    override fun generateHash(vararg strings: String): String {
+        val stringToHash = strings.joinToString(separator = "-")
+        val encoded = stringToHash.encodeUtf8()
         return encoded.sha256().toString()
     }
 

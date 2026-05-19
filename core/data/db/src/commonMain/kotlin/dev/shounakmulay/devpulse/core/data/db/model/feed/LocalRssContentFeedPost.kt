@@ -17,7 +17,7 @@ import androidx.room3.PrimaryKey
     ],
     indices = [
         Index(value = ["feedId"]),
-        Index(value = ["lastSeenAt"])
+        Index(value = ["fingerprint"], unique = true)
     ]
 )
 data class LocalRssContentFeedPost(
@@ -25,8 +25,6 @@ data class LocalRssContentFeedPost(
     val id: String,
     val feedId: String,
     val fingerprint: String,
-    val lastSeenAt: Long,
-    val userBookmarked: Boolean = false,
     val guid: String?,
     val title: String?,
     val author: String?,
@@ -47,4 +45,6 @@ data class LocalRssContentFeedPost(
     val rawEnclosure: LocalRssFeedItemRawEnclosure?,
     @Embedded(prefix = "rawMedia_")
     val rawMedia: LocalRssFeedItemMediaContent? = null,
+    val createdAt: Long,
+    val updatedAt: Long
 )

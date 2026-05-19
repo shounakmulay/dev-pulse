@@ -9,7 +9,6 @@ import androidx.room3.PrimaryKey
 @Entity(
     indices = [
         Index(value = ["sourceUrl"], unique = true),
-        Index(value = ["title"])
     ]
 )
 data class LocalRssFeed(
