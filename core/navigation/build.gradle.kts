@@ -1,3 +1,4 @@
+import dev.shounakmulay.devpulse.buildsrc.constants.Modules
 import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
 
 plugins {
