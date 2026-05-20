@@ -22,6 +22,7 @@ kotlin {
             implementation(project(Modules.Core.NETWORK))
             implementation(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Domain.SETTINGS))
+            implementation(project(Modules.Core.Domain.FEED))
             implementation(project(Modules.Core.Data.SETTINGS))
             implementation(project(Modules.Core.Data.DB))
             implementation(project(Modules.Core.Data.FEED))

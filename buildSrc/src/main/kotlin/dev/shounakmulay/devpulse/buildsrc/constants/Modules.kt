@@ -17,10 +17,12 @@ object Modules {
         const val UI = ":core:ui"
         const val RESOURCES = ":core:resources"
         const val NETWORK = ":core:network"
+        const val NOTIFICATIONS = ":core:notifications"
         const val PREFERENCES = ":core:preferences"
         const val COMMON = ":core:common"
 
         object Domain {
+            const val FEED = ":core:domain:feed"
             const val MODELS = ":core:domain:models"
             const val SETTINGS = ":core:domain:settings"
         }

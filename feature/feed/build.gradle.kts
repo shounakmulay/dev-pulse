@@ -24,7 +24,7 @@ kotlin {
             implementation(project(Modules.Core.NAVIGATION))
             implementation(project(Modules.Core.UI))
             implementation(project(Modules.Core.Domain.MODELS))
-            implementation(project(Modules.Core.Data.FEED))
+            implementation(project(Modules.Core.Domain.FEED))
             implementation(libs.compose.components.resources)
         }
     }
