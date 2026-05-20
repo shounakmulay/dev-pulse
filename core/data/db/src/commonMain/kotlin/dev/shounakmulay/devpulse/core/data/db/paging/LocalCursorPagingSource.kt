@@ -3,6 +3,8 @@ package dev.shounakmulay.devpulse.core.data.db.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.room3.RoomDatabase
+import dev.shounakmulay.devpulse.core.logging.DPLog
+import dev.shounakmulay.devpulse.core.logging.DPLogger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -14,7 +16,8 @@ import kotlinx.coroutines.flow.onEach
 class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
     private val dataProvider: LocalCursorPagingSourceDataProvider<KEY, VALUE>,
     invalidationEvents: Flow<Unit>,
-    invalidationScope: CoroutineScope
+    invalidationScope: CoroutineScope,
+    private val logger: DPLogger = DPLog.tag("LocalCursorPagingSource")
 ) : PagingSource<KEY, VALUE>() {
 
     constructor(
@@ -27,7 +30,10 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
     )
 
     private val invalidationJob: Job = invalidationEvents
-        .onEach { invalidate() }
+        .onEach {
+            logger.v { "Paging source invalidated tables=${dataProvider.getTablesToTrack().joinToString()}" }
+            invalidate()
+        }
         .launchIn(invalidationScope)
 
     init {
@@ -71,6 +77,11 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            logger.e(e) {
+                "Paging load failed type=${params.loadTypeName()} " +
+                    "hasKey=${params.hasKey()} loadSize=${params.loadSize} " +
+                    "tables=${dataProvider.getTablesToTrack().joinToString()}"
+            }
             LoadResult.Error(e)
         }
     }
@@ -80,6 +91,23 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
             state.closestItemToPosition(anchorPosition)?.let { dataProvider.getId(it) }
         }
     }
+
+    private fun LoadParams<KEY>.loadTypeName(): String {
+        return when (this) {
+            is LoadParams.Refresh -> "Refresh"
+            is LoadParams.Append -> "Append"
+            is LoadParams.Prepend -> "Prepend"
+        }
+    }
+
+    private fun LoadParams<KEY>.hasKey(): Boolean {
+        return when (this) {
+            is LoadParams.Refresh -> key != null
+            is LoadParams.Append -> true
+            is LoadParams.Prepend -> true
+        }
+    }
+
 }
 
 private fun <KEY, VALUE> RoomDatabase.createInvalidationFlow(
