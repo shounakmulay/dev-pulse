@@ -16,11 +16,12 @@ data class LocalRssFeed(
     val id: String,
     val sourceUrl: String,
     val title: String?,
+    val name: String?,
     val link: String?,
     val description: String?,
     @Embedded(prefix = "image_")
     val image: LocalRssFeedImage?,
-    val lastBuildDate: String?,
+    val lastBuildDate: Long?,
     val updatePeriod: String?,
     @Embedded(prefix = "youtubeChannel_")
     val youtubeChannel: LocalRssFeedYoutubeChannel?,

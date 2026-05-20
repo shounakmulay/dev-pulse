@@ -38,4 +38,9 @@ class DatabaseModule {
     fun provideFeedContentDao(
         db: DevPulseDatabase
     ) = db.getFeedContentDao()
+
+    @Factory
+    fun provideFeedQueueDao(
+        db: DevPulseDatabase
+    ) = db.getFeedQueueDao()
 }
