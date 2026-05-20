@@ -9,14 +9,18 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedType
+import dev.shounakmulay.devpulse.core.logging.DPLogger
 import org.koin.core.annotation.Factory
 
 @Factory
 class ImportFeedUseCase(
     private val rssFeedQueueRepository: RssFeedQueueRepository,
     private val dispatcherProvider: DispatcherProvider,
-    private val dateTimeProvider: DateTimeProvider
+    private val dateTimeProvider: DateTimeProvider,
+    logger: DPLogger
 ) {
+    private val logger = logger.withTag(Tag)
+
     suspend operator fun invoke(url: String, name: String?, type: RssFeedType) =
         dispatcherProvider.runCatchingOnDefault {
             val now = dateTimeProvider.now()
@@ -30,6 +34,22 @@ class ImportFeedUseCase(
                 createdAt = now,
                 updatedAt = now,
             )
+            logger.d { queueEntry.importLogMessage() }
             rssFeedQueueRepository.enqueue(queueEntry)
         }
+
+    private fun RssFeedQueueEntry.importLogMessage(): String {
+        return "Queue import requested action=$actionType requestor=$requestor " +
+            "feedType=$feedType hasName=${name != null} source=${url.sourceSummary()}"
+    }
+
+    private fun String.sourceSummary(): String {
+        val withoutScheme = substringAfter("://", this)
+        val host = withoutScheme.substringBefore('/').substringBefore('?').takeIf { it.isNotBlank() }
+        return "host=${host ?: take(80)}"
+    }
+
+    private companion object {
+        const val Tag = "ImportFeedUseCase"
+    }
 }
