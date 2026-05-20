@@ -5,6 +5,7 @@ import dev.shounakmulay.devpulse.core.data.db.di.DatabaseModule
 import dev.shounakmulay.devpulse.core.data.db.di.DatabasePlatformModule
 import dev.shounakmulay.devpulse.core.data.feed.di.FeedDataModule
 import dev.shounakmulay.devpulse.core.data.settings.di.SettingsDataModule
+import dev.shounakmulay.devpulse.core.domain.feed.di.DomainFeedModule
 import dev.shounakmulay.devpulse.core.domain.settings.di.DomainSettingsModule
 import dev.shounakmulay.devpulse.core.network.di.NetworkModule
 import dev.shounakmulay.devpulse.core.preferences.di.PreferencesModule
@@ -29,7 +30,8 @@ import org.koin.plugin.module.dsl.koinConfiguration as generatedKoinConfiguratio
         DatabasePlatformModule::class,
         DatabaseModule::class,
         FeedModule::class,
-        FeedDataModule::class
+        FeedDataModule::class,
+        DomainFeedModule::class
     ]
 )
 class DevPulseKoinApplication
