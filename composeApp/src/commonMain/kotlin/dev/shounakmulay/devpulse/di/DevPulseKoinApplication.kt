@@ -7,6 +7,7 @@ import dev.shounakmulay.devpulse.core.data.feed.di.FeedDataModule
 import dev.shounakmulay.devpulse.core.data.settings.di.SettingsDataModule
 import dev.shounakmulay.devpulse.core.domain.feed.di.DomainFeedModule
 import dev.shounakmulay.devpulse.core.domain.settings.di.DomainSettingsModule
+import dev.shounakmulay.devpulse.core.logging.di.LoggingModule
 import dev.shounakmulay.devpulse.core.network.di.NetworkModule
 import dev.shounakmulay.devpulse.core.preferences.di.PreferencesModule
 import dev.shounakmulay.devpulse.feature.feed.di.FeedModule
@@ -20,6 +21,7 @@ import org.koin.plugin.module.dsl.koinConfiguration as generatedKoinConfiguratio
 @KoinApplication(
     modules = [
         CoreModule::class,
+        LoggingModule::class,
         NetworkModule::class,
         ComposeAppModule::class,
         SettingsDataModule::class,

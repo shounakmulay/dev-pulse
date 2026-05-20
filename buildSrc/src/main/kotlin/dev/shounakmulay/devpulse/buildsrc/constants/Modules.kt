@@ -16,6 +16,7 @@ object Modules {
         const val NAVIGATION = ":core:navigation"
         const val UI = ":core:ui"
         const val RESOURCES = ":core:resources"
+        const val LOGGING = ":core:logging"
         const val NETWORK = ":core:network"
         const val NOTIFICATIONS = ":core:notifications"
         const val PREFERENCES = ":core:preferences"

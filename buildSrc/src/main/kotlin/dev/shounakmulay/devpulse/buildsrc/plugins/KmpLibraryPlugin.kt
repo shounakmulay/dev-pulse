@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.buildsrc.plugins
 
+import dev.shounakmulay.devpulse.buildsrc.constants.Modules
 import dev.shounakmulay.devpulse.buildsrc.extensions.configureAndroidKmpLibrary
 import dev.shounakmulay.devpulse.buildsrc.extensions.configureIosTargets
 import dev.shounakmulay.devpulse.buildsrc.extensions.configureJvmTarget
@@ -36,6 +37,9 @@ class KmpLibraryPlugin : Plugin<Project> {
                             implementation(project.dependencies.platform(libs.findLibrary("koin-bom").get()))
                             implementation(libs.findLibrary("koin-core").get())
                             implementation(libs.findLibrary("koin-annotations").get())
+                            if (path != Modules.Core.LOGGING) {
+                                implementation(project(Modules.Core.LOGGING))
+                            }
                         }
                     }
                     sourceSets.getByName("commonTest") {
