@@ -4,6 +4,7 @@ import com.prof18.rssparser.model.RawEnclosure
 import com.prof18.rssparser.model.RawMediaContent
 import com.prof18.rssparser.model.RssItem
 import com.prof18.rssparser.model.YoutubeItemData
+import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemMediaContent
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemRawEnclosure
@@ -15,7 +16,8 @@ import kotlin.time.Clock
 
 @Factory
 class RssItemMapper(
-    private val idGenerator: IdentityGenerator
+    private val idGenerator: IdentityGenerator,
+    private val dateTimeParser: DateTimeProvider
 ) {
 
     fun toLocalRssContentFeedPost(
@@ -23,7 +25,7 @@ class RssItemMapper(
         feedId: String,
         existingIdentity: LocalRssContentFeedPostIdentity?
     ): LocalRssContentFeedPost {
-        val now = Clock.System.now().epochSeconds
+        val now = Clock.System.now().toEpochMilliseconds()
         return LocalRssContentFeedPost(
             id = existingIdentity?.id ?: idGenerator.generateSortableId(),
             feedId = feedId,
@@ -32,11 +34,11 @@ class RssItemMapper(
             title = item.title,
             author = item.author,
             link = item.link,
-            pubDate = item.pubDate,
+            pubDate = item.pubDate?.let { dateTimeParser.parseEpochMilliseconds(it) },
             description = item.description,
             content = item.content,
             image = item.image,
-            audio = item.author,
+            audio = item.audio,
             video = item.video,
             sourceName = item.sourceName,
             sourceUrl = item.sourceUrl,

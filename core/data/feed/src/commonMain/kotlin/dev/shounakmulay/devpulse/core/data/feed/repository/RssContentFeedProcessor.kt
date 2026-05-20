@@ -7,12 +7,14 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.feed.hook.ContentFeedPostFilterExistingHook
-import dev.shounakmulay.devpulse.core.data.feed.hook.ContentFeedPostNormalisationHook
+import dev.shounakmulay.devpulse.core.data.feed.hook.ContentFeedPostSanitizationHook
 import dev.shounakmulay.devpulse.core.data.feed.hook.CoreBatchHook
+import dev.shounakmulay.devpulse.core.data.feed.hook.CoreItemHook
 import dev.shounakmulay.devpulse.core.data.feed.hook.model.PostWithIdentity
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssItemMapper
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -29,16 +31,16 @@ import org.koin.core.annotation.Factory
 internal class RssContentFeedProcessor(
     private val identityGenerator: IdentityGenerator,
     private val filterExistingPostsHook: ContentFeedPostFilterExistingHook,
-    private val postNormalisationHook: ContentFeedPostNormalisationHook,
+    private val postSanitizationHook: ContentFeedPostSanitizationHook,
     private val feedContentDao: FeedContentDao,
     private val feedDao: FeedDao,
     private val rssItemMapper: RssItemMapper,
     private val rssFeedMapper: RssFeedMapper
 ) {
-    suspend fun process(url: String, rssChannel: RssChannel): Unit = coroutineScope {
+    suspend fun process(entry: RssFeedQueueEntry, rssChannel: RssChannel): Unit = coroutineScope {
         val localRssFeed = async {
             buildLocalRssFeed(
-                url = url,
+                entry = entry,
                 rssChannel = rssChannel
             )
         }
@@ -54,9 +56,9 @@ internal class RssContentFeedProcessor(
         )
     }
 
-    private fun getCoreItemHooks(): List<ContentFeedPostNormalisationHook> {
+    private fun getCoreItemHooks(): List<CoreItemHook<PostWithIdentity>> {
         return listOf(
-            postNormalisationHook
+            postSanitizationHook
         )
     }
 
@@ -154,12 +156,17 @@ internal class RssContentFeedProcessor(
         return false
     }
 
-    private suspend fun buildLocalRssFeed(url: String, rssChannel: RssChannel): LocalRssFeed {
-        val exitingIdentity = feedDao.getFeedIdentityBySourceUrl(url)
-        return rssFeedMapper.toLocalRssFeed(
-            url = url,
+    private suspend fun buildLocalRssFeed(
+        entry: RssFeedQueueEntry,
+        rssChannel: RssChannel
+    ): LocalRssFeed {
+        val exitingIdentity = feedDao.getFeedIdentityBySourceUrl(entry.url)
+        val localFeed = rssFeedMapper.toLocalRssFeed(
+            queueEntry = entry,
             from = rssChannel,
             existingIdentity = exitingIdentity
         )
+        feedDao.upsertFeed(localFeed)
+        return localFeed
     }
 }

@@ -8,6 +8,7 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.parser.RssFeedParser
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
@@ -35,9 +36,9 @@ internal class ContentFeedRepositoryImpl(
             }
     }
 
-    override suspend fun addRssFeed(url: String) {
-        val rssChannel = rssParser.parseFeed(url)
-        rssContentFeedProcessor.process(url = url, rssChannel = rssChannel)
+    override suspend fun addRssFeed(entry: RssFeedQueueEntry) {
+        val rssChannel = rssParser.parseFeed(entry.url)
+        rssContentFeedProcessor.process(entry = entry, rssChannel = rssChannel)
     }
 
     override suspend fun deleteFeed(id: String) {
