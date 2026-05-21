@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.feed.repository
 
 import app.cash.turbine.test
+import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedProcessingJobDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalFeedProcessingJob
 import dev.shounakmulay.devpulse.core.domain.models.feed.processing.FeedProcessingExecutionState
@@ -106,13 +107,13 @@ class FeedProcessingJobRepositoryImplTest {
     ): RepositoryTestContext {
         val dao = mock<FeedProcessingJobDao>()
         val idGenerator = mock<FeedProcessingJobIdGenerator>()
-        val clock = mock<FeedProcessingClock>()
+        val dateTimeProvider = mock<DateTimeProvider>()
         val insertedJobs = mutableListOf<LocalFeedProcessingJob>()
         val jobFlows = mutableMapOf<String, MutableStateFlow<LocalFeedProcessingJob?>>()
         val idIterator = ids.iterator()
 
         every { idGenerator.nextId() } calls { idIterator.next() }
-        every { clock.nowEpochMilliseconds() } returns 1000L
+        every { dateTimeProvider.nowEpochMilliseconds() } returns 1000L
         every { dao.observeJob(any()) } calls { (id: String) ->
             jobFlows.getOrPut(id) {
                 MutableStateFlow(insertedJobs.firstOrNull { it.id == id })
@@ -140,7 +141,7 @@ class FeedProcessingJobRepositoryImplTest {
             repository = FeedProcessingJobRepositoryImpl(
                 jobDao = dao,
                 idGenerator = idGenerator,
-                clock = clock
+                dateTimeProvider = dateTimeProvider
             ),
             jobDao = dao,
             insertedJobs = insertedJobs,

@@ -14,12 +14,11 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedImage
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedYoutubeChannel
 import org.koin.core.annotation.Factory
-import kotlin.time.Clock
 
 @Factory
 class RssFeedMapper(
     private val identityGenerator: IdentityGenerator,
-    private val dateTimeParser: DateTimeProvider
+    private val dateTimeProvider: DateTimeProvider
 ) {
 
     fun toLocalRssFeed(
@@ -27,7 +26,7 @@ class RssFeedMapper(
         existingIdentity: LocalRssFeedIdentity?,
         queueEntry: RssFeedQueueEntry
     ): LocalRssFeed {
-        val now = Clock.System.now().toEpochMilliseconds()
+        val now = dateTimeProvider.nowEpochMilliseconds()
         return LocalRssFeed(
             id = existingIdentity?.id ?: identityGenerator.generateSortableId(),
             name = queueEntry.name,
@@ -36,7 +35,7 @@ class RssFeedMapper(
             link = from.link,
             description = from.description,
             image = from.image?.let { toLocalRssFeedImage(it) },
-            lastBuildDate = from.lastBuildDate?.let { dateTimeParser.parseEpochMilliseconds(it) },
+            lastBuildDate = from.lastBuildDate,
             updatePeriod = from.updatePeriod,
             youtubeChannel = from.youtubeChannelData?.let { toLocalRssFeedYoutubeChannel(it) },
             createdAt = existingIdentity?.createdAt ?: now,
@@ -81,5 +80,3 @@ class RssFeedMapper(
     )
 
 }
-
-
