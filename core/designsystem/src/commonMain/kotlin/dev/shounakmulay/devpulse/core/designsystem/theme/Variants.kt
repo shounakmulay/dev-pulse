@@ -5,7 +5,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -76,82 +75,81 @@ data class DPIntentColors(
 )
 
 @Composable
+@ReadOnlyComposable
 fun DPIntent.colors(): DPIntentColors {
     val cs = MaterialTheme.colorScheme
-    return remember(cs) {
-        when (this) {
-            DPIntent.Primary -> DPIntentColors(
-                accent = cs.primary,
-                onAccent = cs.onPrimary,
-                container = cs.primaryContainer,
-                onContainer = cs.onPrimaryContainer,
-                containerVariant = cs.primaryContainer,
-                outline = cs.primary,
-            )
+    return when (this) {
+        DPIntent.Primary -> DPIntentColors(
+            accent = cs.primary,
+            onAccent = cs.onPrimary,
+            container = cs.primaryContainer,
+            onContainer = cs.onPrimaryContainer,
+            containerVariant = cs.primaryContainer,
+            outline = cs.primary,
+        )
 
-            DPIntent.Secondary -> DPIntentColors(
-                accent = cs.secondary,
-                onAccent = cs.onSecondary,
-                container = cs.secondaryContainer,
-                onContainer = cs.onSecondaryContainer,
-                containerVariant = cs.secondaryContainer,
-                outline = cs.secondary,
-            )
+        DPIntent.Secondary -> DPIntentColors(
+            accent = cs.secondary,
+            onAccent = cs.onSecondary,
+            container = cs.secondaryContainer,
+            onContainer = cs.onSecondaryContainer,
+            containerVariant = cs.secondaryContainer,
+            outline = cs.secondary,
+        )
 
-            DPIntent.Tertiary -> DPIntentColors(
-                accent = cs.tertiary,
-                onAccent = cs.onTertiary,
-                container = cs.tertiaryContainer,
-                onContainer = cs.onTertiaryContainer,
-                containerVariant = cs.tertiaryContainer,
-                outline = cs.tertiary,
-            )
+        DPIntent.Tertiary -> DPIntentColors(
+            accent = cs.tertiary,
+            onAccent = cs.onTertiary,
+            container = cs.tertiaryContainer,
+            onContainer = cs.onTertiaryContainer,
+            containerVariant = cs.tertiaryContainer,
+            outline = cs.tertiary,
+        )
 
-            DPIntent.Success -> DPIntentColors(
-                accent = cs.success,
-                onAccent = cs.onSuccess,
-                container = cs.successContainer,
-                onContainer = cs.onSuccessContainer,
-                containerVariant = cs.successContainer,
-                outline = cs.success,
-            )
+        DPIntent.Success -> DPIntentColors(
+            accent = cs.success,
+            onAccent = cs.onSuccess,
+            container = cs.successContainer,
+            onContainer = cs.onSuccessContainer,
+            containerVariant = cs.successContainer,
+            outline = cs.success,
+        )
 
-            DPIntent.Warning -> DPIntentColors(
-                accent = cs.warning,
-                onAccent = cs.onWarning,
-                container = cs.warningContainer,
-                onContainer = cs.onWarningContainer,
-                containerVariant = cs.warningContainer,
-                outline = cs.warning,
-            )
+        DPIntent.Warning -> DPIntentColors(
+            accent = cs.warning,
+            onAccent = cs.onWarning,
+            container = cs.warningContainer,
+            onContainer = cs.onWarningContainer,
+            containerVariant = cs.warningContainer,
+            outline = cs.warning,
+        )
 
-            DPIntent.Danger -> DPIntentColors(
-                accent = cs.error,
-                onAccent = cs.onError,
-                container = cs.errorContainer,
-                onContainer = cs.onErrorContainer,
-                containerVariant = cs.errorContainer,
-                outline = cs.error,
-            )
+        DPIntent.Danger -> DPIntentColors(
+            accent = cs.error,
+            onAccent = cs.onError,
+            container = cs.errorContainer,
+            onContainer = cs.onErrorContainer,
+            containerVariant = cs.errorContainer,
+            outline = cs.error,
+        )
 
-            DPIntent.Info -> DPIntentColors(
-                accent = cs.info,
-                onAccent = cs.onInfo,
-                container = cs.infoContainer,
-                onContainer = cs.onInfoContainer,
-                containerVariant = cs.infoContainer,
-                outline = cs.info,
-            )
+        DPIntent.Info -> DPIntentColors(
+            accent = cs.info,
+            onAccent = cs.onInfo,
+            container = cs.infoContainer,
+            onContainer = cs.onInfoContainer,
+            containerVariant = cs.infoContainer,
+            outline = cs.info,
+        )
 
-            DPIntent.Neutral -> DPIntentColors(
-                accent = cs.surfaceContainerHighest,
-                onAccent = cs.onSurface,
-                container = cs.surfaceContainerHigh,
-                onContainer = cs.onSurface,
-                containerVariant = cs.surfaceContainer,
-                outline = cs.outline,
-            )
-        }
+        DPIntent.Neutral -> DPIntentColors(
+            accent = cs.surfaceContainerHighest,
+            onAccent = cs.onSurface,
+            container = cs.surfaceContainerHigh,
+            onContainer = cs.onSurface,
+            containerVariant = cs.surfaceContainer,
+            outline = cs.outline,
+        )
     }
 }
 

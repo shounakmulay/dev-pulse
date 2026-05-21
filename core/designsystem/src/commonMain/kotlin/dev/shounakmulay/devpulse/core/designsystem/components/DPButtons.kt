@@ -65,22 +65,26 @@ private fun resolveButtonColors(style: DPButtonStyle, intent: DPIntent): ButtonC
             disabledContainerColor = c.accent.copy(alpha = 0.12f),
             disabledContentColor = c.onAccent.copy(alpha = 0.38f),
         )
+
         DPButtonStyle.Tonal -> ButtonDefaults.filledTonalButtonColors(
             containerColor = c.container,
             contentColor = c.onContainer,
             disabledContainerColor = c.container.copy(alpha = 0.12f),
             disabledContentColor = c.onContainer.copy(alpha = 0.38f),
         )
+
         DPButtonStyle.Outlined -> ButtonDefaults.outlinedButtonColors(
             containerColor = Color.Transparent,
             contentColor = c.accent,
             disabledContentColor = c.accent.copy(alpha = 0.38f),
         )
+
         DPButtonStyle.Text -> ButtonDefaults.textButtonColors(
             containerColor = Color.Transparent,
             contentColor = c.accent,
             disabledContentColor = c.accent.copy(alpha = 0.38f),
         )
+
         DPButtonStyle.Elevated -> ButtonDefaults.elevatedButtonColors(
             containerColor = c.containerVariant,
             contentColor = c.onContainer,
@@ -101,8 +105,15 @@ private fun resolveButtonShape(style: DPButtonStyle): Shape = when (style) {
 
 @Composable
 @ReadOnlyComposable
-private fun resolveButtonBorder(style: DPButtonStyle, intent: DPIntent, enabled: Boolean): BorderStroke? =
-    if (style == DPButtonStyle.Outlined) BorderStroke(1.dp, intent.colors().outline.copy(alpha = if (enabled) 1f else 0.38f))
+private fun resolveButtonBorder(
+    style: DPButtonStyle,
+    intent: DPIntent,
+    enabled: Boolean
+): BorderStroke? =
+    if (style == DPButtonStyle.Outlined) BorderStroke(
+        1.dp,
+        intent.colors().outline.copy(alpha = if (enabled) 1f else 0.38f)
+    )
     else null
 
 // Text-first primary API
@@ -185,24 +196,28 @@ fun DPButton(
             elevation = elevation ?: ButtonDefaults.buttonElevation(),
             border = resolvedBorder, contentPadding = resolvedPadding, content = content,
         )
+
         DPButtonStyle.Tonal -> FilledTonalButton(
             onClick = onClick, modifier = heightMod, enabled = enabled,
             shape = resolvedShape, colors = resolvedColors,
             elevation = elevation ?: ButtonDefaults.filledTonalButtonElevation(),
             border = resolvedBorder, contentPadding = resolvedPadding, content = content,
         )
+
         DPButtonStyle.Outlined -> OutlinedButton(
             onClick = onClick, modifier = heightMod, enabled = enabled,
             shape = resolvedShape, colors = resolvedColors,
             elevation = elevation, border = resolvedBorder,
             contentPadding = resolvedPadding, content = content,
         )
+
         DPButtonStyle.Text -> TextButton(
             onClick = onClick, modifier = heightMod, enabled = enabled,
             shape = resolvedShape, colors = resolvedColors,
             elevation = elevation, border = resolvedBorder,
             contentPadding = resolvedPadding, content = content,
         )
+
         DPButtonStyle.Elevated -> ElevatedButton(
             onClick = onClick, modifier = heightMod, enabled = enabled,
             shape = resolvedShape, colors = resolvedColors,
