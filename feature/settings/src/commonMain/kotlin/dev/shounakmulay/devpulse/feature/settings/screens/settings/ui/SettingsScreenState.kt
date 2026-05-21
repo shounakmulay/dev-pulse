@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui
 
 import androidx.compose.runtime.Immutable
-import dev.shounakmulay.devpulse.core.domain.models.ThemeMode
+import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.data.SettingsListItem
 import kotlinx.serialization.Serializable

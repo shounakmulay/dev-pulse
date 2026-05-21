@@ -21,7 +21,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBar
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPDensity
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.core.domain.models.ThemeMode
+import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -112,9 +112,11 @@ fun SettingsSingleChoice(
         ) {
             item.key.values.forEach { option ->
                 val themeOption = option as? ThemeSingleChoiceOptions ?: return@forEach
+                val isSelected = themeOption.toThemeMode() == selectedThemeMode
+
                 toggleableItem(
-                    weight = 1f,
-                    checked = themeOption.toThemeMode() == selectedThemeMode,
+                    weight = if (isSelected) 1.5f else  1f,
+                    checked = isSelected,
                     label = themeOption.label(),
                     onCheckedChange = { checked ->
                         if (checked) {
