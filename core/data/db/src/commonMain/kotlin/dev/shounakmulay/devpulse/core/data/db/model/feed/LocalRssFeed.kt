@@ -21,7 +21,7 @@ data class LocalRssFeed(
     val description: String?,
     @Embedded(prefix = "image_")
     val image: LocalRssFeedImage?,
-    val lastBuildDate: Long?,
+    val lastBuildDate: String?,
     val updatePeriod: String?,
     @Embedded(prefix = "youtubeChannel_")
     val youtubeChannel: LocalRssFeedYoutubeChannel?,

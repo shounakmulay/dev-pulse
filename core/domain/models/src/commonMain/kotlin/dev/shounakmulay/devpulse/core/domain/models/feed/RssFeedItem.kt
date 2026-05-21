@@ -8,7 +8,7 @@ data class RssFeedItem(
     val title: String?,
     val author: String?,
     val link: String?,
-    val pubDate: Long?,
+    val pubDate: String?,
     val description: String?,
     val content: String?,
     val image: String?,

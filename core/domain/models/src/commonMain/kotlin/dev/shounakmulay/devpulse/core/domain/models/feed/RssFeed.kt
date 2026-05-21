@@ -7,7 +7,7 @@ data class RssFeed(
     val link: String?,
     val description: String?,
     val image: RssFeedImage?,
-    val lastBuildDate: Long?,
+    val lastBuildDate: String?,
     val updatePeriod: String?,
     val youtubeChannel: RssFeedYoutubeChannel?,
     val createdAt: Long,
