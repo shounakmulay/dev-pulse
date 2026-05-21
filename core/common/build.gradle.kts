@@ -9,4 +9,10 @@ kotlin {
         namespace = "dev.shounakmulay.devpulse.core.common"
     }
     iosFrameworks(baseName = "core:common")
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kotlinx.datetime)
+        }
+    }
 }
