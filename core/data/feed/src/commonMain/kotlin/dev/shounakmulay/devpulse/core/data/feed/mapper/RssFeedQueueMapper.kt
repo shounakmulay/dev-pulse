@@ -15,7 +15,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class RssFeedQueueMapper(
-    private val dateTimeParser: DateTimeProvider
+    private val dateTimeProvider: DateTimeProvider
 ) {
     fun toLocalRssFeedQueue(from: RssFeedQueueEntry): LocalRssFeedQueue {
         return LocalRssFeedQueue(
@@ -28,7 +28,7 @@ class RssFeedQueueMapper(
             status = toLocalRssFeedQueueStatus(from.status),
             fetchAttempt = from.fetchAttempt,
             createAt = from.createdAt,
-            updatedAt = dateTimeParser.now(),
+            updatedAt = dateTimeProvider.nowEpochMilliseconds(),
         )
     }
 

@@ -137,7 +137,7 @@ class ContentFeedPostSanitizationHookTest {
             id = "post-2",
             feedId = "feed-2",
             fingerprint = "fingerprint-2",
-            pubDate = 1779184800000L,
+            pubDate = "Tue, 19 May 2026 10:00:00 GMT",
             createdAt = 111L,
             updatedAt = 222L,
             rawEnclosure = LocalRssFeedItemRawEnclosure(
@@ -161,7 +161,7 @@ class ContentFeedPostSanitizationHookTest {
         assertEquals("post-2", result.id)
         assertEquals("feed-2", result.feedId)
         assertEquals("fingerprint-2", result.fingerprint)
-        assertEquals(1779184800000L, result.pubDate)
+        assertEquals("Tue, 19 May 2026 10:00:00 GMT", result.pubDate)
         assertEquals(111L, result.createdAt)
         assertEquals(222L, result.updatedAt)
         assertEquals(999L, result.rawEnclosure?.length)
@@ -177,7 +177,7 @@ class ContentFeedPostSanitizationHookTest {
         title: String? = "Title",
         author: String? = "Author",
         link: String? = "https://example.com/post",
-        pubDate: Long? = 1779184800000L,
+        pubDate: String? = "Tue, 19 May 2026 10:00:00 GMT",
         description: String? = "Description",
         content: String? = "Content",
         image: String? = "https://example.com/image.png",

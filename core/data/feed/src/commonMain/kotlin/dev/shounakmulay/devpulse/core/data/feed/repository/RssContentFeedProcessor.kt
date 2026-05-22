@@ -15,6 +15,7 @@ import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssItemMapper
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
+import dev.shounakmulay.devpulse.core.logging.DPLogger
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -35,19 +36,30 @@ internal class RssContentFeedProcessor(
     private val feedContentDao: FeedContentDao,
     private val feedDao: FeedDao,
     private val rssItemMapper: RssItemMapper,
-    private val rssFeedMapper: RssFeedMapper
+    private val rssFeedMapper: RssFeedMapper,
+    logger: DPLogger
 ) {
+    private val logger = logger.withTag(Tag)
+
     suspend fun process(entry: RssFeedQueueEntry, rssChannel: RssChannel): Unit = coroutineScope {
+        logger.d {
+            "RSS content processing started queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${rssChannel.items.size}"
+        }
         val localRssFeed = async {
             buildLocalRssFeed(
                 entry = entry,
                 rssChannel = rssChannel
             )
         }
-        val localRssContentFeedPosts =
+        val upsertedPostCount =
             async { buildLocalRssContentFeedPost(rssChannel, localRssFeed) }
 
-        awaitAll(localRssFeed, localRssContentFeedPosts)
+        awaitAll(localRssFeed, upsertedPostCount)
+        val finalUpsertedPostCount = upsertedPostCount.await()
+        logger.d {
+            "RSS content processing finished queueId=${entry.id} " +
+                "source=${entry.url.sourceSummary()} upsertedPostCount=$finalUpsertedPostCount"
+        }
     }
 
     private fun getCoreBatchHooks(): List<CoreBatchHook<PostWithIdentity>> {
@@ -66,15 +78,22 @@ internal class RssContentFeedProcessor(
     private suspend fun buildLocalRssContentFeedPost(
         rssChannel: RssChannel,
         localRssFeed: Deferred<LocalRssFeed>
-    ) {
+    ): Int {
+        var upsertedCount = 0
+        val feedId = localRssFeed.await().id
         rssChannel.items.asFlow()
             .chunked(50)
             .map {
                 processRssItemsChunk(rssItems = it, feed = localRssFeed)
             }.onEach {
                 feedContentDao.upsertPosts(it)
+                upsertedCount += it.size
+                logger.d {
+                    "RSS content chunk upserted feedId=$feedId upsertedPostCount=${it.size}"
+                }
             }
             .collect()
+        return upsertedCount
     }
 
     private suspend fun processRssItemsChunk(
@@ -103,7 +122,14 @@ internal class RssContentFeedProcessor(
             )
         }
 
-        return processCoreHooks(localPostsWithIdentity)
+        val processedPosts = processCoreHooks(localPostsWithIdentity)
+        logger.d {
+            "RSS content chunk processed feedId=$feedId rawItemCount=${rssItems.size} " +
+                "existingMatchCount=${existingItems.size} " +
+                "filteredCount=${localPostsWithIdentity.size - processedPosts.size} " +
+                "postCount=${processedPosts.size}"
+        }
+        return processedPosts
     }
 
     private suspend fun processCoreHooks(
@@ -167,6 +193,19 @@ internal class RssContentFeedProcessor(
             existingIdentity = exitingIdentity
         )
         feedDao.upsertFeed(localFeed)
+        logger.d {
+            "RSS feed upserted feedId=${localFeed.id} source=${entry.url.sourceSummary()} existing=${exitingIdentity != null}"
+        }
         return localFeed
+    }
+
+    private fun String.sourceSummary(): String {
+        val withoutScheme = substringAfter("://", this)
+        val host = withoutScheme.substringBefore('/').substringBefore('?').takeIf { it.isNotBlank() }
+        return "host=${host ?: take(80)}"
+    }
+
+    private companion object {
+        const val Tag = "RssContentFeedProcessor"
     }
 }

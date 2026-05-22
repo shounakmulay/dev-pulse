@@ -9,10 +9,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.rememberNavigationState
 import kotlinx.collections.immutable.persistentSetOf
+import org.koin.compose.koinInject
 
 @Composable
 fun DevPulseNavApp() {
@@ -31,7 +33,13 @@ fun DevPulseNavApp() {
         tabsStart = Screen.Tabs.Home,
         tabRoutes = tabRoutes
     )
-    val navigator = remember { Navigator(navigationState) }
+    val navigationLogger = koinInject<DPLogger>().withTag("Navigator")
+    val navigator = remember(navigationLogger) {
+        Navigator(
+            state = navigationState,
+            logger = navigationLogger
+        )
+    }
     val navigationSuiteState = rememberNavigationSuiteScaffoldState()
     val windowAdaptiveInfo = currentWindowAdaptiveInfoV2()
     val navigationSuiteLayoutType =

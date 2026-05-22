@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import dev.shounakmulay.devpulse.composables.DevPulseThemedApp
 import dev.shounakmulay.devpulse.di.koinConfiguration
+import dev.shounakmulay.devpulse.logging.DevPulseLogging
 import org.koin.compose.KoinApplication
 
 
@@ -12,6 +13,7 @@ import org.koin.compose.KoinApplication
 @Composable
 @Preview
 fun App() {
+    DevPulseLogging.configure()
     KoinApplication(configuration = koinConfiguration) {
         DevPulseThemedApp()
     }

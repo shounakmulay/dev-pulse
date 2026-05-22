@@ -5,6 +5,7 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.navigation.NavDisplay
 import dev.shounakmulay.devpulse.core.navigation.NavigationState
 import dev.shounakmulay.devpulse.core.navigation.Navigator
@@ -56,8 +57,10 @@ internal fun DevPulseNavDisplay(
 @Composable
 fun AppLevelInitialisers() {
     val feedQueueViewModel: FeedQueueViewModel = koinInject()
+    val logger = koinInject<DPLogger>().withTag("DevPulseApp")
 
     LaunchedEffect(Unit) {
+        logger.i { "Starting app-level feed queue initialiser" }
         feedQueueViewModel.init()
     }
 }

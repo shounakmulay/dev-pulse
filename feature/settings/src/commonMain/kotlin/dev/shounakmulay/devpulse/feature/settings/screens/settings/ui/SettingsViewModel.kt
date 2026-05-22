@@ -1,9 +1,11 @@
 package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui
+
 import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeSettings
 import dev.shounakmulay.devpulse.core.domain.settings.ObserveThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.SetThemeSettingsUseCase
+import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
@@ -26,11 +28,14 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 class SettingsViewModel(
     private val observeThemeSettingsUseCase: ObserveThemeSettingsUseCase,
-    private val setThemeSettingsUseCase: SetThemeSettingsUseCase
+    private val setThemeSettingsUseCase: SetThemeSettingsUseCase,
+    logger: DPLogger
 ) : MviViewModel<SettingsScreenState, SettingsScreenEffect>(),
     EventHandler<SettingsScreenEvent> {
+    private val logger = logger.withTag(Tag)
 
     init {
+        logger.d { "SettingsViewModel created" }
         observeThemeSettingsUseCase()
             .onEachSuccess { themeSettings ->
                 if (themeSettings != null) {
@@ -98,7 +103,15 @@ class SettingsViewModel(
 
     private fun toggleBlackMode(value: Boolean) {
         val currentState = state.value
-        if (!currentState.canToggleBlackMode) return
+        if (!currentState.canToggleBlackMode) {
+            logger.w {
+                "Black mode change rejected reason=themeModeDoesNotSupportBlackMode requested=$value currentMode=${currentState.themeMode}"
+            }
+            return
+        }
+        logger.d {
+            "Black mode change requested value=$value currentMode=${currentState.themeMode}"
+        }
         setState { copy(isBlackMode = value) }
         viewModelScope.launch {
             setThemeSettingsUseCase(
@@ -106,7 +119,14 @@ class SettingsViewModel(
                     mode = currentState.themeMode,
                     blackMode = value
                 )
-            ).onFailure {
+            ).onSuccess {
+                logger.d {
+                    "Black mode change persisted value=$value currentMode=${currentState.themeMode}"
+                }
+            }.onFailure {
+                logger.e(it) {
+                    "Black mode change failed value=$value currentMode=${currentState.themeMode}; rolling back"
+                }
                 setState {
                     copy(
                         themeMode = currentState.themeMode,
@@ -120,6 +140,9 @@ class SettingsViewModel(
     private fun updateThemeMode(value: ThemeSingleChoiceOptions) {
         val currentState = state.value
         val themeMode = value.toThemeMode()
+        logger.d {
+            "Theme mode change requested value=$themeMode currentMode=${currentState.themeMode} blackMode=${currentState.isBlackMode}"
+        }
         setState { copy(themeMode = themeMode) }
         viewModelScope.launch {
             setThemeSettingsUseCase(
@@ -127,7 +150,14 @@ class SettingsViewModel(
                     mode = themeMode,
                     blackMode = currentState.isBlackMode
                 )
-            ).onFailure {
+            ).onSuccess {
+                logger.d {
+                    "Theme mode change persisted value=$themeMode blackMode=${currentState.isBlackMode}"
+                }
+            }.onFailure {
+                logger.e(it) {
+                    "Theme mode change failed value=$themeMode blackMode=${currentState.isBlackMode}; rolling back"
+                }
                 setState {
                     copy(
                         themeMode = currentState.themeMode,
@@ -147,4 +177,13 @@ class SettingsViewModel(
 
     private fun navigateToDesignSystemBoard() =
         postEffect(SettingsScreenEffect.NavigateToDesignSystemBoard)
+
+    override fun onCleared() {
+        logger.d { "SettingsViewModel cleared" }
+        super.onCleared()
+    }
+
+    private companion object {
+        const val Tag = "SettingsViewModel"
+    }
 }

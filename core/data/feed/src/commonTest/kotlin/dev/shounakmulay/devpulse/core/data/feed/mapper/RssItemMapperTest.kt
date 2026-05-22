@@ -1,22 +1,22 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
 import com.prof18.rssparser.model.RssItem
-import dev.shounakmulay.devpulse.core.common.time.DateTimeParser
+import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentity
 import dev.shounakmulay.devpulse.core.data.feed.identity.RssIdentityGenerator
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class RssItemMapperTest {
 
     private val mapper = RssItemMapper(
         idGenerator = RssIdentityGenerator(),
-        dateTimeParser = DateTimeParser()
+        dateTimeProvider = FixedDateTimeProvider
     )
 
     @Test
-    fun `Given RSS item date When mapped to local post Then date is epoch milliseconds`() {
+    fun `Given RSS item date When mapped to local post Then raw publisher date is preserved`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = "Tue, 19 May 2026 10:00:00 +0000"),
             feedId = "feed-1",
@@ -28,9 +28,9 @@ class RssItemMapperTest {
             )
         )
 
-        assertEquals(1779184800000L, result.pubDate)
+        assertEquals("Tue, 19 May 2026 10:00:00 +0000", result.pubDate)
         assertEquals(1234L, result.createdAt)
-        assertTrue(result.updatedAt > 1_000_000_000_000L)
+        assertEquals(1779184800000L, result.updatedAt)
     }
 
     private fun createItem(pubDate: String?): RssItem {
@@ -54,5 +54,13 @@ class RssItemMapperTest {
             rawEnclosure = null,
             rawMediaContent = null
         )
+    }
+
+    private object FixedDateTimeProvider : DateTimeProvider {
+        override fun now(): Long = nowEpochMilliseconds()
+
+        override fun nowEpochMilliseconds(): Long = 1779184800000L
+
+        override fun today(): LocalDate = LocalDate(year = 2026, monthNumber = 5, dayOfMonth = 19)
     }
 }
