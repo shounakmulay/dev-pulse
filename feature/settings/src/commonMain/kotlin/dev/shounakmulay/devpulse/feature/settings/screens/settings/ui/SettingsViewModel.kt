@@ -2,25 +2,13 @@ package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui
 
 import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
+import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeSettings
 import dev.shounakmulay.devpulse.core.domain.settings.ObserveThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.SetThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.logging.DPLogger
-import dev.shounakmulay.devpulse.core.navigation.Screen
-import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
-import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
-import dev.shounakmulay.devpulse.feature.settings.screens.settings.data.SettingsListItem
-import dev.shounakmulay.devpulse.feature.settings.screens.settings.data.SettingsSingleChoiceKey
-import dev.shounakmulay.devpulse.feature.settings.screens.settings.data.SettingsToggleKey
-import dev.shounakmulay.devpulse.feature.settings.screens.settings.data.ThemeSingleChoiceOptions
-import devpulse.core.resources.generated.resources.black_mode
-import devpulse.core.resources.generated.resources.design_system_board
-import devpulse.core.resources.generated.resources.developer_tools
-import devpulse.core.resources.generated.resources.select_app_theme
-import devpulse.core.resources.generated.resources.theme
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
@@ -50,60 +38,21 @@ class SettingsViewModel(
             .launchIn(viewModelScope)
     }
 
-    override fun createInitialState() = SettingsScreenState(
-        settingsList = persistentListOf(
-            SettingsListItem.SectionHeading(TextResource.fromStringRes(stringRes.theme)),
-            SettingsListItem.SingleChoice(
-                title = TextResource.fromStringRes(stringRes.select_app_theme),
-                key = SettingsSingleChoiceKey.THEME,
-            ),
-            SettingsListItem.Toggle(
-                title = TextResource.fromStringRes(stringRes.black_mode),
-                key = SettingsToggleKey.BLACK_MODE
-            ),
-            SettingsListItem.SectionHeading(TextResource.fromStringRes(stringRes.developer_tools)),
-            SettingsListItem.SubPageLink(
-                heading = TextResource.fromStringRes(stringRes.design_system_board),
-                supportingText = null,
-                linkToScreen = Screen.DeveloperTools.DesignSystemBoard
-            )
-        )
-    )
+    override fun createInitialState() = SettingsScreenState()
 
     override fun createStateSerializer() = SettingsScreenState.serializer()
 
     override fun onEvent(event: SettingsScreenEvent) {
         when (event) {
-            is SettingsScreenEvent.OnSubPageLinkClick -> onNavigateToSubPage(event.linkToScreen)
-            is SettingsScreenEvent.OnListItemToggled -> onItemToggled(event.item, event.value)
-            is SettingsScreenEvent.OnSingleChoiceUpdated -> onSingleChoiceUpdated(event.item, event.value)
-        }
-    }
-
-    private fun onSingleChoiceUpdated(
-        item: SettingsListItem.SingleChoice,
-        value: SettingsListItem.SingleChoice.SingleChoiceOptions
-    ) {
-        when (item.key) {
-            SettingsSingleChoiceKey.THEME -> {
-                val theme = value as? ThemeSingleChoiceOptions ?: return
-                updateThemeMode(theme)
-            }
-        }
-    }
-
-    private fun onItemToggled(
-        item: SettingsListItem.Toggle,
-        value: Boolean
-    ) {
-        when (item.key) {
-            SettingsToggleKey.BLACK_MODE -> toggleBlackMode(value)
+            is SettingsScreenEvent.OnThemeModeSelected -> updateThemeMode(event.themeMode)
+            is SettingsScreenEvent.OnBlackModeToggled -> toggleBlackMode(event.value)
+            SettingsScreenEvent.OnDesignSystemBoardClicked -> navigateToDesignSystemBoard()
         }
     }
 
     private fun toggleBlackMode(value: Boolean) {
         val currentState = state.value
-        if (!currentState.canToggleBlackMode) {
+        if (currentState.themeMode == ThemeMode.LIGHT) {
             logger.w {
                 "Black mode change rejected reason=themeModeDoesNotSupportBlackMode requested=$value currentMode=${currentState.themeMode}"
             }
@@ -112,7 +61,6 @@ class SettingsViewModel(
         logger.d {
             "Black mode change requested value=$value currentMode=${currentState.themeMode}"
         }
-        setState { copy(isBlackMode = value) }
         viewModelScope.launch {
             setThemeSettingsUseCase(
                 ThemeSettings(
@@ -127,23 +75,15 @@ class SettingsViewModel(
                 logger.e(it) {
                     "Black mode change failed value=$value currentMode=${currentState.themeMode}; rolling back"
                 }
-                setState {
-                    copy(
-                        themeMode = currentState.themeMode,
-                        isBlackMode = currentState.isBlackMode
-                    )
-                }
             }
         }
     }
 
-    private fun updateThemeMode(value: ThemeSingleChoiceOptions) {
+    private fun updateThemeMode(themeMode: ThemeMode) {
         val currentState = state.value
-        val themeMode = value.toThemeMode()
         logger.d {
             "Theme mode change requested value=$themeMode currentMode=${currentState.themeMode} blackMode=${currentState.isBlackMode}"
         }
-        setState { copy(themeMode = themeMode) }
         viewModelScope.launch {
             setThemeSettingsUseCase(
                 ThemeSettings(
@@ -158,20 +98,7 @@ class SettingsViewModel(
                 logger.e(it) {
                     "Theme mode change failed value=$themeMode blackMode=${currentState.isBlackMode}; rolling back"
                 }
-                setState {
-                    copy(
-                        themeMode = currentState.themeMode,
-                        isBlackMode = currentState.isBlackMode
-                    )
-                }
             }
-        }
-    }
-
-    private fun onNavigateToSubPage(linkToScreen: Screen) {
-        when (linkToScreen) {
-            Screen.DeveloperTools.DesignSystemBoard -> navigateToDesignSystemBoard()
-            else -> {}
         }
     }
 

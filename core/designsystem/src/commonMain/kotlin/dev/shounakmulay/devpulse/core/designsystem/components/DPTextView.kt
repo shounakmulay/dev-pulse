@@ -23,8 +23,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
-import dev.shounakmulay.devpulse.core.designsystem.theme.colors
 import dev.shounakmulay.devpulse.core.designsystem.theme.monoFontFamily
 
 enum class DPTextViewVariant {
@@ -101,7 +99,6 @@ fun DPTextView(
     variant: DPTextViewVariant,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    intent: DPIntent? = null,
     autoSize: TextAutoSize? = null,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
@@ -120,16 +117,11 @@ fun DPTextView(
 ) {
     val baseStyle = variant.textStyle()
     val mergedStyle = style?.let { baseStyle.merge(it) } ?: baseStyle
-    val resolvedColor = when {
-        color != Color.Unspecified -> color
-        intent != null -> intent.colors().accent
-        else -> Color.Unspecified
-    }
 
     Text(
         text = text,
         modifier = modifier,
-        color = resolvedColor,
+        color = color,
         autoSize = autoSize,
         fontSize = fontSize,
         fontStyle = fontStyle,
@@ -154,7 +146,6 @@ fun DPTextView(
     variant: DPTextViewVariant,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    intent: DPIntent? = null,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
@@ -172,16 +163,11 @@ fun DPTextView(
 ) {
     val baseStyle = variant.textStyle()
     val mergedStyle = style?.let { baseStyle.merge(it) } ?: baseStyle
-    val resolvedColor = when {
-        color != Color.Unspecified -> color
-        intent != null -> intent.colors().accent
-        else -> Color.Unspecified
-    }
 
     Text(
         text = text,
         modifier = modifier,
-        color = resolvedColor,
+        color = color,
         fontSize = fontSize,
         fontStyle = fontStyle,
         fontWeight = fontWeight,

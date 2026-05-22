@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Person
@@ -19,13 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPCard
 import dev.shounakmulay.devpulse.core.designsystem.components.DPCardStyle
+import dev.shounakmulay.devpulse.core.designsystem.components.DPCardVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPHorizontalDivider
 import dev.shounakmulay.devpulse.core.designsystem.components.DPListItem
 import dev.shounakmulay.devpulse.core.designsystem.components.DPVerticalDivider
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPDensity
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 
 @Composable
 fun CardsAndListsBoard(modifier: Modifier = Modifier) {
@@ -41,16 +41,20 @@ fun CardsAndListsBoard(modifier: Modifier = Modifier) {
                     Text("$style card content", modifier = Modifier.padding(16.dp))
                 }
             }
+        }
+
+        item { DPTextView(text = "DPCard – variant samples", variant = DPTextViewVariant.BodyMedium) }
+        DPCardVariant.entries.drop(1).forEach { variant ->
             item {
-                DPCard(modifier = Modifier.fillMaxWidth(), style = style, intent = DPIntent.Success) {
-                    Text("$style / Success", modifier = Modifier.padding(16.dp))
+                DPCard(modifier = Modifier.fillMaxWidth(), variant = variant) {
+                    Text("$variant", modifier = Modifier.padding(16.dp))
                 }
             }
         }
 
         item { DPHorizontalDivider() }
 
-        item { DPTextView(text = "DPListItem – text-first (intent × density)", variant = DPTextViewVariant.BodyMedium) }
+        item { DPTextView(text = "DPListItem – text-first (density)", variant = DPTextViewVariant.BodyMedium) }
         item {
             DPListItem(
                 headlineText = "Default",
@@ -58,15 +62,6 @@ fun CardsAndListsBoard(modifier: Modifier = Modifier) {
                 leadingContent = { Icon(Icons.Default.Person, contentDescription = null) },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
             )
-        }
-        DPIntent.entries.forEach { intent ->
-            item {
-                DPListItem(
-                    headlineText = intent.name,
-                    supportingText = "Intent = $intent",
-                    intent = intent,
-                )
-            }
         }
         DPDensity.entries.forEach { density ->
             item {
@@ -83,7 +78,6 @@ fun CardsAndListsBoard(modifier: Modifier = Modifier) {
                 headlineText = "Selected",
                 onClick = {},
                 selected = true,
-                intent = DPIntent.Primary,
                 supportingText = "Branches to M3 selectable ListItem",
             )
         }

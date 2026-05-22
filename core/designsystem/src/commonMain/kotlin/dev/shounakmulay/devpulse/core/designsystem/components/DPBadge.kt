@@ -18,42 +18,55 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.designsystem.theme.*
+import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
+import dev.shounakmulay.devpulse.core.designsystem.theme.categoryColour
+import dev.shounakmulay.devpulse.core.designsystem.theme.monoFontFamily
 
 enum class DPBadgeKind { Dot, Count, Status, Category, Label }
 
-/**
- * Unified design-system badge. Replaces the legacy Material 3 `Badge` wrapper
- * and the removed `DPStatusBadge` / chip variants.
- *
- * **Migration from `DPStatusBadgeVariant` to [DPIntent]:**
- * - Healthy → [DPIntent.Success]
- * - Degraded → [DPIntent.Warning]
- * - Outage → [DPIntent.Danger]
- * - Info → [DPIntent.Info]
- * - Waiting → [DPIntent.Neutral]
- * - Neutral → [DPIntent.Neutral]
- * - New → [DPIntent.Primary]
- */
+enum class DPStatusVariant { Primary, Secondary, Tertiary, Error, Neutral }
+
+private data class BadgeColors(
+    val container: Color,
+    val onContainer: Color,
+    val accent: Color,
+    val outline: Color,
+)
+
+@Composable
+@ReadOnlyComposable
+private fun DPStatusVariant.colors(): BadgeColors {
+    val cs = MaterialTheme.colorScheme
+    return when (this) {
+        DPStatusVariant.Primary -> BadgeColors(cs.primaryContainer, cs.onPrimaryContainer, cs.primary, cs.primary)
+        DPStatusVariant.Secondary -> BadgeColors(cs.secondaryContainer, cs.onSecondaryContainer, cs.secondary, cs.secondary)
+        DPStatusVariant.Tertiary -> BadgeColors(cs.tertiaryContainer, cs.onTertiaryContainer, cs.tertiary, cs.tertiary)
+        DPStatusVariant.Error -> BadgeColors(cs.errorContainer, cs.onErrorContainer, cs.error, cs.error)
+        DPStatusVariant.Neutral -> BadgeColors(cs.surfaceContainerHigh, cs.onSurface, cs.outline, cs.outlineVariant)
+    }
+}
+
 @Composable
 fun DPBadge(
     modifier: Modifier = Modifier,
     text: String? = null,
     kind: DPBadgeKind = DPBadgeKind.Status,
-    intent: DPIntent = DPIntent.Neutral,
+    variant: DPStatusVariant = DPStatusVariant.Neutral,
     selected: Boolean = false,
     categoryKey: String? = null,
     onClick: (() -> Unit)? = null,
 ) {
     when (kind) {
         DPBadgeKind.Dot -> {
-            val c = intent.colors()
+            val c = variant.colors()
             Box(
                 modifier = modifier
                     .size(5.dp)
@@ -68,7 +81,7 @@ fun DPBadge(
                 val n = label.toIntOrNull() ?: return
                 if (n <= 0) return
             }
-            val c = intent.colors()
+            val c = variant.colors()
             val shape = RoundedCornerShape(100.dp)
             Box(
                 modifier = modifier
@@ -90,7 +103,7 @@ fun DPBadge(
 
         DPBadgeKind.Status -> {
             if (text == null) return
-            val c = intent.colors()
+            val c = variant.colors()
             val shape = RoundedCornerShape(100.dp)
             Row(
                 modifier = modifier
@@ -198,11 +211,11 @@ fun DPBadge(
 fun DPCountBadge(
     count: Int,
     modifier: Modifier = Modifier,
-    intent: DPIntent = DPIntent.Danger,
+    variant: DPStatusVariant = DPStatusVariant.Error,
 ) {
     if (count <= 0) return
     val label = if (count > 99) "99+" else count.toString()
-    DPBadge(modifier = modifier, text = label, kind = DPBadgeKind.Count, intent = intent)
+    DPBadge(modifier = modifier, text = label, kind = DPBadgeKind.Count, variant = variant)
 }
 
 @DPComponentPreview
@@ -214,20 +227,14 @@ private fun DPBadgeKindsPreview() {
             verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm)) {
-                listOf(
-                    DPIntent.Success,
-                    DPIntent.Warning,
-                    DPIntent.Danger,
-                    DPIntent.Info,
-                    DPIntent.Neutral,
-                ).forEach { intent ->
-                    DPBadge(text = intent.name, kind = DPBadgeKind.Status, intent = intent)
+                DPStatusVariant.entries.forEach { variant ->
+                    DPBadge(text = variant.name, kind = DPBadgeKind.Status, variant = variant)
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm)) {
                 DPCountBadge(count = 3)
-                DPCountBadge(count = 42, intent = DPIntent.Warning)
-                DPCountBadge(count = 120, intent = DPIntent.Success)
+                DPCountBadge(count = 42, variant = DPStatusVariant.Secondary)
+                DPCountBadge(count = 120, variant = DPStatusVariant.Tertiary)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm)) {
                 DPBadge(text = "Default", kind = DPBadgeKind.Label)

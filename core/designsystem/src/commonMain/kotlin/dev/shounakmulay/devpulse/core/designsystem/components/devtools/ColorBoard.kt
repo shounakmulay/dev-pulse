@@ -34,18 +34,6 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.categoryKotlin
 import dev.shounakmulay.devpulse.core.designsystem.theme.categoryReactNative
 import dev.shounakmulay.devpulse.core.designsystem.theme.categorySwift
 import dev.shounakmulay.devpulse.core.designsystem.theme.categoryWeb
-import dev.shounakmulay.devpulse.core.designsystem.theme.info
-import dev.shounakmulay.devpulse.core.designsystem.theme.infoContainer
-import dev.shounakmulay.devpulse.core.designsystem.theme.onInfo
-import dev.shounakmulay.devpulse.core.designsystem.theme.onInfoContainer
-import dev.shounakmulay.devpulse.core.designsystem.theme.onSuccess
-import dev.shounakmulay.devpulse.core.designsystem.theme.onSuccessContainer
-import dev.shounakmulay.devpulse.core.designsystem.theme.onWarning
-import dev.shounakmulay.devpulse.core.designsystem.theme.onWarningContainer
-import dev.shounakmulay.devpulse.core.designsystem.theme.success
-import dev.shounakmulay.devpulse.core.designsystem.theme.successContainer
-import dev.shounakmulay.devpulse.core.designsystem.theme.warning
-import dev.shounakmulay.devpulse.core.designsystem.theme.warningContainer
 
 private data class ColorEntry(val name: String, val color: Color)
 
@@ -53,7 +41,6 @@ private data class ColorEntry(val name: String, val color: Color)
 fun ColorBoard(modifier: Modifier = Modifier) {
     val cs = MaterialTheme.colorScheme
     val m3Colors = m3ColorEntries(cs)
-    val semanticColors = semanticColorEntries(cs)
     val categoryColors = categoryColorEntries()
 
     LazyVerticalGrid(
@@ -71,14 +58,7 @@ fun ColorBoard(modifier: Modifier = Modifier) {
             )
         }
         items(m3Colors) { entry -> ColorSwatch(entry) }
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Text(
-                text = "Semantic Colors",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(vertical = 8.dp),
-            )
-        }
-        items(semanticColors) { entry -> ColorSwatch(entry) }
+
         item(span = { GridItemSpan(maxLineSpan) }) {
             Text(
                 text = "Category Colors",
@@ -152,20 +132,7 @@ private fun m3ColorEntries(cs: ColorScheme): List<ColorEntry> = listOf(
     ColorEntry("scrim", cs.scrim),
 )
 
-private fun semanticColorEntries(cs: ColorScheme): List<ColorEntry> = listOf(
-    ColorEntry("success", cs.success),
-    ColorEntry("onSuccess", cs.onSuccess),
-    ColorEntry("successContainer", cs.successContainer),
-    ColorEntry("onSuccessContainer", cs.onSuccessContainer),
-    ColorEntry("warning", cs.warning),
-    ColorEntry("onWarning", cs.onWarning),
-    ColorEntry("warningContainer", cs.warningContainer),
-    ColorEntry("onWarningContainer", cs.onWarningContainer),
-    ColorEntry("info", cs.info),
-    ColorEntry("onInfo", cs.onInfo),
-    ColorEntry("infoContainer", cs.infoContainer),
-    ColorEntry("onInfoContainer", cs.onInfoContainer),
-)
+
 
 private fun categoryColorEntries(): List<ColorEntry> = listOf(
     ColorEntry("Android", categoryAndroid),

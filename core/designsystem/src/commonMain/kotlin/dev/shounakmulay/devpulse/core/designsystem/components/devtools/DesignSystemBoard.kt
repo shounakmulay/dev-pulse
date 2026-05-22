@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -30,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.devpulse.core.designsystem.components.DPModalBottomSheet
 import dev.shounakmulay.devpulse.core.designsystem.theme.DefaultIconSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DefaultSpacing
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPIconSize
@@ -45,7 +45,6 @@ import dev.shounakmulay.devpulse.core.navigation.Navigator
 
 enum class BoardSection(val title: String) {
     Colors("Colors"),
-    SemanticColors("Semantic Colors"),
     Typography("Typography"),
     Shapes("Shapes"),
     Elevation("Elevation"),
@@ -117,7 +116,6 @@ fun DesignSystemBoard(navigator: Navigator) {
                     when (section) {
                         null -> SectionList(onSectionClick = { selected = it })
                         BoardSection.Colors -> ColorBoard(Modifier.fillMaxSize())
-                        BoardSection.SemanticColors -> SemanticColorsBoard(Modifier.fillMaxSize())
                         BoardSection.Typography -> TypographyBoard(Modifier.fillMaxSize())
                         BoardSection.Shapes -> ShapeBoard(Modifier.fillMaxSize())
                         BoardSection.Elevation -> ElevationBoard(Modifier.fillMaxSize())
@@ -140,7 +138,7 @@ fun DesignSystemBoard(navigator: Navigator) {
             }
 
             if (showThemePicker) {
-                DPModalBottomSheet(
+                ModalBottomSheet(
                     onDismissRequest = { showThemePicker = false },
                     sheetState = sheetState,
                 ) {
@@ -156,8 +154,8 @@ fun DesignSystemBoard(navigator: Navigator) {
 
 @Composable
 private fun ThemeMode.resolveColorScheme(): ColorScheme = when (this) {
-    ThemeMode.DynamicLight -> getColorScheme(dynamicColor = true, darkTheme = false) ?: lightScheme
-    ThemeMode.DynamicDark -> getColorScheme(dynamicColor = true, darkTheme = true) ?: darkScheme
+    ThemeMode.DynamicLight -> getColorScheme(dynamicColor = true, darkTheme = false)?.value ?: lightScheme
+    ThemeMode.DynamicDark -> getColorScheme(dynamicColor = true, darkTheme = true)?.value ?: darkScheme
     else -> toColorScheme()
 }
 

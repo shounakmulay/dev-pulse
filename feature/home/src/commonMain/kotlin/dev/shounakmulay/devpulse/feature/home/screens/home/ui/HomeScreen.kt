@@ -19,7 +19,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
+import androidx.compose.material3.MaterialTheme
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
@@ -47,7 +48,7 @@ fun HomeScreen(viewModel: HomeViewModel, navigator: Navigator) {
             }, actions = {
                 DPIconButton(
                     icon = DPIcons.UserSettings,
-                    intent = DPIntent.Secondary,
+                    variant = DPIconButtonVariant.Secondary,
                     contentDescription = "",
                     onClick = { navigator.navigate(Screen.Settings, onRootStack = true) }
                 )
@@ -162,7 +163,7 @@ private fun TextResourceExampleItem(entry: TextResourceEntry) {
         DPTextView(
             text = entry.label,
             variant = DPTextViewVariant.LabelSmall,
-            intent = DPIntent.Secondary,
+            color = MaterialTheme.colorScheme.secondary,
         )
         DPTextView(
             text = entry.resource.asAnnotatedString(),

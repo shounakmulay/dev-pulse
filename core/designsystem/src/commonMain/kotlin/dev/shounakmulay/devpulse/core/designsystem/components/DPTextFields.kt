@@ -32,10 +32,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.colors
 import dev.shounakmulay.devpulse.core.designsystem.theme.iconSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.monoFontFamily
 
@@ -61,7 +59,6 @@ private class DPTextFieldLayout(
 @Composable
 private fun dpTextFieldLayout(
     style: DPTextFieldStyle,
-    intent: DPIntent,
     size: DPSize,
     fontFamily: DPFontFamily,
     isError: Boolean,
@@ -76,7 +73,6 @@ private fun dpTextFieldLayout(
     colors: TextFieldColors?,
     interactionSource: MutableInteractionSource?,
 ): DPTextFieldLayout {
-    val effectiveIsError = isError || intent == DPIntent.Danger
     val baseTypography = when (size) {
         DPSize.Small -> MaterialTheme.typography.bodySmall
         DPSize.Medium -> MaterialTheme.typography.bodyMedium
@@ -88,27 +84,9 @@ private fun dpTextFieldLayout(
     }
     val resolvedTextStyle = textStyle?.let { withFontFamily.merge(it) } ?: withFontFamily
 
-    val resolvedColors = when {
-        colors != null -> colors
-        effectiveIsError -> when (style) {
-            DPTextFieldStyle.Filled -> TextFieldDefaults.colors()
-            DPTextFieldStyle.Outlined -> OutlinedTextFieldDefaults.colors()
-        }
-        else -> {
-            val ic = intent.colors()
-            when (style) {
-                DPTextFieldStyle.Filled -> TextFieldDefaults.colors(
-                    focusedIndicatorColor = ic.accent,
-                    focusedLabelColor = ic.accent,
-                    cursorColor = ic.accent,
-                )
-                DPTextFieldStyle.Outlined -> OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = ic.accent,
-                    focusedLabelColor = ic.accent,
-                    cursorColor = ic.accent,
-                )
-            }
-        }
+    val resolvedColors = colors ?: when (style) {
+        DPTextFieldStyle.Filled -> TextFieldDefaults.colors()
+        DPTextFieldStyle.Outlined -> OutlinedTextFieldDefaults.colors()
     }
     val resolvedShape = when {
         shape != null -> shape
@@ -166,7 +144,7 @@ private fun dpTextFieldLayout(
         supportingText = supportingTextContent,
         leading = leadingContent,
         trailing = trailingContent,
-        isError = effectiveIsError,
+        isError = isError,
     )
 }
 
@@ -176,7 +154,6 @@ fun DPTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     style: DPTextFieldStyle = DPTextFieldStyle.Outlined,
-    intent: DPIntent = DPIntent.Primary,
     size: DPSize = DPSize.Medium,
     fontFamily: DPFontFamily = DPFontFamily.Sans,
     label: String? = null,
@@ -201,7 +178,6 @@ fun DPTextField(
 ) {
     val l = dpTextFieldLayout(
         style = style,
-        intent = intent,
         size = size,
         fontFamily = fontFamily,
         isError = isError,
@@ -276,7 +252,6 @@ fun DPTextField(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     style: DPTextFieldStyle = DPTextFieldStyle.Outlined,
-    intent: DPIntent = DPIntent.Primary,
     size: DPSize = DPSize.Medium,
     fontFamily: DPFontFamily = DPFontFamily.Sans,
     label: String? = null,
@@ -301,7 +276,6 @@ fun DPTextField(
 ) {
     val l = dpTextFieldLayout(
         style = style,
-        intent = intent,
         size = size,
         fontFamily = fontFamily,
         isError = isError,
@@ -379,18 +353,16 @@ private fun DPTextFieldVariantsPreview() {
             modifier = Modifier.padding(DPTheme.spacing.lg),
             verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
         ) {
-            DPTextField(value = v, onValueChange = { v = it }, label = "Outlined / Primary")
+            DPTextField(value = v, onValueChange = { v = it }, label = "Outlined")
             DPTextField(
                 value = v,
                 onValueChange = { v = it },
                 style = DPTextFieldStyle.Filled,
-                intent = DPIntent.Success,
-                label = "Filled / Success",
+                label = "Filled",
             )
             DPTextField(
                 value = v,
                 onValueChange = { v = it },
-                intent = DPIntent.Danger,
                 isError = true,
                 label = "Error",
                 supportingText = "Invalid input",

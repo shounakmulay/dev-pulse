@@ -43,11 +43,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.colors
+import dev.shounakmulay.devpulse.core.designsystem.theme.DPVariantColors
 import dev.shounakmulay.devpulse.core.designsystem.theme.contentPadding
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpPrimaryVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpSecondaryVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpTertiaryVariantColors
 import dev.shounakmulay.devpulse.core.designsystem.theme.iconLabelGap
 import dev.shounakmulay.devpulse.core.designsystem.theme.iconSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.labelStyle
@@ -55,9 +57,19 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.minHeight
 
 enum class DPButtonStyle { Filled, Tonal, Outlined, Text, Elevated }
 
+enum class DPButtonVariant { Primary, Secondary, Tertiary }
+
 @Composable
-private fun resolveButtonColors(style: DPButtonStyle, intent: DPIntent): ButtonColors {
-    val c = intent.colors()
+@ReadOnlyComposable
+private fun DPButtonVariant.colors(): DPVariantColors = when (this) {
+    DPButtonVariant.Primary -> dpPrimaryVariantColors()
+    DPButtonVariant.Secondary -> dpSecondaryVariantColors()
+    DPButtonVariant.Tertiary -> dpTertiaryVariantColors()
+}
+
+@Composable
+private fun resolveButtonColors(style: DPButtonStyle, variant: DPButtonVariant): ButtonColors {
+    val c = variant.colors()
     return when (style) {
         DPButtonStyle.Filled -> ButtonDefaults.buttonColors(
             containerColor = c.accent,
@@ -82,9 +94,9 @@ private fun resolveButtonColors(style: DPButtonStyle, intent: DPIntent): ButtonC
             disabledContentColor = c.accent.copy(alpha = 0.38f),
         )
         DPButtonStyle.Elevated -> ButtonDefaults.elevatedButtonColors(
-            containerColor = c.containerVariant,
+            containerColor = c.container,
             contentColor = c.onContainer,
-            disabledContainerColor = c.containerVariant.copy(alpha = 0.12f),
+            disabledContainerColor = c.container.copy(alpha = 0.12f),
             disabledContentColor = c.onContainer.copy(alpha = 0.38f),
         )
     }
@@ -101,18 +113,24 @@ private fun resolveButtonShape(style: DPButtonStyle): Shape = when (style) {
 
 @Composable
 @ReadOnlyComposable
-private fun resolveButtonBorder(style: DPButtonStyle, intent: DPIntent, enabled: Boolean): BorderStroke? =
-    if (style == DPButtonStyle.Outlined) BorderStroke(1.dp, intent.colors().outline.copy(alpha = if (enabled) 1f else 0.38f))
+private fun resolveButtonBorder(
+    style: DPButtonStyle,
+    variant: DPButtonVariant,
+    enabled: Boolean,
+): BorderStroke? =
+    if (style == DPButtonStyle.Outlined) BorderStroke(
+        1.dp,
+        variant.colors().outline.copy(alpha = if (enabled) 1f else 0.38f),
+    )
     else null
 
-// Text-first primary API
 @Composable
 fun DPButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     style: DPButtonStyle = DPButtonStyle.Filled,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPButtonVariant = DPButtonVariant.Primary,
     size: DPSize = DPSize.Medium,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
@@ -127,7 +145,7 @@ fun DPButton(
         onClick = onClick,
         modifier = modifier,
         style = style,
-        intent = intent,
+        variant = variant,
         size = size,
         enabled = enabled,
         colors = colors,
@@ -156,13 +174,12 @@ fun DPButton(
     }
 }
 
-// Slot-based overload
 @Composable
 fun DPButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     style: DPButtonStyle = DPButtonStyle.Filled,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPButtonVariant = DPButtonVariant.Primary,
     size: DPSize = DPSize.Medium,
     enabled: Boolean = true,
     colors: ButtonColors? = null,
@@ -172,10 +189,10 @@ fun DPButton(
     elevation: ButtonElevation? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val resolvedColors = colors ?: resolveButtonColors(style, intent)
+    val resolvedColors = colors ?: resolveButtonColors(style, variant)
     val resolvedShape = shape ?: resolveButtonShape(style)
     val resolvedPadding = contentPadding ?: size.contentPadding()
-    val resolvedBorder = border ?: resolveButtonBorder(style, intent, enabled)
+    val resolvedBorder = border ?: resolveButtonBorder(style, variant, enabled)
     val heightMod = modifier.heightIn(min = size.minHeight())
 
     when (style) {
@@ -256,8 +273,8 @@ private fun DPButtonMatrixPreview() {
         ) {
             DPButtonStyle.entries.forEach { style ->
                 Row(horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm)) {
-                    listOf(DPIntent.Primary, DPIntent.Success, DPIntent.Danger).forEach { intent ->
-                        DPButton(text = style.name, onClick = {}, style = style, intent = intent)
+                    DPButtonVariant.entries.forEach { variant ->
+                        DPButton(text = style.name, onClick = {}, style = style, variant = variant)
                     }
                 }
             }

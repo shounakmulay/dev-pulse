@@ -1,35 +1,31 @@
 package dev.shounakmulay.devpulse.core.designsystem.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
+import dev.shounakmulay.devpulse.core.logging.DPLog
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppTheme(
-    isBlackMode: Boolean = false,
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false,
+    colorScheme: ColorScheme,
+    isDarkTheme: Boolean,
     content: @Composable () -> Unit,
 ) {
-    val platformColorScheme = getColorScheme(
-        dynamicColor = dynamicColor,
-        darkTheme = darkTheme,
-    )
-    val colorScheme = when {
-        platformColorScheme != null -> platformColorScheme
-        darkTheme && isBlackMode -> blackScheme
-        darkTheme -> darkScheme
-        else -> lightScheme
+    LaunchedEffect(colorScheme, isDarkTheme) {
+        DPLog.e("THEME") {
+            "colorScheme: ${colorScheme.hashCode()} | isDarkTheme = $isDarkTheme"
+        }
     }
     CompositionLocalProvider(
         LocalDPSpacing provides DefaultSpacing,
         LocalDPIconSize provides DefaultIconSize,
         LocalDPElevation provides DefaultElevation,
-        LocalDPDarkTheme provides darkTheme,
+        LocalDPDarkTheme provides isDarkTheme,
     ) {
         MaterialExpressiveTheme(
             colorScheme = colorScheme,

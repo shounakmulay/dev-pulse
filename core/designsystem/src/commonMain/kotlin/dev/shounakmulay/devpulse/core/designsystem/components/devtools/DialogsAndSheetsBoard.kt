@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPAlertDialog
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPDialogVariant
-import dev.shounakmulay.devpulse.core.designsystem.components.DPModalBottomSheet
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 
@@ -114,7 +114,7 @@ fun DialogsAndSheetsBoard(modifier: Modifier = Modifier) {
     }
 
     if (showModalSheet) {
-        DPModalBottomSheet(
+        ModalBottomSheet(
             onDismissRequest = { showModalSheet = false },
             sheetState = sheetState,
         ) {
@@ -128,7 +128,7 @@ fun DialogsAndSheetsBoard(modifier: Modifier = Modifier) {
     }
 
     if (showThemeSheet) {
-        DPModalBottomSheet(
+        ModalBottomSheet(
             onDismissRequest = { showThemeSheet = false },
             sheetState = sheetState,
         ) {

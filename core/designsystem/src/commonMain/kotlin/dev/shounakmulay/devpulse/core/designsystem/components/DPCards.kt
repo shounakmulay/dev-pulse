@@ -21,46 +21,60 @@ import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPElevationLevel
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.colors
+import dev.shounakmulay.devpulse.core.designsystem.theme.DPVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpPrimaryVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpSecondaryVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpTertiaryVariantColors
 import dev.shounakmulay.devpulse.core.designsystem.theme.value
 
 enum class DPCardStyle { Filled, Elevated, Outlined }
 
+enum class DPCardVariant { Default, Primary, Secondary, Tertiary }
+
 @Composable
-private fun resolveCardColors(style: DPCardStyle, intent: DPIntent): CardColors {
-    if (intent == DPIntent.Neutral) {
-        return when (style) {
+@ReadOnlyComposable
+private fun DPCardVariant.variantColors(): DPVariantColors? = when (this) {
+    DPCardVariant.Default -> null
+    DPCardVariant.Primary -> dpPrimaryVariantColors()
+    DPCardVariant.Secondary -> dpSecondaryVariantColors()
+    DPCardVariant.Tertiary -> dpTertiaryVariantColors()
+}
+
+@Composable
+private fun resolveCardColors(style: DPCardStyle, variant: DPCardVariant): CardColors {
+    val c = variant.variantColors()
+    return when {
+        c == null -> when (style) {
             DPCardStyle.Filled -> CardDefaults.cardColors()
             DPCardStyle.Elevated -> CardDefaults.elevatedCardColors()
             DPCardStyle.Outlined -> CardDefaults.outlinedCardColors()
         }
-    }
-    val c = intent.colors()
-    return when (style) {
-        DPCardStyle.Filled -> CardDefaults.cardColors(
-            containerColor = c.container,
-            contentColor = c.onContainer,
-        )
-        DPCardStyle.Elevated -> CardDefaults.elevatedCardColors(
-            containerColor = c.container,
-            contentColor = c.onContainer,
-        )
-        DPCardStyle.Outlined -> CardDefaults.outlinedCardColors(
-            containerColor = Color.Transparent,
-            contentColor = c.onContainer,
-        )
+        else -> when (style) {
+            DPCardStyle.Filled -> CardDefaults.cardColors(
+                containerColor = c.container,
+                contentColor = c.onContainer,
+            )
+            DPCardStyle.Elevated -> CardDefaults.elevatedCardColors(
+                containerColor = c.container,
+                contentColor = c.onContainer,
+            )
+            DPCardStyle.Outlined -> CardDefaults.outlinedCardColors(
+                containerColor = Color.Transparent,
+                contentColor = c.onContainer,
+            )
+        }
     }
 }
 
 @Composable
-private fun resolveCardBorder(style: DPCardStyle, intent: DPIntent, enabled: Boolean): BorderStroke? {
+private fun resolveCardBorder(style: DPCardStyle, variant: DPCardVariant, enabled: Boolean): BorderStroke? {
     if (style != DPCardStyle.Outlined) return null
-    return if (intent == DPIntent.Neutral) {
+    val c = variant.variantColors()
+    return if (c == null) {
         CardDefaults.outlinedCardBorder(enabled)
     } else {
-        BorderStroke(1.dp, intent.colors().outline)
+        BorderStroke(1.dp, c.outline)
     }
 }
 
@@ -68,7 +82,7 @@ private fun resolveCardBorder(style: DPCardStyle, intent: DPIntent, enabled: Boo
 fun DPCard(
     modifier: Modifier = Modifier,
     style: DPCardStyle = DPCardStyle.Filled,
-    intent: DPIntent = DPIntent.Neutral,
+    variant: DPCardVariant = DPCardVariant.Default,
     elevation: DPElevationLevel = DPElevationLevel.Level1,
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true,
@@ -77,8 +91,8 @@ fun DPCard(
     border: BorderStroke? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val resolvedColors = colors ?: resolveCardColors(style, intent)
-    val resolvedBorder = border ?: resolveCardBorder(style, intent, enabled)
+    val resolvedColors = colors ?: resolveCardColors(style, variant)
+    val resolvedBorder = border ?: resolveCardBorder(style, variant, enabled)
     val elevationDp = elevation.value()
 
     when (style) {
@@ -147,14 +161,21 @@ private fun DPCardVariantsPreview() {
         ) {
             DPCardStyle.entries.forEach { style ->
                 DPCard(style = style, onClick = {}) {
-                    DPTextView(text = "$style card", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(DPTheme.spacing.md))
+                    DPTextView(
+                        text = "$style card",
+                        variant = DPTextViewVariant.BodyMedium,
+                        modifier = Modifier.padding(DPTheme.spacing.md),
+                    )
                 }
             }
-            DPCard(style = DPCardStyle.Filled, intent = DPIntent.Success) {
-                DPTextView(text = "Success intent", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(DPTheme.spacing.md))
-            }
-            DPCard(style = DPCardStyle.Outlined, intent = DPIntent.Danger) {
-                DPTextView(text = "Danger outlined", variant = DPTextViewVariant.BodyMedium, modifier = Modifier.padding(DPTheme.spacing.md))
+            DPCardVariant.entries.drop(1).forEach { variant ->
+                DPCard(variant = variant) {
+                    DPTextView(
+                        text = "$variant variant",
+                        variant = DPTextViewVariant.BodyMedium,
+                        modifier = Modifier.padding(DPTheme.spacing.md),
+                    )
+                }
             }
         }
     }

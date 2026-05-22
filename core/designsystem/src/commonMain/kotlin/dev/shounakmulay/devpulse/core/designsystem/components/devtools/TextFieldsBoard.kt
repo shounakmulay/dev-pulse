@@ -16,7 +16,6 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextField
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextFieldStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 
 @Composable
 fun TextFieldsBoard(modifier: Modifier = Modifier) {
@@ -75,19 +74,16 @@ fun TextFieldsBoard(modifier: Modifier = Modifier) {
             )
         }
 
-        item { DPTextView(text = "DPTextField – Intent samples", variant = DPTextViewVariant.BodyMedium) }
-        listOf(DPIntent.Primary, DPIntent.Success, DPIntent.Danger).forEach { intent ->
-            item {
-                var text by remember { mutableStateOf("") }
-                DPTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    intent = intent,
-                    label = intent.name,
-                    isError = intent == DPIntent.Danger,
-                )
-            }
+        item { DPTextView(text = "DPTextField – Error state", variant = DPTextViewVariant.BodyMedium) }
+        item {
+            var text by remember { mutableStateOf("") }
+            DPTextField(
+                value = text,
+                onValueChange = { text = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = "Error Field",
+                isError = true,
+            )
         }
     }
 }

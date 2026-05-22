@@ -14,15 +14,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPDensity
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPElevationLevel
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.colors
 import dev.shounakmulay.devpulse.core.designsystem.theme.value
 import dev.shounakmulay.devpulse.core.designsystem.theme.verticalPadding
 
@@ -35,13 +32,11 @@ fun DPListItem(
     supportingText: String? = null,
     leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
-    intent: DPIntent = DPIntent.Neutral,
     density: DPDensity = DPDensity.Default,
     colors: ListItemColors? = null,
     tonalElevation: DPElevationLevel = DPElevationLevel.Level0,
     shadowElevation: DPElevationLevel = DPElevationLevel.Level0,
 ) {
-    val resolvedColors = colors ?: resolveListItemColors(intent)
     ListItem(
         headlineContent = { DPTextView(headlineText, variant = DPTextViewVariant.BodyMedium) },
         modifier = modifier,
@@ -50,7 +45,7 @@ fun DPListItem(
                 DPTextView(
                     it,
                     variant = DPTextViewVariant.LabelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
@@ -59,13 +54,13 @@ fun DPListItem(
                 DPTextView(
                     it,
                     variant = DPTextViewVariant.BodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
         leadingContent = leadingContent,
         trailingContent = trailingContent,
-        colors = resolvedColors,
+        colors = colors ?: ListItemDefaults.colors(),
         tonalElevation = tonalElevation.value(),
         shadowElevation = shadowElevation.value(),
     )
@@ -84,15 +79,14 @@ fun DPListItem(
     leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
     selected: Boolean = false,
-    intent: DPIntent = DPIntent.Neutral,
     density: DPDensity = DPDensity.Default,
     enabled: Boolean = true,
     colors: ListItemColors? = null,
 ) {
-    val resolvedColors = colors ?: resolveListItemColors(intent)
     val vPad = density.verticalPadding()
     val hPad = DPTheme.spacing.screenHorizontal
-    val contentPadding = contentPadding ?: PaddingValues(horizontal = hPad, vertical = vPad)
+    val resolvedPadding = contentPadding ?: PaddingValues(horizontal = hPad, vertical = vPad)
+    val resolvedColors = colors ?: ListItemDefaults.colors()
 
     if (selected) {
         ListItem(
@@ -107,7 +101,7 @@ fun DPListItem(
                     DPTextView(
                         it,
                         variant = DPTextViewVariant.LabelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             },
@@ -116,13 +110,13 @@ fun DPListItem(
                     DPTextView(
                         it,
                         variant = DPTextViewVariant.BodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             },
             colors = resolvedColors,
             elevation = ListItemDefaults.elevation(),
-            contentPadding = contentPadding,
+            contentPadding = resolvedPadding,
             interactionSource = null,
             content = { DPTextView(headlineText, variant = DPTextViewVariant.BodyMedium) },
         )
@@ -138,7 +132,7 @@ fun DPListItem(
                     DPTextView(
                         it,
                         variant = DPTextViewVariant.LabelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             },
@@ -147,34 +141,17 @@ fun DPListItem(
                     DPTextView(
                         it,
                         variant = DPTextViewVariant.BodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             },
             colors = resolvedColors,
             elevation = ListItemDefaults.elevation(),
-            contentPadding = contentPadding,
+            contentPadding = resolvedPadding,
             interactionSource = null,
             content = { DPTextView(headlineText, variant = DPTextViewVariant.BodyMedium) },
         )
     }
-}
-
-@Composable
-private fun resolveListItemColors(intent: DPIntent): ListItemColors {
-    if (intent == DPIntent.Neutral) return ListItemDefaults.colors()
-    val c = intent.colors()
-    return ListItemDefaults.colors(
-        containerColor = c.containerVariant,
-        headlineColor = c.onContainer,
-        leadingIconColor = c.accent,
-        overlineColor = c.onContainer,
-        supportingColor = Color.Unspecified,
-        trailingIconColor = c.accent,
-        disabledHeadlineColor = Color.Unspecified,
-        disabledLeadingIconColor = Color.Unspecified,
-        disabledTrailingIconColor = Color.Unspecified,
-    )
 }
 
 // ---- Slot-based overload with branching logic (selected, onClick) ----
@@ -219,13 +196,7 @@ private fun DPListsPreview() {
             DPListItem(headlineText = "Default item")
             DPListItem(headlineText = "With supporting", supportingText = "Supporting text")
             DPListItem(headlineText = "Clickable", onClick = {})
-            DPListItem(
-                headlineText = "Selected",
-                onClick = {},
-                selected = true,
-                intent = DPIntent.Primary
-            )
-            DPListItem(headlineText = "Success intent", intent = DPIntent.Success)
+            DPListItem(headlineText = "Selected", onClick = {}, selected = true)
         }
     }
 }
