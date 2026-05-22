@@ -17,7 +17,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPSnackbar
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSnackbarVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
+import dev.shounakmulay.devpulse.core.designsystem.components.DPProgressVariant
 
 @Composable
 fun FeedbackBoard(modifier: Modifier = Modifier) {
@@ -39,17 +39,16 @@ fun FeedbackBoard(modifier: Modifier = Modifier) {
         }
 
         item {
-            DPTextView(text = "Linear Progress — intent samples", variant = DPTextViewVariant.BodyMedium)
+            DPTextView(text = "Linear Progress — variant samples", variant = DPTextViewVariant.BodyMedium)
             Spacer(Modifier.height(8.dp))
-            listOf(DPIntent.Primary, DPIntent.Success, DPIntent.Warning, DPIntent.Danger)
-                .forEach { intent ->
-                    DPLinearProgressIndicator(
-                        progress = { 0.5f },
-                        intent = intent,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    Spacer(Modifier.height(4.dp))
-                }
+            DPProgressVariant.entries.forEach { variant ->
+                DPLinearProgressIndicator(
+                    progress = { 0.5f },
+                    variant = variant,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(4.dp))
+            }
         }
 
         item {

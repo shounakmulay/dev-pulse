@@ -16,21 +16,13 @@ import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.darkScheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.highContrastDarkColorScheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.highContrastLightColorScheme
 import dev.shounakmulay.devpulse.core.designsystem.theme.lightScheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.mediumContrastDarkColorScheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.mediumContrastLightColorScheme
 
 sealed interface ThemeMode {
     val label: String
 
     data object Light : ThemeMode { override val label = "Light" }
     data object Dark : ThemeMode { override val label = "Dark" }
-    data object MediumContrastLight : ThemeMode { override val label = "Medium Contrast · Light" }
-    data object MediumContrastDark : ThemeMode { override val label = "Medium Contrast · Dark" }
-    data object HighContrastLight : ThemeMode { override val label = "High Contrast · Light" }
-    data object HighContrastDark : ThemeMode { override val label = "High Contrast · Dark" }
     data object DynamicLight : ThemeMode { override val label = "Dynamic · Light" }
     data object DynamicDark : ThemeMode { override val label = "Dynamic · Dark" }
 }
@@ -38,10 +30,6 @@ sealed interface ThemeMode {
 fun ThemeMode.toColorScheme(): ColorScheme = when (this) {
     ThemeMode.Light -> lightScheme
     ThemeMode.Dark -> darkScheme
-    ThemeMode.MediumContrastLight -> mediumContrastLightColorScheme
-    ThemeMode.MediumContrastDark -> mediumContrastDarkColorScheme
-    ThemeMode.HighContrastLight -> highContrastLightColorScheme
-    ThemeMode.HighContrastDark -> highContrastDarkColorScheme
     ThemeMode.DynamicLight -> lightScheme
     ThemeMode.DynamicDark -> darkScheme
 }
@@ -49,10 +37,6 @@ fun ThemeMode.toColorScheme(): ColorScheme = when (this) {
 private val presetModes: List<ThemeMode> = listOf(
     ThemeMode.Light,
     ThemeMode.Dark,
-    ThemeMode.MediumContrastLight,
-    ThemeMode.MediumContrastDark,
-    ThemeMode.HighContrastLight,
-    ThemeMode.HighContrastDark,
 )
 
 private val dynamicModes: List<ThemeMode> = listOf(

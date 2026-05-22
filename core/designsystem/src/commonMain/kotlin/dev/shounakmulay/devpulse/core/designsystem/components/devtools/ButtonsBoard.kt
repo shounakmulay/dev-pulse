@@ -9,9 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
+import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 
 @Composable
 fun ButtonsBoard(modifier: Modifier = Modifier) {
@@ -26,9 +26,9 @@ fun ButtonsBoard(modifier: Modifier = Modifier) {
             item { DPButton(text = "Disabled", onClick = {}, style = style, enabled = false) }
         }
 
-        item { DPTextView(text = "Intent samples (Filled)", variant = DPTextViewVariant.BodyMedium) }
-        DPIntent.entries.forEach { intent ->
-            item { DPButton(text = intent.name, onClick = {}, intent = intent) }
+        item { DPTextView(text = "Variant samples (Filled)", variant = DPTextViewVariant.BodyMedium) }
+        DPButtonVariant.entries.forEach { variant ->
+            item { DPButton(text = variant.name, onClick = {}, variant = variant) }
         }
     }
 }
