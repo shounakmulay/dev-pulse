@@ -1,15 +1,18 @@
 package dev.shounakmulay.devpulse.theme
 
+import androidx.compose.material3.ColorScheme
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
+import dev.shounakmulay.devpulse.core.designsystem.theme.blackScheme
+import dev.shounakmulay.devpulse.core.designsystem.theme.darkScheme
+import dev.shounakmulay.devpulse.core.designsystem.theme.lightScheme
+import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 import dev.shounakmulay.devpulse.core.domain.settings.ObserveThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.logging.DPLogger
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
@@ -18,37 +21,44 @@ class ThemeSettingsViewModel(
     logger: DPLogger
 ) : ViewModel() {
     private val logger = logger.withTag(Tag)
-    private val _state = MutableStateFlow(ThemeSettingsState())
-    val state: StateFlow<ThemeSettingsState> = _state.asStateFlow()
+    private val _state = mutableStateOf(ThemeSettingsState())
+    val state: State<ThemeSettingsState> = _state
 
-    private val systemDarkTheme = MutableStateFlow(false)
 
     init {
         logger.d { "ThemeSettingsViewModel created" }
         observeThemeSettingsUseCase()
             .onEachSuccess { themeSettings ->
                 if (themeSettings != null) {
-                    _state.update { current ->
-                        val next = current.copy(
-                            themeMode = themeSettings.mode,
-                            isBlackMode = themeSettings.blackMode,
-                            darkTheme = themeSettings.mode.resolveDarkTheme(systemDarkTheme.value)
-                        )
-                        logIfEffectiveThemeChanged(current, next)
-                        next
-                    }
+                    _state.value = _state.value.copy(
+                        themeMode = themeSettings.mode,
+                        isBlackMode = themeSettings.blackMode,
+                    )
                 }
             }
             .launchIn(viewModelScope)
     }
 
     fun updateSystemDarkTheme(isSystemInDarkTheme: Boolean) {
-        systemDarkTheme.value = isSystemInDarkTheme
-        _state.update { current ->
-            val next = current.copy(darkTheme = current.themeMode.resolveDarkTheme(isSystemInDarkTheme))
-            logIfEffectiveThemeChanged(current, next)
-            next
+        _state.value = _state.value.copy(
+           isSystemInDarkTheme = isSystemInDarkTheme
+        )
+    }
+
+    fun getColorScheme(state: ThemeSettingsState, isSystemInDarkTheme: Boolean): ColorScheme {
+        return when (state.themeMode) {
+            ThemeMode.LIGHT -> lightScheme
+            ThemeMode.DARK -> getDarkScheme(state.isBlackMode)
+            ThemeMode.SYSTEM -> if (isSystemInDarkTheme) {
+                getDarkScheme(state.isBlackMode)
+            } else {
+                lightScheme
+            }
         }
+    }
+
+    private fun getDarkScheme(blackMode: Boolean): ColorScheme {
+        return if (blackMode) blackScheme else darkScheme
     }
 
     override fun onCleared() {
@@ -62,11 +72,10 @@ class ThemeSettingsViewModel(
     ) {
         if (
             current.themeMode != next.themeMode ||
-            current.isBlackMode != next.isBlackMode ||
-            current.darkTheme != next.darkTheme
+            current.isBlackMode != next.isBlackMode
         ) {
             logger.d {
-                "Effective theme changed mode=${next.themeMode} darkTheme=${next.darkTheme} blackMode=${next.isBlackMode}"
+                "Effective theme changed mode=${next.themeMode}  blackMode=${next.isBlackMode}"
             }
         }
     }

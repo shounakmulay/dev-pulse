@@ -3,50 +3,14 @@ package dev.shounakmulay.devpulse.core.designsystem.theme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * Core variant axes shared across every DP* component.
- *
- * Every component consumes these enums (plus its own component-local "style" enum
- * where the set of valid styles is component-specific, e.g. DPButtonStyle) and
- * resolves every Material runtime parameter (colors, shape, elevation, padding,
- * text style) from them via the @Composable helpers in this file.
- */
-
 /** Generic size axis. Defaults to [Medium] everywhere. */
 enum class DPSize { Small, Medium, Large }
-
-/**
- * Semantic color intent. Drives container / accent / outline color selection across
- * buttons, chips, badges, snackbars, progress, fields, dialogs, etc.
- *
- * The "accent" color is the solid brand-weight color; the "container" color is the
- * tonal, softer variant. Components pick which slot to render based on their own
- * style axis (filled vs tonal vs outlined).
- */
-enum class DPIntent {
-    Primary,
-    Secondary,
-    Tertiary,
-    Success,
-    Warning,
-    Danger,
-    Info,
-    Neutral,
-}
-
-/**
- * Visual weight axis for containment-based components (buttons, chips, cards, FABs).
- * Individual components may not support every value - they expose their own style
- * enum when they need to.
- */
-enum class DPEmphasis { Filled, Tonal, Outlined, Text, Elevated }
 
 /** Vertical density axis for rows, list items, text fields, menus, nav items. */
 enum class DPDensity { Dense, Default, Comfortable }
@@ -55,103 +19,17 @@ enum class DPDensity { Dense, Default, Comfortable }
 enum class DPElevationLevel { Level0, Level1, Level2, Level3, Level4, Level5 }
 
 // -----------------------------------------------------------------------------
-// Intent -> color resolution
+// Shared color pair used by component variant resolvers
 // -----------------------------------------------------------------------------
 
-@Immutable
-data class DPIntentColors(
-    /** Solid brand-weight color. Use as background for Filled style. */
-    val accent: Color,
-    /** Contrast color on top of [accent]. */
-    val onAccent: Color,
-    /** Tonal container color. Use as background for Tonal style. */
+/** Resolved container + content color pair for a given component variant. */
+data class DPVariantColors(
     val container: Color,
-    /** Contrast color on top of [container]. */
     val onContainer: Color,
-    /** Lighter / dimmer tonal surface (e.g. snackbar background, hover state). */
-    val containerVariant: Color,
-    /** Outline / border color for this intent. Use for Outlined style. */
+    val accent: Color,
+    val onAccent: Color,
     val outline: Color,
 )
-
-@Composable
-@ReadOnlyComposable
-fun DPIntent.colors(): DPIntentColors {
-    val cs = MaterialTheme.colorScheme
-    return when (this) {
-        DPIntent.Primary -> DPIntentColors(
-            accent = cs.primary,
-            onAccent = cs.onPrimary,
-            container = cs.primaryContainer,
-            onContainer = cs.onPrimaryContainer,
-            containerVariant = cs.primaryContainer,
-            outline = cs.primary,
-        )
-
-        DPIntent.Secondary -> DPIntentColors(
-            accent = cs.secondary,
-            onAccent = cs.onSecondary,
-            container = cs.secondaryContainer,
-            onContainer = cs.onSecondaryContainer,
-            containerVariant = cs.secondaryContainer,
-            outline = cs.secondary,
-        )
-
-        DPIntent.Tertiary -> DPIntentColors(
-            accent = cs.tertiary,
-            onAccent = cs.onTertiary,
-            container = cs.tertiaryContainer,
-            onContainer = cs.onTertiaryContainer,
-            containerVariant = cs.tertiaryContainer,
-            outline = cs.tertiary,
-        )
-
-        DPIntent.Success -> DPIntentColors(
-            accent = cs.success,
-            onAccent = cs.onSuccess,
-            container = cs.successContainer,
-            onContainer = cs.onSuccessContainer,
-            containerVariant = cs.successContainer,
-            outline = cs.success,
-        )
-
-        DPIntent.Warning -> DPIntentColors(
-            accent = cs.warning,
-            onAccent = cs.onWarning,
-            container = cs.warningContainer,
-            onContainer = cs.onWarningContainer,
-            containerVariant = cs.warningContainer,
-            outline = cs.warning,
-        )
-
-        DPIntent.Danger -> DPIntentColors(
-            accent = cs.error,
-            onAccent = cs.onError,
-            container = cs.errorContainer,
-            onContainer = cs.onErrorContainer,
-            containerVariant = cs.errorContainer,
-            outline = cs.error,
-        )
-
-        DPIntent.Info -> DPIntentColors(
-            accent = cs.info,
-            onAccent = cs.onInfo,
-            container = cs.infoContainer,
-            onContainer = cs.onInfoContainer,
-            containerVariant = cs.infoContainer,
-            outline = cs.info,
-        )
-
-        DPIntent.Neutral -> DPIntentColors(
-            accent = cs.surfaceContainerHighest,
-            onAccent = cs.onSurface,
-            container = cs.surfaceContainerHigh,
-            onContainer = cs.onSurface,
-            containerVariant = cs.surfaceContainer,
-            outline = cs.outline,
-        )
-    }
-}
 
 // -----------------------------------------------------------------------------
 // Size -> dimension / text style resolution
@@ -253,4 +131,48 @@ fun DPElevationLevel.value(): Dp {
         DPElevationLevel.Level4 -> tokens.level4
         DPElevationLevel.Level5 -> tokens.level5
     }
+}
+
+// -----------------------------------------------------------------------------
+// Shared P/S/T variant color resolver — used by components that need colored
+// variants following the DPTextViewVariant pattern
+// -----------------------------------------------------------------------------
+
+@Composable
+@ReadOnlyComposable
+internal fun dpPrimaryVariantColors(): DPVariantColors {
+    val cs = MaterialTheme.colorScheme
+    return DPVariantColors(
+        container = cs.primaryContainer,
+        onContainer = cs.onPrimaryContainer,
+        accent = cs.primary,
+        onAccent = cs.onPrimary,
+        outline = cs.primary,
+    )
+}
+
+@Composable
+@ReadOnlyComposable
+internal fun dpSecondaryVariantColors(): DPVariantColors {
+    val cs = MaterialTheme.colorScheme
+    return DPVariantColors(
+        container = cs.secondaryContainer,
+        onContainer = cs.onSecondaryContainer,
+        accent = cs.secondary,
+        onAccent = cs.onSecondary,
+        outline = cs.secondary,
+    )
+}
+
+@Composable
+@ReadOnlyComposable
+internal fun dpTertiaryVariantColors(): DPVariantColors {
+    val cs = MaterialTheme.colorScheme
+    return DPVariantColors(
+        container = cs.tertiaryContainer,
+        onContainer = cs.onTertiaryContainer,
+        accent = cs.tertiary,
+        onAccent = cs.onTertiary,
+        outline = cs.tertiary,
+    )
 }

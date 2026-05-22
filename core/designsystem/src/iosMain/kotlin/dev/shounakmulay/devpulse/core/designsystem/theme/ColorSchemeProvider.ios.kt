@@ -2,11 +2,12 @@ package dev.shounakmulay.devpulse.core.designsystem.theme
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 
 @Composable
 actual fun getColorScheme(
     dynamicColor: Boolean,
     darkTheme: Boolean
-): ColorScheme? {
+): State<ColorScheme?>? {
     return null
 }
