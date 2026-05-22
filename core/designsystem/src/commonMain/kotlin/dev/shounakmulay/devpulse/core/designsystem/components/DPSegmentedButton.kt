@@ -27,9 +27,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.colors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpPrimaryVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpSecondaryVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpTertiaryVariantColors
+
+enum class DPSegmentedVariant { Primary, Secondary, Tertiary }
 
 // --- Slot-based scope extensions (original API) ---
 
@@ -76,10 +79,14 @@ fun MultiChoiceSegmentedButtonRowScope.DPSegmentedButton(
 // --- Text-first scope extensions (new variant-aware API) ---
 
 @Composable
-private fun resolveSegmentedColors(intent: DPIntent, colors: SegmentedButtonColors?): SegmentedButtonColors {
+private fun resolveSegmentedColors(variant: DPSegmentedVariant, colors: SegmentedButtonColors?): SegmentedButtonColors {
     if (colors != null) return colors
-    if (intent == DPIntent.Primary) return SegmentedButtonDefaults.colors()
-    val c = intent.colors()
+    if (variant == DPSegmentedVariant.Primary) return SegmentedButtonDefaults.colors()
+    val c = when (variant) {
+        DPSegmentedVariant.Primary -> dpPrimaryVariantColors()
+        DPSegmentedVariant.Secondary -> dpSecondaryVariantColors()
+        DPSegmentedVariant.Tertiary -> dpTertiaryVariantColors()
+    }
     return SegmentedButtonDefaults.colors(
         activeBorderColor = c.outline,
         inactiveBorderColor = c.outline.copy(alpha = 0.38f),
@@ -95,12 +102,12 @@ fun SingleChoiceSegmentedButtonRowScope.DPSegmentedButton(
     onClick: () -> Unit,
     shape: Shape,
     modifier: Modifier = Modifier,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPSegmentedVariant = DPSegmentedVariant.Primary,
     leadingIcon: ImageVector? = null,
     enabled: Boolean = true,
     colors: SegmentedButtonColors? = null,
 ) {
-    val resolvedColors = resolveSegmentedColors(intent, colors)
+    val resolvedColors = resolveSegmentedColors(variant, colors)
     DPSegmentedButton(
         selected = selected, onClick = onClick, shape = shape, modifier = modifier,
         enabled = enabled, colors = resolvedColors,
@@ -120,12 +127,12 @@ fun MultiChoiceSegmentedButtonRowScope.DPSegmentedButton(
     onCheckedChange: (Boolean) -> Unit,
     shape: Shape,
     modifier: Modifier = Modifier,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPSegmentedVariant = DPSegmentedVariant.Primary,
     leadingIcon: ImageVector? = null,
     enabled: Boolean = true,
     colors: SegmentedButtonColors? = null,
 ) {
-    val resolvedColors = resolveSegmentedColors(intent, colors)
+    val resolvedColors = resolveSegmentedColors(variant, colors)
     DPSegmentedButton(
         checked = checked, onCheckedChange = onCheckedChange, shape = shape, modifier = modifier,
         enabled = enabled, colors = resolvedColors,
@@ -163,12 +170,12 @@ private fun DPSegmentedButtonPreview() {
                 DPSegmentedButton(
                     text = "A", checked = multiFirst, onCheckedChange = { multiFirst = it },
                     shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                    intent = DPIntent.Success,
+                    variant = DPSegmentedVariant.Secondary,
                 )
                 DPSegmentedButton(
                     text = "B", checked = multiSecond, onCheckedChange = { multiSecond = it },
                     shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                    intent = DPIntent.Success,
+                    variant = DPSegmentedVariant.Secondary,
                 )
             }
         }

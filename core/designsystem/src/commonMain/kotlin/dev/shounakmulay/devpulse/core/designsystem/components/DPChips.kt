@@ -34,8 +34,6 @@ import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
-import dev.shounakmulay.devpulse.core.designsystem.theme.colors
 
 enum class DPChipKind { Assist, Filter, Input, Suggestion }
 
@@ -48,7 +46,6 @@ fun DPChip(
     modifier: Modifier = Modifier,
     kind: DPChipKind = DPChipKind.Assist,
     style: DPChipStyle = DPChipStyle.Flat,
-    intent: DPIntent = DPIntent.Primary,
     selected: Boolean = false,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
@@ -67,13 +64,6 @@ fun DPChip(
         DPChipKind.Assist -> {
             when (style) {
                 DPChipStyle.Flat -> {
-                    val c = intent.colors()
-                    val colors = chipColors
-                        ?: AssistChipDefaults.assistChipColors(
-                            labelColor = c.onContainer,
-                            leadingIconContentColor = c.accent,
-                        )
-                    val elevation = chipElevation ?: AssistChipDefaults.assistChipElevation()
                     AssistChip(
                         onClick = onClick,
                         label = label,
@@ -82,8 +72,8 @@ fun DPChip(
                         leadingIcon = leadingIcon.asLeading18(),
                         trailingIcon = trailingIcon.asTrailing18(),
                         shape = shape ?: AssistChipDefaults.shape,
-                        colors = colors,
-                        elevation = elevation,
+                        colors = chipColors ?: AssistChipDefaults.assistChipColors(),
+                        elevation = chipElevation ?: AssistChipDefaults.assistChipElevation(),
                         border = border ?: AssistChipDefaults.assistChipBorder(enabled),
                         horizontalArrangement = AssistChipDefaults.horizontalArrangement(),
                         contentPadding = AssistChipDefaults.ContentPadding,
@@ -91,14 +81,6 @@ fun DPChip(
                     )
                 }
                 DPChipStyle.Elevated -> {
-                    val c = intent.colors()
-                    val colors = chipColors
-                        ?: AssistChipDefaults.elevatedAssistChipColors(
-                            labelColor = c.onContainer,
-                            leadingIconContentColor = c.accent,
-                        )
-                    val elevation = chipElevation
-                        ?: AssistChipDefaults.elevatedAssistChipElevation()
                     ElevatedAssistChip(
                         onClick = onClick,
                         label = label,
@@ -107,8 +89,8 @@ fun DPChip(
                         leadingIcon = leadingIcon.asLeading18(),
                         trailingIcon = trailingIcon.asTrailing18(),
                         shape = shape ?: AssistChipDefaults.shape,
-                        colors = colors,
-                        elevation = elevation,
+                        colors = chipColors ?: AssistChipDefaults.elevatedAssistChipColors(),
+                        elevation = chipElevation ?: AssistChipDefaults.elevatedAssistChipElevation(),
                         border = border,
                         horizontalArrangement = AssistChipDefaults.horizontalArrangement(),
                         contentPadding = AssistChipDefaults.ContentPadding,
@@ -120,15 +102,6 @@ fun DPChip(
         DPChipKind.Filter -> {
             when (style) {
                 DPChipStyle.Flat -> {
-                    val c = intent.colors()
-                    val colors = selectableChipColors
-                        ?: FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = c.container,
-                            selectedLabelColor = c.onContainer,
-                            selectedLeadingIconColor = c.onContainer,
-                        )
-                    val elevation = selectableChipElevation
-                        ?: FilterChipDefaults.filterChipElevation()
                     FilterChip(
                         selected = selected,
                         onClick = onClick,
@@ -138,25 +111,15 @@ fun DPChip(
                         leadingIcon = leadingIcon.asLeading18(),
                         trailingIcon = trailingIcon.asTrailing18(),
                         shape = shape ?: FilterChipDefaults.shape,
-                        colors = colors,
-                        elevation = elevation,
-                        border = border
-                            ?: FilterChipDefaults.filterChipBorder(enabled, selected),
+                        colors = selectableChipColors ?: FilterChipDefaults.filterChipColors(),
+                        elevation = selectableChipElevation ?: FilterChipDefaults.filterChipElevation(),
+                        border = border ?: FilterChipDefaults.filterChipBorder(enabled, selected),
                         horizontalArrangement = FilterChipDefaults.horizontalArrangement(),
                         contentPadding = FilterChipDefaults.ContentPadding,
                         interactionSource = null,
                     )
                 }
                 DPChipStyle.Elevated -> {
-                    val c = intent.colors()
-                    val colors = selectableChipColors
-                        ?: FilterChipDefaults.elevatedFilterChipColors(
-                            selectedContainerColor = c.container,
-                            selectedLabelColor = c.onContainer,
-                            selectedLeadingIconColor = c.onContainer,
-                        )
-                    val elevation = selectableChipElevation
-                        ?: FilterChipDefaults.elevatedFilterChipElevation()
                     ElevatedFilterChip(
                         selected = selected,
                         onClick = onClick,
@@ -166,8 +129,8 @@ fun DPChip(
                         leadingIcon = leadingIcon.asLeading18(),
                         trailingIcon = trailingIcon.asTrailing18(),
                         shape = shape ?: FilterChipDefaults.shape,
-                        colors = colors,
-                        elevation = elevation,
+                        colors = selectableChipColors ?: FilterChipDefaults.elevatedFilterChipColors(),
+                        elevation = selectableChipElevation ?: FilterChipDefaults.elevatedFilterChipElevation(),
                         border = border,
                         horizontalArrangement = FilterChipDefaults.horizontalArrangement(),
                         contentPadding = FilterChipDefaults.ContentPadding,
@@ -177,17 +140,8 @@ fun DPChip(
             }
         }
         DPChipKind.Input -> {
-            val c = intent.colors()
-            val colors = selectableChipColors
-                ?: InputChipDefaults.inputChipColors(
-                    selectedContainerColor = c.container,
-                    selectedLabelColor = c.onContainer,
-                    selectedLeadingIconColor = c.onContainer,
-                )
             val trailing = inputTrailingContent(onDismiss, trailingIcon)
             val leading = leadingIcon.asLeading18()
-            val elevation = selectableChipElevation
-                ?: InputChipDefaults.inputChipElevation()
             InputChip(
                 selected = selected,
                 onClick = onClick,
@@ -198,10 +152,9 @@ fun DPChip(
                 avatar = avatar,
                 trailingIcon = trailing,
                 shape = shape ?: InputChipDefaults.shape,
-                colors = colors,
-                elevation = elevation,
-                border = border
-                    ?: InputChipDefaults.inputChipBorder(enabled, selected),
+                colors = selectableChipColors ?: InputChipDefaults.inputChipColors(),
+                elevation = selectableChipElevation ?: InputChipDefaults.inputChipElevation(),
+                border = border ?: InputChipDefaults.inputChipBorder(enabled, selected),
                 horizontalArrangement = InputChipDefaults.horizontalArrangement(),
                 contentPadding = InputChipDefaults.contentPadding(
                     hasAvatar = avatar != null,
@@ -214,14 +167,6 @@ fun DPChip(
         DPChipKind.Suggestion -> {
             when (style) {
                 DPChipStyle.Flat -> {
-                    val c = intent.colors()
-                    val colors = chipColors
-                        ?: SuggestionChipDefaults.suggestionChipColors(
-                            labelColor = c.onContainer,
-                            iconContentColor = c.accent,
-                        )
-                    val elevation = chipElevation
-                        ?: SuggestionChipDefaults.suggestionChipElevation()
                     SuggestionChip(
                         onClick = onClick,
                         label = label,
@@ -229,24 +174,15 @@ fun DPChip(
                         enabled = enabled,
                         icon = leadingIcon.asSuggestionIcon(),
                         shape = shape ?: SuggestionChipDefaults.shape,
-                        colors = colors,
-                        elevation = elevation,
-                        border = border
-                            ?: SuggestionChipDefaults.suggestionChipBorder(enabled),
+                        colors = chipColors ?: SuggestionChipDefaults.suggestionChipColors(),
+                        elevation = chipElevation ?: SuggestionChipDefaults.suggestionChipElevation(),
+                        border = border ?: SuggestionChipDefaults.suggestionChipBorder(enabled),
                         horizontalArrangement = SuggestionChipDefaults.horizontalArrangement(),
                         contentPadding = SuggestionChipDefaults.ContentPadding,
                         interactionSource = null,
                     )
                 }
                 DPChipStyle.Elevated -> {
-                    val c = intent.colors()
-                    val colors = chipColors
-                        ?: SuggestionChipDefaults.elevatedSuggestionChipColors(
-                            labelColor = c.onContainer,
-                            iconContentColor = c.accent,
-                        )
-                    val elevation = chipElevation
-                        ?: SuggestionChipDefaults.elevatedSuggestionChipElevation()
                     ElevatedSuggestionChip(
                         onClick = onClick,
                         label = label,
@@ -254,8 +190,8 @@ fun DPChip(
                         enabled = enabled,
                         icon = leadingIcon.asSuggestionIcon(),
                         shape = shape ?: SuggestionChipDefaults.shape,
-                        colors = colors,
-                        elevation = elevation,
+                        colors = chipColors ?: SuggestionChipDefaults.elevatedSuggestionChipColors(),
+                        elevation = chipElevation ?: SuggestionChipDefaults.elevatedSuggestionChipElevation(),
                         border = border,
                         horizontalArrangement = SuggestionChipDefaults.horizontalArrangement(),
                         contentPadding = SuggestionChipDefaults.ContentPadding,
@@ -310,20 +246,8 @@ private fun DPChipMatrixPreview() {
                     horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
                 ) {
                     DPChipStyle.entries.forEach { style ->
-                        DPChip(
-                            text = "$kind",
-                            onClick = {},
-                            kind = kind,
-                            style = style,
-                        )
-                        DPChip(
-                            text = "Selected",
-                            onClick = {},
-                            kind = kind,
-                            style = style,
-                            selected = true,
-                            intent = DPIntent.Primary,
-                        )
+                        DPChip(text = "$kind", onClick = {}, kind = kind, style = style)
+                        DPChip(text = "Selected", onClick = {}, kind = kind, style = style, selected = true)
                     }
                 }
             }

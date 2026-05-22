@@ -19,9 +19,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.colors
 
 enum class DPDividerVariant { Hairline, Section, Emphasized }
 
@@ -35,21 +33,12 @@ private fun resolvedDividerThickness(variant: DPDividerVariant): Dp = when (vari
 
 @Composable
 @ReadOnlyComposable
-private fun resolvedDividerColor(variant: DPDividerVariant, intent: DPIntent): Color {
+private fun resolvedDividerColor(variant: DPDividerVariant): Color {
     val cs = MaterialTheme.colorScheme
-    return if (intent == DPIntent.Neutral) {
-        when (variant) {
-            DPDividerVariant.Hairline -> cs.outlineVariant
-            DPDividerVariant.Section -> cs.outline
-            DPDividerVariant.Emphasized -> cs.outline
-        }
-    } else {
-        val c = intent.colors()
-        when (variant) {
-            DPDividerVariant.Hairline -> c.outline.copy(alpha = 0.5f)
-            DPDividerVariant.Section -> c.outline
-            DPDividerVariant.Emphasized -> c.accent
-        }
+    return when (variant) {
+        DPDividerVariant.Hairline -> cs.outlineVariant
+        DPDividerVariant.Section -> cs.outline
+        DPDividerVariant.Emphasized -> cs.outline
     }
 }
 
@@ -57,14 +46,13 @@ private fun resolvedDividerColor(variant: DPDividerVariant, intent: DPIntent): C
 fun DPHorizontalDivider(
     modifier: Modifier = Modifier,
     variant: DPDividerVariant = DPDividerVariant.Hairline,
-    intent: DPIntent = DPIntent.Neutral,
     thickness: Dp? = null,
     color: Color? = null,
 ) {
     HorizontalDivider(
         modifier = modifier,
         thickness = thickness ?: resolvedDividerThickness(variant),
-        color = color ?: resolvedDividerColor(variant, intent),
+        color = color ?: resolvedDividerColor(variant),
     )
 }
 
@@ -72,14 +60,13 @@ fun DPHorizontalDivider(
 fun DPVerticalDivider(
     modifier: Modifier = Modifier,
     variant: DPDividerVariant = DPDividerVariant.Hairline,
-    intent: DPIntent = DPIntent.Neutral,
     thickness: Dp? = null,
     color: Color? = null,
 ) {
     VerticalDivider(
         modifier = modifier,
         thickness = thickness ?: resolvedDividerThickness(variant),
-        color = color ?: resolvedDividerColor(variant, intent),
+        color = color ?: resolvedDividerColor(variant),
     )
 }
 
@@ -94,13 +81,19 @@ private fun DPDividersPreview() {
             DPDividerVariant.entries.forEach { v ->
                 DPHorizontalDivider(modifier = Modifier.fillMaxWidth(), variant = v)
             }
-            DPHorizontalDivider(modifier = Modifier.fillMaxWidth(), variant = DPDividerVariant.Section, intent = DPIntent.Primary)
-            DPHorizontalDivider(modifier = Modifier.fillMaxWidth(), variant = DPDividerVariant.Emphasized, intent = DPIntent.Danger)
             Row(
-                modifier = Modifier.fillMaxWidth().height(48.dp).padding(top = DPTheme.spacing.sm),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .padding(top = DPTheme.spacing.sm),
             ) {
                 DPVerticalDivider(modifier = Modifier.fillMaxHeight())
-                DPVerticalDivider(modifier = Modifier.fillMaxHeight().padding(start = DPTheme.spacing.md), variant = DPDividerVariant.Emphasized, intent = DPIntent.Success)
+                DPVerticalDivider(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(start = DPTheme.spacing.md),
+                    variant = DPDividerVariant.Emphasized,
+                )
             }
         }
     }

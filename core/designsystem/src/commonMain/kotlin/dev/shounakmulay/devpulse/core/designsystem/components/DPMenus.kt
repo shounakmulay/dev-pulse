@@ -81,7 +81,7 @@ fun DPDropdownMenuItem(
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
     supportingText: String? = null,
-    intent: DPIntent = DPIntent.Neutral,
+    isDestructive: Boolean = false,
     enabled: Boolean = true,
     colors: MenuItemColors? = null,
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuItemContentPadding,
@@ -90,7 +90,7 @@ fun DPDropdownMenuItem(
     val error = MaterialTheme.colorScheme.error
     val effectiveColors: MenuItemColors =
         when {
-            intent == DPIntent.Danger && colors == null ->
+            isDestructive && colors == null ->
                 MenuDefaults.itemColors(
                     textColor = error,
                     leadingIconColor = error,

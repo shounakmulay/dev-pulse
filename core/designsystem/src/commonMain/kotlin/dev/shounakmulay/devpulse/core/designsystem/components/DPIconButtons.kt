@@ -32,13 +32,25 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.colors
+import dev.shounakmulay.devpulse.core.designsystem.theme.DPVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpPrimaryVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpSecondaryVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpTertiaryVariantColors
 import dev.shounakmulay.devpulse.core.designsystem.theme.iconSize
 
 enum class DPIconButtonStyle { Standard, Filled, Tonal, Outlined }
+
+enum class DPIconButtonVariant { Primary, Secondary, Tertiary }
+
+@Composable
+@ReadOnlyComposable
+private fun DPIconButtonVariant.colors(): DPVariantColors = when (this) {
+    DPIconButtonVariant.Primary -> dpPrimaryVariantColors()
+    DPIconButtonVariant.Secondary -> dpSecondaryVariantColors()
+    DPIconButtonVariant.Tertiary -> dpTertiaryVariantColors()
+}
 
 @Composable
 @ReadOnlyComposable
@@ -67,9 +79,9 @@ private fun dpIconButtonDefaultShape(style: DPIconButtonStyle): Shape =
 @Composable
 private fun dpIconButtonColors(
     style: DPIconButtonStyle,
-    intent: DPIntent,
+    variant: DPIconButtonVariant,
 ): IconButtonColors {
-    val c = intent.colors()
+    val c = variant.colors()
     return when (style) {
         DPIconButtonStyle.Standard ->
             IconButtonDefaults.iconButtonColors(
@@ -98,20 +110,20 @@ private fun dpIconButtonColors(
 @ReadOnlyComposable
 private fun dpIconButtonBorder(
     style: DPIconButtonStyle,
-    intent: DPIntent,
+    variant: DPIconButtonVariant,
     border: BorderStroke?,
 ): BorderStroke? {
     if (border != null) return border
     if (style != DPIconButtonStyle.Outlined) return null
-    return BorderStroke(dpIconButtonBorderWidth(), intent.colors().outline)
+    return BorderStroke(dpIconButtonBorderWidth(), variant.colors().outline)
 }
 
 @Composable
 private fun dpIconToggleButtonColors(
     style: DPIconButtonStyle,
-    intent: DPIntent,
+    variant: DPIconButtonVariant,
 ): IconToggleButtonColors {
-    val c = intent.colors()
+    val c = variant.colors()
     return when (style) {
         DPIconButtonStyle.Standard ->
             IconButtonDefaults.iconToggleButtonColors(
@@ -162,7 +174,7 @@ fun DPIconButton(
     contentDescription: String?,
     modifier: Modifier = Modifier,
     style: DPIconButtonStyle = DPIconButtonStyle.Standard,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPIconButtonVariant = DPIconButtonVariant.Primary,
     size: DPSize = DPSize.Medium,
     enabled: Boolean = true,
     colors: IconButtonColors? = null,
@@ -170,9 +182,9 @@ fun DPIconButton(
     border: BorderStroke? = null,
     onClick: () -> Unit,
 ) {
-    val resolvedColors = colors ?: dpIconButtonColors(style, intent)
+    val resolvedColors = colors ?: dpIconButtonColors(style, variant)
     val resolvedShape = shape ?: dpIconButtonDefaultShape(style)
-    val borderResolved = dpIconButtonBorder(style, intent, border)
+    val borderResolved = dpIconButtonBorder(style, variant, border)
     val m = modifier.dpIconButtonBox(size)
     when (style) {
         DPIconButtonStyle.Standard ->
@@ -238,14 +250,14 @@ fun DPIconToggleButton(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     style: DPIconButtonStyle = DPIconButtonStyle.Standard,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPIconButtonVariant = DPIconButtonVariant.Primary,
     size: DPSize = DPSize.Medium,
     enabled: Boolean = true,
     colors: IconToggleButtonColors? = null,
     shape: Shape? = null,
     border: BorderStroke? = null,
 ) {
-    val resolvedColors = colors ?: dpIconToggleButtonColors(style, intent)
+    val resolvedColors = colors ?: dpIconToggleButtonColors(style, variant)
     val resolvedShape = shape ?: dpIconButtonDefaultShape(style)
     val borderResolved = dpIconToggleBorder(style, enabled, checked, border)
     val m = modifier.dpIconButtonBox(size)
@@ -324,7 +336,6 @@ private fun DPIconButtonVariantsPreview() {
                     contentDescription = null,
                     onClick = {},
                     style = st,
-                    intent = DPIntent.Primary,
                 )
             }
         }
@@ -339,13 +350,13 @@ private fun DPIconButtonMatrixPreview() {
             modifier = Modifier.padding(DPTheme.spacing.lg),
             horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
         ) {
-            listOf(DPIntent.Primary, DPIntent.Success, DPIntent.Danger).forEach { intent ->
+            DPIconButtonVariant.entries.forEach { variant ->
                 DPIconButton(
                     icon = Icons.Default.Favorite,
                     contentDescription = null,
                     onClick = {},
                     style = DPIconButtonStyle.Filled,
-                    intent = intent,
+                    variant = variant,
                 )
             }
         }

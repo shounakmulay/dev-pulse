@@ -4,9 +4,9 @@ import androidx.annotation.IntRange
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Checkbox
@@ -24,6 +24,7 @@ import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,10 +34,22 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPIntent
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
+import dev.shounakmulay.devpulse.core.designsystem.theme.DPVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpPrimaryVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpSecondaryVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpTertiaryVariantColors
 import dev.shounakmulay.devpulse.core.designsystem.theme.minHeight
-import dev.shounakmulay.devpulse.core.designsystem.theme.colors
+
+enum class DPSelectionVariant { Primary, Secondary, Tertiary }
+
+@Composable
+@ReadOnlyComposable
+private fun DPSelectionVariant.colors(): DPVariantColors = when (this) {
+    DPSelectionVariant.Primary -> dpPrimaryVariantColors()
+    DPSelectionVariant.Secondary -> dpSecondaryVariantColors()
+    DPSelectionVariant.Tertiary -> dpTertiaryVariantColors()
+}
 
 @Composable
 fun DPCheckbox(
@@ -44,15 +57,16 @@ fun DPCheckbox(
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPSelectionVariant = DPSelectionVariant.Primary,
     size: DPSize = DPSize.Medium,
     colors: CheckboxColors? = null,
     interactionSource: MutableInteractionSource? = null,
 ) {
+    val c = variant.colors()
     val resolved = colors ?: CheckboxDefaults.colors(
-        checkedColor = intent.colors().accent,
-        checkmarkColor = intent.colors().onAccent,
-        uncheckedColor = intent.colors().outline,
+        checkedColor = c.accent,
+        checkmarkColor = c.onAccent,
+        uncheckedColor = c.outline,
     )
     Checkbox(
         checked = checked,
@@ -70,15 +84,16 @@ fun DPTriStateCheckbox(
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPSelectionVariant = DPSelectionVariant.Primary,
     size: DPSize = DPSize.Medium,
     colors: CheckboxColors? = null,
     interactionSource: MutableInteractionSource? = null,
 ) {
+    val c = variant.colors()
     val resolved = colors ?: CheckboxDefaults.colors(
-        checkedColor = intent.colors().accent,
-        checkmarkColor = intent.colors().onAccent,
-        uncheckedColor = intent.colors().outline,
+        checkedColor = c.accent,
+        checkmarkColor = c.onAccent,
+        uncheckedColor = c.outline,
     )
     TriStateCheckbox(
         state = state,
@@ -96,14 +111,15 @@ fun DPRadioButton(
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPSelectionVariant = DPSelectionVariant.Primary,
     size: DPSize = DPSize.Medium,
     colors: RadioButtonColors? = null,
     interactionSource: MutableInteractionSource? = null,
 ) {
+    val c = variant.colors()
     val resolved = colors ?: RadioButtonDefaults.colors(
-        selectedColor = intent.colors().accent,
-        unselectedColor = intent.colors().outline,
+        selectedColor = c.accent,
+        unselectedColor = c.outline,
     )
     RadioButton(
         selected = selected,
@@ -122,15 +138,16 @@ fun DPSwitch(
     modifier: Modifier = Modifier,
     thumbContent: (@Composable () -> Unit)? = null,
     enabled: Boolean = true,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPSelectionVariant = DPSelectionVariant.Primary,
     size: DPSize = DPSize.Medium,
     colors: SwitchColors? = null,
     interactionSource: MutableInteractionSource? = null,
 ) {
+    val c = variant.colors()
     val resolved = colors ?: SwitchDefaults.colors(
-        checkedThumbColor = intent.colors().onAccent,
-        checkedTrackColor = intent.colors().accent,
-        checkedBorderColor = intent.colors().accent,
+        checkedThumbColor = c.onAccent,
+        checkedTrackColor = c.accent,
+        checkedBorderColor = c.accent,
     )
     Switch(
         checked = checked,
@@ -149,7 +166,7 @@ fun DPSlider(
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPSelectionVariant = DPSelectionVariant.Primary,
     size: DPSize = DPSize.Medium,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     @IntRange(from = 0) steps: Int = 0,
@@ -157,10 +174,11 @@ fun DPSlider(
     colors: SliderColors? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
+    val c = variant.colors()
     val resolved = colors ?: SliderDefaults.colors(
-        thumbColor = intent.colors().accent,
-        activeTrackColor = intent.colors().accent,
-        inactiveTrackColor = intent.colors().containerVariant,
+        thumbColor = c.accent,
+        activeTrackColor = c.accent,
+        inactiveTrackColor = c.container,
     )
     Slider(
         value = value,
@@ -181,17 +199,18 @@ fun DPRangeSlider(
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    intent: DPIntent = DPIntent.Primary,
+    variant: DPSelectionVariant = DPSelectionVariant.Primary,
     size: DPSize = DPSize.Medium,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     @IntRange(from = 0) steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors? = null,
 ) {
+    val c = variant.colors()
     val resolved = colors ?: SliderDefaults.colors(
-        thumbColor = intent.colors().accent,
-        activeTrackColor = intent.colors().accent,
-        inactiveTrackColor = intent.colors().containerVariant,
+        thumbColor = c.accent,
+        activeTrackColor = c.accent,
+        inactiveTrackColor = c.container,
     )
     RangeSlider(
         value = value,
@@ -215,11 +234,6 @@ private fun DPSelectionControlsPreview() {
         var switched by remember { mutableStateOf(false) }
         var sliderValue by remember { mutableStateOf(0.4f) }
         var range by remember { mutableStateOf(0.25f..0.75f) }
-        val intentSamples = listOf(
-            DPIntent.Primary,
-            DPIntent.Success,
-            DPIntent.Danger,
-        )
 
         Column(
             modifier = Modifier.padding(16.dp),
@@ -229,59 +243,43 @@ private fun DPSelectionControlsPreview() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                intentSamples.forEach { intent ->
-                    DPCheckbox(
-                        checked = checked,
-                        onCheckedChange = { checked = it },
-                        intent = intent,
-                    )
+                DPSelectionVariant.entries.forEach { variant ->
+                    DPCheckbox(checked = checked, onCheckedChange = { checked = it }, variant = variant)
                 }
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                intentSamples.forEach { intent ->
-                    DPTriStateCheckbox(
-                        state = tri,
-                        onClick = { tri = tri.next() },
-                        intent = intent,
-                    )
+                DPSelectionVariant.entries.forEach { variant ->
+                    DPTriStateCheckbox(state = tri, onClick = { tri = tri.next() }, variant = variant)
                 }
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                intentSamples.forEachIndexed { i, intent ->
-                    DPRadioButton(
-                        selected = radio == i,
-                        onClick = { radio = i },
-                        intent = intent,
-                    )
+                DPSelectionVariant.entries.forEachIndexed { i, variant ->
+                    DPRadioButton(selected = radio == i, onClick = { radio = i }, variant = variant)
                 }
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                intentSamples.forEach { intent ->
-                    DPSwitch(
-                        checked = switched,
-                        onCheckedChange = { switched = it },
-                        intent = intent,
-                    )
+                DPSelectionVariant.entries.forEach { variant ->
+                    DPSwitch(checked = switched, onCheckedChange = { switched = it }, variant = variant)
                 }
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                intentSamples.forEach { intent ->
+                DPSelectionVariant.entries.forEach { variant ->
                     DPSlider(
                         value = sliderValue,
                         onValueChange = { sliderValue = it },
-                        intent = intent,
+                        variant = variant,
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -290,11 +288,11 @@ private fun DPSelectionControlsPreview() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                intentSamples.forEach { intent ->
+                DPSelectionVariant.entries.forEach { variant ->
                     DPRangeSlider(
                         value = range,
                         onValueChange = { range = it },
-                        intent = intent,
+                        variant = variant,
                         modifier = Modifier.weight(1f),
                     )
                 }
