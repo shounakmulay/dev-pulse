@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.RssFeed
@@ -39,4 +40,5 @@ object DPIcons {
     val RssFeed = Icons.Default.RssFeed
     val Delete = Icons.Default.Delete
     val Close = Icons.Default.Close
+    val Add = Icons.Default.Add
 }
