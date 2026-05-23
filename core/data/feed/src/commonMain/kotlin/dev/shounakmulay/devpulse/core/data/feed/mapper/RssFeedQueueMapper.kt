@@ -29,6 +29,8 @@ class RssFeedQueueMapper(
             fetchAttempt = from.fetchAttempt,
             createAt = from.createdAt,
             updatedAt = dateTimeProvider.nowEpochMilliseconds(),
+            tagIds = from.tags.ifEmpty { null }?.joinToString(),
+            folderIds = from.folders.ifEmpty { null }?.joinToString()
         )
     }
 
@@ -44,7 +46,15 @@ class RssFeedQueueMapper(
             fetchAttempt = from.fetchAttempt,
             createdAt = from.createAt,
             updatedAt = from.updatedAt,
+            tags = from.tagIds.toListOfIds(),
+            folders = from.folderIds.toListOfIds(),
         )
+    }
+
+    private fun String?.toListOfIds(): List<Int> {
+        return this?.split(",")?.mapNotNull {
+            it.toIntOrNull()
+        }.orEmpty()
     }
 
     private fun toLocalRssFeedQueueActionRequestor(from: RssFeedQueueActionRequestor): LocalRssFeedQueueActionRequestor {

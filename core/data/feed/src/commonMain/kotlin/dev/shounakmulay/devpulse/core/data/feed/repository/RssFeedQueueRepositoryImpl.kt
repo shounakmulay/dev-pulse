@@ -11,9 +11,11 @@ internal class RssFeedQueueRepositoryImpl(
     private val feedQueueDao: FeedQueueDao,
     private val feedQueueMapper: RssFeedQueueMapper
 ) : RssFeedQueueRepository {
-    override suspend fun enqueue(entry: RssFeedQueueEntry) {
-        val localEntry = feedQueueMapper.toLocalRssFeedQueue(entry)
-        feedQueueDao.add(listOf(localEntry))
+    override suspend fun enqueue(entries: List<RssFeedQueueEntry>) {
+        val localEntries = entries.map {
+            feedQueueMapper.toLocalRssFeedQueue(it)
+        }
+        feedQueueDao.add(localEntries)
     }
 
     override suspend fun updateQueueStatus(

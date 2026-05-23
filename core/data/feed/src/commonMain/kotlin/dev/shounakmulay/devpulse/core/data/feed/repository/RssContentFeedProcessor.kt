@@ -113,6 +113,7 @@ internal class RssContentFeedProcessor(
             val post = rssItemMapper.toLocalRssContentFeedPost(
                 item = rssItem,
                 feedId = feedId,
+                fingerprint = fingerprint,
                 existingIdentity = existingItems[fingerprint]
             )
 
@@ -157,7 +158,7 @@ internal class RssContentFeedProcessor(
         return rssItems.associateBy { rssItem ->
             val dataForFingerprint: List<String> = buildList {
                 rssItem.guid?.let { add(it) }
-                rssItem.sourceUrl?.let { add(it) }
+                rssItem.link?.let { add(it) }
 
                 if (addFeedIdAndExit(feedId)) return@buildList
 

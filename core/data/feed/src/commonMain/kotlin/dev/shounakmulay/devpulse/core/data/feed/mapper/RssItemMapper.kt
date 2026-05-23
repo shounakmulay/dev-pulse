@@ -22,13 +22,14 @@ class RssItemMapper(
     fun toLocalRssContentFeedPost(
         item: RssItem,
         feedId: String,
+        fingerprint: String,
         existingIdentity: LocalRssContentFeedPostIdentity?
     ): LocalRssContentFeedPost {
         val now = dateTimeProvider.nowEpochMilliseconds()
         return LocalRssContentFeedPost(
             id = existingIdentity?.id ?: idGenerator.generateSortableId(),
             feedId = feedId,
-            fingerprint = existingIdentity?.fingerprint ?: idGenerator.generateFingerprint(),
+            fingerprint = fingerprint,
             guid = item.guid,
             title = item.title,
             author = item.author,

@@ -13,6 +13,7 @@ class RssIdentityGenerator : IdentityGenerator {
     }
 
     override fun generateFingerprint(vararg strings: String): String {
+        require(strings.isNotEmpty()) { "Fingerprint cannot be generated without any source values." }
         val stringToHash = strings.joinToString(separator = "-")
         val encoded = stringToHash.encodeUtf8()
         return encoded.sha256().toString()

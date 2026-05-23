@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "bac970c6c236dfbc3542fad87f1d39a9",
+    "identityHash": "8cb6ba094ef182c9b2ee84d07b3b495c",
     "entities": [
       {
         "tableName": "LocalRssFeed",
@@ -319,7 +319,7 @@
       },
       {
         "tableName": "LocalRssFeedQueue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `url` TEXT NOT NULL, `name` TEXT, `feedType` TEXT NOT NULL, `actionType` INTEGER NOT NULL, `requestor` INTEGER NOT NULL, `status` INTEGER NOT NULL, `fetchAttempt` INTEGER NOT NULL, `createAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `url` TEXT NOT NULL, `name` TEXT, `feedType` TEXT NOT NULL, `actionType` TEXT NOT NULL, `requestor` TEXT NOT NULL, `status` TEXT NOT NULL, `fetchAttempt` INTEGER NOT NULL, `tagIds` TEXT, `folderIds` TEXT, `createAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -347,19 +347,19 @@
           {
             "fieldPath": "actionType",
             "columnName": "actionType",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "requestor",
             "columnName": "requestor",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "status",
             "columnName": "status",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -367,6 +367,16 @@
             "columnName": "fetchAttempt",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "tagIds",
+            "columnName": "tagIds",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "folderIds",
+            "columnName": "folderIds",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "createAt",
@@ -454,13 +464,14 @@
         },
         "indices": [
           {
-            "name": "index_LocalRssPostToTagMapping_tagId",
+            "name": "index_LocalRssPostToTagMapping_tagId_postId",
             "unique": false,
             "columnNames": [
-              "tagId"
+              "tagId",
+              "postId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_LocalRssPostToTagMapping_tagId` ON `${TABLE_NAME}` (`tagId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LocalRssPostToTagMapping_tagId_postId` ON `${TABLE_NAME}` (`tagId`, `postId`)"
           }
         ],
         "foreignKeys": [
@@ -491,7 +502,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bac970c6c236dfbc3542fad87f1d39a9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8cb6ba094ef182c9b2ee84d07b3b495c')"
     ]
   }
 }
