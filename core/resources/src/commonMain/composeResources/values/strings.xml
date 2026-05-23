@@ -9,4 +9,6 @@
     <string name="text_resource_title">TextResource DSL Examples</string>
     <string name="text_resource_greeting">Hello from string resource</string>
     <string name="text_resource_greeting_with_name">Hello, %1$s!</string>
+    <string name="add_feed_title">Import Feeds</string>
+    <string name="feed_number">Feed %1$d</string>
 </resources>

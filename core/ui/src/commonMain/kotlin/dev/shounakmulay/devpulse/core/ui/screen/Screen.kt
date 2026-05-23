@@ -1,6 +1,8 @@
 package dev.shounakmulay.devpulse.core.ui.screen
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -29,7 +31,7 @@ inline fun <STATE : ScreenState, EFFECT : Effect, reified VM : MviViewModel<STAT
     viewModel: VM,
     crossinline onEffect: suspend (Effect) -> Unit,
     crossinline topAppBarStateProvider: STATE.() -> ScreenTopAppBarState? = { null },
-    crossinline content: @Composable STATE.() -> Unit
+    crossinline content: @Composable BoxScope.(STATE) -> Unit
 ) {
     Screen<STATE, EFFECT, VM>(
         viewModel = viewModel,
@@ -55,9 +57,10 @@ inline fun <STATE : ScreenState, EFFECT : Effect, reified VM : MviViewModel<STAT
 @Composable
 inline fun <STATE : ScreenState, EFFECT : Effect, reified VM : MviViewModel<STATE, EFFECT>> Screen(
     viewModel: VM,
+    modifier: Modifier = Modifier,
     crossinline onEffect: suspend (Effect) -> Unit,
     noinline topAppBar: (@Composable STATE.() -> Unit)?,
-    crossinline content: @Composable STATE.() -> Unit
+    crossinline content: @Composable BoxScope.(STATE) -> Unit
 ) {
     val state by viewModel.collectAsState()
 
@@ -66,13 +69,14 @@ inline fun <STATE : ScreenState, EFFECT : Effect, reified VM : MviViewModel<STAT
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             if (topAppBar != null) {
                 topAppBar(state)
             }
         }
     ) {
-        Box(Modifier.padding(it)) {
+        Box(Modifier.padding(it).fillMaxSize()) {
             content(state)
         }
     }

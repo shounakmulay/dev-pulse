@@ -25,6 +25,10 @@ sealed interface Screen : NavKey {
         data object Feed : Screen {
             @Serializable
             @Immutable
+            data object AddFeed : Screen
+
+            @Serializable
+            @Immutable
             data class FeedDetail(val id: String) : Screen
         }
 
