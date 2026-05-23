@@ -9,12 +9,4 @@ kotlin {
         namespace = "dev.shounakmulay.devpulse.core.domain.models"
     }
     iosFrameworks(baseName = "core:domain:ModelsKit")
-
-    sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinx.serialization.json)
-            }
-        }
-    }
 }

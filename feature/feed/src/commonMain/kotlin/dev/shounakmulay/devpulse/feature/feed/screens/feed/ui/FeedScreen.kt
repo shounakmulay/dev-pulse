@@ -116,7 +116,7 @@ fun FeedScreen(
                         DPIcons.RssFeed,
                         contentDescription = "",
                         onClick = {
-                            navigator.navigate(Screen.Tabs.Feed.AddFeed)
+                            navigator.navigate(Screen.Tabs.Feed.AddFeed, onRootStack = true)
                         })
                 },
             )

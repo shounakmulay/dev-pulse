@@ -11,4 +11,9 @@
     <string name="text_resource_greeting_with_name">Hello, %1$s!</string>
     <string name="add_feed_title">Import Feeds</string>
     <string name="feed_number">Feed %1$d</string>
+    <string name="url">URL</string>
+    <string name="source">Source</string>
+    <string name="name_optional">Name (Optional)</string>
+    <string name="custom_name">Enter custom name</string>
+    <string name="enter_valid_url">Please enter a valid URL.</string>
 </resources>
