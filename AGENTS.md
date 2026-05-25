@@ -216,3 +216,21 @@ For commit workflows, extract the ticket prefix from the current branch name usi
 
 - Do not speculatively read more files hoping to find the answer
 - State what you need and ask directly
+
+
+<claude-mem-context>
+# Memory Context
+
+# [DevPulse] recent context, 2026-05-25 8:01pm GMT+5:30
+
+Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
+Format: ID TIME TYPE TITLE
+Fetch details: get_observations([IDs]) | Search: mem-search skill
+
+Stats: 1 obs (68t read) | 1,491t work | 95% savings
+
+### May 19, 2026
+721 9:23a ✅ Initial User Request
+
+Access 1k tokens of past work via get_observations([IDs]) or mem-search skill.
+</claude-mem-context>
