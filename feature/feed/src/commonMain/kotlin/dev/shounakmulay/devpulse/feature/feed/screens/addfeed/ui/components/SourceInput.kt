@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextField
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -55,6 +56,7 @@ fun SourceInput(
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Uri,
+            capitalization = KeyboardCapitalization.None
         ),
         keyboardActions = KeyboardActions(
             onDone = {

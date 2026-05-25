@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,7 +29,7 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.contentPadding
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIAddFeedData
 
 @Composable
-fun LazyItemScope.AddFeedInputCard(
+fun LazyGridItemScope.AddFeedInputCard(
     index: Int,
     data: UIAddFeedData,
     onUrlChanged: (String) -> Unit,
@@ -124,7 +124,9 @@ private fun CardHeader(
                 name?.ifBlank { null } ?: url.ifBlank { null } ?: "Enter Feed URL"
             }
             DPTextView(
+                modifier = Modifier.weight(1f),
                 text = text,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 variant = DPTextViewVariant.TitleMediumEmphasized
             )

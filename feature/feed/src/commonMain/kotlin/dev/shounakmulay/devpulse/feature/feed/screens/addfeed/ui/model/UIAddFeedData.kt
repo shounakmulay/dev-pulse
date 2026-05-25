@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-
 @Serializable
 @Immutable
 data class UIAddFeedData(

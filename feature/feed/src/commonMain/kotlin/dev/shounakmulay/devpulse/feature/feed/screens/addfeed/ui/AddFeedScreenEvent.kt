@@ -11,4 +11,8 @@ sealed interface AddFeedScreenEvent : ScreenEvent {
     data object ImportFeeds : AddFeedScreenEvent
     data class ToggleExpanded(val id: String) : AddFeedScreenEvent
     data class ValidateSourceUrl(val id: String) : AddFeedScreenEvent
+    data object ClearAllStatus : AddFeedScreenEvent
+    data object RetryFailedImports : AddFeedScreenEvent
+    data object GoToQueue : AddFeedScreenEvent
+    data object ToggleCollapseAll: AddFeedScreenEvent
 }
