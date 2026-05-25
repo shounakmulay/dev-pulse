@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.designsystem.theme
 
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 // =============================================================================
@@ -153,6 +154,53 @@ val onInfoContainerDark = Color(0xFFACC7FF)
 val successSurfaceLight = Color(0xFFE0F7EE)
 val warningSurfaceLight = Color(0xFFFFF8ED)
 val infoSurfaceLight = Color(0xFFE8F4FB)
+
+data class DPContextColors(
+    val success: Color,
+    val onSuccess: Color,
+    val successContainer: Color,
+    val onSuccessContainer: Color,
+    val warning: Color,
+    val onWarning: Color,
+    val warningContainer: Color,
+    val onWarningContainer: Color,
+    val info: Color,
+    val onInfo: Color,
+    val infoContainer: Color,
+    val onInfoContainer: Color
+)
+
+val lightDPContextColors = DPContextColors(
+    success = successLight,
+    onSuccess = onSuccessLight,
+    successContainer = successContainerLight,
+    onSuccessContainer = onSuccessContainerLight,
+    warning = warningLight,
+    onWarning = onWarningLight,
+    warningContainer = warningContainerLight,
+    onWarningContainer = onWarningContainerLight,
+    info = infoLight,
+    onInfo = onInfoLight,
+    infoContainer = infoContainerLight,
+    onInfoContainer = onInfoContainerLight
+)
+
+val darkDPContextColors = DPContextColors(
+    success = successDark,
+    onSuccess = onSuccessDark,
+    successContainer = successContainerDark,
+    onSuccessContainer = onSuccessContainerDark,
+    warning = warningDark,
+    onWarning = onWarningDark,
+    warningContainer = warningContainerDark,
+    onWarningContainer = onWarningContainerDark,
+    info = infoDark,
+    onInfo = onInfoDark,
+    infoContainer = infoContainerDark,
+    onInfoContainer = onInfoContainerDark
+)
+
+val LocalDPContextColors = compositionLocalOf { lightDPContextColors }
 
 // =============================================================================
 // CATEGORY COLOURS

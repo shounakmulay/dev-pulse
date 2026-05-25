@@ -2,9 +2,16 @@ package dev.shounakmulay.devpulse.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddToQueue
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RssFeed
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -41,4 +48,11 @@ object DPIcons {
     val Delete = Icons.Default.Delete
     val Close = Icons.Default.Close
     val Add = Icons.Default.Add
+    val Queued = Icons.Default.AddToQueue
+    val Processing = Icons.Default.Sync
+    val Completed = Icons.Default.Check
+    val Failed = Icons.Default.Error
+    val Edit = Icons.Default.Edit
+    val Refresh = Icons.Default.Refresh
+    val ClearAll = Icons.Default.ClearAll
 }
