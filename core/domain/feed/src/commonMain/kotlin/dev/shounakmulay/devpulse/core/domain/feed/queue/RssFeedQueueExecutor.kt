@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.domain.feed
+package dev.shounakmulay.devpulse.core.domain.feed.queue
 
 interface RssFeedQueueExecutor {
     fun processQueue()

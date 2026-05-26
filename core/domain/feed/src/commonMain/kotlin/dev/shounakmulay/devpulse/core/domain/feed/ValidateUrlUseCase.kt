@@ -5,32 +5,36 @@ import org.koin.core.annotation.Factory
 @Factory
 class ValidateUrlUseCase {
 
-    operator fun invoke(url: String): UrlValidationResult {
+    operator fun invoke(url: String): Boolean = UrlNormalizer.normalize(url) != null
+}
+
+@Factory
+class NormalizeUrlUseCase {
+
+    operator fun invoke(url: String): String? = UrlNormalizer.normalize(url)
+}
+
+private object UrlNormalizer {
+    private const val SchemeDelimiter = "://"
+    private val SupportedSchemes = setOf("http", "https")
+    private val invalidUrlCharactersRegex = Regex("\\s|[<>]")
+
+    fun normalize(url: String): String? {
         val value = url.trim()
-        if (value.isEmpty()) {
-            return UrlValidationResult.Invalid(UrlValidationError.EMPTY)
-        }
+        if (value.isEmpty() || value.contains(invalidUrlCharactersRegex)) return null
 
         val normalized = when {
             value.startsWith("http://") || value.startsWith("https://") -> value
             value.startsWith("//") -> "https:$value"
-            !value.startsWith("http://") || !value.startsWith("https://") -> "https://$value"
-            else -> value
+            SchemeDelimiter in value -> return null
+            else -> "https://$value"
         }
 
         val scheme = normalized.substringBefore(":", missingDelimiterValue = "").lowercase()
-        if (scheme !in SupportedSchemes) {
-            return UrlValidationResult.Invalid(UrlValidationError.UNSUPPORTED_SCHEME)
-        }
+        if (scheme !in SupportedSchemes) return null
 
-        val schemeDelimiterIndex = normalized.indexOf("://")
-        if (schemeDelimiterIndex < 0) {
-            return UrlValidationResult.Invalid(UrlValidationError.MISSING_SCHEME_DELIMITER)
-        }
-
-        if (normalized.contains(invalidUrlCharactersRegex)) {
-            return UrlValidationResult.Invalid(UrlValidationError.INVALID_CHARACTERS)
-        }
+        val schemeDelimiterIndex = normalized.indexOf(SchemeDelimiter)
+        if (schemeDelimiterIndex < 0) return null
 
         val authorityStart = schemeDelimiterIndex + SchemeDelimiter.length
         val authorityEnd = normalized.indexOfAny(
@@ -44,32 +48,9 @@ class ValidateUrlUseCase {
             .trim()
 
         return when {
-            authority.isBlank() || host.isBlank() -> UrlValidationResult.Invalid(
-                UrlValidationError.MISSING_HOST
-            )
-
-            !host.contains('.') -> UrlValidationResult.Invalid(UrlValidationError.INVALID_HOST)
-            else -> UrlValidationResult.Valid(normalized)
+            authority.isBlank() || host.isBlank() -> null
+            !host.contains('.') -> null
+            else -> normalized
         }
     }
-
-    private companion object {
-        const val SchemeDelimiter = "://"
-        val SupportedSchemes = setOf("http", "https")
-        val invalidUrlCharactersRegex = Regex("\\s|[<>]")
-    }
-}
-
-sealed interface UrlValidationResult {
-    data class Valid(val url: String) : UrlValidationResult
-    data class Invalid(val error: UrlValidationError) : UrlValidationResult
-}
-
-enum class UrlValidationError {
-    EMPTY,
-    UNSUPPORTED_SCHEME,
-    MISSING_SCHEME_DELIMITER,
-    INVALID_CHARACTERS,
-    MISSING_HOST,
-    INVALID_HOST
 }

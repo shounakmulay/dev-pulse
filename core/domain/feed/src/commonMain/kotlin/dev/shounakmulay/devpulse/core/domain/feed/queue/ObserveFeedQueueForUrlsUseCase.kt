@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.domain.feed
+package dev.shounakmulay.devpulse.core.domain.feed.queue
 
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.coroutines.flowCachingOnDefault

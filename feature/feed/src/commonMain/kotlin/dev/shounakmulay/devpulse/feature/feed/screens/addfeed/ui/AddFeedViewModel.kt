@@ -1,11 +1,9 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui
 
 import androidx.lifecycle.viewModelScope
-import dev.shounakmulay.devpulse.core.domain.feed.ImportFeedUseCase
-import dev.shounakmulay.devpulse.core.domain.feed.ObserveFeedQueueForUrlsUseCase
-import dev.shounakmulay.devpulse.core.domain.feed.UrlValidationError
-import dev.shounakmulay.devpulse.core.domain.feed.UrlValidationResult
-import dev.shounakmulay.devpulse.core.domain.feed.ValidateUrlUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.NormalizeUrlUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.feed.ImportFeedUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.queue.ObserveFeedQueueForUrlsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.feed.AddFeedData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.ui.effect.Effect
@@ -28,7 +26,7 @@ import org.koin.core.annotation.KoinViewModel
 class AddFeedViewModel(
     private val importFeedUseCase: ImportFeedUseCase,
     private val observeFeedQueueForUrlsUseCase: ObserveFeedQueueForUrlsUseCase,
-    private val validateUrlUseCase: ValidateUrlUseCase
+    private val normalizeUrlUseCase: NormalizeUrlUseCase
 ) : MviViewModel<AddFeedScreenState, Effect>(), EventHandler<AddFeedScreenEvent> {
     override fun createInitialState() = AddFeedScreenState()
     override fun createStateSerializer() = AddFeedScreenState.serializer()
@@ -129,35 +127,19 @@ class AddFeedViewModel(
 
     private fun onValidateSourceUrl(id: String) {
         val addFeedData = state.value.addFeedDataList.firstOrNull { it.id == id } ?: return
-        when (val sourceUrlValidationResult = validateUrlUseCase(addFeedData.url)) {
-            is UrlValidationResult.Invalid -> setState {
-                copy(
-                    addFeedDataList = addFeedDataList.map {
-                        if (it.id == id) {
-                            it.copy(
-                                error = when (sourceUrlValidationResult.error) {
-                                    UrlValidationError.EMPTY,
-                                    UrlValidationError.UNSUPPORTED_SCHEME,
-                                    UrlValidationError.MISSING_SCHEME_DELIMITER,
-                                    UrlValidationError.INVALID_CHARACTERS,
-                                    UrlValidationError.MISSING_HOST,
-                                    UrlValidationError.INVALID_HOST -> UIAddFeedData.ValidationError.INVALID_SOURCE_URL
-                                }
-                            )
-                        } else it
-                    }
-                )
-            }
+        val normalizedUrl = normalizeUrlUseCase(addFeedData.url)
+        setState {
+            copy(
+                addFeedDataList = addFeedDataList.map {
+                    if (it.id != id) return@map it
 
-            is UrlValidationResult.Valid -> setState {
-                copy(
-                    addFeedDataList = addFeedDataList.map {
-                        if (it.id == id) {
-                            it.copy(url = sourceUrlValidationResult.url, error = null)
-                        } else it
+                    if (normalizedUrl == null) {
+                        it.copy(error = UIAddFeedData.ValidationError.INVALID_SOURCE_URL)
+                    } else {
+                        it.copy(url = normalizedUrl, error = null)
                     }
-                )
-            }
+                }
+            )
         }
     }
 
@@ -226,17 +208,17 @@ class AddFeedViewModel(
     fun onImportFeeds() = viewModelScope.launch {
         val validatedData = state.value.addFeedDataList
             .map {
-                async { it to validateUrlUseCase(it.url) }
+                async { it to normalizeUrlUseCase(it.url) }
             }
             .awaitAll()
-            .map { (data, validationResult) ->
-                when (validationResult) {
-                    is UrlValidationResult.Invalid -> data.copy(
+            .map { (data, normalizedUrl) ->
+                if (normalizedUrl == null) {
+                    data.copy(
                         error = UIAddFeedData.ValidationError.INVALID_SOURCE_URL,
                     )
-
-                    is UrlValidationResult.Valid -> data.copy(
-                        url = validationResult.url,
+                } else {
+                    data.copy(
+                        url = normalizedUrl,
                         error = null
                     )
                 }

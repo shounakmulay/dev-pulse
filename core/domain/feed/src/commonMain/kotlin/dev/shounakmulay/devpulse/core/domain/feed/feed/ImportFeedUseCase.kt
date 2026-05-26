@@ -1,9 +1,10 @@
-package dev.shounakmulay.devpulse.core.domain.feed
+package dev.shounakmulay.devpulse.core.domain.feed.feed
 
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.coroutines.runCatchingOnDefault
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.feed.repository.RssFeedQueueRepository
+import dev.shounakmulay.devpulse.core.domain.feed.queue.RssFeedQueueExecutor
 import dev.shounakmulay.devpulse.core.domain.models.feed.AddFeedData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionRequestor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
