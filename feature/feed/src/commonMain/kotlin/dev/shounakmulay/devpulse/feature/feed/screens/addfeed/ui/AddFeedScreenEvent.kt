@@ -13,6 +13,7 @@ sealed interface AddFeedScreenEvent : ScreenEvent {
     data class ValidateSourceUrl(val id: String) : AddFeedScreenEvent
     data object ClearAllStatus : AddFeedScreenEvent
     data object RetryFailedImports : AddFeedScreenEvent
+    data class MoveFailedImportToEdit(val id: String) : AddFeedScreenEvent
     data object GoToQueue : AddFeedScreenEvent
-    data object ToggleCollapseAll: AddFeedScreenEvent
+    data object ToggleCollapseAll : AddFeedScreenEvent
 }

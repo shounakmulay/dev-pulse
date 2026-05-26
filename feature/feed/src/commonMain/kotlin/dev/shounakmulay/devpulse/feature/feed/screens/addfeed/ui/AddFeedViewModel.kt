@@ -7,6 +7,7 @@ import dev.shounakmulay.devpulse.core.domain.feed.UrlValidationError
 import dev.shounakmulay.devpulse.core.domain.feed.UrlValidationResult
 import dev.shounakmulay.devpulse.core.domain.feed.ValidateUrlUseCase
 import dev.shounakmulay.devpulse.core.domain.models.feed.AddFeedData
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.ui.effect.Effect
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
@@ -71,6 +72,7 @@ class AddFeedViewModel(
             AddFeedScreenEvent.ClearAllStatus -> onClearAllStatus()
             AddFeedScreenEvent.GoToQueue -> onGoToQueue()
             AddFeedScreenEvent.RetryFailedImports -> onRetryFailedImports()
+            is AddFeedScreenEvent.MoveFailedImportToEdit -> onMoveFailedImportToEdit(event.id)
             AddFeedScreenEvent.ToggleCollapseAll -> onToggleCollapseAll()
         }
     }
@@ -83,7 +85,38 @@ class AddFeedViewModel(
 
     private fun onGoToQueue() {}
 
-    private fun onRetryFailedImports() {}
+    private fun onRetryFailedImports() = viewModelScope.launch {
+        val failedData = state.value.processingData
+            .filter { it.status == RssFeedQueueStatus.FAILED }
+            .map { it.addFeedData.toAddFeedData() }
+
+        if (failedData.isEmpty()) return@launch
+
+        intent {
+            importFeedUseCase(failedData)
+        }
+    }
+
+    private fun onMoveFailedImportToEdit(id: String) {
+        setState {
+            val failedData = processingData
+                .firstOrNull {
+                    it.addFeedData.id == id && it.status == RssFeedQueueStatus.FAILED
+                }
+                ?.addFeedData
+                ?.copy(
+                    expanded = true,
+                    error = null
+                ) ?: return@setState this
+
+            copy(
+                processingData = processingData.filterNot {
+                    it.addFeedData.id == id && it.status == RssFeedQueueStatus.FAILED
+                },
+                addFeedDataList = addFeedDataList + failedData
+            )
+        }
+    }
 
     private fun onToggleCollapseAll() {
         val expanded = state.value.addFeedDataList.all { it.expanded }
@@ -228,15 +261,17 @@ class AddFeedViewModel(
         }
 
         intent {
-            importFeedUseCase(validData.map {
-                AddFeedData(
-                    url = it.url,
-                    name = it.name,
-                    type = it.type,
-                    tags = it.tags,
-                    folders = it.folders,
-                )
-            })
+            importFeedUseCase(validData.map { it.toAddFeedData() })
         }
+    }
+
+    private fun UIAddFeedData.toAddFeedData(): AddFeedData {
+        return AddFeedData(
+            url = url,
+            name = name,
+            type = type,
+            tags = tags,
+            folders = folders,
+        )
     }
 }

@@ -13,15 +13,22 @@ import androidx.compose.ui.text.style.TextOverflow
 import dev.shounakmulay.devpulse.core.designsystem.components.DPCard
 import dev.shounakmulay.devpulse.core.designsystem.components.DPCardStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPCardVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.designsystem.theme.contentPadding
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIFeedQueueData
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-fun LazyGridScope.statusList(processingData: List<UIFeedQueueData>) {
+fun LazyGridScope.statusList(
+    processingData: List<UIFeedQueueData>,
+    onMoveFailedImportToEdit: (String) -> Unit
+) {
     items(
         items = processingData,
         key = { queueData ->
@@ -52,6 +59,16 @@ fun LazyGridScope.statusList(processingData: List<UIFeedQueueData>) {
                     maxLines = 1,
                     variant = DPTextViewVariant.TitleMediumEmphasized
                 )
+                if (queueData.status == RssFeedQueueStatus.FAILED) {
+                    DPIconButton(
+                        icon = DPIcons.Edit,
+                        variant = DPIconButtonVariant.Secondary,
+                        contentDescription = "Edit",
+                        onClick = {
+                            onMoveFailedImportToEdit(queueData.addFeedData.id)
+                        }
+                    )
+                }
             }
         }
     }
