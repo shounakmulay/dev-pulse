@@ -2,6 +2,8 @@ package dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -9,9 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBar
+import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
@@ -30,7 +34,6 @@ import org.jetbrains.compose.resources.stringResource
 fun AddFeedScreen(
     viewModel: AddFeedViewModel,
     navigator: Navigator,
-    modifier: Modifier = Modifier,
 ) {
     Screen(
         viewModel = viewModel,
@@ -45,7 +48,9 @@ fun AddFeedScreen(
             )
         },
         onEffect = {
-
+            when (it) {
+                else -> viewModel.unhandledEffect(it)
+            }
         },
     ) { state ->
         val isList by remember(state.addFeedDataList.size) {
@@ -54,6 +59,10 @@ fun AddFeedScreen(
             }
         }
         LazyVerticalGrid(
+            modifier = Modifier
+                .widthIn(min = 300.dp, max = 950.dp)
+                .padding(LocalDPSpacing.current.sm)
+                .align(Alignment.TopCenter),
             columns = GridCells.Adaptive(300.dp),
             contentPadding = PaddingValues(bottom = 64.dp),
             verticalArrangement = Arrangement.Center,

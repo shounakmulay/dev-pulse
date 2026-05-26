@@ -18,9 +18,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVarian
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
-import dev.shounakmulay.devpulse.core.designsystem.theme.contentPadding
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIFeedQueueData
 
@@ -38,7 +36,7 @@ fun LazyGridScope.statusList(
         DPCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(DPSize.Small.contentPadding())
+                .padding(LocalDPSpacing.current.sm)
                 .animateItem(),
             variant = DPCardVariant.Default,
             style = DPCardStyle.Elevated,

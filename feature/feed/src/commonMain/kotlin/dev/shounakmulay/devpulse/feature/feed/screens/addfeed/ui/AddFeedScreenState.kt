@@ -13,5 +13,5 @@ data class AddFeedScreenState(
     val addFeedDataList: List<UIAddFeedData> = listOf(
         UIAddFeedData.empty(),
     ),
-    val processingData: List<UIFeedQueueData> = listOf()
+    val processingData: List<UIFeedQueueData> = listOf(),
 ) : ScreenState

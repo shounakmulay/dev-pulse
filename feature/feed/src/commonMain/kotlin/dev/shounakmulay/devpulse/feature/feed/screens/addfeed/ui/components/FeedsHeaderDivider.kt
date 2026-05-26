@@ -7,6 +7,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
@@ -31,7 +32,10 @@ fun LazyGridScope.feedsHeaderDivider(
         span = { GridItemSpan(maxLineSpan) }
     ) {
         Row(
-            modifier = Modifier.padding(LocalDPSpacing.current.sm).animateItem(),
+            modifier = Modifier
+                .padding(LocalDPSpacing.current.sm)
+                .animateItem()
+                .heightIn(min = LocalDPSpacing.current.listItemHeight),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {

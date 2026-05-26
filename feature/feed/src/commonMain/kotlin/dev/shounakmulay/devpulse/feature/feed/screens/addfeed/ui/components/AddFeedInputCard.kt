@@ -23,9 +23,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
-import dev.shounakmulay.devpulse.core.designsystem.theme.contentPadding
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIAddFeedData
 
 @Composable
@@ -44,7 +42,7 @@ fun LazyGridItemScope.AddFeedInputCard(
     DPCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(DPSize.Small.contentPadding())
+            .padding(LocalDPSpacing.current.sm)
             .clickable(enabled = canToggleExpanded, onClick = onToggleExpanded)
             .animateItem(),
         variant = DPCardVariant.Default,

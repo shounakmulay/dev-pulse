@@ -33,7 +33,7 @@ fun LazyGridScope.statusHeader(
             span = { GridItemSpan(maxLineSpan) }
         ) {
             Row(
-                modifier = Modifier.padding(LocalDPSpacing.current.sm),
+                modifier = Modifier.padding(LocalDPSpacing.current.sm).animateItem(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ) {
