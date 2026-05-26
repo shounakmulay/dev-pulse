@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -24,7 +23,11 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.core.ui.text.asString
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIAddFeedData
+import devpulse.core.resources.generated.resources.add_feed_action_delete_feed
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LazyGridItemScope.AddFeedInputCard(
@@ -55,8 +58,7 @@ fun LazyGridItemScope.AddFeedInputCard(
                 index = index,
                 expanded = data.expanded,
                 error = data.error != null,
-                url = data.url,
-                name = data.name,
+                title = data.collapsedHeaderText.asString(),
                 showDelete = showDelete,
                 onDelete = onDelete
             )
@@ -94,7 +96,10 @@ private fun ColumnScope.CardBody(
                 onFocusLost = onSourceInputFocusLost
             )
             Spacer(Modifier.size(LocalDPSpacing.current.md))
-            NameInput(title, onTitleChanged)
+            NameInput(
+                title = title,
+                onTitleChanged = onTitleChanged
+            )
             Spacer(Modifier.size(LocalDPSpacing.current.md))
         }
     }
@@ -105,8 +110,7 @@ private fun CardHeader(
     index: Int,
     expanded: Boolean,
     error: Boolean,
-    url: String,
-    name: String?,
+    title: String,
     showDelete: Boolean,
     onDelete: () -> Unit
 ) {
@@ -118,12 +122,9 @@ private fun CardHeader(
         CircleNumber(number = index + 1, error = error)
 
         AnimatedVisibility(!expanded) {
-            val text = remember(name, url) {
-                name?.ifBlank { null } ?: url.ifBlank { null } ?: "Enter Feed URL"
-            }
             DPTextView(
                 modifier = Modifier.weight(1f),
-                text = text,
+                text = title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 variant = DPTextViewVariant.TitleMediumEmphasized
@@ -133,7 +134,7 @@ private fun CardHeader(
         AnimatedVisibility(showDelete) {
             DPIconButton(
                 icon = DPIcons.Close,
-                contentDescription = "",
+                contentDescription = stringResource(stringRes.add_feed_action_delete_feed),
                 onClick = onDelete
             )
         }

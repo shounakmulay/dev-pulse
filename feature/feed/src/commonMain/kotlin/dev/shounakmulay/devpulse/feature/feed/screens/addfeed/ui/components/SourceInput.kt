@@ -30,9 +30,10 @@ fun SourceInput(
 ) {
 
     var wasFocused by remember { mutableStateOf(false) }
-    val errorText = remember(error) {
+    val enterValidUrlError = stringResource(stringRes.enter_valid_url)
+    val errorText = remember(error, enterValidUrlError) {
         when (error) {
-            UIAddFeedData.ValidationError.INVALID_SOURCE_URL -> stringRes.enter_valid_url
+            UIAddFeedData.ValidationError.INVALID_SOURCE_URL -> enterValidUrlError
             UIAddFeedData.ValidationError.INVALID_RSS_URL -> TODO()
             null -> null
         }
@@ -43,14 +44,14 @@ fun SourceInput(
     DPTextField(
         modifier = Modifier.fillMaxWidth()
             .onFocusChanged { focusState ->
-            if (focusState.isFocused) {
-                wasFocused = true
-            } else if (wasFocused) {
-                wasFocused = false
-                onFocusLost()
-            }
-        },
-        supportingText = if (errorText != null) stringResource(errorText) else null,
+                if (focusState.isFocused) {
+                    wasFocused = true
+                } else if (wasFocused) {
+                    wasFocused = false
+                    onFocusLost()
+                }
+            },
+        supportingText = errorText,
         isError = error != null,
         placeholder = stringResource(stringRes.url),
         singleLine = true,
@@ -67,4 +68,3 @@ fun SourceInput(
         onValueChange = onUrlChanged,
     )
 }
-

@@ -20,7 +20,14 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
+import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIFeedQueueData
+import devpulse.core.resources.generated.resources.add_feed_action_edit_failed_import
+import devpulse.core.resources.generated.resources.add_feed_status_completed
+import devpulse.core.resources.generated.resources.add_feed_status_failed
+import devpulse.core.resources.generated.resources.add_feed_status_processing
+import devpulse.core.resources.generated.resources.add_feed_status_queued
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun LazyGridScope.statusList(
@@ -46,7 +53,16 @@ fun LazyGridScope.statusList(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CircleStatus(queueData.status)
+                CircleStatus(
+                    status = queueData.status,
+                    contentDescription = when (queueData.status) {
+                        RssFeedQueueStatus.QUEUED -> stringResource(stringRes.add_feed_status_queued)
+                        RssFeedQueueStatus.PROCESSING -> stringResource(stringRes.add_feed_status_processing)
+                        RssFeedQueueStatus.COMPLETED -> stringResource(stringRes.add_feed_status_completed)
+                        RssFeedQueueStatus.FAILED -> stringResource(stringRes.add_feed_status_failed)
+                        null -> stringResource(stringRes.add_feed_status_queued)
+                    }
+                )
                 DPTextView(
                     modifier = Modifier.weight(1f)
                         .padding(horizontal = LocalDPSpacing.current.sm),
@@ -61,7 +77,7 @@ fun LazyGridScope.statusList(
                     DPIconButton(
                         icon = DPIcons.Edit,
                         variant = DPIconButtonVariant.Secondary,
-                        contentDescription = "Edit",
+                        contentDescription = stringResource(stringRes.add_feed_action_edit_failed_import),
                         onClick = {
                             onMoveFailedImportToEdit(queueData.addFeedData.id)
                         }

@@ -21,10 +21,13 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVarian
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.resources.stringRes
+import devpulse.core.resources.generated.resources.add_feed_action_expand_collapse_feeds
+import devpulse.core.resources.generated.resources.add_feed_feeds
+import org.jetbrains.compose.resources.stringResource
 
 fun LazyGridScope.feedsHeaderDivider(
     toggleAllVisible: Boolean,
-    title: String,
     onToggleCollapseAll: () -> Unit,
 ) {
     item(
@@ -40,7 +43,7 @@ fun LazyGridScope.feedsHeaderDivider(
             horizontalArrangement = Arrangement.End
         ) {
             DPTextView(
-                text = title,
+                text = stringResource(stringRes.add_feed_feeds),
                 variant = DPTextViewVariant.TitleSmallEmphasized
             )
             DPHorizontalDivider(Modifier.padding(LocalDPSpacing.current.sm).weight(1f))
@@ -52,7 +55,7 @@ fun LazyGridScope.feedsHeaderDivider(
                 DPIconButton(
                     icon = Icons.Default.Expand,
                     variant = DPIconButtonVariant.Secondary,
-                    contentDescription = "",
+                    contentDescription = stringResource(stringRes.add_feed_action_expand_collapse_feeds),
                     onClick = onToggleCollapseAll
                 )
             }

@@ -2,6 +2,9 @@ package dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model
 
 import androidx.compose.runtime.Immutable
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedType
+import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.core.ui.text.TextResource
+import devpulse.core.resources.generated.resources.enter_feed_url
 import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -15,6 +18,7 @@ data class UIAddFeedData(
     val type: RssFeedType,
     val tags: List<Int>,
     val folders: List<Int>,
+    val collapsedHeaderText: TextResource = TextResource.fromStringRes(stringRes.enter_feed_url),
     val expanded: Boolean = true,
     val error: ValidationError? = null
 ) {

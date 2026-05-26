@@ -15,7 +15,10 @@ import devpulse.core.resources.generated.resources.name_optional
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun NameInput(title: String, onTitleChanged: (String) -> Unit) {
+fun NameInput(
+    title: String,
+    onTitleChanged: (String) -> Unit
+) {
     FormFieldTitle(text = stringResource(stringRes.name_optional))
 
     DPTextField(
@@ -35,4 +38,3 @@ fun NameInput(title: String, onTitleChanged: (String) -> Unit) {
         onValueChange = onTitleChanged,
     )
 }
-

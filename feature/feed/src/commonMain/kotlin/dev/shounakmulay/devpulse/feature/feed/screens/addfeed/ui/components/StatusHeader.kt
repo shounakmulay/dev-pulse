@@ -19,10 +19,15 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.resources.stringRes
+import devpulse.core.resources.generated.resources.add_feed_action_clear_all
+import devpulse.core.resources.generated.resources.add_feed_action_queue
+import devpulse.core.resources.generated.resources.add_feed_action_retry_failed_imports
+import devpulse.core.resources.generated.resources.add_feed_status
+import org.jetbrains.compose.resources.stringResource
 
 fun LazyGridScope.statusHeader(
     visible: Boolean,
-    title: String,
     onClearAll: () -> Unit,
     onRetryFailedImports: () -> Unit,
     onOpenQueue: () -> Unit
@@ -38,13 +43,13 @@ fun LazyGridScope.statusHeader(
                 horizontalArrangement = Arrangement.End
             ) {
                 DPTextView(
-                    text = title,
+                    text = stringResource(stringRes.add_feed_status),
                     variant = DPTextViewVariant.TitleSmallEmphasized
                 )
                 DPHorizontalDivider(Modifier.padding(LocalDPSpacing.current.sm).weight(1f))
                 DPButton(
                     variant = DPButtonVariant.Secondary,
-                    text = "Queue",
+                    text = stringResource(stringRes.add_feed_action_queue),
                     onClick = onOpenQueue,
                     style = DPButtonStyle.Text,
                     leadingIcon = Icons.AutoMirrored.Default.List
@@ -52,13 +57,13 @@ fun LazyGridScope.statusHeader(
                 DPIconButton(
                     icon = DPIcons.Refresh,
                     variant = DPIconButtonVariant.Secondary,
-                    contentDescription = "",
+                    contentDescription = stringResource(stringRes.add_feed_action_retry_failed_imports),
                     onClick = onRetryFailedImports
                 )
                 DPIconButton(
                     icon = DPIcons.ClearAll,
                     variant = DPIconButtonVariant.Secondary,
-                    contentDescription = "Clear All",
+                    contentDescription = stringResource(stringRes.add_feed_action_clear_all),
                     onClick = onClearAll
                 )
             }

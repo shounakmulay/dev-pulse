@@ -70,14 +70,14 @@ fun AddFeedScreen(
         ) {
             statusHeader(
                 visible = state.processingData.isNotEmpty(),
-                title = "STATUS",
                 onOpenQueue = {},
                 onRetryFailedImports = {
                     viewModel.onEvent(AddFeedScreenEvent.RetryFailedImports)
                 },
                 onClearAll = {
                     viewModel.onEvent(AddFeedScreenEvent.ClearAllStatus)
-                })
+                }
+            )
             statusList(
                 processingData = state.processingData,
                 onMoveFailedImportToEdit = {
@@ -86,7 +86,6 @@ fun AddFeedScreen(
             )
             feedsHeaderDivider(
                 toggleAllVisible = state.addFeedDataList.size > 1,
-                title = "FEEDS",
                 onToggleCollapseAll = { viewModel.onEvent(AddFeedScreenEvent.ToggleCollapseAll) },
             )
             importFeedItems(

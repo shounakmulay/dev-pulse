@@ -12,9 +12,14 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.resources.stringRes
+import devpulse.core.resources.generated.resources.add_feed_action_add_feed
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun LazyGridItemScope.AddNewCardButton(onClick: () -> Unit) {
+fun LazyGridItemScope.AddNewCardButton(
+    onClick: () -> Unit
+) {
     Row(
         Modifier.fillMaxWidth().padding(LocalDPSpacing.current.md).animateItem(),
         horizontalArrangement = Arrangement.Center
@@ -23,7 +28,7 @@ fun LazyGridItemScope.AddNewCardButton(onClick: () -> Unit) {
             icon = DPIcons.Add,
             style = DPIconButtonStyle.Filled,
             variant = DPIconButtonVariant.Secondary,
-            contentDescription = "",
+            contentDescription = stringResource(stringRes.add_feed_action_add_feed),
             onClick = onClick
         )
     }

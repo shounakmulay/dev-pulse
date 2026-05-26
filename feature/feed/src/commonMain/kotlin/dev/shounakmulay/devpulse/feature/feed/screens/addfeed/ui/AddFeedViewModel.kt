@@ -6,11 +6,14 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.ImportFeedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.queue.ObserveFeedQueueForUrlsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.feed.AddFeedData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
+import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.effect.Effect
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
+import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIAddFeedData
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIFeedQueueData
+import devpulse.core.resources.generated.resources.enter_feed_url
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -136,7 +139,7 @@ class AddFeedViewModel(
                     if (normalizedUrl == null) {
                         it.copy(error = UIAddFeedData.ValidationError.INVALID_SOURCE_URL)
                     } else {
-                        it.copy(url = normalizedUrl, error = null)
+                        it.copy(url = normalizedUrl, error = null).withCollapsedHeaderText()
                     }
                 }
             )
@@ -185,7 +188,7 @@ class AddFeedViewModel(
         setState {
             copy(
                 addFeedDataList = addFeedDataList.map {
-                    if (it.id == id) it.copy(name = name) else it
+                    if (it.id == id) it.copy(name = name).withCollapsedHeaderText() else it
                 }
             )
         }
@@ -198,7 +201,7 @@ class AddFeedViewModel(
                     if (it.id == id) {
                         it.copy(
                             url = url
-                        )
+                        ).withCollapsedHeaderText()
                     } else it
                 }
             )
@@ -220,7 +223,7 @@ class AddFeedViewModel(
                     data.copy(
                         url = normalizedUrl,
                         error = null
-                    )
+                    ).withCollapsedHeaderText()
                 }
             }
             .groupBy { it.error == null }
@@ -254,6 +257,15 @@ class AddFeedViewModel(
             type = type,
             tags = tags,
             folders = folders,
+        )
+    }
+
+    private fun UIAddFeedData.withCollapsedHeaderText(): UIAddFeedData {
+        val text = name?.ifBlank { null }
+            ?: url.ifBlank { null }
+        return copy(
+            collapsedHeaderText = text?.let(TextResource::fromText)
+                ?: TextResource.fromStringRes(stringRes.enter_feed_url)
         )
     }
 }

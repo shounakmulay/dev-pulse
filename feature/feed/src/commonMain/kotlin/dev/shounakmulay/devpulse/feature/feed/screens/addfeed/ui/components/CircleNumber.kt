@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
@@ -37,7 +39,7 @@ fun CircleNumber(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .size(56.dp) // Size of the circle
+            .size(56.dp)
             .background(
                 color = animatedColor,
                 shape = CircleShape
@@ -54,6 +56,7 @@ fun CircleNumber(
 @Composable
 fun CircleStatus(
     status: RssFeedQueueStatus?,
+    contentDescription: String,
     modifier: Modifier = Modifier
 ) {
     val contextColors = LocalDPContextColors.current
@@ -76,7 +79,8 @@ fun CircleStatus(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .size(56.dp) // Size of the circle
+            .size(56.dp)
+            .semantics { this.contentDescription = contentDescription }
             .background(
                 color = animatedContainerColor,
                 shape = CircleShape
@@ -106,7 +110,7 @@ fun CircleStatus(
                     RssFeedQueueStatus.FAILED -> DPIcons.Failed
                     else -> DPIcons.Queued
                 },
-                contentDescription = ""
+                contentDescription = null
             )
         }
     }
