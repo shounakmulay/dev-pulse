@@ -1,378 +1,107 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package dev.shounakmulay.devpulse.core.designsystem.components
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
-import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.iconSize
-import dev.shounakmulay.devpulse.core.designsystem.theme.monoFontFamily
 
-/** Visual container style: [Filled] → Material [TextField], [Outlined] → [OutlinedTextField]. */
-enum class DPTextFieldStyle { Outlined, Filled }
+enum class DPTextFieldVariant { Outlined, Filled }
 
-/** Font for field text. [Mono] merges [monoFontFamily] into the size-based [TextStyle]. */
-enum class DPFontFamily { Sans, Mono }
-
-private class DPTextFieldLayout(
-    val textStyle: TextStyle,
-    val colors: TextFieldColors,
-    val shape: Shape,
-    val interactionSource: MutableInteractionSource,
-    val label: @Composable (() -> Unit)?,
-    val placeholder: @Composable (() -> Unit)?,
-    val supportingText: @Composable (() -> Unit)?,
-    val leading: @Composable (() -> Unit)?,
-    val trailing: @Composable (() -> Unit)?,
-    val isError: Boolean,
-)
-
-@Composable
-private fun dpTextFieldLayout(
-    style: DPTextFieldStyle,
-    size: DPSize,
-    fontFamily: DPFontFamily,
-    isError: Boolean,
-    label: String?,
-    placeholder: String?,
-    supportingText: String?,
-    leadingIcon: ImageVector?,
-    trailingIcon: ImageVector?,
-    onTrailingIconClick: (() -> Unit)?,
-    textStyle: TextStyle?,
-    shape: Shape?,
-    colors: TextFieldColors?,
-    interactionSource: MutableInteractionSource?,
-): DPTextFieldLayout {
-    val baseTypography = when (size) {
-        DPSize.Small -> MaterialTheme.typography.bodySmall
-        DPSize.Medium -> MaterialTheme.typography.bodyMedium
-        DPSize.Large -> MaterialTheme.typography.bodyLarge
-    }
-    val withFontFamily = when (fontFamily) {
-        DPFontFamily.Sans -> baseTypography
-        DPFontFamily.Mono -> baseTypography.merge(TextStyle(fontFamily = monoFontFamily()))
-    }
-    val resolvedTextStyle = textStyle?.let { withFontFamily.merge(it) } ?: withFontFamily
-
-    val resolvedColors = colors ?: when (style) {
-        DPTextFieldStyle.Filled -> TextFieldDefaults.colors()
-        DPTextFieldStyle.Outlined -> OutlinedTextFieldDefaults.colors()
-    }
-    val resolvedShape = when {
-        shape != null -> shape
-        style == DPTextFieldStyle.Filled -> TextFieldDefaults.shape
-        style == DPTextFieldStyle.Outlined -> OutlinedTextFieldDefaults.shape
-        else -> TextFieldDefaults.shape
-    }
-    val iSource = interactionSource ?: remember { MutableInteractionSource() }
-    val labelContent: @Composable (() -> Unit)? =
-        if (label != null) {
-            { Text(label) }
-        } else {
-            null
-        }
-    val placeholderContent: @Composable (() -> Unit)? =
-        if (placeholder != null) {
-            { Text(placeholder) }
-        } else {
-            null
-        }
-    val supportingTextContent: @Composable (() -> Unit)? =
-        if (supportingText != null) {
-            { Text(supportingText) }
-        } else {
-            null
-        }
-    val iconDim = size.iconSize()
-    val leadingContent: @Composable (() -> Unit)? =
-        if (leadingIcon != null) {
-            { Icon(leadingIcon, null, Modifier.size(iconDim)) }
-        } else {
-            null
-        }
-    val trailingContent: @Composable (() -> Unit)? =
-        if (trailingIcon != null) {
-            if (onTrailingIconClick != null) {
-                {
-                    IconButton(onClick = onTrailingIconClick) {
-                        Icon(trailingIcon, null, Modifier.size(iconDim))
-                    }
-                }
-            } else {
-                { Icon(trailingIcon, null, Modifier.size(iconDim)) }
-            }
-        } else {
-            null
-        }
-    return DPTextFieldLayout(
-        textStyle = resolvedTextStyle,
-        colors = resolvedColors,
-        shape = resolvedShape,
-        interactionSource = iSource,
-        label = labelContent,
-        placeholder = placeholderContent,
-        supportingText = supportingTextContent,
-        leading = leadingContent,
-        trailing = trailingContent,
-        isError = isError,
-    )
-}
-
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DPTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    style: DPTextFieldStyle = DPTextFieldStyle.Outlined,
-    size: DPSize = DPSize.Medium,
-    fontFamily: DPFontFamily = DPFontFamily.Sans,
+    variant: DPTextFieldVariant = DPTextFieldVariant.Outlined,
+    textVariant: DPTextViewVariant = DPTextViewVariant.BodyLarge,
     label: String? = null,
     placeholder: String? = null,
     supportingText: String? = null,
-    leadingIcon: ImageVector? = null,
-    trailingIcon: ImageVector? = null,
-    onTrailingIconClick: (() -> Unit)? = null,
-    isError: Boolean = false,
     enabled: Boolean = true,
     readOnly: Boolean = false,
+    isError: Boolean = false,
+    singleLine: Boolean = false,
+    minLines: Int = 1,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    singleLine: Boolean = false,
-    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
-    minLines: Int = 1,
-    interactionSource: MutableInteractionSource? = null,
-    textStyle: TextStyle? = null,
-    shape: Shape? = null,
+    shape: Shape = MaterialTheme.shapes.extraExtraLarge,
     colors: TextFieldColors? = null,
-) {
-    val l = dpTextFieldLayout(
-        style = style,
-        size = size,
-        fontFamily = fontFamily,
-        isError = isError,
-        label = label,
-        placeholder = placeholder,
-        supportingText = supportingText,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        onTrailingIconClick = onTrailingIconClick,
-        textStyle = textStyle,
-        shape = shape,
-        colors = colors,
-        interactionSource = interactionSource,
-    )
-    when (style) {
-        DPTextFieldStyle.Filled -> TextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier,
-            enabled = enabled,
-            readOnly = readOnly,
-            textStyle = l.textStyle,
-            label = l.label,
-            placeholder = l.placeholder,
-            leadingIcon = l.leading,
-            trailingIcon = l.trailing,
-            prefix = null,
-            suffix = null,
-            supportingText = l.supportingText,
-            isError = l.isError,
-            visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
-            singleLine = singleLine,
-            maxLines = maxLines,
-            minLines = minLines,
-            interactionSource = l.interactionSource,
-            shape = l.shape,
-            colors = l.colors,
-        )
-        DPTextFieldStyle.Outlined -> OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier,
-            enabled = enabled,
-            readOnly = readOnly,
-            textStyle = l.textStyle,
-            label = l.label,
-            placeholder = l.placeholder,
-            leadingIcon = l.leading,
-            trailingIcon = l.trailing,
-            prefix = null,
-            suffix = null,
-            supportingText = l.supportingText,
-            isError = l.isError,
-            visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
-            singleLine = singleLine,
-            maxLines = maxLines,
-            minLines = minLines,
-            interactionSource = l.interactionSource,
-            shape = l.shape,
-            colors = l.colors,
-        )
-    }
-}
-
-@Composable
-fun DPTextField(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier,
-    style: DPTextFieldStyle = DPTextFieldStyle.Outlined,
-    size: DPSize = DPSize.Medium,
-    fontFamily: DPFontFamily = DPFontFamily.Sans,
-    label: String? = null,
-    placeholder: String? = null,
-    supportingText: String? = null,
-    leadingIcon: ImageVector? = null,
-    trailingIcon: ImageVector? = null,
-    onTrailingIconClick: (() -> Unit)? = null,
-    isError: Boolean = false,
-    enabled: Boolean = true,
-    readOnly: Boolean = false,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    singleLine: Boolean = false,
-    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
-    minLines: Int = 1,
-    interactionSource: MutableInteractionSource? = null,
     textStyle: TextStyle? = null,
-    shape: Shape? = null,
-    colors: TextFieldColors? = null,
 ) {
-    val l = dpTextFieldLayout(
-        style = style,
-        size = size,
-        fontFamily = fontFamily,
-        isError = isError,
-        label = label,
-        placeholder = placeholder,
-        supportingText = supportingText,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        onTrailingIconClick = onTrailingIconClick,
-        textStyle = textStyle,
-        shape = shape,
-        colors = colors,
-        interactionSource = interactionSource,
-    )
-    when (style) {
-        DPTextFieldStyle.Filled -> TextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier,
-            enabled = enabled,
-            readOnly = readOnly,
-            textStyle = l.textStyle,
-            label = l.label,
-            placeholder = l.placeholder,
-            leadingIcon = l.leading,
-            trailingIcon = l.trailing,
-            prefix = null,
-            suffix = null,
-            supportingText = l.supportingText,
-            isError = l.isError,
-            visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
-            singleLine = singleLine,
-            maxLines = maxLines,
-            minLines = minLines,
-            interactionSource = l.interactionSource,
-            shape = l.shape,
-            colors = l.colors,
-        )
-        DPTextFieldStyle.Outlined -> OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier,
-            enabled = enabled,
-            readOnly = readOnly,
-            textStyle = l.textStyle,
-            label = l.label,
-            placeholder = l.placeholder,
-            leadingIcon = l.leading,
-            trailingIcon = l.trailing,
-            prefix = null,
-            suffix = null,
-            supportingText = l.supportingText,
-            isError = l.isError,
-            visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
-            singleLine = singleLine,
-            maxLines = maxLines,
-            minLines = minLines,
-            interactionSource = l.interactionSource,
-            shape = l.shape,
-            colors = l.colors,
-        )
-    }
-}
-
-@DPComponentPreview
-@Composable
-private fun DPTextFieldVariantsPreview() {
-    Preview {
-        var v by remember { mutableStateOf("") }
-        Column(
-            modifier = Modifier.padding(DPTheme.spacing.lg),
-            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
-        ) {
-            DPTextField(value = v, onValueChange = { v = it }, label = "Outlined")
-            DPTextField(
-                value = v,
-                onValueChange = { v = it },
-                style = DPTextFieldStyle.Filled,
-                label = "Filled",
-            )
-            DPTextField(
-                value = v,
-                onValueChange = { v = it },
-                isError = true,
-                label = "Error",
-                supportingText = "Invalid input",
-            )
-            DPTextField(
-                value = v,
-                onValueChange = { v = it },
-                fontFamily = DPFontFamily.Mono,
-                label = "Mono",
-            )
+    val baseTextStyle = textVariant.textStyle()
+    val resolvedTextStyle = textStyle?.let { baseTextStyle.merge(it) } ?: baseTextStyle
+    val labelContent: (@Composable () -> Unit)? =
+        label?.let { labelText ->
+            { DPTextView(text = labelText, variant = DPTextViewVariant.LabelMedium) }
         }
+    val placeholderContent: (@Composable () -> Unit)? =
+        placeholder?.let { placeholderText ->
+            { DPTextView(text = placeholderText, variant = textVariant) }
+        }
+    val supportingTextContent: (@Composable () -> Unit)? =
+        supportingText?.let { supportingText ->
+            { DPTextView(text = supportingText, variant = DPTextViewVariant.BodySmall) }
+        }
+
+    when (variant) {
+        DPTextFieldVariant.Outlined -> OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = modifier,
+            enabled = enabled,
+            readOnly = readOnly,
+            textStyle = resolvedTextStyle,
+            label = labelContent,
+            placeholder = placeholderContent,
+            supportingText = supportingTextContent,
+            isError = isError,
+            visualTransformation = visualTransformation,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            singleLine = singleLine,
+            minLines = minLines,
+            maxLines = maxLines,
+            shape = shape,
+            colors = colors ?: OutlinedTextFieldDefaults.colors(),
+        )
+        DPTextFieldVariant.Filled -> TextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = modifier,
+            enabled = enabled,
+            readOnly = readOnly,
+            textStyle = resolvedTextStyle,
+            label = labelContent,
+            placeholder = placeholderContent,
+            supportingText = supportingTextContent,
+            isError = isError,
+            visualTransformation = visualTransformation,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            singleLine = singleLine,
+            minLines = minLines,
+            maxLines = maxLines,
+            shape = shape,
+            colors = colors ?: TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                errorIndicatorColor = Color.Transparent,
+            ),
+        )
     }
 }

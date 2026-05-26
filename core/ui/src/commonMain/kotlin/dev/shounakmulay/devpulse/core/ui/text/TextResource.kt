@@ -1,13 +1,8 @@
-@file:UseSerializers(StringResourceSerializer::class, PluralStringResourceSerializer::class)
-
 package dev.shounakmulay.devpulse.core.ui.text
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.TextLinkStyles
-import dev.shounakmulay.devpulse.core.ui.text.serialization.PluralStringResourceSerializer
-import dev.shounakmulay.devpulse.core.ui.text.serialization.StringResourceSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import org.jetbrains.compose.resources.PluralStringResource
 import org.jetbrains.compose.resources.StringResource
 
@@ -69,14 +64,19 @@ sealed class TextResource {
 data class SimpleTextResource(val text: String) : TextResource()
 
 @Serializable
-data class StringResTextResource(val res: StringResource) : TextResource()
+data class StringResTextResource(val key: String) : TextResource() {
+    constructor(res: StringResource) : this(res.key)
+}
 
 @Serializable
-data class StringResWithArgsTextResource(val res: StringResource, val args: List<String>) :
-    TextResource()
+data class StringResWithArgsTextResource(val key: String, val args: List<String>) : TextResource() {
+    constructor(res: StringResource, args: List<String>) : this(res.key, args)
+}
 
 @Serializable
-data class PluralResTextResource(val res: PluralStringResource, val quantity: Int) : TextResource()
+data class PluralResTextResource(val key: String, val quantity: Int) : TextResource() {
+    constructor(res: PluralStringResource, quantity: Int) : this(res.key, quantity)
+}
 
 @Serializable
 data class JoinedTextResource(val parts: List<TextResource>, val separator: String) : TextResource()

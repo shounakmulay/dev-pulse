@@ -20,11 +20,15 @@ class ExpandableListDetailSceneStrategy<T : Any>(
             return null
         }
 
-        val detailEntry =
-            entries.lastOrNull()?.takeIf { it.metadata.contains(DetailKey.toString()) }
+
+        val detailEntry = entries
+            .lastOrNull()
+            ?.takeIf { it.metadata.contains(DetailKey.toString()) }
         val draggable = detailEntry?.metadata[DetailDraggable.toString()] as? Boolean ?: false
 
-        val listEntry = entries.findLast { it.metadata.contains(ListKey.toString()) } ?: return null
+        val listEntry = entries.let {
+            if (detailEntry != null) it.getOrNull(entries.size - 2) else it.lastOrNull()
+        }?.takeIf { it.metadata.contains(ListKey.toString()) } ?: return null
 
         // We use the list's contentKey to uniquely identify the scene.
         // This allows the detail panes to be displayed instantly through recomposition, rather than

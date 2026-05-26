@@ -1,0 +1,89 @@
+package dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.components
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
+import dev.shounakmulay.devpulse.core.designsystem.components.DPCard
+import dev.shounakmulay.devpulse.core.designsystem.components.DPCardStyle
+import dev.shounakmulay.devpulse.core.designsystem.components.DPCardVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
+import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
+import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIFeedQueueData
+import devpulse.core.resources.generated.resources.add_feed_action_edit_failed_import
+import devpulse.core.resources.generated.resources.add_feed_status_completed
+import devpulse.core.resources.generated.resources.add_feed_status_failed
+import devpulse.core.resources.generated.resources.add_feed_status_processing
+import devpulse.core.resources.generated.resources.add_feed_status_queued
+import org.jetbrains.compose.resources.stringResource
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+fun LazyGridScope.statusList(
+    processingData: List<UIFeedQueueData>,
+    onMoveFailedImportToEdit: (String) -> Unit
+) {
+    items(
+        items = processingData,
+        key = { queueData ->
+            queueData.addFeedData.id
+        }
+    ) { queueData ->
+        DPCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(LocalDPSpacing.current.sm)
+                .animateItem(),
+            variant = DPCardVariant.Default,
+            style = DPCardStyle.Elevated,
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(LocalDPSpacing.current.lg),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircleStatus(
+                    status = queueData.status,
+                    contentDescription = when (queueData.status) {
+                        RssFeedQueueStatus.QUEUED -> stringResource(stringRes.add_feed_status_queued)
+                        RssFeedQueueStatus.PROCESSING -> stringResource(stringRes.add_feed_status_processing)
+                        RssFeedQueueStatus.COMPLETED -> stringResource(stringRes.add_feed_status_completed)
+                        RssFeedQueueStatus.FAILED -> stringResource(stringRes.add_feed_status_failed)
+                        null -> stringResource(stringRes.add_feed_status_queued)
+                    }
+                )
+                DPTextView(
+                    modifier = Modifier.weight(1f)
+                        .padding(horizontal = LocalDPSpacing.current.sm),
+                    text = queueData.addFeedData.name.orEmpty().ifBlank {
+                        queueData.addFeedData.url
+                    },
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    variant = DPTextViewVariant.TitleMediumEmphasized
+                )
+                if (queueData.status == RssFeedQueueStatus.FAILED) {
+                    DPIconButton(
+                        icon = DPIcons.Edit,
+                        variant = DPIconButtonVariant.Secondary,
+                        contentDescription = stringResource(stringRes.add_feed_action_edit_failed_import),
+                        onClick = {
+                            onMoveFailedImportToEdit(queueData.addFeedData.id)
+                        }
+                    )
+                }
+            }
+        }
+    }
+}

@@ -53,13 +53,13 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
             )
         },
     ) {
-        val canToggleBlackMode = canToggleBlackMode(isDarkTheme = DPTheme.isDarkTheme)
+        val canToggleBlackMode = it.canToggleBlackMode(isDarkTheme = DPTheme.isDarkTheme)
 
         LazyColumn {
             item {
                 ThemeSettingsSection(
-                    selectedThemeMode = themeMode,
-                    isBlackMode = isBlackMode,
+                    selectedThemeMode = it.themeMode,
+                    isBlackMode = it.isBlackMode,
                     canToggleBlackMode = canToggleBlackMode,
                     onThemeModeSelected = { value ->
                         viewModel.onEvent(SettingsScreenEvent.OnThemeModeSelected(value))

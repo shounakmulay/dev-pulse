@@ -32,7 +32,7 @@ fun NavDisplay(
                 ExpandableListDetailSceneStrategy(
                     windowSizeClass = windowAdaptiveInfo.windowSizeClass,
                 ),
-                SinglePaneSceneStrategy<Screen>()
+                SinglePaneSceneStrategy<Screen>(),
             )
         }
     }

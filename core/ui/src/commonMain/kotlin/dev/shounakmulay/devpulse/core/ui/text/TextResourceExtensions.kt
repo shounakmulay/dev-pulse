@@ -13,9 +13,9 @@ import org.jetbrains.compose.resources.stringResource
 
 suspend fun TextResource.resolve(): String = when (this) {
     is SimpleTextResource -> text
-    is StringResTextResource -> getString(res)
-    is StringResWithArgsTextResource -> getString(res, *args.toTypedArray())
-    is PluralResTextResource -> getPluralString(res, quantity, quantity)
+    is StringResTextResource -> getString(toStringResource())
+    is StringResWithArgsTextResource -> getString(toStringResource(), *args.toTypedArray())
+    is PluralResTextResource -> getPluralString(toPluralStringResource(), quantity, quantity)
     is JoinedTextResource -> parts.map { it.resolve() }.filter { it.isNotEmpty() }.joinToString(separator)
     is StyledTextResource -> resource.resolve()
     is UrlTextResource -> resource.resolve()
@@ -25,9 +25,9 @@ suspend fun TextResource.resolve(): String = when (this) {
 suspend fun TextResource.resolveAnnotated(onLinkClick: ((String) -> Unit)? = null): AnnotatedString =
     when (this) {
         is SimpleTextResource -> AnnotatedString(text)
-        is StringResTextResource -> AnnotatedString(getString(res))
-        is StringResWithArgsTextResource -> AnnotatedString(getString(res, *args.toTypedArray()))
-        is PluralResTextResource -> AnnotatedString(getPluralString(res, quantity, quantity))
+        is StringResTextResource -> AnnotatedString(getString(toStringResource()))
+        is StringResWithArgsTextResource -> AnnotatedString(getString(toStringResource(), *args.toTypedArray()))
+        is PluralResTextResource -> AnnotatedString(getPluralString(toPluralStringResource(), quantity, quantity))
         is JoinedTextResource -> {
             val resolvedParts = parts.map { it.resolveAnnotated(onLinkClick) }.filter { it.isNotEmpty() }
             val sep = AnnotatedString(separator)
@@ -59,9 +59,9 @@ suspend fun TextResource.resolveAnnotated(onLinkClick: ((String) -> Unit)? = nul
 @Composable
 fun TextResource.asString(): String = when (this) {
     is SimpleTextResource -> text
-    is StringResTextResource -> stringResource(res)
-    is StringResWithArgsTextResource -> stringResource(res, *args.toTypedArray())
-    is PluralResTextResource -> pluralStringResource(res, quantity)
+    is StringResTextResource -> stringResource(toStringResource())
+    is StringResWithArgsTextResource -> stringResource(toStringResource(), *args.toTypedArray())
+    is PluralResTextResource -> pluralStringResource(toPluralStringResource(), quantity)
     is JoinedTextResource -> parts.map { it.asString() }.filter { it.isNotEmpty() }.joinToString(separator)
     is StyledTextResource -> resource.asString()
     is UrlTextResource -> resource.asString()
@@ -72,9 +72,9 @@ fun TextResource.asString(): String = when (this) {
 fun TextResource.asAnnotatedString(onLinkClick: ((String) -> Unit)? = null): AnnotatedString =
     when (this) {
         is SimpleTextResource -> AnnotatedString(text)
-        is StringResTextResource -> AnnotatedString(stringResource(res))
-        is StringResWithArgsTextResource -> AnnotatedString(stringResource(res, *args.toTypedArray()))
-        is PluralResTextResource -> AnnotatedString(pluralStringResource(res, quantity))
+        is StringResTextResource -> AnnotatedString(stringResource(toStringResource()))
+        is StringResWithArgsTextResource -> AnnotatedString(stringResource(toStringResource(), *args.toTypedArray()))
+        is PluralResTextResource -> AnnotatedString(pluralStringResource(toPluralStringResource(), quantity))
         is JoinedTextResource -> {
             val resolvedParts = parts.map { it.asAnnotatedString(onLinkClick) }.filter { it.isNotEmpty() }
             val sep = AnnotatedString(separator)

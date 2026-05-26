@@ -11,9 +11,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.devpulse.core.designsystem.components.DPFontFamily
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextField
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextFieldStyle
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextFieldVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 
@@ -43,7 +42,7 @@ fun TextFieldsBoard(modifier: Modifier = Modifier) {
                 value = text,
                 onValueChange = { text = it },
                 modifier = Modifier.fillMaxWidth(),
-                style = DPTextFieldStyle.Filled,
+                variant = DPTextFieldVariant.Filled,
                 label = "Label",
                 placeholder = "Placeholder",
             )
@@ -67,7 +66,7 @@ fun TextFieldsBoard(modifier: Modifier = Modifier) {
                 value = code,
                 onValueChange = { code = it },
                 modifier = Modifier.fillMaxWidth(),
-                fontFamily = DPFontFamily.Mono,
+                textVariant = DPTextViewVariant.LabelLarge,
                 label = "Code",
                 placeholder = "Enter code…",
                 singleLine = true,

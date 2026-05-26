@@ -11,17 +11,17 @@ import androidx.room3.Index
             entity = LocalRssContentFeedPost::class,
             parentColumns = ["id"],
             childColumns = ["postId"],
-            onDelete = ForeignKey.Companion.CASCADE
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = LocalRssPostTag::class,
             parentColumns = ["id"],
             childColumns = ["tagId"],
-            onDelete = ForeignKey.Companion.CASCADE
+            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
-        Index(value = ["tagId"])
+        Index(value = ["tagId", "postId"])
     ]
 )
 data class LocalRssPostToTagMapping(

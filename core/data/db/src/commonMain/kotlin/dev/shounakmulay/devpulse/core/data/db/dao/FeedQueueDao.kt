@@ -7,6 +7,7 @@ import androidx.room3.Query
 import androidx.room3.Upsert
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedQueue
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedQueueStatus
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FeedQueueDao {
@@ -48,4 +49,18 @@ interface FeedQueueDao {
 
     @Query("UPDATE LocalRssFeedQueue SET status = :localStatus WHERE id = :id")
     suspend fun updateStatus(id: Int, localStatus: LocalRssFeedQueueStatus)
+
+    @Query(
+        """
+        SELECT * FROM LocalRssFeedQueue
+        WHERE id IN (
+            SELECT MAX(id)
+            FROM LocalRssFeedQueue
+            WHERE url IN (:urls)
+            GROUP BY url
+        )
+        ORDER BY id DESC
+        """
+    )
+    fun observeEntriesForUrls(urls: List<String>): Flow<List<LocalRssFeedQueue>>
 }

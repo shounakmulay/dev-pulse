@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui
 
 import androidx.lifecycle.ViewModel
-import dev.shounakmulay.devpulse.core.domain.feed.InitialiseFeedQueueProcessingUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.queue.InitialiseFeedQueueProcessingUseCase
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import org.koin.core.annotation.KoinViewModel
 
