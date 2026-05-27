@@ -6,10 +6,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
@@ -20,31 +19,39 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SearchBarState
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.rememberContainedSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.window.core.layout.WindowSizeClass
+import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPClickableRow
-import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
-import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
+import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.FeedsSectionHeader
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.PinnedAndRecentsGrid
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.PinnedAndRecentsGridLoading
+import devpulse.core.resources.generated.resources.add_feed_action_import
+import devpulse.core.resources.generated.resources.feed_detail_title
+import devpulse.core.resources.generated.resources.feed_empty_imported
+import devpulse.core.resources.generated.resources.feed_search
+import devpulse.core.resources.generated.resources.feed_search_back
+import devpulse.core.resources.generated.resources.feed_search_result
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(
     ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class,
@@ -54,11 +61,12 @@ import kotlinx.coroutines.launch
 fun FeedScreen(
     navigator: Navigator,
     viewModel: FeedViewModel,
-    modifier: Modifier = Modifier,
 ) {
     val textFieldState = rememberTextFieldState()
     val searchBarState = rememberContainedSearchBarState()
     val scope = rememberCoroutineScope()
+    val searchText = stringResource(stringRes.feed_search)
+    val searchBackContentDescription = stringResource(stringRes.feed_search_back)
     val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior(
     )
     val appBarWithSearchColors =
@@ -73,7 +81,7 @@ fun FeedScreen(
                 colors = appBarWithSearchColors.searchBarColors.inputFieldColors,
                 onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
                 placeholder = {
-                    Text(modifier = Modifier.clearAndSetSemantics {}, text = "Search")
+                    Text(modifier = Modifier.clearAndSetSemantics {}, text = searchText)
                 },
                 leadingIcon = {
                     val scope = rememberCoroutineScope()
@@ -84,7 +92,7 @@ fun FeedScreen(
                     ) {
                         Icon(
                             Icons.Default.ArrowBack,
-                            contentDescription = "",
+                            contentDescription = searchBackContentDescription,
                             modifier = Modifier.clickable {
                                 scope.launch {
                                     searchBarState.animateToCollapsed()
@@ -97,28 +105,12 @@ fun FeedScreen(
         }
     Screen(
         viewModel = viewModel,
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topAppBar = {
             AppBarWithSearch(
                 scrollBehavior = scrollBehavior,
                 state = searchBarState,
                 colors = appBarWithSearchColors,
                 inputField = inputField,
-                navigationIcon = {
-                    DPTextView(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        text = "Feed",
-                        variant = DPTextViewVariant.TitleLarge
-                    )
-                },
-                actions = {
-                    DPIconButton(
-                        DPIcons.RssFeed,
-                        contentDescription = "",
-                        onClick = {
-                            navigator.navigate(Screen.Tabs.Feed.AddFeed, onRootStack = true)
-                        })
-                },
             )
             ExpandedFullScreenContainedSearchBar(
                 state = searchBarState,
@@ -131,7 +123,7 @@ fun FeedScreen(
                             onClick = { },
                             content = {
                                 DPTextView(
-                                    text = "Search Item $it",
+                                    text = stringResource(stringRes.feed_search_result, it),
                                     variant = DPTextViewVariant.BodyMedium
                                 )
                             },
@@ -145,60 +137,59 @@ fun FeedScreen(
                 else -> viewModel.unhandledEffect(it)
             }
         },
-    ) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-            LazyColumn {
-                items(100) {
-                    DPClickableRow(
-                        onClick = { navigator.replaceOfSameType(Screen.Tabs.Feed.FeedDetail(it.toString())) },
-                        content = {
-                            DPTextView(
-                                text = "Item $it",
-                                variant = DPTextViewVariant.BodyMedium
-                            )
-                        },
+    ) { state ->
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val pinnedAndRecentFeeds by viewModel
+                .pinnedAndRecentFeeds
+                .collectAsStateWithLifecycle()
+
+            FeedsSectionHeader(
+                onNavigateToAddFeed = { navigator.navigate(Screen.Tabs.Feed.AddFeed) },
+                onNavigateToFeedList = { navigator.navigate(Screen.Tabs.Feed.FeedList) }
+            )
+            AnimatedVisibility(visible = state.isLoading) {
+                PinnedAndRecentsGridLoading()
+            }
+            AnimatedVisibility(visible = !state.isLoading && pinnedAndRecentFeeds.isEmpty()) {
+                Column(
+                    Modifier.widthIn(max = WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(
+                        LocalDPSpacing.current.sm,
+                        Alignment.CenterVertically
+                    )
+                ) {
+                    DPTextView(
+                        text = stringResource(stringRes.feed_empty_imported),
+                        variant = DPTextViewVariant.TitleMedium
+                    )
+                    DPButton(
+                        text = stringResource(stringRes.add_feed_action_import),
+                        onClick = { navigator.navigate(Screen.Tabs.Feed.AddFeed) }
                     )
                 }
             }
+            AnimatedVisibility(visible = !state.isLoading && pinnedAndRecentFeeds.isNotEmpty()) {
+                PinnedAndRecentsGrid(
+                    pinnedAndRecentFeeds = pinnedAndRecentFeeds,
+                    onFeedClick = { feed -> navigator.navigate(Screen.Tabs.Feed.FeedDetail(feed.id)) },
+                    onFeedLongClick = { feed ->
+                        viewModel.onEvent(FeedScreenEvent.OnFeedLongClick(feed))
+                    }
+                )
+            }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FeedsSearchBar(modifier: SearchBarState) {
-    var query by remember {
-        mutableStateOf("")
-    }
-    var expanded by remember {
-        mutableStateOf(false)
-    }
-    AppBarWithSearch(
-        state = modifier,
-        inputField = {
-            SearchBarDefaults.InputField(
-                query = query,
-                onQueryChange = {
-                    query = it
-                },
-                onSearch = {
-                    expanded = !expanded
-                },
-                expanded = expanded,
-                onExpandedChange = {
-                    expanded = it
-                }
-            )
-        },
-    )
-
 }
 
 @Composable
 fun FeedDetailScreen(route: Screen.Tabs.Feed.FeedDetail) {
     Column {
         DPTextView(
-            text = "Detail ${route.id}",
+            text = stringResource(stringRes.feed_detail_title, route.id),
             variant = DPTextViewVariant.DisplayLargeEmphasized
         )
     }

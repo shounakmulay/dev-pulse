@@ -24,6 +24,9 @@ kotlin {
             api(project(Modules.Core.DESIGN_SYSTEM))
             implementation(project(Modules.Core.PREFERENCES))
             implementation(libs.compose.components.resources)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
+            implementation(libs.ktor.client.core)
         }
     }
 }
