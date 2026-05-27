@@ -23,9 +23,15 @@ kotlin {
         commonMain.dependencies {
             implementation(project(Modules.Core.NAVIGATION))
             implementation(project(Modules.Core.UI))
+            implementation(project(Modules.Core.COMMON))
             implementation(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Domain.FEED))
+
             implementation(libs.compose.components.resources)
+            implementation(libs.androidx.paging.common)
+            implementation(libs.androidx.paging.compose)
         }
+
+
     }
 }
