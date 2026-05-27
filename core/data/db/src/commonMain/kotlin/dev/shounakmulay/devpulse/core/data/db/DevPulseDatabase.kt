@@ -22,6 +22,10 @@ import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransa
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionScope
 import dev.shounakmulay.devpulse.core.data.db.transaction.RoomTransactionScopeWrapper
 
+private object SchemaVersions {
+    const val BASE = 1
+}
+
 @Database(
     entities = [
         LocalRssFeed::class,
@@ -31,7 +35,7 @@ import dev.shounakmulay.devpulse.core.data.db.transaction.RoomTransactionScopeWr
         LocalRssPostToTagMapping::class,
     ],
     autoMigrations = [],
-    version = 1
+    version = SchemaVersions.BASE
 )
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @ConstructedBy(DevPulseDatabaseConstructor::class)
@@ -70,5 +74,6 @@ fun getDevPulseDatabase(
     return builder
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(dispatcherProvider.ioDispatcher)
+        .fallbackToDestructiveMigration()
         .build()
 }

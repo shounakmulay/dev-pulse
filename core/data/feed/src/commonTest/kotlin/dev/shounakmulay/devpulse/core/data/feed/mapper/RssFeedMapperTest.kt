@@ -26,6 +26,8 @@ class RssFeedMapperTest {
             from = createChannel(lastBuildDate = "Tue, 19 May 2026 10:00:00 GMT"),
             existingIdentity = LocalRssFeedIdentity(
                 id = "feed-1",
+                title = "Title",
+                pinned = false,
                 sourceUrl = "https://example.com/feed.xml",
                 link = "https://example.com",
                 createdAt = 1234L,
@@ -47,6 +49,8 @@ class RssFeedMapperTest {
             actionType = RssFeedQueueActionType.IMPORT,
             requestor = RssFeedQueueActionRequestor.USER,
             status = RssFeedQueueStatus.QUEUED,
+            tags = emptyList(),
+            folders = emptyList(),
             createdAt = 1000L,
             updatedAt = 1000L,
         )

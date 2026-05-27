@@ -6,12 +6,19 @@ import androidx.room3.Query
 import androidx.room3.Upsert
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FeedDao {
 
-    @Query("SELECT * FROM LocalRssFeed ORDER BY title")
+    @Query("SELECT * FROM LocalRssFeed ORDER BY name, title, updatedAt DESC")
     fun getFeedPagingSource(): PagingSource<Int, LocalRssFeed>
+
+    @Query("SELECT * FROM LocalRssFeed WHERE pinned = '1' ORDER BY name, title, updatedAt DESC")
+    fun getPinnedFeedPagingSource(): PagingSource<Int, LocalRssFeed>
+
+    @Query("SELECT * FROM LocalRssFeed ORDER BY pinned DESC, updatedAt DESC LIMIT :count")
+     fun getPinnedAndRecentFeeds(count: Int) : Flow<List<LocalRssFeed>>
 
     @Query("SELECT * FROM LocalRssFeed WHERE id = :id")
     suspend fun getFeed(id: String): LocalRssFeed
@@ -19,9 +26,12 @@ interface FeedDao {
     @Query("SELECT * FROM LocalRssFeed WHERE sourceUrl = :sourceUrl")
     suspend fun getFeedBySourceUrl(sourceUrl: String): LocalRssFeed?
 
+    @Query("UPDATE LocalRssFeed SET pinned = :pinned WHERE id = :id")
+    suspend fun setFeedPinned(id: String, pinned: Boolean)
+
     @Query(
         """
-        SELECT id, sourceUrl, link, createdAt, updatedAt
+        SELECT id, title, pinned, sourceUrl, link, createdAt, updatedAt
         FROM LocalRssFeed
         WHERE sourceUrl = :sourceUrl
     """

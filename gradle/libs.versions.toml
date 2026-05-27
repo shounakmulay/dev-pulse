@@ -6,6 +6,7 @@ android-targetSdk = "36"
 app-versionCode = "1"
 app-versionName = "1.0"
 app-desktopPackageVersion = "1.0.0"
+coilCompose = "3.4.0"
 coreSplashscreen = "1.2.0"
 datastore = "1.2.1"
 jvm-target = "11"
@@ -58,6 +59,9 @@ androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "d
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "pagingRuntime" }
 androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "pagingRuntime" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingRuntime" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
 compose-material3-window-size = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "material3" }
 compose-material3-adaptive-navigation-suite = { module = "org.jetbrains.compose.material3:material3-adaptive-navigation-suite", version.ref = "material3" }
 compose-material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "material3-adaptive" }
@@ -112,6 +116,8 @@ androidx-room-gradle-plugin = { module = "androidx.room:room-gradle-plugin", ver
 ksp-gradle-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktorClientCore" }
 ktor-client-core = { module = "io.ktor:ktor-client-core" }
+ktor-client-android = { module = "io.ktor:ktor-client-android" }
+ktor-client-java = { module = "io.ktor:ktor-client-java" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation" }
