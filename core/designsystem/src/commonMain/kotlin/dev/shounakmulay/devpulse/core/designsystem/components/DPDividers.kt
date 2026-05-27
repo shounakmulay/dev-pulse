@@ -99,7 +99,7 @@ fun DPSectionDivider(
                 )
                 .padding(vertical = spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(spacing.xs, alignment = Alignment.End)
+            horizontalArrangement = Arrangement.spacedBy(spacing.xxs, alignment = Alignment.End)
         ) {
             DPTextView(
                 text = title.uppercase(),
