@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components
+package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.heightIn
@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -21,8 +21,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
-import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
 import devpulse.core.resources.generated.resources.feed_grid_loading_content_description
 import org.jetbrains.compose.resources.stringResource

@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components
+package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds
 
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement

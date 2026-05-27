@@ -15,14 +15,14 @@ class FeedViewModel(
     private val feedInteractor: FeedInteractor,
 ) : MviViewModel<FeedScreenState, FeedScreenEffect>(),
     EventHandler<FeedScreenEvent> {
-    override fun createInitialState(): FeedScreenState = FeedScreenState(isLoading = true)
+    override fun createInitialState(): FeedScreenState = FeedScreenState(isFeedLoading = true)
     override fun createStateSerializer() = FeedScreenState.serializer()
 
     val pinnedAndRecentFeeds = feedInteractor
         .getPinnedAndRecentsUIFeedFlow()
         .onEach {
             setState {
-                copy(isLoading = false)
+                copy(isFeedLoading = false)
             }
         }
         .stateIn(
