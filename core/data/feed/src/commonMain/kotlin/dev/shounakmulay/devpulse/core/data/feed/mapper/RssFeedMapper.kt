@@ -31,7 +31,7 @@ class RssFeedMapper(
             id = existingIdentity?.id ?: identityGenerator.generateSortableId(),
             name = queueEntry.name,
             sourceUrl = queueEntry.url,
-            title = from.title,
+            title = existingIdentity?.title ?: from.title,
             link = from.link,
             description = from.description,
             image = from.image?.let { toLocalRssFeedImage(it) },
@@ -40,6 +40,7 @@ class RssFeedMapper(
             youtubeChannel = from.youtubeChannelData?.let { toLocalRssFeedYoutubeChannel(it) },
             createdAt = existingIdentity?.createdAt ?: now,
             updatedAt = now,
+            pinned = existingIdentity?.pinned ?: false,
         )
     }
 
@@ -57,6 +58,7 @@ class RssFeedMapper(
     fun toRssFeed(from: LocalRssFeed) = RssFeed(
         id = from.id,
         sourceUrl = from.sourceUrl,
+        name = from.name,
         title = from.title,
         link = from.link,
         description = from.description,
@@ -65,7 +67,8 @@ class RssFeedMapper(
         updatePeriod = from.updatePeriod,
         youtubeChannel = from.youtubeChannel?.toRssFeedYoutubeChannel(),
         createdAt = from.createdAt,
-        updatedAt = from.updatedAt
+        updatedAt = from.updatedAt,
+        pinned = from.pinned,
     )
 
     private fun LocalRssFeedImage.toRssFeedImage() = RssFeedImage(

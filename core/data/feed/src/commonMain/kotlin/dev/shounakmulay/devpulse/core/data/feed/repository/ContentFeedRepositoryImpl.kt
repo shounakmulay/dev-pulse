@@ -24,11 +24,9 @@ internal class ContentFeedRepositoryImpl(
 ) : ContentFeedRepository {
     private val logger = logger.withTag(Tag)
 
-    override fun getFeedFlow(): Flow<PagingData<RssFeed>> {
+    override fun getFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = 10
-            ),
+            config = pagingConfig,
             pagingSourceFactory = {
                 feedDao.getFeedPagingSource()
             })
@@ -38,6 +36,28 @@ internal class ContentFeedRepositoryImpl(
                     rssFeedMapper.toRssFeed(localRssFeed)
                 }
             }
+    }
+
+    override fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {
+        return Pager(
+            config = pagingConfig,
+            pagingSourceFactory = {
+                feedDao.getPinnedFeedPagingSource()
+            })
+            .flow
+            .map { pagingData ->
+                pagingData.map { localRssFeed ->
+                    rssFeedMapper.toRssFeed(localRssFeed)
+                }
+            }
+    }
+
+    override fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeed>> {
+        return feedDao.getPinnedAndRecentFeeds(maxCount).map {
+            it.map { feed ->
+                rssFeedMapper.toRssFeed(feed)
+            }
+        }
     }
 
     override suspend fun addRssFeed(entry: RssFeedQueueEntry) {
@@ -60,9 +80,16 @@ internal class ContentFeedRepositoryImpl(
         feedDao.deleteFeeds(listOf(id))
     }
 
+    override suspend fun setFeedPinned(id: String, pinned: Boolean): Result<Unit> {
+        return runCatching {
+            feedDao.setFeedPinned(id = id, pinned = pinned)
+        }
+    }
+
     private fun String.sourceSummary(): String {
         val withoutScheme = substringAfter("://", this)
-        val host = withoutScheme.substringBefore('/').substringBefore('?').takeIf { it.isNotBlank() }
+        val host =
+            withoutScheme.substringBefore('/').substringBefore('?').takeIf { it.isNotBlank() }
         return "host=${host ?: take(80)}"
     }
 

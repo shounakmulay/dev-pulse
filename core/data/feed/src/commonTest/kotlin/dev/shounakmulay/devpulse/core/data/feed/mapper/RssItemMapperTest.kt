@@ -20,6 +20,7 @@ class RssItemMapperTest {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = "Tue, 19 May 2026 10:00:00 +0000"),
             feedId = "feed-1",
+            fingerprint = "fingerprint-1",
             existingIdentity = LocalRssContentFeedPostIdentity(
                 id = "post-1",
                 fingerprint = "fingerprint-1",

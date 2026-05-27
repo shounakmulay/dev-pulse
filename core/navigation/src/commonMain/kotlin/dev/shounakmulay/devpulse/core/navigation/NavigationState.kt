@@ -49,6 +49,10 @@ fun rememberNavigationState(
                     Screen.Tabs.Feed.FeedDetail::class,
                     Screen.Tabs.Feed.FeedDetail.serializer()
                 )
+                subclass(
+                    Screen.Tabs.Feed.FeedList::class,
+                    Screen.Tabs.Feed.FeedList.serializer(),
+                )
                 subclass(Screen.Tabs.Time::class, Screen.Tabs.Time.serializer())
                 subclass(Screen.Settings::class, Screen.Settings.serializer())
                 subclass(

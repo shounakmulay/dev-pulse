@@ -1,24 +1,16 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
-import dev.shounakmulay.devpulse.core.designsystem.components.DPHorizontalDivider
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
-import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.add_feed_action_clear_all
 import devpulse.core.resources.generated.resources.add_feed_action_queue
@@ -33,20 +25,13 @@ fun LazyGridScope.statusHeader(
     onOpenQueue: () -> Unit
 ) {
     if (visible) {
-        item(
+        stickyHeader(
             key = "ProcessedActions",
-            span = { GridItemSpan(maxLineSpan) }
         ) {
-            Row(
-                modifier = Modifier.padding(LocalDPSpacing.current.sm).animateItem(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
+            DPSectionDivider(
+                modifier = Modifier.animateItem(),
+                title =stringResource(stringRes.add_feed_status) ,
             ) {
-                DPTextView(
-                    text = stringResource(stringRes.add_feed_status),
-                    variant = DPTextViewVariant.TitleSmallEmphasized
-                )
-                DPHorizontalDivider(Modifier.padding(LocalDPSpacing.current.sm).weight(1f))
                 DPButton(
                     variant = DPButtonVariant.Secondary,
                     text = stringResource(stringRes.add_feed_action_queue),

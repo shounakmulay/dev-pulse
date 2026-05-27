@@ -14,6 +14,7 @@ import androidx.room3.PrimaryKey
 data class LocalRssFeed(
     @PrimaryKey
     val id: String,
+    val pinned: Boolean,
     val sourceUrl: String,
     val title: String?,
     val name: String?,

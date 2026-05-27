@@ -16,6 +16,8 @@ kotlin {
             api(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.COMMON))
             implementation(project(Modules.Core.Data.FEED))
+
+            implementation(libs.androidx.paging.common)
         }
     }
 }
