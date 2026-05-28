@@ -24,6 +24,7 @@ import dev.shounakmulay.devpulse.core.data.db.transaction.RoomTransactionScopeWr
 
 private object SchemaVersions {
     const val BASE = 1
+    const val RECENT_POSTS_PUBLISHED_AT = 2
 }
 
 @Database(
@@ -35,7 +36,7 @@ private object SchemaVersions {
         LocalRssPostToTagMapping::class,
     ],
     autoMigrations = [],
-    version = SchemaVersions.BASE
+    version = SchemaVersions.RECENT_POSTS_PUBLISHED_AT
 )
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @ConstructedBy(DevPulseDatabaseConstructor::class)

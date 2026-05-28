@@ -2,7 +2,7 @@ package dev.shounakmulay.devpulse.core.data.feed.mapper
 
 import com.prof18.rssparser.model.RssChannel
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
-import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentity
+import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.RssIdentityGenerator
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionRequestor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
@@ -24,7 +24,7 @@ class RssFeedMapperTest {
     fun `Given RSS channel date When mapped to local feed Then raw publisher date is preserved`() {
         val result = mapper.toLocalRssFeed(
             from = createChannel(lastBuildDate = "Tue, 19 May 2026 10:00:00 GMT"),
-            existingIdentity = LocalRssFeedIdentity(
+            existingIdentity = LocalRssFeedIdentitySlice(
                 id = "feed-1",
                 title = "Title",
                 pinned = false,

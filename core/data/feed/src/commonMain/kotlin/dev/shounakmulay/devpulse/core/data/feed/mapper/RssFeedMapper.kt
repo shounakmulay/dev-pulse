@@ -7,9 +7,10 @@ import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedImage
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedYoutubeChannel
-import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentity
+import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedImage
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedYoutubeChannel
@@ -21,9 +22,22 @@ class RssFeedMapper(
     private val dateTimeProvider: DateTimeProvider
 ) {
 
+    fun toRssIdentity(from: LocalRssFeedIdentitySlice): RssFeedIdentity {
+        return RssFeedIdentity(
+            id = from.id,
+            title = from.title,
+            name = from.name,
+            pinned = from.pinned,
+            sourceUrl = from.sourceUrl,
+            link = from.link,
+            createdAt = from.createdAt,
+            updatedAt = from.updatedAt,
+        )
+    }
+
     fun toLocalRssFeed(
         from: RssChannel,
-        existingIdentity: LocalRssFeedIdentity?,
+        existingIdentity: LocalRssFeedIdentitySlice?,
         queueEntry: RssFeedQueueEntry
     ): LocalRssFeed {
         val now = dateTimeProvider.nowEpochMilliseconds()

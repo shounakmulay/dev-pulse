@@ -23,6 +23,7 @@ kotlin {
             implementation(libs.rssparser)
             implementation(libs.androidx.paging.common)
             implementation(libs.okio)
+            implementation(libs.kotlinx.datetime)
         }
 
         commonTest.dependencies {

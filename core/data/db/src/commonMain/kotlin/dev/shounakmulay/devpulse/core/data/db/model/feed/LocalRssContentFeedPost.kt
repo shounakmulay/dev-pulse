@@ -30,6 +30,7 @@ data class LocalRssContentFeedPost(
     val author: String?,
     val link: String?,
     val pubDate: String?,
+    val publishedAtEpochMillis: Long?,
     val description: String?,
     val content: String?,
     val image: String?,

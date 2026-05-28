@@ -13,7 +13,7 @@ import dev.shounakmulay.devpulse.core.data.feed.hook.CoreItemHook
 import dev.shounakmulay.devpulse.core.data.feed.hook.model.PostWithIdentity
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
-import dev.shounakmulay.devpulse.core.data.feed.mapper.RssItemMapper
+import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import kotlinx.coroutines.Deferred
@@ -35,7 +35,7 @@ internal class RssContentFeedProcessor(
     private val postSanitizationHook: ContentFeedPostSanitizationHook,
     private val feedContentDao: FeedContentDao,
     private val feedDao: FeedDao,
-    private val rssItemMapper: RssItemMapper,
+    private val rssPostMapper: RssPostMapper,
     private val rssFeedMapper: RssFeedMapper,
     logger: DPLogger
 ) {
@@ -110,7 +110,7 @@ internal class RssContentFeedProcessor(
 
         val localPostsWithIdentity = itemsWithFingerprint.map { (fingerprint, rssItem) ->
             val existingLocalIdentity = existingItems[fingerprint]
-            val post = rssItemMapper.toLocalRssContentFeedPost(
+            val post = rssPostMapper.toLocalRssContentFeedPost(
                 item = rssItem,
                 feedId = feedId,
                 fingerprint = fingerprint,
