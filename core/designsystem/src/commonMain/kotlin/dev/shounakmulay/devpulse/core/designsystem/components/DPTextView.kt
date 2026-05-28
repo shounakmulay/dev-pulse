@@ -226,3 +226,16 @@ private fun DPTextViewMonoPreview() {
         }
     }
 }
+
+@Composable
+fun DPTextDot(
+    modifier: Modifier = Modifier,
+    variant: DPTextViewVariant = DPTextViewVariant.TitleMedium
+) {
+    DPTextView(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surfaceBright,
+        text = "•",
+        variant = variant
+    )
+}

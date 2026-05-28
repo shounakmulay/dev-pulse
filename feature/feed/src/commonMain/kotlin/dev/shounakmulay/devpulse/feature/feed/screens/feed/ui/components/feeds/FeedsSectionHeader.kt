@@ -5,8 +5,6 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -35,7 +33,6 @@ internal fun FeedsSectionHeader(
             text = stringResource(stringRes.feed_view_all),
             variant = DPButtonVariant.Secondary,
             style = DPButtonStyle.Text,
-            trailingIcon = DPIcons.ArrowRight,
             size = DPSize.Small,
             onClick = onNavigateToFeedList
         )

@@ -22,10 +22,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.rememberContainedSearchBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPClickableRow
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
@@ -127,18 +129,23 @@ fun FeedScreen(
             }
         },
     ) { state ->
+        val pinnedAndRecentFeeds by viewModel.pinnedAndRecentFeeds.collectAsStateWithLifecycle()
+        val recentArticles by viewModel.recentArticles.collectAsStateWithLifecycle()
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             feedsSection(
-                pinnedAndRecentFeeds = viewModel.pinnedAndRecentFeeds,
+                pinnedAndRecentFeeds = pinnedAndRecentFeeds,
                 isFeedLoading = state.isFeedLoading,
                 onNavigateToAddFeed = { navigator.navigate(Tabs.Feed.AddFeed) },
                 onNavigateToFeedList = { navigator.navigate(Tabs.Feed.FeedList) },
                 onFeedClick = {},
                 onFeedLongClick = { },
             )
-            articlesContentSection()
+            articlesContentSection(
+                articles = recentArticles,
+                isLoading = state.isArticlesLoading,
+            )
         }
     }
 }

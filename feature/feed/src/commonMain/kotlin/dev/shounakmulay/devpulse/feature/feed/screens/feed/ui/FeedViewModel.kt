@@ -5,6 +5,7 @@ import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -15,20 +16,37 @@ class FeedViewModel(
     private val feedInteractor: FeedInteractor,
 ) : MviViewModel<FeedScreenState, FeedScreenEffect>(),
     EventHandler<FeedScreenEvent> {
-    override fun createInitialState(): FeedScreenState = FeedScreenState(isFeedLoading = true)
+    override fun createInitialState(): FeedScreenState = FeedScreenState()
     override fun createStateSerializer() = FeedScreenState.serializer()
 
     val pinnedAndRecentFeeds = feedInteractor
         .getPinnedAndRecentsUIFeedFlow()
         .onEach {
             setState {
-                copy(isFeedLoading = false)
+                copy(
+                    isFeedLoading = false
+                )
             }
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(3000),
-            initialValue = emptyList()
+            started = SharingStarted.Eagerly,
+            initialValue = persistentListOf()
+        )
+
+    val recentArticles = feedInteractor
+        .getRecentArticlesFlow()
+        .onEach {
+            setState {
+                copy(
+                    isArticlesLoading = false
+                )
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = persistentListOf()
         )
 
     override fun onEvent(event: FeedScreenEvent) {

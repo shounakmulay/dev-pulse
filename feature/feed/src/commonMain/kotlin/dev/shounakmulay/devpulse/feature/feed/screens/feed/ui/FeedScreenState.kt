@@ -7,6 +7,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Immutable
 data class FeedScreenState(
-    val isFeedLoading: Boolean,
-    val count: Int = 0
+    val isFeedLoading: Boolean = true,
+    val isArticlesLoading: Boolean = true,
 ) : ScreenState

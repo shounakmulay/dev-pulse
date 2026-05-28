@@ -5,11 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
@@ -19,11 +17,11 @@ import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
 import devpulse.core.resources.generated.resources.add_feed_action_import
 import devpulse.core.resources.generated.resources.feed_empty_imported
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
 
 fun LazyListScope.feedsSection(
-    pinnedAndRecentFeeds: StateFlow<List<UIFeed>>,
+    pinnedAndRecentFeeds: ImmutableList<UIFeed>,
     isFeedLoading: Boolean,
     onNavigateToAddFeed: () -> Unit,
     onNavigateToFeedList: () -> Unit,
@@ -37,9 +35,6 @@ fun LazyListScope.feedsSection(
         )
     }
     item(key = "FeedsSection") {
-        val pinnedAndRecentFeeds by pinnedAndRecentFeeds
-            .collectAsStateWithLifecycle()
-
         AnimatedVisibility(visible = isFeedLoading) {
             PinnedAndRecentsGridLoading()
         }
