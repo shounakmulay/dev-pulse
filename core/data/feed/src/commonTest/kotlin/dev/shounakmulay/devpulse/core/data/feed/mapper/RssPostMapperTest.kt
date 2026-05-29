@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
-import com.prof18.rssparser.model.RssItem
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
@@ -9,16 +8,15 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.DateTimeComponents
 import kotlin.time.Duration
 import kotlin.time.Instant
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class RssPostMapperTest {
-
     private val mapper = RssPostMapper(
         idGenerator = RssIdentityGenerator(),
         dateTimeProvider = FixedDateTimeProvider
     )
-
     @Test
     fun `Given RSS item date When mapped to local post Then raw publisher date is preserved`() {
         val result = mapper.toLocalRssContentFeedPost(
@@ -33,13 +31,11 @@ class RssPostMapperTest {
                 updatedAt = 5678L
             )
         )
-
         assertEquals("Tue, 19 May 2026 10:00:00 +0000", result.pubDate)
         assertEquals(1779184800000L, result.publishedAtEpochMillis)
         assertEquals(1234L, result.createdAt)
         assertEquals(1779184800000L, result.updatedAt)
     }
-
     @Test
     fun `Given RSS item GMT date When mapped to local post Then published time is parsed`() {
         val result = mapper.toLocalRssContentFeedPost(
@@ -48,10 +44,8 @@ class RssPostMapperTest {
             fingerprint = "fingerprint-1",
             existingIdentity = null
         )
-
         assertEquals(1779184800000L, result.publishedAtEpochMillis)
     }
-
     @Test
     fun `Given RSS item offset date When mapped to local post Then published time is normalized to UTC`() {
         val result = mapper.toLocalRssContentFeedPost(
@@ -60,10 +54,8 @@ class RssPostMapperTest {
             fingerprint = "fingerprint-1",
             existingIdentity = null
         )
-
         assertEquals(1779184800000L, result.publishedAtEpochMillis)
     }
-
     @Test
     fun `Given RSS item unparseable date When mapped to local post Then published time is null`() {
         val result = mapper.toLocalRssContentFeedPost(
@@ -72,11 +64,9 @@ class RssPostMapperTest {
             fingerprint = "fingerprint-1",
             existingIdentity = null
         )
-
         assertEquals(null, result.publishedAtEpochMillis)
     }
-
-    @Test
+@Test
     fun `Given bookmarked existing identity When mapped to local post Then bookmark is preserved`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = null),
@@ -115,8 +105,9 @@ class RssPostMapperTest {
         assertEquals(true, result.bookmarked)
     }
 
-    private fun createItem(pubDate: String?): RssItem {
-        return RssItem(
+    private fun createItem(pubDate: String?): ParsedFeedItem {
+        return ParsedFeedItem(
+            ordinal = 0,
             guid = "guid-1",
             title = "Title",
             author = "Author",
@@ -130,7 +121,6 @@ class RssPostMapperTest {
             sourceName = "Source",
             sourceUrl = "https://example.com/feed.xml",
             categories = emptyList(),
-            itunesItemData = null,
             commentsUrl = null,
             youtubeItemData = null,
             rawEnclosure = null,
@@ -176,10 +166,8 @@ class RssPostMapperTest {
 
         override fun getTimeElapsed(instant: Instant): Duration = Duration.ZERO
 
-        override fun now(): Instant = Instant.fromEpochMilliseconds(nowEpochMilliseconds())
-
+        override fun now(): Instant = Instant.fromEpochMilliseconds( nowEpochMilliseconds())
         override fun nowEpochMilliseconds(): Long = 1779184800000L
-
         override fun today(): LocalDate = LocalDate(year = 2026, monthNumber = 5, dayOfMonth = 19)
     }
 }

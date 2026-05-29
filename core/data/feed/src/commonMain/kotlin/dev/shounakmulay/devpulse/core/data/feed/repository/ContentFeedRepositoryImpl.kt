@@ -78,7 +78,7 @@ internal class ContentFeedRepositoryImpl(
 
     override suspend fun addRssFeed(entry: RssFeedQueueEntry) {
         logger.d { "RSS parse started queueId=${entry.id} source=${entry.url.sourceSummary()}" }
-        val rssChannel = try {
+        val parsedFeed = try {
             rssParser.parseFeed(entry.url)
         } catch (e: Exception) {
             logger.e(e) {
@@ -87,9 +87,9 @@ internal class ContentFeedRepositoryImpl(
             throw e
         }
         logger.d {
-            "RSS parse succeeded queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${rssChannel.items.size}"
+            "RSS parse succeeded queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${parsedFeed.itemCount}"
         }
-        rssContentFeedProcessor.process(entry = entry, rssChannel = rssChannel)
+        rssContentFeedProcessor.process(entry = entry, parsedFeed = parsedFeed)
     }
 
     override suspend fun deleteFeed(id: String) {

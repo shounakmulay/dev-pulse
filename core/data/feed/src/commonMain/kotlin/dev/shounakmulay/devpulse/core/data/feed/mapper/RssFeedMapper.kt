@@ -1,14 +1,14 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
-import com.prof18.rssparser.model.RssChannel
-import com.prof18.rssparser.model.RssImage
-import com.prof18.rssparser.model.YoutubeChannelData
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedImage
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedYoutubeChannel
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedImage
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedMetadata
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedYoutubeChannel
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedImage
@@ -21,7 +21,6 @@ class RssFeedMapper(
     private val identityGenerator: IdentityGenerator,
     private val dateTimeProvider: DateTimeProvider
 ) {
-
     fun toRssIdentity(from: LocalRssFeedIdentitySlice): RssFeedIdentity {
         return RssFeedIdentity(
             id = from.id,
@@ -34,9 +33,8 @@ class RssFeedMapper(
             updatedAt = from.updatedAt,
         )
     }
-
     fun toLocalRssFeed(
-        from: RssChannel,
+        from: ParsedFeedMetadata,
         existingIdentity: LocalRssFeedIdentitySlice?,
         queueEntry: RssFeedQueueEntry
     ): LocalRssFeed {
@@ -51,24 +49,21 @@ class RssFeedMapper(
             image = from.image?.let { toLocalRssFeedImage(it) },
             lastBuildDate = from.lastBuildDate,
             updatePeriod = from.updatePeriod,
-            youtubeChannel = from.youtubeChannelData?.let { toLocalRssFeedYoutubeChannel(it) },
+            youtubeChannel = from.youtubeChannel?.let { toLocalRssFeedYoutubeChannel(it) },
             createdAt = existingIdentity?.createdAt ?: now,
             updatedAt = now,
             pinned = existingIdentity?.pinned ?: false,
         )
     }
-
-    private fun toLocalRssFeedYoutubeChannel(from: YoutubeChannelData) = LocalRssFeedYoutubeChannel(
+    private fun toLocalRssFeedYoutubeChannel(from: ParsedFeedYoutubeChannel) = LocalRssFeedYoutubeChannel(
         channelId = from.channelId,
     )
-
-    private fun toLocalRssFeedImage(from: RssImage) = LocalRssFeedImage(
+    private fun toLocalRssFeedImage(from: ParsedFeedImage) = LocalRssFeedImage(
         title = from.title,
         url = from.url,
         link = from.link,
         description = from.description,
     )
-
     fun toRssFeed(from: LocalRssFeed) = RssFeed(
         id = from.id,
         sourceUrl = from.sourceUrl,
@@ -84,16 +79,13 @@ class RssFeedMapper(
         updatedAt = from.updatedAt,
         pinned = from.pinned,
     )
-
     private fun LocalRssFeedImage.toRssFeedImage() = RssFeedImage(
         title = title,
         url = url,
         link = link,
         description = description
     )
-
     private fun LocalRssFeedYoutubeChannel.toRssFeedYoutubeChannel() = RssFeedYoutubeChannel(
         channelId = channelId
     )
-
 }

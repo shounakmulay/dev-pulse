@@ -20,7 +20,9 @@ kotlin {
             implementation(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Data.DB))
 
-            implementation(libs.rssparser)
+            implementation(project.dependencies.platform(libs.ktor.bom))
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktxml.core)
             implementation(libs.androidx.paging.common)
             implementation(libs.okio)
             implementation(libs.kotlinx.datetime)
