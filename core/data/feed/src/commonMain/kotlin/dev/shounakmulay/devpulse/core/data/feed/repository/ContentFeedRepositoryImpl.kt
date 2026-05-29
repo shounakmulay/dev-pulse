@@ -8,7 +8,7 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
-import dev.shounakmulay.devpulse.core.data.feed.parser.RssFeedParser
+import dev.shounakmulay.devpulse.core.data.feed.parser.FeedParser
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
@@ -19,7 +19,7 @@ import org.koin.core.annotation.Factory
 
 @Factory(binds = [ContentFeedRepository::class])
 internal class ContentFeedRepositoryImpl(
-    private val rssParser: RssFeedParser,
+    private val rssParser: FeedParser,
     private val feedDao: FeedDao,
     private val feedContentDao: FeedContentDao,
     private val rssFeedMapper: RssFeedMapper,
@@ -78,7 +78,7 @@ internal class ContentFeedRepositoryImpl(
 
     override suspend fun addRssFeed(entry: RssFeedQueueEntry) {
         logger.d { "RSS parse started queueId=${entry.id} source=${entry.url.sourceSummary()}" }
-        val rssChannel = try {
+        val parsedFeed = try {
             rssParser.parseFeed(entry.url)
         } catch (e: Exception) {
             logger.e(e) {
@@ -87,9 +87,9 @@ internal class ContentFeedRepositoryImpl(
             throw e
         }
         logger.d {
-            "RSS parse succeeded queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${rssChannel.items.size}"
+            "RSS parse succeeded queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${parsedFeed.itemCount}"
         }
-        rssContentFeedProcessor.process(entry = entry, rssChannel = rssChannel)
+        rssContentFeedProcessor.process(entry = entry, parsedFeed = parsedFeed)
     }
 
     override suspend fun deleteFeed(id: String) {
