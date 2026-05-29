@@ -8,7 +8,7 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
-import dev.shounakmulay.devpulse.core.data.feed.parser.RssFeedParser
+import dev.shounakmulay.devpulse.core.data.feed.parser.FeedParser
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
@@ -19,7 +19,7 @@ import org.koin.core.annotation.Factory
 
 @Factory(binds = [ContentFeedRepository::class])
 internal class ContentFeedRepositoryImpl(
-    private val rssParser: RssFeedParser,
+    private val rssParser: FeedParser,
     private val feedDao: FeedDao,
     private val feedContentDao: FeedContentDao,
     private val rssFeedMapper: RssFeedMapper,
