@@ -34,12 +34,12 @@ kotlin = "2.3.21"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
 kotlinStdlib = "2.3.21"
+ktxml = "1.0.0"
 navigationCompose = "2.9.2"
 navigation3 = "1.1.1"
 okio = "3.17.0"
 orbitMVI = "11.0.0"
 pagingRuntime = "3.5.0"
-rssparser = "6.1.5"
 runner = "1.7.0"
 core = "1.7.0"
 material = "1.14.0"
@@ -78,6 +78,7 @@ compose-ui-unit = { module = "org.jetbrains.compose.ui:ui-unit", version.ref = "
 compose-ui-util = { module = "org.jetbrains.compose.ui:ui-util", version.ref = "composeMultiplatform" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+ktxml-core = { module = "org.kobjects.ktxml:core", version.ref = "ktxml" }
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-testExt-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-testExt" }
@@ -139,7 +140,6 @@ orbit-compose = { module = "org.orbit-mvi:orbit-compose", version.ref = "orbitMV
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbitMVI" }
 orbit-viewmodel = { module = "org.orbit-mvi:orbit-viewmodel", version.ref = "orbitMVI" }
 orbit-test = { module = "org.orbit-mvi:orbit-test", version.ref = "orbitMVI" }
-rssparser = { module = "com.prof18.rssparser:rssparser", version.ref = "rssparser" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }

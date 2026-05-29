@@ -1,9 +1,5 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
-import com.prof18.rssparser.model.RawEnclosure
-import com.prof18.rssparser.model.RawMediaContent
-import com.prof18.rssparser.model.RssItem
-import com.prof18.rssparser.model.YoutubeItemData
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemMediaContent
@@ -11,6 +7,10 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemRawEncl
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemYoutubeData
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemMediaContent
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemRawEnclosure
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemYoutubeData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedPost
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedPostMediaContent
@@ -27,7 +27,6 @@ class RssPostMapper(
     private val idGenerator: IdentityGenerator,
     private val dateTimeProvider: DateTimeProvider
 ) {
-
     fun toRssPostWithFeedIdentity(
         post: RssFeedPost,
         identity: RssFeedIdentity
@@ -37,9 +36,8 @@ class RssPostMapper(
             feedIdentity = identity
         )
     }
-
     fun toLocalRssContentFeedPost(
-        item: RssItem,
+        item: ParsedFeedItem,
         feedId: String,
         fingerprint: String,
         existingIdentity: LocalRssContentFeedPostIdentitySlice?
@@ -71,7 +69,6 @@ class RssPostMapper(
             updatedAt = now
         )
     }
-
     fun toRssFeedPost(from: LocalRssContentFeedPost): RssFeedPost {
         return RssFeedPost(
             id = from.id,
@@ -96,24 +93,21 @@ class RssPostMapper(
             rawMediaContent = from.rawMedia?.toRssFeedItemMediaContent(),
         )
     }
-
-    private fun mapRawMediaContent(from: RawMediaContent): LocalRssFeedItemMediaContent {
+    private fun mapRawMediaContent(from: ParsedFeedItemMediaContent): LocalRssFeedItemMediaContent {
         return LocalRssFeedItemMediaContent(
             url = from.url,
             type = from.type,
             medium = from.medium
         )
     }
-
-    private fun mapRawEnclosure(from: RawEnclosure): LocalRssFeedItemRawEnclosure {
+    private fun mapRawEnclosure(from: ParsedFeedItemRawEnclosure): LocalRssFeedItemRawEnclosure {
         return LocalRssFeedItemRawEnclosure(
             url = from.url,
             length = from.length,
             type = from.type
         )
     }
-
-    private fun mapYoutubeData(from: YoutubeItemData): LocalRssFeedItemYoutubeData {
+    private fun mapYoutubeData(from: ParsedFeedItemYoutubeData): LocalRssFeedItemYoutubeData {
         return LocalRssFeedItemYoutubeData(
             videoId = from.videoId,
             title = from.title,
@@ -124,7 +118,6 @@ class RssPostMapper(
             likesCount = from.likesCount
         )
     }
-
     private fun String.toRssEpochMilliseconds(): Long? {
         val value = trim()
             .removePrefix("Published:")
@@ -132,13 +125,11 @@ class RssPostMapper(
         val withoutDay = value.substringAfter(", ", value)
         val parts = withoutDay.split(Regex("\\s+"))
         if (parts.size < 4) return null
-
         val day = parts[0].toIntOrNull() ?: return null
         val month = parts[1].toMonthNumber() ?: return null
         val year = parts[2].toIntOrNull() ?: return null
         val timeParts = parts[3].split(":")
         if (timeParts.size < 2) return null
-
         val hour = timeParts[0].toIntOrNull() ?: return null
         val minute = timeParts[1].toIntOrNull() ?: return null
         val second = timeParts.getOrNull(2)?.toIntOrNull() ?: 0
@@ -153,12 +144,10 @@ class RssPostMapper(
                 second = second
             )
         }.getOrNull() ?: return null
-
         return localDateTime
             .toInstant(TimeZone.UTC)
             .toEpochMilliseconds() - (offsetMinutes.toLong() * 60_000)
     }
-
     private fun String.toMonthNumber(): Int? {
         return when (lowercase().take(3)) {
             "jan" -> 1
@@ -176,7 +165,6 @@ class RssPostMapper(
             else -> null
         }
     }
-
     private fun String.toOffsetMinutes(): Int? {
         val upper = uppercase()
         if (upper == "GMT" || upper == "UTC" || upper == "Z") return 0
@@ -191,7 +179,6 @@ class RssPostMapper(
         val minutes = normalized.substring(3, 5).toIntOrNull() ?: return null
         return sign * ((hours * 60) + minutes)
     }
-
     private fun LocalRssFeedItemYoutubeData.toRssFeedItemYoutubeData() = RssFeedPostYoutubeData(
         videoId = videoId,
         title = title,
@@ -201,13 +188,11 @@ class RssPostMapper(
         viewsCount = viewsCount,
         likesCount = likesCount,
     )
-
     private fun LocalRssFeedItemRawEnclosure.toRssFeedItemRawEnclosure() = RssFeedPostRawEnclosure(
         url = url,
         length = length,
         type = type,
     )
-
     private fun LocalRssFeedItemMediaContent.toRssFeedItemMediaContent() = RssFeedPostMediaContent(
         url = url,
         type = type,
