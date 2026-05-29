@@ -6,7 +6,7 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import org.koin.core.annotation.Factory
 
-@Factory(binds = [FeedParser::class])
+@Factory
 internal class RssFeedParser(
     private val httpClient: HttpClient,
     private val xmlParser: KtXmlFeedParser

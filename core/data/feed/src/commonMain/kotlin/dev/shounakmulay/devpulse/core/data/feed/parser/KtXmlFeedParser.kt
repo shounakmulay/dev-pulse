@@ -20,8 +20,12 @@ import org.koin.core.annotation.Factory
 @Factory
 internal class KtXmlFeedParser {
     fun parseText(sourceUrl: String?, xml: String): ParsedFeed {
+        return parse(sourceUrl = sourceUrl, chars = xml.iterator())
+    }
+
+    fun parse(sourceUrl: String?, chars: CharIterator): ParsedFeed {
         val issues = mutableListOf<ParsedFeedIssue>()
-        val parser = MiniXmlPullParser(xml.iterator())
+        val parser = MiniXmlPullParser(chars)
         val reader = XmlPullReader(sourceUrl = sourceUrl, issues = issues)
         val items = mutableListOf<ParsedFeedItem>()
         var metadata = emptyMetadata()
