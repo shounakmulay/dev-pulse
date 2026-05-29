@@ -6,10 +6,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -31,22 +33,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.window.core.layout.WindowSizeClass
-import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPClickableRow
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
-import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.navigation.Navigator
-import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
-import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.FeedsSectionHeader
-import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.PinnedAndRecentsGrid
-import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.PinnedAndRecentsGridLoading
-import devpulse.core.resources.generated.resources.add_feed_action_import
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds.feedsSection
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedsPostListItemVariant
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.postsContentSection
 import devpulse.core.resources.generated.resources.feed_detail_title
-import devpulse.core.resources.generated.resources.feed_empty_imported
 import devpulse.core.resources.generated.resources.feed_search
 import devpulse.core.resources.generated.resources.feed_search_back
 import devpulse.core.resources.generated.resources.feed_search_result
@@ -138,55 +136,39 @@ fun FeedScreen(
             }
         },
     ) { state ->
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+        val pinnedAndRecentFeeds by viewModel.pinnedAndRecentFeeds.collectAsStateWithLifecycle()
+        val recentArticles by viewModel.recentArticles.collectAsStateWithLifecycle()
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            contentPadding = PaddingValues(bottom = 100.dp)
         ) {
-            val pinnedAndRecentFeeds by viewModel
-                .pinnedAndRecentFeeds
-                .collectAsStateWithLifecycle()
-
-            FeedsSectionHeader(
-                onNavigateToAddFeed = { navigator.navigate(Screen.Tabs.Feed.AddFeed) },
-                onNavigateToFeedList = { navigator.navigate(Screen.Tabs.Feed.FeedList) }
+            feedsSection(
+                pinnedAndRecentFeeds = pinnedAndRecentFeeds,
+                isFeedLoading = state.isFeedLoading,
+                onNavigateToAddFeed = { navigator.navigate(Tabs.Feed.AddFeed) },
+                onNavigateToFeedList = { navigator.navigate(Tabs.Feed.FeedList) },
+                onFeedClick = {},
+                onFeedLongClick = { },
             )
-            AnimatedVisibility(visible = state.isLoading) {
-                PinnedAndRecentsGridLoading()
-            }
-            AnimatedVisibility(visible = !state.isLoading && pinnedAndRecentFeeds.isEmpty()) {
-                Column(
-                    Modifier.widthIn(max = WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(
-                        LocalDPSpacing.current.sm,
-                        Alignment.CenterVertically
-                    )
-                ) {
-                    DPTextView(
-                        text = stringResource(stringRes.feed_empty_imported),
-                        variant = DPTextViewVariant.TitleMedium
-                    )
-                    DPButton(
-                        text = stringResource(stringRes.add_feed_action_import),
-                        onClick = { navigator.navigate(Screen.Tabs.Feed.AddFeed) }
-                    )
-                }
-            }
-            AnimatedVisibility(visible = !state.isLoading && pinnedAndRecentFeeds.isNotEmpty()) {
-                PinnedAndRecentsGrid(
-                    pinnedAndRecentFeeds = pinnedAndRecentFeeds,
-                    onFeedClick = { feed -> navigator.navigate(Screen.Tabs.Feed.FeedDetail(feed.id)) },
-                    onFeedLongClick = { feed ->
-                        viewModel.onEvent(FeedScreenEvent.OnFeedLongClick(feed))
-                    }
+            postsContentSection(
+                articles = recentArticles,
+                isLoading = state.isArticlesLoading,
+            )
+            items(recentArticles) { post ->
+                FeedPostListItem(
+                    post = post,
+                    variant = if (post.feed.pinned) FeedsPostListItemVariant.L else FeedsPostListItemVariant.M,
+                    modifier = Modifier.padding(16.dp)
                 )
             }
         }
     }
 }
 
+
 @Composable
-fun FeedDetailScreen(route: Screen.Tabs.Feed.FeedDetail) {
+fun FeedDetailScreen(route: Tabs.Feed.FeedDetail) {
     Column {
         DPTextView(
             text = stringResource(stringRes.feed_detail_title, route.id),

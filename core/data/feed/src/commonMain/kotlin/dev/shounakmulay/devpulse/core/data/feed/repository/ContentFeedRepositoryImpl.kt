@@ -4,11 +4,14 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
+import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
 import dev.shounakmulay.devpulse.core.data.feed.parser.RssFeedParser
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -18,7 +21,9 @@ import org.koin.core.annotation.Factory
 internal class ContentFeedRepositoryImpl(
     private val rssParser: RssFeedParser,
     private val feedDao: FeedDao,
+    private val feedContentDao: FeedContentDao,
     private val rssFeedMapper: RssFeedMapper,
+    private val rssPostMapper: RssPostMapper,
     private val rssContentFeedProcessor: RssContentFeedProcessor,
     logger: DPLogger
 ) : ContentFeedRepository {
@@ -56,6 +61,17 @@ internal class ContentFeedRepositoryImpl(
         return feedDao.getPinnedAndRecentFeeds(maxCount).map {
             it.map { feed ->
                 rssFeedMapper.toRssFeed(feed)
+            }
+        }
+    }
+
+    override fun getRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentity>> {
+        return feedContentDao.observeRecentPosts(maxCount).map {
+            it.map { post ->
+                rssPostMapper.toRssPostWithFeedIdentity(
+                    post = rssPostMapper.toRssFeedPost(post.post),
+                    identity = rssFeedMapper.toRssIdentity(post.feed)
+                )
             }
         }
     }

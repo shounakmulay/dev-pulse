@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components
+package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.heightIn
@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -21,25 +21,26 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
-import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
 import devpulse.core.resources.generated.resources.feed_grid_loading_content_description
+import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun PinnedAndRecentsGrid(
-    pinnedAndRecentFeeds: List<UIFeed>,
+    pinnedAndRecentFeeds: ImmutableList<UIFeed>,
     onFeedClick: (UIFeed) -> Unit,
     onFeedLongClick: (UIFeed) -> Unit,
 ) {
-    val rowsCount = pinnedAndRecentsGridRowsCount()
+    val rowsCount = pinnedAndRecentsGridRowsCount(pinnedAndRecentFeeds.size)
     val spacing = LocalDPSpacing.current
     LazyHorizontalGrid(
         modifier = Modifier.heightIn(max = (rowsCount * 100).dp)
             .padding(horizontal = spacing.md, vertical = spacing.sm),
         rows = GridCells.Fixed(rowsCount),
-        horizontalArrangement = Arrangement.spacedBy(spacing.sm),
+        horizontalArrangement = Arrangement.spacedBy(spacing.xs),
         verticalArrangement = Arrangement.spacedBy(spacing.sm)
     ) {
         items(pinnedAndRecentFeeds, key = { it.id }) { item ->
@@ -58,7 +59,7 @@ fun PinnedAndRecentsGrid(
 
 @Composable
 fun PinnedAndRecentsGridLoading() {
-    val rowsCount = pinnedAndRecentsGridRowsCount()
+    val rowsCount = pinnedAndRecentsGridRowsCount(0)
     val spacing = LocalDPSpacing.current
     val loadingContentDescription = stringResource(stringRes.feed_grid_loading_content_description)
     LazyHorizontalGrid(
@@ -77,14 +78,16 @@ fun PinnedAndRecentsGridLoading() {
 }
 
 @Composable
-private fun pinnedAndRecentsGridRowsCount(): Int {
-    val windowAdaptiveInfo = currentWindowAdaptiveInfoV2()
-    val rowsCount by remember(windowAdaptiveInfo) {
+private fun pinnedAndRecentsGridRowsCount(size: Int): Int {
+    val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
+    val rowsCount by remember(windowSizeClass) {
         derivedStateOf {
-            val isMedium = windowAdaptiveInfo
-                .windowSizeClass
-                .isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
-            if (isMedium) 2 else 1
+            val isLarge =
+                windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_LARGE_LOWER_BOUND)
+            when {
+                !isLarge && size > 4 -> 2
+                else -> 1
+            }
         }
     }
     return rowsCount

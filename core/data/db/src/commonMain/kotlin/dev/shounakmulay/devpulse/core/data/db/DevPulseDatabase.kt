@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.db
 
+import androidx.room3.AutoMigration
 import androidx.room3.ConstructedBy
 import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Database
@@ -10,6 +11,8 @@ import androidx.room3.withReadTransaction
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
+import dev.shounakmulay.devpulse.core.data.db.SchemaVersions.BASE
+import dev.shounakmulay.devpulse.core.data.db.SchemaVersions.RECENT_POSTS_PUBLISHED_AT
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedQueueDao
@@ -24,6 +27,7 @@ import dev.shounakmulay.devpulse.core.data.db.transaction.RoomTransactionScopeWr
 
 private object SchemaVersions {
     const val BASE = 1
+    const val RECENT_POSTS_PUBLISHED_AT = 2
 }
 
 @Database(
@@ -34,8 +38,10 @@ private object SchemaVersions {
         LocalRssPostTag::class,
         LocalRssPostToTagMapping::class,
     ],
-    autoMigrations = [],
-    version = SchemaVersions.BASE
+    autoMigrations = [
+        AutoMigration(from = BASE, to = RECENT_POSTS_PUBLISHED_AT)
+    ],
+    version = RECENT_POSTS_PUBLISHED_AT
 )
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @ConstructedBy(DevPulseDatabaseConstructor::class)

@@ -2,15 +2,15 @@ package dev.shounakmulay.devpulse.core.data.feed.mapper
 
 import com.prof18.rssparser.model.RssItem
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
-import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentity
+import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.RssIdentityGenerator
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class RssItemMapperTest {
+class RssPostMapperTest {
 
-    private val mapper = RssItemMapper(
+    private val mapper = RssPostMapper(
         idGenerator = RssIdentityGenerator(),
         dateTimeProvider = FixedDateTimeProvider
     )
@@ -21,7 +21,7 @@ class RssItemMapperTest {
             item = createItem(pubDate = "Tue, 19 May 2026 10:00:00 +0000"),
             feedId = "feed-1",
             fingerprint = "fingerprint-1",
-            existingIdentity = LocalRssContentFeedPostIdentity(
+            existingIdentity = LocalRssContentFeedPostIdentitySlice(
                 id = "post-1",
                 fingerprint = "fingerprint-1",
                 createdAt = 1234L,
@@ -30,8 +30,45 @@ class RssItemMapperTest {
         )
 
         assertEquals("Tue, 19 May 2026 10:00:00 +0000", result.pubDate)
+        assertEquals(1779184800000L, result.publishedAtEpochMillis)
         assertEquals(1234L, result.createdAt)
         assertEquals(1779184800000L, result.updatedAt)
+    }
+
+    @Test
+    fun `Given RSS item GMT date When mapped to local post Then published time is parsed`() {
+        val result = mapper.toLocalRssContentFeedPost(
+            item = createItem(pubDate = "Tue, 19 May 2026 10:00:00 GMT"),
+            feedId = "feed-1",
+            fingerprint = "fingerprint-1",
+            existingIdentity = null
+        )
+
+        assertEquals(1779184800000L, result.publishedAtEpochMillis)
+    }
+
+    @Test
+    fun `Given RSS item offset date When mapped to local post Then published time is normalized to UTC`() {
+        val result = mapper.toLocalRssContentFeedPost(
+            item = createItem(pubDate = "Tue, 19 May 2026 15:30:00 +0530"),
+            feedId = "feed-1",
+            fingerprint = "fingerprint-1",
+            existingIdentity = null
+        )
+
+        assertEquals(1779184800000L, result.publishedAtEpochMillis)
+    }
+
+    @Test
+    fun `Given RSS item unparseable date When mapped to local post Then published time is null`() {
+        val result = mapper.toLocalRssContentFeedPost(
+            item = createItem(pubDate = "not a date"),
+            feedId = "feed-1",
+            fingerprint = "fingerprint-1",
+            existingIdentity = null
+        )
+
+        assertEquals(null, result.publishedAtEpochMillis)
     }
 
     private fun createItem(pubDate: String?): RssItem {

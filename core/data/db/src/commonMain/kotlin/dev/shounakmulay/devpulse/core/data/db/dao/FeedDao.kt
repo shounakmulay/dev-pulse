@@ -5,7 +5,7 @@ import androidx.room3.Dao
 import androidx.room3.Query
 import androidx.room3.Upsert
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
-import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentity
+import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -36,7 +36,7 @@ interface FeedDao {
         WHERE sourceUrl = :sourceUrl
     """
     )
-    suspend fun getFeedIdentityBySourceUrl(sourceUrl: String): LocalRssFeedIdentity?
+    suspend fun getFeedIdentityBySourceUrl(sourceUrl: String): LocalRssFeedIdentitySlice?
 
     @Upsert
     suspend fun upsertFeed(feed: LocalRssFeed)

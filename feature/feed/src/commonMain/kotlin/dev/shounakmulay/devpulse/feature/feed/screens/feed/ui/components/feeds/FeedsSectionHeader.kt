@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components
+package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds
 
 import androidx.compose.runtime.Composable
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
@@ -24,7 +24,7 @@ internal fun FeedsSectionHeader(
         DPButton(
             text = stringResource(stringRes.add_feed_action_import),
             variant = DPButtonVariant.Secondary,
-            style = DPButtonStyle.Outlined,
+            style = DPButtonStyle.Text,
             leadingIcon = DPIcons.Add,
             size = DPSize.Small,
             onClick = onNavigateToAddFeed
@@ -32,8 +32,7 @@ internal fun FeedsSectionHeader(
         DPButton(
             text = stringResource(stringRes.feed_view_all),
             variant = DPButtonVariant.Secondary,
-            style = DPButtonStyle.Outlined,
-            trailingIcon = DPIcons.ArrowRight,
+            style = DPButtonStyle.Text,
             size = DPSize.Small,
             onClick = onNavigateToFeedList
         )

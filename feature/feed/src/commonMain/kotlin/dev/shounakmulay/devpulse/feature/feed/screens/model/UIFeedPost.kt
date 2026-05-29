@@ -5,12 +5,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @Immutable
-data class UIFeed(
+data class UIFeedPost(
     val id: String,
-    val imageUrl: String?,
     val title: String,
-    val initials: String,
-    val pinned: Boolean,
-    val sourceUrl: String,
-    val websiteImageUrl: String?
+    val sourceName: String,
+    val sourceUrl: String?,
+    val articleUrl: String?,
+    val publishedText: String?,
+    val imageUrl: String?,
+    val summary: String?,
+    val feed: UIFeed
 )

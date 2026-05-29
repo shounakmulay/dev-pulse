@@ -1,6 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.db.model.feed.slices
 
-data class LocalRssContentFeedPostIdentity(
+data class LocalRssContentFeedPostIdentitySlice(
     val id: String,
     val fingerprint: String,
     val createdAt: Long,

@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components
+package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds
 
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -82,24 +82,27 @@ private fun FeedsGridItemImage(
     initials: String,
     title: String,
 ) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            DPImage(
-                modifier = Modifier.fillMaxSize(0.8f),
-                url = imageUrl.orEmpty(),
-                contentDescription = stringResource(
-                    stringRes.feed_image_content_description,
-                    title
-                ),
-                fallbackContent = {
+
+    Box(
+        modifier = Modifier.fillMaxSize().clip(MaterialTheme.shapes.large),
+        contentAlignment = Alignment.Center) {
+        DPImage(
+            modifier = Modifier.fillMaxSize(),
+            url = imageUrl.orEmpty(),
+            contentDescription = stringResource(
+                stringRes.feed_image_content_description,
+                title
+            ),
+            fallbackContent = {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
                     FeedInitialsText(initials)
                 }
-            )
-        }
+            }
+        )
     }
 }
 

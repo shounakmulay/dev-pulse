@@ -1,6 +1,6 @@
 package dev.shounakmulay.devpulse.core.domain.models.feed
 
-data class RssFeedItemYoutubeData(
+data class RssFeedPostYoutubeData(
     val videoId: String?,
     val title: String?,
     val videoUrl: String?,
