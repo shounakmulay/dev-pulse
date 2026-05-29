@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddToQueue
+import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Close
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RssFeed
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -61,4 +63,6 @@ object DPIcons {
     val ArrowRight = Icons.AutoMirrored.Default.KeyboardArrowRight
     val Pin = Icons.Filled.PushPin
     val PinOutlined = Icons.Outlined.PushPinOutlined
+    val BookmarkAddOutline = Icons.Outlined.BookmarkAdd
+    val BookmarkAdded = Icons.Default.BookmarkAdded
 }

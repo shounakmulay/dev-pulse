@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.content
+package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,7 +27,7 @@ import devpulse.core.resources.generated.resources.feed_articles
 import devpulse.core.resources.generated.resources.feed_view_all
 import org.jetbrains.compose.resources.stringResource
 
-fun LazyListScope.articlesContentSection(
+fun LazyListScope.postsContentSection(
     articles: List<UIFeedPost>,
     isLoading: Boolean,
 ) {

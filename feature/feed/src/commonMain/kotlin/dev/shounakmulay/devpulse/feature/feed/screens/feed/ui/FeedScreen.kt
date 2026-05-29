@@ -7,7 +7,11 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -27,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPClickableRow
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
@@ -35,8 +40,10 @@ import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
-import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.content.articlesContentSection
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds.feedsSection
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedsPostListItemVariant
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.postsContentSection
 import devpulse.core.resources.generated.resources.feed_detail_title
 import devpulse.core.resources.generated.resources.feed_search
 import devpulse.core.resources.generated.resources.feed_search_back
@@ -132,7 +139,9 @@ fun FeedScreen(
         val pinnedAndRecentFeeds by viewModel.pinnedAndRecentFeeds.collectAsStateWithLifecycle()
         val recentArticles by viewModel.recentArticles.collectAsStateWithLifecycle()
         LazyColumn(
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            contentPadding = PaddingValues(bottom = 100.dp)
         ) {
             feedsSection(
                 pinnedAndRecentFeeds = pinnedAndRecentFeeds,
@@ -142,10 +151,17 @@ fun FeedScreen(
                 onFeedClick = {},
                 onFeedLongClick = { },
             )
-            articlesContentSection(
+            postsContentSection(
                 articles = recentArticles,
                 isLoading = state.isArticlesLoading,
             )
+            items(recentArticles) { post ->
+                FeedPostListItem(
+                    post = post,
+                    variant = if (post.feed.pinned) FeedsPostListItemVariant.L else FeedsPostListItemVariant.M,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
         }
     }
 }

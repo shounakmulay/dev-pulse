@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.content
+package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -10,7 +10,7 @@ import devpulse.core.resources.generated.resources.feed_article_image_content_de
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun ArticleImage(
+fun FeedPostImage(
     article: UIFeedPost,
     modifier: Modifier,
 ) {
