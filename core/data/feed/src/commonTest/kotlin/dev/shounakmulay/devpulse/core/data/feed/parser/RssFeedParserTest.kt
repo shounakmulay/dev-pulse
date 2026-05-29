@@ -12,7 +12,7 @@ class RssFeedParserTest {
 
     @Test
     fun `Given RSS with optional malformed values When parsed Then usable fields are extracted`() = runTest {
-        val parser = RssFeedParser()
+        val parser = KtXmlFeedParser()
 
         val result = parser.parseText(
             sourceUrl = "https://example.com/feed.xml",
@@ -41,7 +41,7 @@ class RssFeedParserTest {
 
     @Test
     fun `Given Atom feed When parsed Then entries are normalized`() = runTest {
-        val parser = RssFeedParser()
+        val parser = KtXmlFeedParser()
 
         val result = parser.parseText(
             sourceUrl = "https://example.com/atom.xml",
@@ -101,8 +101,8 @@ class RssFeedParserTest {
                     <author>Author</author>
                     <link>https://example.com/post</link>
                     <pubDate>Tue, 19 May 2026 10:00:00 GMT</pubDate>
-                    <description><![CDATA[Summary]]></description>
-                    <content:encoded><![CDATA[Full content]]></content:encoded>
+                    <description><![CDATA[<p>Summary</p><script>bad()</script>]]></description>
+                    <content:encoded><![CDATA[<article>Full content</article>]]></content:encoded>
                     <category>Kotlin</category>
                     <comments>https://example.com/comments</comments>
                     <source url="https://example.com/feed.xml">Example Feed</source>

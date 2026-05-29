@@ -68,6 +68,8 @@ internal fun String?.sanitizeRichText(): String? {
     return this
         ?.removeUnsafeStorageCharacters()
         ?.decodeBasicHtmlEntities()
+        ?.removeScriptAndStyleBlocks()
+        ?.stripHtmlTags()
         ?.collapseWhitespace()
         ?.takeIf { it.isNotEmpty() }
 }
@@ -132,6 +134,14 @@ private fun ParsedFeedItemMediaContent.sanitized(): ParsedFeedItemMediaContent {
     )
 }
 
+private fun String.removeScriptAndStyleBlocks(): String {
+    return replace(scriptOrStyleRegex, " ")
+}
+
+private fun String.stripHtmlTags(): String {
+    return replace(htmlTagRegex, " ")
+}
+
 private fun String.removeUnsafeStorageCharacters(): String {
     return filter { character ->
         character == '\n' ||
@@ -168,4 +178,9 @@ private fun decodeNumericEntity(entity: String): String? {
     return value.toChar().toString()
 }
 
+private val scriptOrStyleRegex = Regex(
+    pattern = "<\\s*(script|style)[^>]*>.*?<\\s*/\\s*\\1\\s*>",
+    options = setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
+)
+private val htmlTagRegex = Regex("<[^>]+>")
 private val entityRegex = Regex("&(#x[0-9a-fA-F]+|#[0-9]+|amp|lt|gt|quot|apos|nbsp);")
