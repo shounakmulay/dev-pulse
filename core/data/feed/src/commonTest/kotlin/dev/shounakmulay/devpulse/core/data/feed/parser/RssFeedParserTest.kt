@@ -7,6 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class RssFeedParserTest {
 
@@ -37,6 +38,23 @@ class RssFeedParserTest {
         assertEquals("video-1", items[0].youtubeItemData?.videoId)
         assertNull(items[1].title)
         assertEquals("https://example.com/minimal", items[1].link)
+    }
+
+    @Test
+    fun `Given RSS feed When parsed Then item XML is consumed by item flow`() = runTest {
+        val parser = KtXmlFeedParser()
+        val chars = CountingCharIterator(rssFixture)
+
+        val result = parser.parse(sourceUrl = "https://example.com/feed.xml", chars = chars)
+        val consumedBeforeItems = chars.consumed
+
+        assertEquals("Example Feed", result.metadata.title)
+        assertTrue(consumedBeforeItems < rssFixture.length)
+
+        val firstItem = result.items.toList().first()
+
+        assertEquals("Post title", firstItem.title)
+        assertTrue(chars.consumed > consumedBeforeItems)
     }
 
     @Test
@@ -76,6 +94,24 @@ class RssFeedParserTest {
         val result = OpmlParser().parseFileBytes(fileName = "feeds.opml", bytes = opmlFixture.encodeToByteArray())
 
         assertNotNull(result.feeds.firstOrNull())
+    }
+
+    private class CountingCharIterator(
+        private val value: String
+    ) : CharIterator() {
+        var consumed = 0
+            private set
+
+        override fun hasNext(): Boolean {
+            return consumed < value.length
+        }
+
+        override fun nextChar(): Char {
+            if (!hasNext()) throw NoSuchElementException()
+            val char = value[consumed]
+            consumed += 1
+            return char
+        }
     }
 
     private val rssFixture = """

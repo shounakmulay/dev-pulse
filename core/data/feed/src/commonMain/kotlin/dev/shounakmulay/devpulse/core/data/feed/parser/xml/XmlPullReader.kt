@@ -6,8 +6,11 @@ import org.kobjects.ktxml.api.XmlPullParser
 
 internal class XmlPullReader(
     private val sourceUrl: String?,
-    private val issues: MutableList<ParsedFeedIssue>
+    private val mutableIssues: MutableList<ParsedFeedIssue>
 ) {
+    val issues: List<ParsedFeedIssue>
+        get() = mutableIssues
+
     fun tagKey(parser: XmlPullParser): String {
         val prefix = parser.prefix.takeIf { it.isNotBlank() }
         return when (prefix) {
@@ -61,7 +64,7 @@ internal class XmlPullReader(
             }
             output.toString().takeIf { it.isNotBlank() }
         }.onFailure { throwable ->
-            issues += ParsedFeedIssue(
+            mutableIssues += ParsedFeedIssue(
                 sourceUrl = sourceUrl,
                 itemOrdinal = itemOrdinal,
                 tag = startTag,
@@ -76,7 +79,7 @@ internal class XmlPullReader(
         runCatching {
             parser.skipSubTree()
         }.onFailure { throwable ->
-            issues += ParsedFeedIssue(
+            mutableIssues += ParsedFeedIssue(
                 sourceUrl = sourceUrl,
                 itemOrdinal = itemOrdinal,
                 tag = startTag,

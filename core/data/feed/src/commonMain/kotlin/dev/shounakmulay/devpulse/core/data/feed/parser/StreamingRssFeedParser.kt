@@ -5,10 +5,12 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.utils.io.ByteReadChannel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
@@ -19,9 +21,9 @@ internal class StreamingRssFeedParser(
     private val httpClient: HttpClient,
     private val xmlParser: KtXmlFeedParser
 ) : FeedParser {
-    override suspend fun parseFeed(url: String): ParsedFeed = coroutineScope {
+    override suspend fun parseFeed(url: String): ParsedFeed {
         val chars = Channel<Char>(capacity = ChannelCapacity)
-        val producer = launch(Dispatchers.Default) {
+        val producer = CoroutineScope(currentCoroutineContext()).launch(Dispatchers.Default) {
             runCatching {
                 httpClient.prepareGet(url).execute { response ->
                     response.bodyAsChannel().streamUtf8To(chars)
@@ -33,12 +35,17 @@ internal class StreamingRssFeedParser(
             }
         }
         val iterator = ChannelCharIterator(chars)
-        try {
+        return try {
             val parsedFeed = xmlParser.parse(sourceUrl = url, chars = iterator)
             iterator.failure?.let { throwable -> throw throwable }
-            parsedFeed
-        } finally {
+            parsedFeed.copy(
+                items = parsedFeed.items.onCompletion {
+                    producer.cancelAndJoin()
+                }
+            )
+        } catch (throwable: Throwable) {
             producer.cancelAndJoin()
+            throw throwable
         }
     }
 

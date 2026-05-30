@@ -16,7 +16,7 @@ class OpmlParser {
     fun parseText(opml: String): ParsedOpmlDocument {
         val feedIssues = mutableListOf<ParsedFeedIssue>()
         val parser = MiniXmlPullParser(opml.iterator())
-        val reader = XmlPullReader(sourceUrl = null, issues = feedIssues)
+        val reader = XmlPullReader(sourceUrl = null, mutableIssues = feedIssues)
         val issues = mutableListOf<ParsedOpmlIssue>()
         val feeds = mutableListOf<ParsedOpmlFeed>()
         var title: String? = null
