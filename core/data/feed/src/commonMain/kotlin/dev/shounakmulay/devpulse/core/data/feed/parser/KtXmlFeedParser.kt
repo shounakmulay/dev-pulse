@@ -11,7 +11,9 @@ import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedMetadata
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedYoutubeChannel
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.XmlPullReader
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.sanitized
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import org.kobjects.ktxml.api.EventType
 import org.kobjects.ktxml.api.XmlPullParser
 import org.kobjects.ktxml.mini.MiniXmlPullParser
@@ -26,26 +28,30 @@ internal class KtXmlFeedParser {
     fun parse(sourceUrl: String?, chars: CharIterator): ParsedFeed {
         val issues = mutableListOf<ParsedFeedIssue>()
         val parser = MiniXmlPullParser(chars)
-        val reader = XmlPullReader(sourceUrl = sourceUrl, issues = issues)
-        val items = mutableListOf<ParsedFeedItem>()
-        var metadata = emptyMetadata()
+        val reader = XmlPullReader(sourceUrl = sourceUrl, mutableIssues = issues)
         var rootFound = false
-        runCatching {
+        val parsedFeed = runCatching {
             while (parser.next() != EventType.END_DOCUMENT) {
                 if (parser.eventType == EventType.START_TAG) {
                     rootFound = true
-                    metadata = when {
-                        reader.matches(parser, "rss") -> readRss(parser, reader, items)
-                        reader.matches(parser, "channel") -> readChannel(parser, reader, items)
-                        reader.matches(parser, "feed") -> readAtomFeed(parser, reader, items)
-                        reader.matches(parser, "rdf:RDF", "RDF") -> readRdf(parser, reader, items)
+                    return@runCatching when {
+                        reader.matches(parser, "rss") -> readRss(parser, reader)
+                        reader.matches(parser, "channel") -> readChannel(parser, reader, itemTag = "item")
+                        reader.matches(parser, "feed") -> readAtomFeed(parser, reader)
+                        reader.matches(parser, "rdf:RDF", "RDF") -> readRdf(parser, reader)
                         else -> {
                             reader.skipCurrent(parser)
-                            emptyMetadata()
+                            ParsedFeed(
+                                metadata = emptyMetadata().sanitized(),
+                                items = emptyFlow(),
+                                itemCount = null,
+                                issues = issues
+                            )
                         }
                     }
                 }
             }
+            null
         }.onFailure { throwable ->
             issues += ParsedFeedIssue(
                 sourceUrl = sourceUrl,
@@ -54,7 +60,7 @@ internal class KtXmlFeedParser {
                 attribute = null,
                 message = throwable.message ?: "Unable to parse feed XML"
             )
-        }
+        }.getOrNull()
         if (!rootFound) {
             issues += ParsedFeedIssue(
                 sourceUrl = sourceUrl,
@@ -64,27 +70,24 @@ internal class KtXmlFeedParser {
                 message = "No supported feed root found"
             )
         }
-        val sanitizedItems = items.map { it.sanitized() }.filter { it.hasUsableData() }
-        return ParsedFeed(
-            metadata = metadata.sanitized(),
-            items = sanitizedItems.asFlow(),
-            itemCount = sanitizedItems.size,
+        return parsedFeed ?: ParsedFeed(
+            metadata = emptyMetadata().sanitized(),
+            items = emptyFlow(),
+            itemCount = null,
             issues = issues
         )
     }
 
     private fun readRss(
         parser: XmlPullParser,
-        reader: XmlPullReader,
-        items: MutableList<ParsedFeedItem>
-    ): ParsedFeedMetadata {
-        var metadata = emptyMetadata()
+        reader: XmlPullReader
+    ): ParsedFeed {
         val startDepth = parser.depth
         var finished = false
         while (!finished) {
             when (parser.next()) {
                 EventType.START_TAG -> when {
-                    reader.matches(parser, "channel") -> metadata = readChannel(parser, reader, items)
+                    reader.matches(parser, "channel") -> return readChannel(parser, reader, itemTag = "item")
                     else -> reader.skipCurrent(parser)
                 }
                 EventType.END_TAG -> finished = parser.depth == startDepth && reader.matches(parser, "rss")
@@ -92,13 +95,161 @@ internal class KtXmlFeedParser {
                 else -> Unit
             }
         }
-        return metadata
+        return ParsedFeed(
+            metadata = emptyMetadata().sanitized(),
+            items = emptyFlow(),
+            itemCount = null,
+            issues = reader.issues
+        )
     }
 
     private fun readChannel(
         parser: XmlPullParser,
         reader: XmlPullReader,
-        items: MutableList<ParsedFeedItem>
+        itemTag: String
+    ): ParsedFeed {
+        val builder = FeedMetadataBuilder()
+        val startDepth = parser.depth
+        var currentItemPending = false
+        var finished = false
+        while (!finished && !currentItemPending) {
+            when (parser.next()) {
+                EventType.START_TAG -> when {
+                    reader.matches(parser, itemTag) -> currentItemPending = true
+                    reader.matches(parser, "image") -> builder.image = readFeedImage(parser, reader, builder)
+                    reader.matches(parser, "title", "dc:title", "itunes:title") -> {
+                        builder.title = builder.title ?: reader.readElementText(parser)
+                    }
+                    reader.matches(parser, "link") -> builder.link = builder.link ?: reader.readElementText(parser)
+                    reader.matches(parser, "atom:link") -> readAtomLink(parser, reader, builder)
+                    reader.matches(parser, "description", "dc:description", "itunes:summary", "itunes:subtitle") -> {
+                        builder.description = builder.description ?: reader.readElementText(parser)
+                    }
+                    reader.matches(parser, "lastBuildDate", "pubDate", "dc:date") -> {
+                        builder.lastBuildDate = builder.lastBuildDate ?: reader.readElementText(parser)
+                    }
+                    reader.matches(parser, "sy:updatePeriod", "ttl") -> {
+                        builder.updatePeriod = builder.updatePeriod ?: reader.readElementText(parser)
+                    }
+                    reader.matches(parser, "yt:channelId", "youtube:channelId") -> {
+                        builder.youtubeChannelId = builder.youtubeChannelId ?: reader.readElementText(parser)
+                    }
+                    reader.matches(parser, "itunes:image", "media:thumbnail", "media:content") -> {
+                        readFeedImageCandidate(parser, reader, builder)
+                    }
+                    else -> reader.skipCurrent(parser)
+                }
+                EventType.END_TAG -> finished = parser.depth == startDepth && reader.matches(parser, "channel")
+                EventType.END_DOCUMENT -> finished = true
+                else -> Unit
+            }
+        }
+        return ParsedFeed(
+            metadata = builder.build().sanitized(),
+            items = readRemainingItems(
+                parser = parser,
+                reader = reader,
+                containerDepth = startDepth,
+                containerTag = "channel",
+                itemTag = itemTag,
+                currentItemPending = currentItemPending
+            ),
+            itemCount = null,
+            issues = reader.issues
+        )
+    }
+
+    private fun readAtomFeed(
+        parser: XmlPullParser,
+        reader: XmlPullReader
+    ): ParsedFeed {
+        val builder = FeedMetadataBuilder()
+        val startDepth = parser.depth
+        var currentItemPending = false
+        var finished = false
+        while (!finished && !currentItemPending) {
+            when (parser.next()) {
+                EventType.START_TAG -> when {
+                    reader.matches(parser, "entry") -> currentItemPending = true
+                    reader.matches(parser, "title") -> builder.title = builder.title ?: reader.readElementText(parser)
+                    reader.matches(parser, "subtitle", "tagline") -> {
+                        builder.description = builder.description ?: reader.readElementText(parser)
+                    }
+                    reader.matches(parser, "updated", "published") -> {
+                        builder.lastBuildDate = builder.lastBuildDate ?: reader.readElementText(parser)
+                    }
+                    reader.matches(parser, "link") -> readAtomLink(parser, reader, builder)
+                    reader.matches(parser, "icon", "logo") -> {
+                        builder.image = builder.image ?: ParsedFeedImage(
+                            title = builder.title,
+                            url = reader.readElementText(parser),
+                            link = builder.link,
+                            description = builder.description
+                        )
+                    }
+                    reader.matches(parser, "yt:channelId", "youtube:channelId") -> {
+                        builder.youtubeChannelId = builder.youtubeChannelId ?: reader.readElementText(parser)
+                    }
+                    else -> reader.skipCurrent(parser)
+                }
+                EventType.END_TAG -> finished = parser.depth == startDepth && reader.matches(parser, "feed")
+                EventType.END_DOCUMENT -> finished = true
+                else -> Unit
+            }
+        }
+        return ParsedFeed(
+            metadata = builder.build().sanitized(),
+            items = readRemainingItems(
+                parser = parser,
+                reader = reader,
+                containerDepth = startDepth,
+                containerTag = "feed",
+                itemTag = "entry",
+                currentItemPending = currentItemPending
+            ),
+            itemCount = null,
+            issues = reader.issues
+        )
+    }
+
+    private fun readRdf(
+        parser: XmlPullParser,
+        reader: XmlPullReader
+    ): ParsedFeed {
+        val startDepth = parser.depth
+        var metadata = emptyMetadata()
+        var currentItemPending = false
+        var finished = false
+        while (!finished && !currentItemPending) {
+            when (parser.next()) {
+                EventType.START_TAG -> when {
+                    reader.matches(parser, "channel") -> metadata = readChannelMetadata(parser, reader)
+                    reader.matches(parser, "item") -> currentItemPending = true
+                    else -> reader.skipCurrent(parser)
+                }
+                EventType.END_TAG -> finished = parser.depth == startDepth && reader.matches(parser, "rdf:RDF", "RDF")
+                EventType.END_DOCUMENT -> finished = true
+                else -> Unit
+            }
+        }
+        return ParsedFeed(
+            metadata = metadata.sanitized(),
+            items = readRemainingItems(
+                parser = parser,
+                reader = reader,
+                containerDepth = startDepth,
+                containerTag = "rdf:RDF",
+                itemTag = "item",
+                currentItemPending = currentItemPending
+            ),
+            itemCount = null,
+            issues = reader.issues
+        )
+    }
+
+    private fun readChannelMetadata(
+        parser: XmlPullParser,
+        reader: XmlPullReader
     ): ParsedFeedMetadata {
         val builder = FeedMetadataBuilder()
         val startDepth = parser.depth
@@ -106,7 +257,6 @@ internal class KtXmlFeedParser {
         while (!finished) {
             when (parser.next()) {
                 EventType.START_TAG -> when {
-                    reader.matches(parser, "item") -> items += readItem(parser, reader, items.size)
                     reader.matches(parser, "image") -> builder.image = readFeedImage(parser, reader, builder)
                     reader.matches(parser, "title", "dc:title", "itunes:title") -> {
                         builder.title = builder.title ?: reader.readElementText(parser)
@@ -136,70 +286,6 @@ internal class KtXmlFeedParser {
             }
         }
         return builder.build()
-    }
-
-    private fun readAtomFeed(
-        parser: XmlPullParser,
-        reader: XmlPullReader,
-        items: MutableList<ParsedFeedItem>
-    ): ParsedFeedMetadata {
-        val builder = FeedMetadataBuilder()
-        val startDepth = parser.depth
-        var finished = false
-        while (!finished) {
-            when (parser.next()) {
-                EventType.START_TAG -> when {
-                    reader.matches(parser, "entry") -> items += readItem(parser, reader, items.size)
-                    reader.matches(parser, "title") -> builder.title = builder.title ?: reader.readElementText(parser)
-                    reader.matches(parser, "subtitle", "tagline") -> {
-                        builder.description = builder.description ?: reader.readElementText(parser)
-                    }
-                    reader.matches(parser, "updated", "published") -> {
-                        builder.lastBuildDate = builder.lastBuildDate ?: reader.readElementText(parser)
-                    }
-                    reader.matches(parser, "link") -> readAtomLink(parser, reader, builder)
-                    reader.matches(parser, "icon", "logo") -> {
-                        builder.image = builder.image ?: ParsedFeedImage(
-                            title = builder.title,
-                            url = reader.readElementText(parser),
-                            link = builder.link,
-                            description = builder.description
-                        )
-                    }
-                    reader.matches(parser, "yt:channelId", "youtube:channelId") -> {
-                        builder.youtubeChannelId = builder.youtubeChannelId ?: reader.readElementText(parser)
-                    }
-                    else -> reader.skipCurrent(parser)
-                }
-                EventType.END_TAG -> finished = parser.depth == startDepth && reader.matches(parser, "feed")
-                EventType.END_DOCUMENT -> finished = true
-                else -> Unit
-            }
-        }
-        return builder.build()
-    }
-
-    private fun readRdf(
-        parser: XmlPullParser,
-        reader: XmlPullReader,
-        items: MutableList<ParsedFeedItem>
-    ): ParsedFeedMetadata {
-        var metadata = emptyMetadata()
-        val startDepth = parser.depth
-        var finished = false
-        while (!finished) {
-            when (parser.next()) {
-                EventType.START_TAG -> when {
-                    reader.matches(parser, "channel") -> metadata = readChannel(parser, reader, items)
-                    reader.matches(parser, "item") -> items += readItem(parser, reader, items.size)
-                    else -> reader.skipCurrent(parser)
-                }
-                EventType.END_TAG -> finished = parser.depth == startDepth && reader.matches(parser, "rdf:RDF", "RDF")
-                EventType.END_DOCUMENT -> finished = true
-                else -> Unit
-            }
-        }
-        return metadata
     }
 
     private fun readFeedImage(
@@ -257,6 +343,40 @@ internal class KtXmlFeedParser {
             builder.link = href
         }
         reader.skipCurrent(parser)
+    }
+
+    private fun readRemainingItems(
+        parser: XmlPullParser,
+        reader: XmlPullReader,
+        containerDepth: Int,
+        containerTag: String,
+        itemTag: String,
+        currentItemPending: Boolean
+    ): Flow<ParsedFeedItem> = flow {
+        var ordinal = 0
+        var consumeCurrentEvent = currentItemPending
+        var finished = false
+        while (!finished) {
+            val eventType = when {
+                consumeCurrentEvent -> parser.eventType.also { consumeCurrentEvent = false }
+                else -> parser.next()
+            }
+            when (eventType) {
+                EventType.START_TAG -> when {
+                    reader.matches(parser, itemTag) -> {
+                        readItem(parser, reader, ordinal)
+                            .sanitized()
+                            .takeIf { it.hasUsableData() }
+                            ?.let { emit(it) }
+                        ordinal += 1
+                    }
+                    else -> reader.skipCurrent(parser, ordinal)
+                }
+                EventType.END_TAG -> finished = parser.depth == containerDepth && reader.matches(parser, containerTag)
+                EventType.END_DOCUMENT -> finished = true
+                else -> Unit
+            }
+        }
     }
 
     private fun readItem(

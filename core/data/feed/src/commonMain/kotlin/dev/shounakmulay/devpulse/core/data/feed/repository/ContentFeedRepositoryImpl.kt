@@ -87,7 +87,7 @@ internal class ContentFeedRepositoryImpl(
             throw e
         }
         logger.d {
-            "RSS parse succeeded queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${parsedFeed.itemCount}"
+            "RSS parse succeeded queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${parsedFeed.itemCountSummary()}"
         }
         rssContentFeedProcessor.process(entry = entry, parsedFeed = parsedFeed)
     }
@@ -106,6 +106,10 @@ internal class ContentFeedRepositoryImpl(
         return runCatching {
             feedContentDao.updateBookmarkStatus(id = id, isBookmarked = bookmarked)
         }
+    }
+
+    private fun ParsedFeed.itemCountSummary(): String {
+        return itemCount?.toString() ?: "streaming"
     }
 
     private fun String.sourceSummary(): String {

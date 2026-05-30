@@ -42,7 +42,7 @@ internal class RssContentFeedProcessor(
 
     suspend fun process(entry: RssFeedQueueEntry, parsedFeed: ParsedFeed): Unit = coroutineScope {
         logger.d {
-            "RSS content processing started queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${parsedFeed.itemCount}"
+            "RSS content processing started queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${parsedFeed.itemCountSummary()}"
         }
         val localRssFeed = async {
             buildLocalRssFeed(
@@ -210,6 +210,10 @@ internal class RssContentFeedProcessor(
             "RSS feed upserted feedId=${localFeed.id} source=${entry.url.sourceSummary()} existing=${exitingIdentity != null}"
         }
         return localFeed
+    }
+
+    private fun ParsedFeed.itemCountSummary(): String {
+        return itemCount?.toString() ?: "streaming"
     }
 
     private fun String.sourceSummary(): String {
