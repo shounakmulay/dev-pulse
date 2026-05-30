@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.Flow
 data class ParsedFeed(
     val metadata: ParsedFeedMetadata,
     val items: Flow<ParsedFeedItem>,
-    val itemCount: Int,
+    val itemCount: Int?,
     val issues: List<ParsedFeedIssue>
 )
