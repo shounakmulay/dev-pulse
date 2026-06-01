@@ -22,6 +22,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
 import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeedPost
 import devpulse.core.resources.generated.resources.feed_articles
 import devpulse.core.resources.generated.resources.feed_view_all
@@ -30,6 +31,8 @@ import org.jetbrains.compose.resources.stringResource
 fun LazyListScope.postsContentSection(
     articles: List<UIFeedPost>,
     isLoading: Boolean,
+    onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
+    onPostClick: (UIFeedPost) -> Unit,
 ) {
     stickyHeader {
         DPSectionDivider(
@@ -73,6 +76,8 @@ fun LazyListScope.postsContentSection(
                 FeedPostGridCard(
                     index = index,
                     article = article,
+                    onBookmarkChanged = onBookmarkChanged,
+                    onPostClick = onPostClick,
                     modifier = Modifier.animateItem()
                 )
             }

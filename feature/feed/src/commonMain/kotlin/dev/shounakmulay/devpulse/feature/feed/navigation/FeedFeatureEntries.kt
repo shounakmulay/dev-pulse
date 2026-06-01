@@ -6,9 +6,11 @@ import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.navigation.addFeedScreen
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.navigation.feedScreen
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.navigation.feedListScreen
+import dev.shounakmulay.devpulse.feature.feed.screens.postlist.navigation.postListScreen
 
 fun EntryProviderScope<Screen>.feedFeatureEntries(navigator: Navigator) {
     feedScreen(navigator)
     feedListScreen(navigator)
     addFeedScreen(navigator)
+    postListScreen(navigator)
 }

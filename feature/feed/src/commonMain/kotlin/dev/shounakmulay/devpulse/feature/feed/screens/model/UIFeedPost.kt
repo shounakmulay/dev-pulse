@@ -14,5 +14,7 @@ data class UIFeedPost(
     val publishedText: String?,
     val imageUrl: String?,
     val summary: String?,
+    val bookmarked: Boolean,
+    val createdAt: String,
     val feed: UIFeed
 )

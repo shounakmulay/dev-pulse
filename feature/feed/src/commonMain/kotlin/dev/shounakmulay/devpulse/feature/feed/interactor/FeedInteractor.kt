@@ -10,6 +10,7 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
+import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
 import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeedPost
 import kotlinx.collections.immutable.ImmutableList
@@ -19,12 +20,14 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
 import kotlin.jvm.JvmName
+import kotlin.time.Instant
 
 @Factory
 class FeedInteractor(
     private val extractInitialsUseCase: ExtractInitialsUseCase,
     private val getPinnedAndRecentFeedsUseCase: GetPinnedAndRecentFeedsUseCase,
     private val getRecentFeedItemsUseCase: GetRecentFeedItemsUseCase,
+    private val dateTimeStringConverter: DateTimeStringConverter,
     private val dispatcherProvider: DispatcherProvider
 ) {
     fun getPinnedAndRecentsUIFeedFlow(): Flow<ImmutableList<UIFeed>> {
@@ -129,15 +132,29 @@ class FeedInteractor(
             post.content
         ).firstOrNull { !it.isNullOrBlank() }
 
+        val publishedText = post.publishedAtMillis?.let {
+            dateTimeStringConverter.getTimeElapsedOrDateString(
+                Instant.fromEpochMilliseconds(
+                    it
+                )
+            )
+        }
+        val createAt = dateTimeStringConverter.getTimeElapsedOrDateString(
+            Instant.fromEpochMilliseconds(
+                post.createdAtMillis
+            )
+        )
         return UIFeedPost(
             id = post.id,
             title = title,
             sourceName = uiFeedIdentity.title,
             sourceUrl = post.sourceUrl,
             articleUrl = post.link,
-            publishedText = post.pubDate,
+            publishedText = publishedText,
             imageUrl = imageUrl,
             summary = summary,
+            bookmarked = post.bookmarked,
+            createdAt = createAt,
             feed = toUIFeed(feedIdentity),
         )
     }

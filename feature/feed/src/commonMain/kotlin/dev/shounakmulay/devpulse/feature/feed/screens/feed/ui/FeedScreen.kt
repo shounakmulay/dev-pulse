@@ -149,16 +149,43 @@ fun FeedScreen(
                 onNavigateToAddFeed = { navigator.navigate(Tabs.Feed.AddFeed) },
                 onNavigateToFeedList = { navigator.navigate(Tabs.Feed.FeedList) },
                 onFeedClick = {},
-                onFeedLongClick = { },
+                onFeedLongClick = {
+
+                },
+                onPinChanged = { feed, pinned ->
+                    viewModel.onEvent(
+                        FeedScreenEvent.OnFeedPinChanged(
+                            feedId = feed.id,
+                            pinned = pinned
+                        )
+                    )
+                },
             )
             postsContentSection(
                 articles = recentArticles,
                 isLoading = state.isArticlesLoading,
+                onPostClick = {},
+                onBookmarkChanged = { post, bookmarked ->
+                    viewModel.onEvent(
+                        FeedScreenEvent.OnPostBookmarkChanged(
+                            postId = post.id,
+                            bookmarked = bookmarked
+                        )
+                    )
+                },
             )
             items(recentArticles) { post ->
                 FeedPostListItem(
                     post = post,
                     variant = if (post.feed.pinned) FeedsPostListItemVariant.L else FeedsPostListItemVariant.M,
+                    onBookmarkChanged = { selectedPost, bookmarked ->
+                        viewModel.onEvent(
+                            FeedScreenEvent.OnPostBookmarkChanged(
+                                postId = selectedPost.id,
+                                bookmarked = bookmarked
+                            )
+                        )
+                    },
                     modifier = Modifier.padding(16.dp)
                 )
             }
