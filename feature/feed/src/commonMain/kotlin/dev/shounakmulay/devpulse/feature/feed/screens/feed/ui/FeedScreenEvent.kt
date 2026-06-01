@@ -6,4 +6,13 @@ import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
 sealed interface FeedScreenEvent : ScreenEvent {
     data class OnFeedLongClick(val feed: UIFeed) : FeedScreenEvent
 
+    data class OnPostBookmarkChanged(
+        val postId: String,
+        val bookmarked: Boolean
+    ) : FeedScreenEvent
+
+    data class OnFeedPinChanged(
+        val feedId: String,
+        val pinned: Boolean
+    ): FeedScreenEvent
 }

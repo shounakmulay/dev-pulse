@@ -10,10 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +36,7 @@ fun FeedPostListItem(
     variant: FeedsPostListItemVariant,
     modifier: Modifier = Modifier,
     showImage: Boolean = true,
+    onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -101,12 +99,20 @@ fun FeedPostListItem(
                 FeedPostListItemBody(post, variant)
             }
         }
-        FeedPostListItemMetadata(post, variant)
+        FeedPostListItemMetadata(
+            post = post,
+            variant = variant,
+            onBookmarkChanged = onBookmarkChanged
+        )
     }
 }
 
 @Composable
-private fun FeedPostListItemMetadata(post: UIFeedPost, variant: FeedsPostListItemVariant) {
+private fun FeedPostListItemMetadata(
+    post: UIFeedPost,
+    variant: FeedsPostListItemVariant,
+    onBookmarkChanged: (UIFeedPost, Boolean) -> Unit
+) {
     val labelTextVariant = remember(variant) {
         when (variant) {
             FeedsPostListItemVariant.XS -> DPTextViewVariant.LabelSmall
@@ -148,7 +154,7 @@ private fun FeedPostListItemMetadata(post: UIFeedPost, variant: FeedsPostListIte
                 DPTextDot()
             }
             DPTextView(
-                text = "19 May 26",
+                text = post.publishedText ?: post.createdAt,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 variant = labelTextVariant,
                 maxLines = 1
@@ -161,18 +167,15 @@ private fun FeedPostListItemMetadata(post: UIFeedPost, variant: FeedsPostListIte
                 maxLines = 1
             )
         }
-        var checked by remember {
-            mutableStateOf(false)
-        }
         DPIconToggleButton(
             size = DPSize.Small,
             icon = DPIcons.BookmarkAddOutline,
             checkedIcon = DPIcons.BookmarkAdded,
             contentDescription = "",
-            checked = checked,
-            onCheckedChange = {
-                checked = !checked
-            }
+            checked = post.bookmarked,
+            onCheckedChange = { checked ->
+                onBookmarkChanged(post, checked)
+            },
         )
     }
 }

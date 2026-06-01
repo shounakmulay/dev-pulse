@@ -102,6 +102,12 @@ internal class ContentFeedRepositoryImpl(
         }
     }
 
+    override suspend fun setPostBookmarked(id: String, bookmarked: Boolean): Result<Unit> {
+        return runCatching {
+            feedContentDao.updateBookmarkStatus(id = id, isBookmarked = bookmarked)
+        }
+    }
+
     private fun String.sourceSummary(): String {
         val withoutScheme = substringAfter("://", this)
         val host =

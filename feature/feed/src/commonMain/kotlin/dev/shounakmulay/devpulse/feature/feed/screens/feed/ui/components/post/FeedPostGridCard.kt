@@ -20,8 +20,10 @@ import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeedPost
 @Composable
 fun FeedPostGridCard(
     article: UIFeedPost,
-    modifier: Modifier = Modifier, // 1. Always accept a modifier for grid items
-    index: Int
+    modifier: Modifier = Modifier,
+    index: Int,
+    onPostClick: (UIFeedPost) -> Unit,
+    onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
 ) {
     val showImage by remember(article, index) {
         derivedStateOf {
@@ -34,8 +36,11 @@ fun FeedPostGridCard(
             .width(if (showImage) 340.dp else 280.dp)
             .clip(MaterialTheme.shapes.large)
             .combinedClickable(
-                onClick = {},
-                onLongClick = {}
+                onClick = { onPostClick(article) },
+                onLongClick = {},
+                onDoubleClick = {
+                    onBookmarkChanged(article, !article.bookmarked)
+                }
             ),
         border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.surfaceContainerHighest),
         shape = MaterialTheme.shapes.large,
@@ -44,6 +49,7 @@ fun FeedPostGridCard(
             post = article,
             showImage = showImage,
             variant = FeedsPostListItemVariant.M,
+            onBookmarkChanged = onBookmarkChanged,
             modifier = Modifier.padding(
                 DPTheme.spacing.md
             )

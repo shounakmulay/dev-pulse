@@ -10,6 +10,9 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedType
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format.DateTimeComponents
+import kotlin.time.Duration
+import kotlin.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -27,6 +30,7 @@ class RssFeedMapperTest {
             existingIdentity = LocalRssFeedIdentitySlice(
                 id = "feed-1",
                 title = "Title",
+                name = "Example",
                 pinned = false,
                 sourceUrl = "https://example.com/feed.xml",
                 link = "https://example.com",
@@ -71,7 +75,15 @@ class RssFeedMapperTest {
     }
 
     private object FixedDateTimeProvider : DateTimeProvider {
-        override fun now(): Long = nowEpochMilliseconds()
+        override fun parse(string: String): Instant? {
+            return runCatching {
+                DateTimeComponents.Formats.RFC_1123.parse(string).toInstantUsingOffset()
+            }.getOrNull()
+        }
+
+        override fun getTimeElapsed(instant: Instant): Duration = Duration.ZERO
+
+        override fun now(): Instant = Instant.fromEpochMilliseconds(nowEpochMilliseconds())
 
         override fun nowEpochMilliseconds(): Long = 1779184800000L
 

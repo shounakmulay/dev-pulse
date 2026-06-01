@@ -33,6 +33,7 @@ kotlin {
             implementation(project(Modules.Feature.SETTINGS))
 
             implementation(libs.navigation3.ui)
+            implementation(libs.kotlinx.datetime)
         }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)

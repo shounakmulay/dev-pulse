@@ -17,9 +17,6 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedPostMediaContent
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedPostRawEnclosure
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedPostYoutubeData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -54,7 +51,9 @@ class RssPostMapper(
             author = item.author,
             link = item.link,
             pubDate = item.pubDate,
-            publishedAtEpochMillis = item.pubDate?.toRssEpochMilliseconds(),
+            publishedAtEpochMillis = item.pubDate?.let {
+                dateTimeProvider.parse(it)?.toEpochMilliseconds()
+            },
             description = item.description,
             content = item.content,
             image = item.image,
@@ -64,6 +63,7 @@ class RssPostMapper(
             sourceUrl = item.sourceUrl,
             categories = item.categories.joinToString(),
             commentsUrl = item.commentsUrl,
+            bookmarked = existingIdentity?.bookmarked ?: false,
             youtubeData = item.youtubeItemData?.let { mapYoutubeData(it) },
             rawEnclosure = item.rawEnclosure?.let { mapRawEnclosure(it) },
             rawMedia = item.rawMediaContent?.let { mapRawMediaContent(it) },
@@ -81,7 +81,7 @@ class RssPostMapper(
             title = from.title,
             author = from.author,
             link = from.link,
-            pubDate = from.pubDate,
+            publishedAtMillis = from.publishedAtEpochMillis,
             description = from.description,
             content = from.content,
             image = from.image,
@@ -91,9 +91,11 @@ class RssPostMapper(
             sourceUrl = from.sourceUrl,
             categories = from.categories.split(",").map { it.trim() }.filter { it.isNotBlank() },
             commentsUrl = from.commentsUrl,
+            bookmarked = from.bookmarked,
             youtubeItemData = from.youtubeData?.toRssFeedItemYoutubeData(),
             rawEnclosure = from.rawEnclosure?.toRssFeedItemRawEnclosure(),
             rawMediaContent = from.rawMedia?.toRssFeedItemMediaContent(),
+            createdAtMillis = from.createdAt
         )
     }
 
@@ -123,73 +125,6 @@ class RssPostMapper(
             viewsCount = from.viewsCount,
             likesCount = from.likesCount
         )
-    }
-
-    private fun String.toRssEpochMilliseconds(): Long? {
-        val value = trim()
-            .removePrefix("Published:")
-            .trim()
-        val withoutDay = value.substringAfter(", ", value)
-        val parts = withoutDay.split(Regex("\\s+"))
-        if (parts.size < 4) return null
-
-        val day = parts[0].toIntOrNull() ?: return null
-        val month = parts[1].toMonthNumber() ?: return null
-        val year = parts[2].toIntOrNull() ?: return null
-        val timeParts = parts[3].split(":")
-        if (timeParts.size < 2) return null
-
-        val hour = timeParts[0].toIntOrNull() ?: return null
-        val minute = timeParts[1].toIntOrNull() ?: return null
-        val second = timeParts.getOrNull(2)?.toIntOrNull() ?: 0
-        val offsetMinutes = parts.getOrNull(4)?.toOffsetMinutes() ?: 0
-        val localDateTime = runCatching {
-            LocalDateTime(
-                year = year,
-                monthNumber = month,
-                dayOfMonth = day,
-                hour = hour,
-                minute = minute,
-                second = second
-            )
-        }.getOrNull() ?: return null
-
-        return localDateTime
-            .toInstant(TimeZone.UTC)
-            .toEpochMilliseconds() - (offsetMinutes.toLong() * 60_000)
-    }
-
-    private fun String.toMonthNumber(): Int? {
-        return when (lowercase().take(3)) {
-            "jan" -> 1
-            "feb" -> 2
-            "mar" -> 3
-            "apr" -> 4
-            "may" -> 5
-            "jun" -> 6
-            "jul" -> 7
-            "aug" -> 8
-            "sep" -> 9
-            "oct" -> 10
-            "nov" -> 11
-            "dec" -> 12
-            else -> null
-        }
-    }
-
-    private fun String.toOffsetMinutes(): Int? {
-        val upper = uppercase()
-        if (upper == "GMT" || upper == "UTC" || upper == "Z") return 0
-        val normalized = replace(":", "")
-        if (normalized.length != 5) return null
-        val sign = when (normalized.first()) {
-            '+' -> 1
-            '-' -> -1
-            else -> return null
-        }
-        val hours = normalized.substring(1, 3).toIntOrNull() ?: return null
-        val minutes = normalized.substring(3, 5).toIntOrNull() ?: return null
-        return sign * ((hours * 60) + minutes)
     }
 
     private fun LocalRssFeedItemYoutubeData.toRssFeedItemYoutubeData() = RssFeedPostYoutubeData(

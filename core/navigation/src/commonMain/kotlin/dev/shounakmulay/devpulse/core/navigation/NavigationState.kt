@@ -53,6 +53,10 @@ fun rememberNavigationState(
                     Screen.Tabs.Feed.FeedList::class,
                     Screen.Tabs.Feed.FeedList.serializer(),
                 )
+                subclass(
+                    Screen.Tabs.Feed.PostList::class,
+                    Screen.Tabs.Feed.PostList.serializer(),
+                )
                 subclass(Screen.Tabs.Time::class, Screen.Tabs.Time.serializer())
                 subclass(Screen.Settings::class, Screen.Settings.serializer())
                 subclass(
@@ -154,4 +158,3 @@ class NavigationState(
         return tabScreens
     }
 }
-

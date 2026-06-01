@@ -26,7 +26,7 @@ class ImportFeedUseCase(
     suspend operator fun invoke(feeds: List<AddFeedData>) =
         dispatcherProvider.runCatchingOnDefault {
             val entries = feeds.map { addFeedData ->
-                val now = dateTimeProvider.now()
+                val now = dateTimeProvider.now().toEpochMilliseconds()
                 val queueEntry = RssFeedQueueEntry(
                     url = addFeedData.url,
                     name = addFeedData.name,

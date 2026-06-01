@@ -43,7 +43,8 @@ fun LazyGridItemScope.FeedsGridItem(
     pinned: Boolean,
     sourceUrl: String,
     onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onLongClick: () -> Unit,
+    onDoubleClick: () -> Unit
 ) {
     val spacing = LocalDPSpacing.current
     Surface(
@@ -52,7 +53,8 @@ fun LazyGridItemScope.FeedsGridItem(
             .clip(MaterialTheme.shapes.large)
             .combinedClickable(
                 onClick = onClick,
-                onLongClick = onLongClick
+                onLongClick = onLongClick,
+                onDoubleClick = onDoubleClick
             )
             .animateItem(),
         shape = MaterialTheme.shapes.large
