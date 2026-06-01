@@ -15,5 +15,6 @@ interface ContentFeedRepository {
     suspend fun addRssFeed(entry: RssFeedQueueEntry)
     suspend fun deleteFeed(id: String)
     suspend fun setFeedPinned(id: String, pinned: Boolean): Result<Unit>
+    suspend fun setPostBookmarked(id: String, bookmarked: Boolean): Result<Unit>
     fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>>
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "c2240177a459cae945b54668ca74eed0",
+    "identityHash": "e5915a24453471ee81808ac8b8b4ac59",
     "entities": [
       {
         "tableName": "LocalRssFeed",
@@ -114,7 +114,7 @@
       },
       {
         "tableName": "LocalRssContentFeedPost",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `feedId` TEXT NOT NULL, `fingerprint` TEXT NOT NULL, `guid` TEXT, `title` TEXT, `author` TEXT, `link` TEXT, `pubDate` TEXT, `description` TEXT, `content` TEXT, `image` TEXT, `audio` TEXT, `video` TEXT, `sourceName` TEXT, `sourceUrl` TEXT, `categories` TEXT NOT NULL, `commentsUrl` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `youtubeData_videoId` TEXT, `youtubeData_title` TEXT, `youtubeData_videoUrl` TEXT, `youtubeData_thumbnailUrl` TEXT, `youtubeData_description` TEXT, `youtubeData_viewsCount` INTEGER, `youtubeData_likesCount` INTEGER, `rawEnclosure_url` TEXT, `rawEnclosure_length` INTEGER, `rawEnclosure_type` TEXT, `rawMedia_url` TEXT, `rawMedia_type` TEXT, `rawMedia_medium` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`feedId`) REFERENCES `LocalRssFeed`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `feedId` TEXT NOT NULL, `fingerprint` TEXT NOT NULL, `guid` TEXT, `title` TEXT, `author` TEXT, `link` TEXT, `pubDate` TEXT, `publishedAtEpochMillis` INTEGER, `description` TEXT, `content` TEXT, `image` TEXT, `audio` TEXT, `video` TEXT, `sourceName` TEXT, `sourceUrl` TEXT, `categories` TEXT NOT NULL, `commentsUrl` TEXT, `bookmarked` INTEGER NOT NULL DEFAULT 0, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `youtubeData_videoId` TEXT, `youtubeData_title` TEXT, `youtubeData_videoUrl` TEXT, `youtubeData_thumbnailUrl` TEXT, `youtubeData_description` TEXT, `youtubeData_viewsCount` INTEGER, `youtubeData_likesCount` INTEGER, `rawEnclosure_url` TEXT, `rawEnclosure_length` INTEGER, `rawEnclosure_type` TEXT, `rawMedia_url` TEXT, `rawMedia_type` TEXT, `rawMedia_medium` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`feedId`) REFERENCES `LocalRssFeed`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -158,6 +158,11 @@
             "fieldPath": "pubDate",
             "columnName": "pubDate",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "publishedAtEpochMillis",
+            "columnName": "publishedAtEpochMillis",
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "description",
@@ -204,6 +209,13 @@
             "fieldPath": "commentsUrl",
             "columnName": "commentsUrl",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "bookmarked",
+            "columnName": "bookmarked",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "createdAt",
@@ -307,6 +319,15 @@
             ],
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_LocalRssContentFeedPost_fingerprint` ON `${TABLE_NAME}` (`fingerprint`)"
+          },
+          {
+            "name": "index_LocalRssContentFeedPost_bookmarked",
+            "unique": false,
+            "columnNames": [
+              "bookmarked"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LocalRssContentFeedPost_bookmarked` ON `${TABLE_NAME}` (`bookmarked`)"
           }
         ],
         "foreignKeys": [
@@ -508,7 +529,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c2240177a459cae945b54668ca74eed0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e5915a24453471ee81808ac8b8b4ac59')"
     ]
   }
 }

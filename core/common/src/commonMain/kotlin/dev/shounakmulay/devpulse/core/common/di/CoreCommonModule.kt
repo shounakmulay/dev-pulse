@@ -5,4 +5,4 @@ import org.koin.core.annotation.Module
 
 @Module
 @ComponentScan("dev.shounakmulay.devpulse.core.common")
-class CoreModule
+class CoreCommonModule

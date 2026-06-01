@@ -25,9 +25,12 @@ interface FeedContentDao {
     @Query("SELECT * FROM LocalRssContentFeedPost WHERE id = :id")
     suspend fun getPost(id: String): LocalRssContentFeedPost
 
+    @Query("UPDATE LocalRssContentFeedPost SET bookmarked = :isBookmarked WHERE id = :id")
+    suspend fun updateBookmarkStatus(id: String, isBookmarked: Boolean)
+
     @Query(
         """
-        SELECT id, fingerprint, createdAt, updatedAt
+        SELECT id, fingerprint, bookmarked, createdAt, updatedAt
         FROM LocalRssContentFeedPost
         WHERE fingerprint IN (:fingerprints)
         """

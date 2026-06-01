@@ -2,9 +2,13 @@ package dev.shounakmulay.devpulse.core.data.feed.mapper
 
 import com.prof18.rssparser.model.RssItem
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
+import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.RssIdentityGenerator
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format.DateTimeComponents
+import kotlin.time.Duration
+import kotlin.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -24,6 +28,7 @@ class RssPostMapperTest {
             existingIdentity = LocalRssContentFeedPostIdentitySlice(
                 id = "post-1",
                 fingerprint = "fingerprint-1",
+                bookmarked = false,
                 createdAt = 1234L,
                 updatedAt = 5678L
             )
@@ -71,6 +76,45 @@ class RssPostMapperTest {
         assertEquals(null, result.publishedAtEpochMillis)
     }
 
+    @Test
+    fun `Given bookmarked existing identity When mapped to local post Then bookmark is preserved`() {
+        val result = mapper.toLocalRssContentFeedPost(
+            item = createItem(pubDate = null),
+            feedId = "feed-1",
+            fingerprint = "fingerprint-1",
+            existingIdentity = LocalRssContentFeedPostIdentitySlice(
+                id = "post-1",
+                fingerprint = "fingerprint-1",
+                bookmarked = true,
+                createdAt = 1234L,
+                updatedAt = 5678L
+            )
+        )
+
+        assertEquals(true, result.bookmarked)
+    }
+
+    @Test
+    fun `Given missing existing identity When mapped to local post Then bookmark is false`() {
+        val result = mapper.toLocalRssContentFeedPost(
+            item = createItem(pubDate = null),
+            feedId = "feed-1",
+            fingerprint = "fingerprint-1",
+            existingIdentity = null
+        )
+
+        assertEquals(false, result.bookmarked)
+    }
+
+    @Test
+    fun `Given bookmarked local post When mapped to domain post Then bookmark is preserved`() {
+        val result = mapper.toRssFeedPost(
+            from = createLocalPost(bookmarked = true)
+        )
+
+        assertEquals(true, result.bookmarked)
+    }
+
     private fun createItem(pubDate: String?): RssItem {
         return RssItem(
             guid = "guid-1",
@@ -94,8 +138,45 @@ class RssPostMapperTest {
         )
     }
 
+    private fun createLocalPost(bookmarked: Boolean): LocalRssContentFeedPost {
+        return LocalRssContentFeedPost(
+            id = "post-1",
+            feedId = "feed-1",
+            fingerprint = "fingerprint-1",
+            guid = "guid-1",
+            title = "Title",
+            author = "Author",
+            link = "https://example.com/post",
+            pubDate = null,
+            publishedAtEpochMillis = null,
+            description = "Description",
+            content = "Content",
+            image = null,
+            audio = null,
+            video = null,
+            sourceName = "Source",
+            sourceUrl = "https://example.com/feed.xml",
+            categories = "",
+            commentsUrl = null,
+            bookmarked = bookmarked,
+            youtubeData = null,
+            rawEnclosure = null,
+            rawMedia = null,
+            createdAt = 1234L,
+            updatedAt = 5678L
+        )
+    }
+
     private object FixedDateTimeProvider : DateTimeProvider {
-        override fun now(): Long = nowEpochMilliseconds()
+        override fun parse(string: String): Instant? {
+            return runCatching {
+                DateTimeComponents.Formats.RFC_1123.parse(string).toInstantUsingOffset()
+            }.getOrNull()
+        }
+
+        override fun getTimeElapsed(instant: Instant): Duration = Duration.ZERO
+
+        override fun now(): Instant = Instant.fromEpochMilliseconds(nowEpochMilliseconds())
 
         override fun nowEpochMilliseconds(): Long = 1779184800000L
 

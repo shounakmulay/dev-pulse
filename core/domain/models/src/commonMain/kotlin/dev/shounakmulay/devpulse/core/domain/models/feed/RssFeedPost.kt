@@ -8,7 +8,7 @@ data class RssFeedPost(
     val title: String?,
     val author: String?,
     val link: String?,
-    val pubDate: String?,
+    val publishedAtMillis: Long?,
     val description: String?,
     val content: String?,
     val image: String?,
@@ -18,7 +18,9 @@ data class RssFeedPost(
     val sourceUrl: String?,
     val categories: List<String>,
     val commentsUrl: String?,
+    val bookmarked: Boolean,
     val youtubeItemData: RssFeedPostYoutubeData?,
     val rawEnclosure: RssFeedPostRawEnclosure?,
     val rawMediaContent: RssFeedPostMediaContent? = null,
+    val createdAtMillis: Long
 )

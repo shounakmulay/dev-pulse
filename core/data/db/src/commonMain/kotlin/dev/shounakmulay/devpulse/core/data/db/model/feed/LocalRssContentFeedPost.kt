@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.db.model.feed
 
+import androidx.room3.ColumnInfo
 import androidx.room3.Embedded
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
@@ -17,7 +18,8 @@ import androidx.room3.PrimaryKey
     ],
     indices = [
         Index(value = ["feedId"]),
-        Index(value = ["fingerprint"], unique = true)
+        Index(value = ["fingerprint"], unique = true),
+        Index(value = ["bookmarked"])
     ]
 )
 data class LocalRssContentFeedPost(
@@ -40,6 +42,8 @@ data class LocalRssContentFeedPost(
     val sourceUrl: String?,
     val categories: String,
     val commentsUrl: String?,
+    @ColumnInfo(defaultValue = "0")
+    val bookmarked: Boolean = false,
     @Embedded(prefix = "youtubeData_")
     val youtubeData: LocalRssFeedItemYoutubeData?,
     @Embedded(prefix = "rawEnclosure_")
