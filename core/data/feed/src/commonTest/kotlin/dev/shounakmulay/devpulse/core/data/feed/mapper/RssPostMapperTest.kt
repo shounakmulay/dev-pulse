@@ -1,5 +1,9 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
+import com.prof18.rssparser.model.RawEnclosure
+import com.prof18.rssparser.model.RawMediaContent
+import com.prof18.rssparser.model.RssItem
+import com.prof18.rssparser.model.YoutubeItemData
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
@@ -35,6 +39,25 @@ class RssPostMapperTest {
         assertEquals(1779184800000L, result.publishedAtEpochMillis)
         assertEquals(1234L, result.createdAt)
         assertEquals(1779184800000L, result.updatedAt)
+    }
+    @Test
+    fun `Given Prof18 RSS item When mapped to local post Then post fields are preserved`() {
+        val result = mapper.toLocalRssContentFeedPost(
+            item = createProf18Item(pubDate = "Tue, 19 May 2026 10:00:00 GMT"),
+            feedId = "feed-1",
+            fingerprint = "fingerprint-1",
+            existingIdentity = null
+        )
+
+        assertEquals("guid-1", result.guid)
+        assertEquals("Title", result.title)
+        assertEquals("https://example.com/post", result.link)
+        assertEquals(1779184800000L, result.publishedAtEpochMillis)
+        assertEquals("https://example.com/image.jpg", result.image)
+        assertEquals("Kotlin", result.categories)
+        assertEquals("video-1", result.youtubeData?.videoId)
+        assertEquals("https://example.com/audio.mp3", result.rawEnclosure?.url)
+        assertEquals("https://example.com/media.mp4", result.rawMedia?.url)
     }
     @Test
     fun `Given RSS item GMT date When mapped to local post Then published time is parsed`() {
@@ -125,6 +148,45 @@ class RssPostMapperTest {
             youtubeItemData = null,
             rawEnclosure = null,
             rawMediaContent = null
+        )
+    }
+
+    private fun createProf18Item(pubDate: String?): RssItem {
+        return RssItem(
+            guid = "guid-1",
+            title = "Title",
+            author = "Author",
+            link = "https://example.com/post",
+            pubDate = pubDate,
+            description = "Description",
+            content = "Content",
+            image = "https://example.com/image.jpg",
+            audio = "https://example.com/audio.mp3",
+            video = "https://example.com/video.mp4",
+            sourceName = "Source",
+            sourceUrl = "https://example.com/feed.xml",
+            categories = listOf("Kotlin"),
+            itunesItemData = null,
+            commentsUrl = "https://example.com/comments",
+            youtubeItemData = YoutubeItemData(
+                videoId = "video-1",
+                title = "Video",
+                videoUrl = "https://example.com/watch",
+                thumbnailUrl = "https://example.com/thumb.jpg",
+                description = "Video description",
+                viewsCount = 10,
+                likesCount = 5
+            ),
+            rawEnclosure = RawEnclosure(
+                url = "https://example.com/audio.mp3",
+                length = 42L,
+                type = "audio/mpeg"
+            ),
+            rawMediaContent = RawMediaContent(
+                url = "https://example.com/media.mp4",
+                type = "video/mp4",
+                medium = "video"
+            )
         )
     }
 

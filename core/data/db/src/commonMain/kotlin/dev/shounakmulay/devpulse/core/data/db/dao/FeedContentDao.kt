@@ -56,7 +56,7 @@ interface FeedContentDao {
             f.updatedAt AS feed_updatedAt
         FROM LocalRssContentFeedPost p
         INNER JOIN LocalRssFeed f ON p.feedId = f.id
-        ORDER BY pubDate DESC, updatedAt DESC
+        ORDER BY publishedAtEpochMillis DESC, updatedAt DESC
         LIMIT :limit
         """
     )

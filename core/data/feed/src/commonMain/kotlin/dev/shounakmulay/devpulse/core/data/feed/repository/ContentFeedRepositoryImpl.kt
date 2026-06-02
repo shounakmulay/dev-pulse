@@ -8,7 +8,6 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
-import dev.shounakmulay.devpulse.core.data.feed.parser.FeedParser
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
@@ -19,12 +18,11 @@ import org.koin.core.annotation.Factory
 
 @Factory(binds = [ContentFeedRepository::class])
 internal class ContentFeedRepositoryImpl(
-    private val rssParser: FeedParser,
+    private val feedImportFallbackParser: FeedImportFallbackParser,
     private val feedDao: FeedDao,
     private val feedContentDao: FeedContentDao,
     private val rssFeedMapper: RssFeedMapper,
     private val rssPostMapper: RssPostMapper,
-    private val rssContentFeedProcessor: RssContentFeedProcessor,
     logger: DPLogger
 ) : ContentFeedRepository {
     private val logger = logger.withTag(Tag)
@@ -77,19 +75,18 @@ internal class ContentFeedRepositoryImpl(
     }
 
     override suspend fun addRssFeed(entry: RssFeedQueueEntry) {
-        logger.d { "RSS parse started queueId=${entry.id} source=${entry.url.sourceSummary()}" }
-        val parsedFeed = try {
-            rssParser.parseFeed(entry.url)
+        logger.d { "RSS import started queueId=${entry.id} source=${entry.url.sourceSummary()}" }
+        try {
+            feedImportFallbackParser.import(entry)
         } catch (e: Exception) {
             logger.e(e) {
-                "RSS parse failed queueId=${entry.id} source=${entry.url.sourceSummary()}"
+                "RSS import failed queueId=${entry.id} source=${entry.url.sourceSummary()}"
             }
             throw e
         }
         logger.d {
-            "RSS parse succeeded queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${parsedFeed.itemCountSummary()}"
+            "RSS import succeeded queueId=${entry.id} source=${entry.url.sourceSummary()}"
         }
-        rssContentFeedProcessor.process(entry = entry, parsedFeed = parsedFeed)
     }
 
     override suspend fun deleteFeed(id: String) {
@@ -106,10 +103,6 @@ internal class ContentFeedRepositoryImpl(
         return runCatching {
             feedContentDao.updateBookmarkStatus(id = id, isBookmarked = bookmarked)
         }
-    }
-
-    private fun ParsedFeed.itemCountSummary(): String {
-        return itemCount?.toString() ?: "streaming"
     }
 
     private fun String.sourceSummary(): String {

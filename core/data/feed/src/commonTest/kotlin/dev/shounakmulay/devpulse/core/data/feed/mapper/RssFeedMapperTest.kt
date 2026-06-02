@@ -1,5 +1,8 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
+import com.prof18.rssparser.model.RssChannel
+import com.prof18.rssparser.model.RssImage
+import com.prof18.rssparser.model.YoutubeChannelData
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.RssIdentityGenerator
@@ -41,6 +44,22 @@ class RssFeedMapperTest {
         assertEquals(1234L, result.createdAt)
         assertEquals(1779184800000L, result.updatedAt)
     }
+    @Test
+    fun `Given Prof18 RSS channel When mapped to local feed Then feed fields are preserved`() {
+        val result = mapper.toLocalRssFeed(
+            from = createProf18Channel(lastBuildDate = "Tue, 19 May 2026 10:00:00 GMT"),
+            existingIdentity = null,
+            queueEntry = createQueueEntry()
+        )
+
+        assertEquals("Title", result.title)
+        assertEquals("https://example.com", result.link)
+        assertEquals("Description", result.description)
+        assertEquals("https://example.com/feed.png", result.image?.url)
+        assertEquals("Tue, 19 May 2026 10:00:00 GMT", result.lastBuildDate)
+        assertEquals("hourly", result.updatePeriod)
+        assertEquals("channel-1", result.youtubeChannel?.channelId)
+    }
     private fun createQueueEntry(): RssFeedQueueEntry {
         return RssFeedQueueEntry(
             url = "https://example.com/feed.xml",
@@ -64,6 +83,24 @@ class RssFeedMapperTest {
             lastBuildDate = lastBuildDate,
             updatePeriod = null,
             youtubeChannel = null
+        )
+    }
+    private fun createProf18Channel(lastBuildDate: String?): RssChannel {
+        return RssChannel(
+            title = "Title",
+            link = "https://example.com",
+            description = "Description",
+            image = RssImage(
+                title = "Image",
+                url = "https://example.com/feed.png",
+                link = "https://example.com",
+                description = "Image description"
+            ),
+            lastBuildDate = lastBuildDate,
+            updatePeriod = "hourly",
+            items = emptyList(),
+            itunesChannelData = null,
+            youtubeChannelData = YoutubeChannelData(channelId = "channel-1")
         )
     }
     private object FixedDateTimeProvider : DateTimeProvider {

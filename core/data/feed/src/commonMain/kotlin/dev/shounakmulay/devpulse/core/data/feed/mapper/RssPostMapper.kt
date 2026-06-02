@@ -1,5 +1,9 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
+import com.prof18.rssparser.model.RawEnclosure
+import com.prof18.rssparser.model.RawMediaContent
+import com.prof18.rssparser.model.RssItem
+import com.prof18.rssparser.model.YoutubeItemData
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemMediaContent
@@ -31,6 +35,42 @@ class RssPostMapper(
         return RssPostWithFeedIdentity(
             post = post,
             feedIdentity = identity
+        )
+    }
+    fun toLocalRssContentFeedPost(
+        item: RssItem,
+        feedId: String,
+        fingerprint: String,
+        existingIdentity: LocalRssContentFeedPostIdentitySlice?
+    ): LocalRssContentFeedPost {
+        val now = dateTimeProvider.nowEpochMilliseconds()
+        return LocalRssContentFeedPost(
+            id = existingIdentity?.id ?: idGenerator.generateSortableId(),
+            feedId = feedId,
+            fingerprint = fingerprint,
+            guid = item.guid,
+            title = item.title,
+            author = item.author,
+            link = item.link,
+            pubDate = item.pubDate,
+            publishedAtEpochMillis = item.pubDate?.let {
+                dateTimeProvider.parse(it)?.toEpochMilliseconds()
+            },
+            description = item.description,
+            content = item.content,
+            image = item.image,
+            audio = item.audio,
+            video = item.video,
+            sourceName = item.sourceName,
+            sourceUrl = item.sourceUrl,
+            categories = item.categories.joinToString(),
+            commentsUrl = item.commentsUrl,
+            bookmarked = existingIdentity?.bookmarked ?: false,
+            youtubeData = item.youtubeItemData?.let { mapYoutubeData(it) },
+            rawEnclosure = item.rawEnclosure?.let { mapRawEnclosure(it) },
+            rawMedia = item.rawMediaContent?.let { mapRawMediaContent(it) },
+            createdAt = existingIdentity?.createdAt ?: now,
+            updatedAt = now
         )
     }
     fun toLocalRssContentFeedPost(
@@ -102,6 +142,13 @@ class RssPostMapper(
             medium = from.medium
         )
     }
+    private fun mapRawMediaContent(from: RawMediaContent): LocalRssFeedItemMediaContent {
+        return LocalRssFeedItemMediaContent(
+            url = from.url,
+            type = from.type,
+            medium = from.medium
+        )
+    }
     private fun mapRawEnclosure(from: ParsedFeedItemRawEnclosure): LocalRssFeedItemRawEnclosure {
         return LocalRssFeedItemRawEnclosure(
             url = from.url,
@@ -109,7 +156,25 @@ class RssPostMapper(
             type = from.type
         )
     }
+    private fun mapRawEnclosure(from: RawEnclosure): LocalRssFeedItemRawEnclosure {
+        return LocalRssFeedItemRawEnclosure(
+            url = from.url,
+            length = from.length,
+            type = from.type
+        )
+    }
     private fun mapYoutubeData(from: ParsedFeedItemYoutubeData): LocalRssFeedItemYoutubeData {
+        return LocalRssFeedItemYoutubeData(
+            videoId = from.videoId,
+            title = from.title,
+            videoUrl = from.videoUrl,
+            thumbnailUrl = from.thumbnailUrl,
+            description = from.description,
+            viewsCount = from.viewsCount,
+            likesCount = from.likesCount
+        )
+    }
+    private fun mapYoutubeData(from: YoutubeItemData): LocalRssFeedItemYoutubeData {
         return LocalRssFeedItemYoutubeData(
             videoId = from.videoId,
             title = from.title,

@@ -1,12 +1,17 @@
 package dev.shounakmulay.devpulse.core.data.feed.parser
 
+import com.prof18.rssparser.RssParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.opml.OpmlParser
+import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
+import dev.shounakmulay.devpulse.core.network.DevPulseNetworkResponse
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class RssFeedParserTest {
@@ -79,6 +84,51 @@ class RssFeedParserTest {
     }
 
     @Test
+    fun `Given Prof18 parser When parsing feed Then XML is fetched once and parsed from response`() = runTest {
+        val networkClient = FakeNetworkClient(rssFixture)
+        val parser = Prof18RssFeedParser(
+            networkClient = networkClient,
+            rssParser = RssParser()
+        )
+
+        val result = parser.parseFeed("https://example.com/feed.xml")
+
+        assertEquals(listOf("https://example.com/feed.xml"), networkClient.requestedUrls)
+        assertEquals("Example Feed", result.title)
+        assertEquals("https://example.com", result.link)
+    }
+
+    @Test
+    fun `Given KtXml parser When parsing feed Then XML is fetched once and parsed from response`() = runTest {
+        val networkClient = FakeNetworkClient(rssFixture)
+        val parser = KtXmlRssFeedParser(
+            networkClient = networkClient,
+            xmlParser = KtXmlFeedParser()
+        )
+
+        val result = parser.parseFeed("https://example.com/feed.xml")
+
+        assertEquals(listOf("https://example.com/feed.xml"), networkClient.requestedUrls)
+        assertEquals("Example Feed", result.metadata.title)
+        assertEquals("https://example.com", result.metadata.link)
+    }
+
+    @Test
+    fun `Given parser fetch failure When parsing feed Then exception propagates`() = runTest {
+        val failure = IllegalStateException("boom")
+        val parser = KtXmlRssFeedParser(
+            networkClient = FakeNetworkClient(xml = rssFixture, failure = failure),
+            xmlParser = KtXmlFeedParser()
+        )
+
+        val result = assertFailsWith<IllegalStateException> {
+            parser.parseFeed("https://example.com/feed.xml")
+        }
+
+        assertSame(failure, result)
+    }
+
+    @Test
     fun `Given OPML text When parsed Then nested feeds preserve category path`() {
         val result = OpmlParser().parseText(opmlFixture)
 
@@ -111,6 +161,19 @@ class RssFeedParserTest {
             val char = value[consumed]
             consumed += 1
             return char
+        }
+    }
+
+    private class FakeNetworkClient(
+        private val xml: String,
+        private val failure: Throwable? = null
+    ) : DevPulseNetworkClient {
+        val requestedUrls = mutableListOf<String>()
+
+        override suspend fun get(url: String): DevPulseNetworkResponse {
+            requestedUrls += url
+            failure?.let { throw it }
+            return DevPulseNetworkResponse { xml }
         }
     }
 
