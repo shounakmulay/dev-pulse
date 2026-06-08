@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.data.feed.parser.opml.model
+package dev.shounakmulay.devpulse.core.data.feed.parser.xml.opml.model
 
 data class ParsedOpmlFeed(
     val title: String?,
@@ -7,5 +7,4 @@ data class ParsedOpmlFeed(
     val xmlUrl: String,
     val htmlUrl: String?,
     val description: String?,
-    val categoryPath: List<String>
 )

@@ -1,8 +1,5 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
-import com.prof18.rssparser.model.RssChannel
-import com.prof18.rssparser.model.RssImage
-import com.prof18.rssparser.model.YoutubeChannelData
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedImage
@@ -36,28 +33,7 @@ class RssFeedMapper(
             updatedAt = from.updatedAt,
         )
     }
-    fun toLocalRssFeed(
-        from: RssChannel,
-        existingIdentity: LocalRssFeedIdentitySlice?,
-        queueEntry: RssFeedQueueEntry
-    ): LocalRssFeed {
-        val now = dateTimeProvider.nowEpochMilliseconds()
-        return LocalRssFeed(
-            id = existingIdentity?.id ?: identityGenerator.generateSortableId(),
-            name = queueEntry.name,
-            sourceUrl = queueEntry.url,
-            title = existingIdentity?.title ?: from.title,
-            link = from.link,
-            description = from.description,
-            image = from.image?.let { toLocalRssFeedImage(it) },
-            lastBuildDate = from.lastBuildDate,
-            updatePeriod = from.updatePeriod,
-            youtubeChannel = from.youtubeChannelData?.let { toLocalRssFeedYoutubeChannel(it) },
-            createdAt = existingIdentity?.createdAt ?: now,
-            updatedAt = now,
-            pinned = existingIdentity?.pinned ?: false,
-        )
-    }
+
     fun toLocalRssFeed(
         from: ParsedFeedMetadata,
         existingIdentity: LocalRssFeedIdentitySlice?,
@@ -80,18 +56,11 @@ class RssFeedMapper(
             pinned = existingIdentity?.pinned ?: false,
         )
     }
-    private fun toLocalRssFeedYoutubeChannel(from: YoutubeChannelData) = LocalRssFeedYoutubeChannel(
-        channelId = from.channelId,
-    )
+
     private fun toLocalRssFeedYoutubeChannel(from: ParsedFeedYoutubeChannel) = LocalRssFeedYoutubeChannel(
         channelId = from.channelId,
     )
-    private fun toLocalRssFeedImage(from: RssImage) = LocalRssFeedImage(
-        title = from.title,
-        url = from.url,
-        link = from.link,
-        description = from.description,
-    )
+
     private fun toLocalRssFeedImage(from: ParsedFeedImage) = LocalRssFeedImage(
         title = from.title,
         url = from.url,

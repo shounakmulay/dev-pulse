@@ -5,5 +5,6 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 internal interface FeedImportCandidate {
     val id: String
 
-    suspend fun import(entry: RssFeedQueueEntry)
+    suspend fun import(entry: RssFeedQueueEntry, xml: String)
+    suspend fun import(entry: RssFeedQueueEntry, iterator: CharIterator)
 }

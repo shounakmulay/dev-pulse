@@ -1,7 +1,5 @@
 package dev.shounakmulay.devpulse.core.data.feed.repository
 
-import com.prof18.rssparser.model.RssChannel
-import com.prof18.rssparser.model.RssItem
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
@@ -23,7 +21,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.chunked
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
@@ -43,30 +40,9 @@ internal class RssContentFeedProcessor(
 ) {
     private val logger = logger.withTag(Tag)
 
-    suspend fun process(entry: RssFeedQueueEntry, rssChannel: RssChannel): Unit = coroutineScope {
-        logger.d {
-            "RSS content processing started queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${rssChannel.items.size}"
-        }
-        val localRssFeed = async {
-            buildLocalRssFeed(
-                entry = entry,
-                rssChannel = rssChannel
-            )
-        }
-        val upsertedPostCount =
-            async { buildLocalRssContentFeedPost(rssChannel, localRssFeed) }
-
-        awaitAll(localRssFeed, upsertedPostCount)
-        val finalUpsertedPostCount = upsertedPostCount.await()
-        logger.d {
-            "RSS content processing finished queueId=${entry.id} " +
-                "source=${entry.url.sourceSummary()} upsertedPostCount=$finalUpsertedPostCount"
-        }
-    }
-
     suspend fun process(entry: RssFeedQueueEntry, parsedFeed: ParsedFeed): Unit = coroutineScope {
         logger.d {
-            "RSS content processing started queueId=${entry.id} source=${entry.url.sourceSummary()} itemCount=${parsedFeed.itemCountSummary()}"
+            "RSS content processing started queueId=${entry.id} source=${entry.url.sourceSummary()}"
         }
         val localRssFeed = async {
             buildLocalRssFeed(
@@ -81,7 +57,7 @@ internal class RssContentFeedProcessor(
         val finalUpsertedPostCount = upsertedPostCount.await()
         logger.d {
             "RSS content processing finished queueId=${entry.id} " +
-                "source=${entry.url.sourceSummary()} upsertedPostCount=$finalUpsertedPostCount"
+                    "source=${entry.url.sourceSummary()} upsertedPostCount=$finalUpsertedPostCount"
         }
     }
 
@@ -95,29 +71,6 @@ internal class RssContentFeedProcessor(
         return listOf(
             postSanitizationHook
         )
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun buildLocalRssContentFeedPost(
-        rssChannel: RssChannel,
-        localRssFeed: Deferred<LocalRssFeed>
-    ): Int {
-        var upsertedCount = 0
-        val feedId = localRssFeed.await().id
-        rssChannel.items
-            .asFlow()
-            .chunked(50)
-            .map {
-                processRssChannelItemsChunk(rssItems = it, feed = localRssFeed)
-            }.onEach {
-                feedContentDao.upsertPosts(it)
-                upsertedCount += it.size
-                logger.d {
-                    "RSS content chunk upserted feedId=$feedId upsertedPostCount=${it.size}"
-                }
-            }
-            .collect()
-        return upsertedCount
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -140,43 +93,6 @@ internal class RssContentFeedProcessor(
             }
             .collect()
         return upsertedCount
-    }
-
-    private suspend fun processRssChannelItemsChunk(
-        rssItems: List<RssItem>,
-        feed: Deferred<LocalRssFeed>
-    ): List<LocalRssContentFeedPost> {
-        val feed = feed.await()
-        val feedId = feed.id
-        val itemsWithFingerprint = generateRssChannelFingerprints(
-            rssItems = rssItems,
-            feedId = feedId
-        )
-        val existingItems = feedContentDao.getByFingerprints(itemsWithFingerprint.keys)
-
-        val localPostsWithIdentity = itemsWithFingerprint.map { (fingerprint, rssItem) ->
-            val existingLocalIdentity = existingItems[fingerprint]
-            val post = rssPostMapper.toLocalRssContentFeedPost(
-                item = rssItem,
-                feedId = feedId,
-                fingerprint = fingerprint,
-                existingIdentity = existingItems[fingerprint]
-            )
-
-            PostWithIdentity(
-                post = post,
-                identity = existingLocalIdentity
-            )
-        }
-
-        val processedPosts = processCoreHooks(localPostsWithIdentity)
-        logger.d {
-            "RSS content chunk processed feedId=$feedId rawItemCount=${rssItems.size} " +
-                "existingMatchCount=${existingItems.size} " +
-                "filteredCount=${localPostsWithIdentity.size - processedPosts.size} " +
-                "postCount=${processedPosts.size}"
-        }
-        return processedPosts
     }
 
     private suspend fun processRssItemsChunk(
@@ -209,9 +125,9 @@ internal class RssContentFeedProcessor(
         val processedPosts = processCoreHooks(localPostsWithIdentity)
         logger.d {
             "RSS content chunk processed feedId=$feedId rawItemCount=${rssItems.size} " +
-                "existingMatchCount=${existingItems.size} " +
-                "filteredCount=${localPostsWithIdentity.size - processedPosts.size} " +
-                "postCount=${processedPosts.size}"
+                    "existingMatchCount=${existingItems.size} " +
+                    "filteredCount=${localPostsWithIdentity.size - processedPosts.size} " +
+                    "postCount=${processedPosts.size}"
         }
         return processedPosts
     }
@@ -232,30 +148,6 @@ internal class RssContentFeedProcessor(
                 }
             }
             .map { it.post }
-    }
-
-    private fun generateRssChannelFingerprints(
-        rssItems: List<RssItem>,
-        feedId: String
-    ): Map<String, RssItem> {
-        return rssItems.associateBy { rssItem ->
-            val dataForFingerprint: List<String> = buildList {
-                rssItem.guid?.let { add(it) }
-                rssItem.link?.let { add(it) }
-
-                if (addFeedIdAndExit(feedId)) return@buildList
-
-                rssItem.title?.let { add(it) }
-                rssItem.pubDate?.let { add(it) }
-                rssItem.author?.let { add(it) }
-
-                if (addFeedIdAndExit(feedId)) return@buildList
-
-                add(rssItem.stableFallbackIdentity())
-            }
-
-            identityGenerator.generateFingerprint(*dataForFingerprint.toTypedArray())
-        }
     }
 
     private fun generateParsedFeedFingerprints(
@@ -282,23 +174,8 @@ internal class RssContentFeedProcessor(
         }
     }
 
-    private fun RssItem.stableFallbackIdentity(): String {
-        return listOfNotNull(
-            description?.take(120),
-            content?.take(120),
-            image,
-            audio,
-            video,
-            rawEnclosure?.url,
-            rawMediaContent?.url
-        ).joinToString(separator = "|").ifBlank {
-            hashCode().toString()
-        }
-    }
-
     private fun ParsedFeedItem.stableFallbackIdentity(): String {
         return listOfNotNull(
-            ordinal.toString(),
             description?.take(120),
             content?.take(120),
             image,
@@ -319,23 +196,6 @@ internal class RssContentFeedProcessor(
 
     private suspend fun buildLocalRssFeed(
         entry: RssFeedQueueEntry,
-        rssChannel: RssChannel
-    ): LocalRssFeed {
-        val exitingIdentity = feedDao.getFeedIdentityBySourceUrl(entry.url)
-        val localFeed = rssFeedMapper.toLocalRssFeed(
-            queueEntry = entry,
-            from = rssChannel,
-            existingIdentity = exitingIdentity
-        )
-        feedDao.upsertFeed(localFeed)
-        logger.d {
-            "RSS feed upserted feedId=${localFeed.id} source=${entry.url.sourceSummary()} existing=${exitingIdentity != null}"
-        }
-        return localFeed
-    }
-
-    private suspend fun buildLocalRssFeed(
-        entry: RssFeedQueueEntry,
         parsedFeed: ParsedFeed
     ): LocalRssFeed {
         val exitingIdentity = feedDao.getFeedIdentityBySourceUrl(entry.url)
@@ -351,13 +211,10 @@ internal class RssContentFeedProcessor(
         return localFeed
     }
 
-    private fun ParsedFeed.itemCountSummary(): String {
-        return itemCount?.toString() ?: "streaming"
-    }
-
     private fun String.sourceSummary(): String {
         val withoutScheme = substringAfter("://", this)
-        val host = withoutScheme.substringBefore('/').substringBefore('?').takeIf { it.isNotBlank() }
+        val host =
+            withoutScheme.substringBefore('/').substringBefore('?').takeIf { it.isNotBlank() }
         return "host=${host ?: take(80)}"
     }
 
