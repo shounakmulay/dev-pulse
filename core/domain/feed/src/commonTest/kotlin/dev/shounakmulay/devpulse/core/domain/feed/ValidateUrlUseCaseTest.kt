@@ -7,18 +7,18 @@ class ValidateUrlUseCaseTest {
     private val useCase = ValidateUrlUseCase()
 
     @Test
-    fun `Given https url When validating Then returns true`() {
+    fun `Given normalized https url When validating Then returns true`() {
         assertEquals(true, useCase("https://example.com/feed.xml"))
     }
 
     @Test
-    fun `Given host and path When validating Then returns true`() {
-        assertEquals(true, useCase("example.com/rss"))
+    fun `Given host and path When validating Then returns false`() {
+        assertEquals(false, useCase("example.com/rss"))
     }
 
     @Test
-    fun `Given protocol relative url When validating Then returns true`() {
-        assertEquals(true, useCase("//example.com/rss"))
+    fun `Given protocol relative url When validating Then returns false`() {
+        assertEquals(false, useCase("//example.com/rss"))
     }
 
     @Test
@@ -32,8 +32,8 @@ class ValidateUrlUseCaseTest {
     }
 
     @Test
-    fun `Given url with whitespace When validating Then returns false`() {
-        assertEquals(false, useCase("https://exa mple.com/feed.xml"))
+    fun `Given http url When validating Then returns false`() {
+        assertEquals(false, useCase("http://example.com/feed.xml"))
     }
 
     @Test
