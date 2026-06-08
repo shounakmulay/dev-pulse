@@ -2,17 +2,22 @@ package dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui
 
 import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.devpulse.core.domain.feed.NormalizeUrlUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.ValidateUrlUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.feed.ExtractOpmlFeedsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.ImportFeedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.queue.ObserveFeedQueueForUrlsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.feed.AddFeedData
+import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.resources.stringRes
-import dev.shounakmulay.devpulse.core.ui.effect.Effect
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIAddFeedData
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIFeedQueueData
+import devpulse.core.resources.generated.resources.add_feed_opml_empty_error
+import devpulse.core.resources.generated.resources.add_feed_opml_no_feeds_error
+import devpulse.core.resources.generated.resources.add_feed_opml_process_error
 import devpulse.core.resources.generated.resources.enter_feed_url
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -28,9 +33,11 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 class AddFeedViewModel(
     private val importFeedUseCase: ImportFeedUseCase,
+    private val extractOpmlFeedsUseCase: ExtractOpmlFeedsUseCase,
     private val observeFeedQueueForUrlsUseCase: ObserveFeedQueueForUrlsUseCase,
-    private val normalizeUrlUseCase: NormalizeUrlUseCase
-) : MviViewModel<AddFeedScreenState, Effect>(), EventHandler<AddFeedScreenEvent> {
+    private val normalizeUrlUseCase: NormalizeUrlUseCase,
+    private val validateUrlUseCase: ValidateUrlUseCase
+) : MviViewModel<AddFeedScreenState, AddFeedScreenEffect>(), EventHandler<AddFeedScreenEvent> {
     override fun createInitialState() = AddFeedScreenState()
     override fun createStateSerializer() = AddFeedScreenState.serializer()
 
@@ -75,6 +82,79 @@ class AddFeedViewModel(
             AddFeedScreenEvent.RetryFailedImports -> onRetryFailedImports()
             is AddFeedScreenEvent.MoveFailedImportToEdit -> onMoveFailedImportToEdit(event.id)
             AddFeedScreenEvent.ToggleCollapseAll -> onToggleCollapseAll()
+            is AddFeedScreenEvent.ExtractOpmlFeedUrl -> onExtractOpmlFeeds()
+            AddFeedScreenEvent.OpenImportOpmlBottomSheet -> onOpenImportOpmlBottomSheet()
+            is AddFeedScreenEvent.UpdateOpmlUrl -> onUpdateOpmlUrl(event.url)
+        }
+    }
+
+    private fun onOpenImportOpmlBottomSheet() {
+        postEffect(AddFeedScreenEffect.SetAddOpmlBottomSheetVisible(true))
+    }
+
+    private fun onExtractOpmlFeeds() = intent {
+        setState { copy(isOpmlLoading = true) }
+        val normalizedUrl = normalizeUrlUseCase(state.opmlUrl)
+        if (!validateUrlUseCase(normalizedUrl)) {
+            setState {
+                copy(
+                    isOpmlLoading = false,
+                    opmlImportError = TextResource.fromStringRes(stringRes.add_feed_opml_empty_error)
+                )
+            }
+            return@intent
+        }
+
+        val opmlExtractionResult = extractOpmlFeedsUseCase.fromUrl(normalizedUrl)
+
+        opmlExtractionResult.fold(
+            onSuccess = ::onOpmlExtractionSuccess,
+            onFailure = {
+                setState {
+                    copy(
+                        isOpmlLoading = false,
+                        opmlImportError = TextResource.fromStringRes(stringRes.add_feed_opml_process_error)
+                    )
+                }
+            }
+        )
+
+    }
+
+    private fun onOpmlExtractionSuccess(
+        feeds: List<OpmlFeedImportData>
+    ) {
+        if (feeds.isEmpty()) {
+            setState {
+                copy(
+                    isOpmlLoading = false,
+                    opmlImportError = TextResource.fromStringRes(stringRes.add_feed_opml_no_feeds_error)
+                )
+            }
+            return
+        }
+
+        setState {
+            val importedData = feeds.map(UIAddFeedData::fromOpml)
+            val currentData =
+                addFeedDataList.takeUnless { it.isSingleEmptyEntry() }.orEmpty()
+            copy(
+                addFeedDataList = currentData + importedData,
+                isOpmlLoading = false,
+                opmlUrl = "",
+                opmlImportError = null
+            )
+        }
+
+        postEffect(AddFeedScreenEffect.SetAddOpmlBottomSheetVisible(false))
+    }
+
+    private fun onUpdateOpmlUrl(url: String) {
+        setState {
+            copy(
+                opmlUrl = url,
+                opmlImportError = null
+            )
         }
     }
 
@@ -136,11 +216,7 @@ class AddFeedViewModel(
                 addFeedDataList = addFeedDataList.map {
                     if (it.id != id) return@map it
 
-                    if (normalizedUrl == null) {
-                        it.copy(error = UIAddFeedData.ValidationError.INVALID_SOURCE_URL)
-                    } else {
-                        it.copy(url = normalizedUrl, error = null).withCollapsedHeaderText()
-                    }
+                    it.copy(url = normalizedUrl, error = null).withCollapsedHeaderText()
                 }
             )
         }
@@ -215,16 +291,10 @@ class AddFeedViewModel(
             }
             .awaitAll()
             .map { (data, normalizedUrl) ->
-                if (normalizedUrl == null) {
-                    data.copy(
-                        error = UIAddFeedData.ValidationError.INVALID_SOURCE_URL,
-                    )
-                } else {
-                    data.copy(
-                        url = normalizedUrl,
-                        error = null
-                    ).withCollapsedHeaderText()
-                }
+                data.copy(
+                    url = normalizedUrl,
+                    error = null
+                ).withCollapsedHeaderText()
             }
             .groupBy { it.error == null }
 
@@ -267,5 +337,10 @@ class AddFeedViewModel(
             collapsedHeaderText = text?.let(TextResource::fromText)
                 ?: TextResource.fromStringRes(stringRes.enter_feed_url)
         )
+    }
+
+    private fun List<UIAddFeedData>.isSingleEmptyEntry(): Boolean {
+        val onlyEntry = singleOrNull() ?: return false
+        return onlyEntry.url.isBlank() && onlyEntry.name.isNullOrBlank()
     }
 }

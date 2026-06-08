@@ -7,7 +7,7 @@ sealed interface AddFeedScreenEvent : ScreenEvent {
     data class UpdateName(val id: String, val name: String) : AddFeedScreenEvent
     data class Delete(val id: String) : AddFeedScreenEvent
     data object Add : AddFeedScreenEvent
-
+    data object ExtractOpmlFeedUrl : AddFeedScreenEvent
     data object ImportFeeds : AddFeedScreenEvent
     data class ToggleExpanded(val id: String) : AddFeedScreenEvent
     data class ValidateSourceUrl(val id: String) : AddFeedScreenEvent
@@ -16,4 +16,6 @@ sealed interface AddFeedScreenEvent : ScreenEvent {
     data class MoveFailedImportToEdit(val id: String) : AddFeedScreenEvent
     data object GoToQueue : AddFeedScreenEvent
     data object ToggleCollapseAll : AddFeedScreenEvent
+    data object OpenImportOpmlBottomSheet : AddFeedScreenEvent
+    data class UpdateOpmlUrl(val url: String) : AddFeedScreenEvent
 }

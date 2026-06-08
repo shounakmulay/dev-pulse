@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model
 
 import androidx.compose.runtime.Immutable
+import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedType
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
@@ -39,6 +40,21 @@ data class UIAddFeedData(
                 type = RssFeedType.CONTENT,
                 tags = emptyList(),
                 folders = emptyList()
+            )
+        }
+
+        @OptIn(ExperimentalUuidApi::class)
+        fun fromOpml(data: OpmlFeedImportData): UIAddFeedData {
+            val name = data.name.orEmpty()
+            return UIAddFeedData(
+                id = Uuid.random().toString(),
+                url = data.url,
+                name = name,
+                type = RssFeedType.CONTENT,
+                tags = emptyList(),
+                folders = emptyList(),
+                collapsedHeaderText = TextResource.fromText(name.ifBlank { data.url }),
+                expanded = false
             )
         }
     }

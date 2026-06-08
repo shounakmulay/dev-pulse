@@ -18,8 +18,19 @@
     <string name="add_feed_action_retry_failed_imports">Retry failed imports</string>
     <string name="add_feed_action_edit_failed_import">Edit failed import</string>
     <string name="add_feed_action_add_feed">Add feed</string>
+    <string name="add_feed_action_paste_opml">Paste OPML</string>
     <string name="add_feed_action_delete_feed">Delete feed</string>
     <string name="add_feed_action_expand_collapse_feeds">Expand or collapse feeds</string>
+    <string name="add_feed_opml_empty_error">Enter an OPML URL before processing.</string>
+    <string name="add_feed_opml_no_feeds_error">No feed URLs were found in the OPML.</string>
+    <string name="add_feed_opml_process_error">Unable to process OPML.</string>
+    <string name="add_feed_opml_url">OPML URL</string>
+    <string name="add_feed_opml_url_placeholder">https://example.com/subscriptions.opml</string>
+    <string name="add_feed_opml_cancel">Cancel</string>
+    <string name="add_feed_opml_process">Import OPML</string>
+    <string name="add_feed_opml_text">OPML URL</string>
+    <string name="add_feed_opml_placeholder">https://example.com/subscriptions.opml</string>
+    <string name="add_feed_opml_title">Import OPML</string>
     <string name="add_feed_status_queued">Queued</string>
     <string name="add_feed_status_processing">Processing</string>
     <string name="add_feed_status_completed">Completed</string>
@@ -51,4 +62,5 @@
     <string name="feed_loading_more_content_description">Loading more feeds</string>
     <string name="feed_tab_all">All</string>
     <string name="feed_tab_pinned">Pinned</string>
+    <string name="opml">OPML</string>
 </resources>
