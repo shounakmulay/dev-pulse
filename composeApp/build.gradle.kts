@@ -34,6 +34,7 @@ kotlin {
 
             implementation(libs.navigation3.ui)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.ktxml.core)
         }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)

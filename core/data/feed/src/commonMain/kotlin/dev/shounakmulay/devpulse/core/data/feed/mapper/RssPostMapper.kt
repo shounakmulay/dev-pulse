@@ -1,9 +1,5 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
-import com.prof18.rssparser.model.RawEnclosure
-import com.prof18.rssparser.model.RawMediaContent
-import com.prof18.rssparser.model.RssItem
-import com.prof18.rssparser.model.YoutubeItemData
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemMediaContent
@@ -11,6 +7,10 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemRawEncl
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemYoutubeData
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemMediaContent
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemRawEnclosure
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemYoutubeData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedPost
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedPostMediaContent
@@ -24,7 +24,6 @@ class RssPostMapper(
     private val idGenerator: IdentityGenerator,
     private val dateTimeProvider: DateTimeProvider
 ) {
-
     fun toRssPostWithFeedIdentity(
         post: RssFeedPost,
         identity: RssFeedIdentity
@@ -36,7 +35,7 @@ class RssPostMapper(
     }
 
     fun toLocalRssContentFeedPost(
-        item: RssItem,
+        item: ParsedFeedItem,
         feedId: String,
         fingerprint: String,
         existingIdentity: LocalRssContentFeedPostIdentitySlice?
@@ -71,7 +70,6 @@ class RssPostMapper(
             updatedAt = now
         )
     }
-
     fun toRssFeedPost(from: LocalRssContentFeedPost): RssFeedPost {
         return RssFeedPost(
             id = from.id,
@@ -98,8 +96,7 @@ class RssPostMapper(
             createdAtMillis = from.createdAt
         )
     }
-
-    private fun mapRawMediaContent(from: RawMediaContent): LocalRssFeedItemMediaContent {
+    private fun mapRawMediaContent(from: ParsedFeedItemMediaContent): LocalRssFeedItemMediaContent {
         return LocalRssFeedItemMediaContent(
             url = from.url,
             type = from.type,
@@ -107,7 +104,7 @@ class RssPostMapper(
         )
     }
 
-    private fun mapRawEnclosure(from: RawEnclosure): LocalRssFeedItemRawEnclosure {
+    private fun mapRawEnclosure(from: ParsedFeedItemRawEnclosure): LocalRssFeedItemRawEnclosure {
         return LocalRssFeedItemRawEnclosure(
             url = from.url,
             length = from.length,
@@ -115,7 +112,7 @@ class RssPostMapper(
         )
     }
 
-    private fun mapYoutubeData(from: YoutubeItemData): LocalRssFeedItemYoutubeData {
+    private fun mapYoutubeData(from: ParsedFeedItemYoutubeData): LocalRssFeedItemYoutubeData {
         return LocalRssFeedItemYoutubeData(
             videoId = from.videoId,
             title = from.title,
@@ -136,13 +133,11 @@ class RssPostMapper(
         viewsCount = viewsCount,
         likesCount = likesCount,
     )
-
     private fun LocalRssFeedItemRawEnclosure.toRssFeedItemRawEnclosure() = RssFeedPostRawEnclosure(
         url = url,
         length = length,
         type = type,
     )
-
     private fun LocalRssFeedItemMediaContent.toRssFeedItemMediaContent() = RssFeedPostMediaContent(
         url = url,
         type = type,

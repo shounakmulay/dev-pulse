@@ -42,7 +42,7 @@ fun LazyGridScope.importFeedItems(
                     AddFeedScreenEvent.Delete(addFeedData.id)
                 )
             },
-            canToggleExpanded = isList,
+            canToggleExpanded = isList || !addFeedData.expanded,
             onToggleExpanded = {
                 viewModel.onEvent(AddFeedScreenEvent.ToggleExpanded(addFeedData.id))
             },

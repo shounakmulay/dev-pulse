@@ -1,9 +1,9 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
-import com.prof18.rssparser.model.RssChannel
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.RssIdentityGenerator
+import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedMetadata
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionRequestor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
@@ -17,12 +17,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class RssFeedMapperTest {
-
     private val mapper = RssFeedMapper(
         identityGenerator = RssIdentityGenerator(),
         dateTimeProvider = FixedDateTimeProvider
     )
-
     @Test
     fun `Given RSS channel date When mapped to local feed Then raw publisher date is preserved`() {
         val result = mapper.toLocalRssFeed(
@@ -39,7 +37,6 @@ class RssFeedMapperTest {
             ),
             queueEntry = createQueueEntry()
         )
-
         assertEquals("Tue, 19 May 2026 10:00:00 GMT", result.lastBuildDate)
         assertEquals(1234L, result.createdAt)
         assertEquals(1779184800000L, result.updatedAt)
@@ -59,18 +56,15 @@ class RssFeedMapperTest {
             updatedAt = 1000L,
         )
     }
-
-    private fun createChannel(lastBuildDate: String?): RssChannel {
-        return RssChannel(
+    private fun createChannel(lastBuildDate: String?): ParsedFeedMetadata {
+        return ParsedFeedMetadata(
             title = "Title",
             link = "https://example.com",
             description = "Description",
             image = null,
             lastBuildDate = lastBuildDate,
             updatePeriod = null,
-            items = emptyList(),
-            itunesChannelData = null,
-            youtubeChannelData = null
+            youtubeChannel = null
         )
     }
 
@@ -83,10 +77,8 @@ class RssFeedMapperTest {
 
         override fun getTimeElapsed(instant: Instant): Duration = Duration.ZERO
 
-        override fun now(): Instant = Instant.fromEpochMilliseconds(nowEpochMilliseconds())
-
+        override fun now(): Instant = Instant.fromEpochMilliseconds( nowEpochMilliseconds())
         override fun nowEpochMilliseconds(): Long = 1779184800000L
-
         override fun today(): LocalDate = LocalDate(year = 2026, monthNumber = 5, dayOfMonth = 19)
     }
 }

@@ -19,6 +19,11 @@ kotlin {
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.client.auth)
         }
+        commonTest.dependencies {
+            implementation(project.dependencies.platform(libs.ktor.bom))
+            implementation(libs.ktor.client.mock)
+            implementation(libs.kotlinx.coroutines.test)
+        }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
         }

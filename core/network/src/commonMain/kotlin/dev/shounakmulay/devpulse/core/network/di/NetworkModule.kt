@@ -1,7 +1,9 @@
 package dev.shounakmulay.devpulse.core.network.di
 
-import dev.shounakmulay.devpulse.core.network.createHttpClient
 import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
+import dev.shounakmulay.devpulse.core.network.KtorDevPulseNetworkClient
+import dev.shounakmulay.devpulse.core.network.createHttpClient
 import io.ktor.client.HttpClient
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
@@ -14,3 +16,7 @@ class NetworkModule
 @Singleton
 fun httpClient(logger: DPLogger): HttpClient =
     createHttpClient(logger.withTag("DevPulseHttpClient"))
+
+@Singleton
+fun devPulseNetworkClient(httpClient: HttpClient): DevPulseNetworkClient =
+    KtorDevPulseNetworkClient(httpClient)

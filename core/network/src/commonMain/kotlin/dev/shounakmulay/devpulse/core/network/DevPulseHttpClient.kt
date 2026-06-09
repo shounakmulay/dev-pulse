@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.core.network
 
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpRedirect
 import io.ktor.client.plugins.cache.HttpCache
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
@@ -17,6 +18,11 @@ internal fun createHttpClient(dpLogger: DPLogger): HttpClient = HttpClient(creat
             ignoreUnknownKeys = true
             isLenient = true
         })
+    }
+
+    install(HttpRedirect) {
+        checkHttpMethod = true
+        allowHttpsDowngrade = false
     }
 
     install(Logging) {

@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
+import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPDarkTheme
 import dev.shounakmulay.devpulse.core.designsystem.theme.monoFontFamily
 
 enum class DPTextViewVariant {
@@ -232,9 +233,10 @@ fun DPTextDot(
     modifier: Modifier = Modifier,
     variant: DPTextViewVariant = DPTextViewVariant.TitleMedium
 ) {
+    val isDarkTheme = LocalDPDarkTheme.current
     DPTextView(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.surfaceBright,
+        color = if (isDarkTheme) MaterialTheme.colorScheme.surfaceBright else MaterialTheme.colorScheme.surfaceDim,
         text = "•",
         variant = variant
     )
