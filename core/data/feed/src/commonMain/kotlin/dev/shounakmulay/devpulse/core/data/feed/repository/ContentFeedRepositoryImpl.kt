@@ -34,7 +34,7 @@ internal class ContentFeedRepositoryImpl(
 ) : ContentFeedRepository {
     private val logger = logger.withTag(Tag)
 
-    override fun getFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {
+    override fun getFeedsListFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = {
@@ -60,6 +60,11 @@ internal class ContentFeedRepositoryImpl(
                     rssFeedMapper.toRssFeed(localRssFeed)
                 }
             }
+    }
+
+    override fun getFeed(id: String): Flow<RssFeed> {
+        return feedDao.observeFeed(id)
+            .map(rssFeedMapper::toRssFeed)
     }
 
     override fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeed>> {

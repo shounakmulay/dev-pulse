@@ -34,7 +34,7 @@ class ExtractOpmlFeedsUseCaseTest {
     private class FakeContentFeedRepository(
         private val failure: Exception
     ) : ContentFeedRepository {
-        override fun getFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> = error("Unused")
+        override fun getFeedsListFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> = error("Unused")
 
         override fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeed>> = error("Unused")
 

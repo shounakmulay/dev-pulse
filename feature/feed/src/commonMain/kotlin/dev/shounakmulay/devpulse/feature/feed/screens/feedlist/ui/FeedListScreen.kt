@@ -17,6 +17,7 @@ import androidx.window.core.layout.WindowSizeClass
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBar
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
@@ -73,14 +74,18 @@ fun FeedListScreen(
                 )
 
                 is LoadState.NotLoading if feeds.itemCount == 0 -> EmptyFeedList()
-                else -> FeedsList(feeds, onTogglePinned = { feed, pinned ->
-                    viewModel.onEvent(
-                        FeedListScreenEvent.TogglePinned(
-                            id = feed.id,
-                            pinned = pinned,
+                else -> FeedsList(
+                    feeds = feeds,
+                    onTogglePinned = { feed, pinned ->
+                        viewModel.onEvent(
+                            FeedListScreenEvent.TogglePinned(
+                                id = feed.id,
+                                pinned = pinned,
+                            )
                         )
-                    )
-                })
+                    },
+                    onFeedItemClick = { navigator.replaceOfSameType(Screen.Tabs.Feed.FeedDetail(it.id)) }
+                )
             }
         }
     }
@@ -89,14 +94,13 @@ fun FeedListScreen(
 @Composable
 internal fun FeedsList(
     feeds: LazyPagingItems<UIFeed>,
-    onTogglePinned: (UIFeed, Boolean) -> Unit
+    onTogglePinned: (UIFeed, Boolean) -> Unit,
+    onFeedItemClick: (UIFeed) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
         columns = GridCells.Adaptive((WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND / 2).dp),
         contentPadding = PaddingValues(LocalDPSpacing.current.md),
-        verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.lg),
-        horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.lg)
     ) {
         items(
             count = feeds.itemCount,
@@ -111,6 +115,9 @@ internal fun FeedsList(
                     onTogglePinned = {
                         onTogglePinned(feed, it)
                     },
+                    onClick = {
+                        onFeedItemClick(feed)
+                    }
                 )
             }
         }

@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -44,7 +43,6 @@ import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds.f
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.postsContentSection
-import devpulse.core.resources.generated.resources.feed_detail_title
 import devpulse.core.resources.generated.resources.feed_search
 import devpulse.core.resources.generated.resources.feed_search_back
 import devpulse.core.resources.generated.resources.feed_search_result
@@ -148,7 +146,7 @@ fun FeedScreen(
                 isFeedLoading = state.isFeedLoading,
                 onNavigateToAddFeed = { navigator.navigate(Tabs.Feed.AddFeed) },
                 onNavigateToFeedList = { navigator.navigate(Tabs.Feed.FeedList) },
-                onFeedClick = {},
+                onFeedClick = { navigator.replaceOfSameType(Tabs.Feed.FeedDetail(it.id)) },
                 onFeedLongClick = {
 
                 },
@@ -190,16 +188,5 @@ fun FeedScreen(
                 )
             }
         }
-    }
-}
-
-
-@Composable
-fun FeedDetailScreen(route: Tabs.Feed.FeedDetail) {
-    Column {
-        DPTextView(
-            text = stringResource(stringRes.feed_detail_title, route.id),
-            variant = DPTextViewVariant.DisplayLargeEmphasized
-        )
     }
 }

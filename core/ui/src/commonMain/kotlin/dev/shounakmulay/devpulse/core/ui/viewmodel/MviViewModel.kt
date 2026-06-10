@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dev.shounakmulay.devpulse.core.ui.effect.Effect
 import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.KSerializer
 import org.koin.core.component.KoinComponent
@@ -19,7 +20,12 @@ abstract class MviViewModel<STATE : ScreenState, EFFECT : Effect> :
         initialState = createInitialState(),
         savedStateHandle = savedStateHandle,
         serializer = createStateSerializer(),
-    )
+    ) {
+        repeatOnSubscription {
+            bindStateSources(this)
+        }
+    }
+
     val state: StateFlow<STATE> = container.stateFlow
 
     protected fun setState(block: STATE.() -> STATE) = intent {
@@ -38,6 +44,8 @@ abstract class MviViewModel<STATE : ScreenState, EFFECT : Effect> :
 
     abstract fun createInitialState(): STATE
     abstract fun createStateSerializer(): KSerializer<STATE>
+
+    protected open fun bindStateSources(stateSubscriptionScope: CoroutineScope) {}
 
     final fun unhandledEffect(effect: Effect): Unit = throw IllegalStateException(
         "Effect $effect is not handled by ViewModel $this.",

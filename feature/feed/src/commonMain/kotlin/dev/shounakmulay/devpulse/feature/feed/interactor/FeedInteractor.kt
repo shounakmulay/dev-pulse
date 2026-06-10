@@ -55,7 +55,7 @@ class FeedInteractor(
         }.flowOn(dispatcherProvider.defaultDispatcher)
     }
 
-    private fun toUIFeed(feed: RssFeed): UIFeed {
+    fun toUIFeed(feed: RssFeed): UIFeed {
         return createUIFeed(
             id = feed.id,
             name = feed.name,

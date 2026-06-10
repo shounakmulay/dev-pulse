@@ -13,7 +13,7 @@ class GetPaginatedFeedSourcesUseCase(
 ) {
 
     operator fun invoke(): Flow<PagingData<RssFeed>> {
-        return feedRepository.getFeedFlow(
+        return feedRepository.getFeedsListFlow(
             pagingConfig = PagingConfig(
                 pageSize = 10,
             )
