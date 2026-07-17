@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -21,15 +18,11 @@ import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeedPost
 fun FeedPostGridCard(
     article: UIFeedPost,
     modifier: Modifier = Modifier,
-    index: Int,
+    showImage: Boolean,
     onPostClick: (UIFeedPost) -> Unit,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
 ) {
-    val showImage by remember(article, index) {
-        derivedStateOf {
-            article.feed.pinned || (article.imageUrl != null && index % 2 == 0)
-        }
-    }
+
     Surface(
         modifier = modifier
             .fillMaxHeight()

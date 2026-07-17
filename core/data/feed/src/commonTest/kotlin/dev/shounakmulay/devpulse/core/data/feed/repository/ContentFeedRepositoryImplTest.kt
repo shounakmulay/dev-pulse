@@ -1,6 +1,10 @@
 package dev.shounakmulay.devpulse.core.data.feed.repository
 
 import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
+import dev.shounakmulay.devpulse.core.data.db.paging.LocalRssPostWithFeedMetadataCursor
+import dev.shounakmulay.devpulse.core.data.db.query.FeedPostQuery
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
@@ -17,6 +21,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.logging.DPLog
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkResponse
+import androidx.room3.RoomRawQuery
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
@@ -72,6 +77,7 @@ class ContentFeedRepositoryImplTest {
             networkClient = networkClient,
             feedDao = FakeFeedDao(),
             feedContentDao = FakeFeedContentDao(),
+            feedPostPagingSourceProvider = FakeFeedPostPagingSourceProvider(),
             rssFeedMapper = RssFeedMapper(
                 identityGenerator = FakeIdentityGenerator(),
                 dateTimeProvider = FakeDateTimeProvider()
@@ -121,6 +127,8 @@ class ContentFeedRepositoryImplTest {
 
         override suspend fun getFeed(id: String): LocalRssFeed = error("Unused")
 
+        override fun observeFeed(id: String): Flow<LocalRssFeed> = error("Unused")
+
         override suspend fun getFeedBySourceUrl(sourceUrl: String): LocalRssFeed? = error("Unused")
 
         override suspend fun setFeedPinned(id: String, pinned: Boolean) = Unit
@@ -157,6 +165,10 @@ class ContentFeedRepositoryImplTest {
             return emptyFlow()
         }
 
+        override suspend fun getPostPage(query: RoomRawQuery): List<LocalRssPostWithFeedMetadataProjection> {
+            return emptyList()
+        }
+
         override suspend fun getInitialPage(limit: Int): List<LocalRssContentFeedPost> = emptyList()
 
         override suspend fun getPageAfter(
@@ -168,6 +180,33 @@ class ContentFeedRepositoryImplTest {
             id: String,
             limit: Int
         ): List<LocalRssContentFeedPost> = emptyList()
+
+        override suspend fun upsertPostCategories(categories: List<dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostCategory>) = Unit
+        override suspend fun deletePostCategories(postId: String) = Unit
+        override suspend fun deletePostCategories(postIds: Set<String>) = Unit
+        override suspend fun getPageBeforeQuery(id: String, limit: Int): List<LocalRssContentFeedPost> = emptyList()
+    }
+
+    private class FakeFeedPostPagingSourceProvider : FeedPostPagingSourceProvider {
+        override fun getFeedPostPagingSource(
+            query: FeedPostQuery
+        ): PagingSource<dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor, LocalRssPostWithFeedMetadataProjection> {
+            return object : PagingSource<dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor, LocalRssPostWithFeedMetadataProjection>() {
+                override fun getRefreshKey(
+                    state: PagingState<dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor, LocalRssPostWithFeedMetadataProjection>
+                ): dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor? = null
+
+                override suspend fun load(
+                    params: LoadParams<dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor>
+                ): LoadResult<dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor, LocalRssPostWithFeedMetadataProjection> {
+                    return LoadResult.Page(
+                        data = emptyList(),
+                        prevKey = null,
+                        nextKey = null
+                    )
+                }
+            }
+        }
     }
 
     private class FakeIdentityGenerator : IdentityGenerator {

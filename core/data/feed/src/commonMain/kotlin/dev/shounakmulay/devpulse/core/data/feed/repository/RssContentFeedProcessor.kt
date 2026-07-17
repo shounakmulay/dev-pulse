@@ -86,6 +86,11 @@ internal class RssContentFeedProcessor(
                 processRssItemsChunk(rssItems = it, feed = localRssFeed)
             }.onEach {
                 feedContentDao.upsertPosts(it)
+                if (it.isNotEmpty()) {
+                    val postIds = it.map { post -> post.id }.toSet()
+                    feedContentDao.deletePostCategories(postIds)
+                    feedContentDao.upsertPostCategories(it.toCategoryRows())
+                }
                 upsertedCount += it.size
                 logger.d {
                     "RSS content chunk upserted feedId=$feedId upsertedPostCount=${it.size}"
@@ -148,6 +153,13 @@ internal class RssContentFeedProcessor(
                 }
             }
             .map { it.post }
+    }
+
+    private fun List<LocalRssContentFeedPost>.toCategoryRows() = flatMap { post ->
+        rssPostMapper.toLocalRssPostCategories(
+            postId = post.id,
+            categories = post.categories.split(",")
+        )
     }
 
     private fun generateParsedFeedFingerprints(

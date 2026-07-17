@@ -13,6 +13,7 @@ interface ContentFeedRepository {
 
     fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeed>>
     fun getRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentity>>
+    fun getFeedPostsFlow(queryIntent: FeedPostQueryIntent, pagingConfig: PagingConfig): Flow<PagingData<RssPostWithFeedIdentity>>
     fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>>
     fun getFeed(id: String): Flow<RssFeed>
     suspend fun extractOpmlFeeds(opml: String): List<OpmlFeedImportData>
@@ -21,4 +22,14 @@ interface ContentFeedRepository {
     suspend fun deleteFeed(id: String)
     suspend fun setFeedPinned(id: String, pinned: Boolean): Result<Unit>
     suspend fun setPostBookmarked(id: String, bookmarked: Boolean): Result<Unit>
+}
+
+data class FeedPostQueryIntent(
+    val feedIds: Set<String> = emptySet(),
+    val sort: FeedPostSortIntent = FeedPostSortIntent.PublishedNewest
+)
+
+enum class FeedPostSortIntent {
+    PublishedNewest,
+    PublishedOldest
 }

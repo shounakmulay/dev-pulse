@@ -4,6 +4,9 @@ interface LocalCursorPagingSourceDataProvider<KEY, VALUE> {
     fun getTablesToTrack(): List<String>
     suspend fun getInitialPage(loadSize: Int): List<VALUE>
     suspend fun getPageAfter(cursor: KEY, loadSize: Int): List<VALUE>
+
+    suspend fun getPageBefore(cursor: KEY, loadSize: Int): List<VALUE> = emptyList()
+
     suspend fun getRefreshPageAround(anchorCursor: KEY, loadSize: Int): List<VALUE>
 
     fun getId(item: VALUE): KEY

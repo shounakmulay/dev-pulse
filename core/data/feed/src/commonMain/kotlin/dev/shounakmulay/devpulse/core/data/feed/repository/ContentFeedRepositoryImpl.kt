@@ -6,6 +6,11 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
+import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
+import dev.shounakmulay.devpulse.core.data.db.query.FeedPostFilter
+import dev.shounakmulay.devpulse.core.data.db.query.FeedPostQuery
+import dev.shounakmulay.devpulse.core.data.db.query.FeedPostSort
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.opml.OpmlParser
@@ -28,6 +33,7 @@ internal class ContentFeedRepositoryImpl(
     private val networkClient: DevPulseNetworkClient,
     private val feedDao: FeedDao,
     private val feedContentDao: FeedContentDao,
+    private val feedPostPagingSourceProvider: FeedPostPagingSourceProvider,
     private val rssFeedMapper: RssFeedMapper,
     private val rssPostMapper: RssPostMapper,
     logger: DPLogger
@@ -78,12 +84,40 @@ internal class ContentFeedRepositoryImpl(
     override fun getRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentity>> {
         return feedContentDao.observeRecentPosts(maxCount).map {
             it.map { post ->
-                rssPostMapper.toRssPostWithFeedIdentity(
-                    post = rssPostMapper.toRssFeedPost(post.post),
-                    identity = rssFeedMapper.toRssIdentity(post.feed)
-                )
+                post.toRssPostWithFeedIdentity()
             }
         }
+    }
+
+    override fun getFeedPostsFlow(
+        queryIntent: FeedPostQueryIntent,
+        pagingConfig: PagingConfig
+    ): Flow<PagingData<RssPostWithFeedIdentity>> {
+        val filters = mutableSetOf<FeedPostFilter>()
+        if (queryIntent.feedIds.isNotEmpty()) {
+            filters.add(FeedPostFilter.FeedIds(queryIntent.feedIds))
+        }
+        val sort = when (queryIntent.sort) {
+            FeedPostSortIntent.PublishedNewest -> FeedPostSort.PublishedNewest
+            FeedPostSortIntent.PublishedOldest -> FeedPostSort.PublishedOldest
+        }
+        return Pager(
+            config = pagingConfig,
+            pagingSourceFactory = {
+                feedPostPagingSourceProvider.getFeedPostPagingSource(
+                    FeedPostQuery(
+                        filters = filters,
+                        sort = sort
+                    )
+                )
+            }
+        )
+            .flow
+            .map { pagingData ->
+                pagingData.map { post ->
+                    post.toRssPostWithFeedIdentity()
+                }
+            }
     }
 
     override suspend fun extractOpmlFeeds(opml: String): List<OpmlFeedImportData> {
@@ -101,6 +135,13 @@ internal class ContentFeedRepositoryImpl(
                 name = feed.title ?: feed.text,
             )
         }
+    }
+
+    private fun LocalRssPostWithFeedMetadataProjection.toRssPostWithFeedIdentity(): RssPostWithFeedIdentity {
+        return rssPostMapper.toRssPostWithFeedIdentity(
+            post = rssPostMapper.toRssFeedPost(post),
+            identity = rssFeedMapper.toRssIdentity(feed)
+        )
     }
 
     override suspend fun addRssFeed(entry: RssFeedQueueEntry) {

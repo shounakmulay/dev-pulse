@@ -4,4 +4,9 @@ import dev.shounakmulay.devpulse.core.ui.event.ScreenEvent
 
 sealed interface FeedDetailScreenEvent : ScreenEvent {
     data object Retry : FeedDetailScreenEvent
+
+    data class OnPostBookmarkChanged(
+        val postId: String,
+        val bookmarked: Boolean
+    ) : FeedDetailScreenEvent
 }

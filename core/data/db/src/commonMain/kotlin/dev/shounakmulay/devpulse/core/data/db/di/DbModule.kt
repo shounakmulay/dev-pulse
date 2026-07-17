@@ -4,6 +4,7 @@ import androidx.room3.RoomDatabase
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.db.DevPulseDatabase
 import dev.shounakmulay.devpulse.core.data.db.getDevPulseDatabase
+import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Factory
@@ -18,7 +19,13 @@ expect class DatabasePlatformModule
 @ComponentScan("dev.shounakmulay.devpulse.core.data.db")
 class DatabaseModule {
 
-    @Single(binds = [DevPulseDatabase::class, DevPulseDatabaseTransactionAccessor::class])
+    @Single(
+        binds = [
+            DevPulseDatabase::class,
+            DevPulseDatabaseTransactionAccessor::class,
+            FeedPostPagingSourceProvider::class
+        ]
+    )
     fun provideDevPulseDatabase(
         builder: RoomDatabase.Builder<DevPulseDatabase>,
         dispatcherProvider: DispatcherProvider

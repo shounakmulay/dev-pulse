@@ -31,7 +31,11 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
 
     private val invalidationJob: Job = invalidationEvents
         .onEach {
-            logger.v { "Paging source invalidated tables=${dataProvider.getTablesToTrack().joinToString()}" }
+            logger.v {
+                "Paging source invalidated tables=${
+                    dataProvider.getTablesToTrack().joinToString()
+                }"
+            }
             invalidate()
         }
         .launchIn(invalidationScope)
@@ -57,8 +61,9 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
                         dataProvider.getRefreshPageAround(refreshCursor, params.loadSize)
                     }
                 }
+
                 is LoadParams.Append -> dataProvider.getPageAfter(params.key, params.loadSize)
-                is LoadParams.Prepend -> emptyList()
+                is LoadParams.Prepend -> dataProvider.getPageBefore(params.key, params.loadSize)
             }
 
             if (invalid) {
@@ -67,10 +72,15 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
 
             LoadResult.Page(
                 data = items,
-                prevKey = null,
+                prevKey = when {
+                    params is LoadParams.Refresh && params.key == null -> null
+                    params is LoadParams.Prepend && items.size < params.loadSize -> null
+                    items.isEmpty() -> null
+                    else -> items.firstOrNull()?.let { dataProvider.getId(it) }
+                },
                 nextKey = when {
-                    params is LoadParams.Prepend -> null
-                    items.size < params.loadSize -> null
+                    params is LoadParams.Append && items.size < params.loadSize -> null
+                    items.isEmpty() -> null
                     else -> items.lastOrNull()?.let { dataProvider.getId(it) }
                 }
             )
@@ -79,8 +89,8 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
         } catch (e: Exception) {
             logger.e(e) {
                 "Paging load failed type=${params.loadTypeName()} " +
-                    "hasKey=${params.hasKey()} loadSize=${params.loadSize} " +
-                    "tables=${dataProvider.getTablesToTrack().joinToString()}"
+                        "hasKey=${params.hasKey()} loadSize=${params.loadSize} " +
+                        "tables=${dataProvider.getTablesToTrack().joinToString()}"
             }
             LoadResult.Error(e)
         }

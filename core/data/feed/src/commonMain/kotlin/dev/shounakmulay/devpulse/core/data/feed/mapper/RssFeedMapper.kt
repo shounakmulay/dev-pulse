@@ -42,9 +42,9 @@ class RssFeedMapper(
         val now = dateTimeProvider.nowEpochMilliseconds()
         return LocalRssFeed(
             id = existingIdentity?.id ?: identityGenerator.generateSortableId(),
-            name = queueEntry.name,
+            name = queueEntry.name.orEmpty(),
             sourceUrl = queueEntry.url,
-            title = existingIdentity?.title ?: from.title,
+            title = (existingIdentity?.title ?: from.title).orEmpty(),
             link = from.link,
             description = from.description,
             image = from.image?.let { toLocalRssFeedImage(it) },

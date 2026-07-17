@@ -46,6 +46,15 @@ class FeedInteractor(
         }.flowOn(dispatcherProvider.defaultDispatcher)
     }
 
+    @JvmName("getUIFeedPostPagingDataFlow")
+    fun getUIFeedPostFlow(from: Flow<PagingData<RssPostWithFeedIdentity>>): Flow<PagingData<UIFeedPost>> {
+        return from.map { pagingData ->
+            pagingData.map {
+                toUIFeedArticle(it)
+            }
+        }.flowOn(dispatcherProvider.defaultDispatcher)
+    }
+
     @JvmName("getUIFeedPagingDataFlow")
     fun getUIFeedFlow(from: Flow<PagingData<RssFeed>>): Flow<PagingData<UIFeed>> {
         return from.map { pagingData ->
