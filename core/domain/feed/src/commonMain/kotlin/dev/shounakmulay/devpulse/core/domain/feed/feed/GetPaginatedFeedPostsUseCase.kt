@@ -4,11 +4,12 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import dev.shounakmulay.devpulse.core.data.feed.repository.ContentFeedRepository
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostQuery
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSortOrder
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Factory
-
-import dev.shounakmulay.devpulse.core.data.feed.repository.FeedPostQueryIntent
-import dev.shounakmulay.devpulse.core.data.feed.repository.FeedPostSortIntent
 
 @Factory
 class GetPaginatedFeedPostsUseCase(
@@ -18,16 +19,18 @@ class GetPaginatedFeedPostsUseCase(
     operator fun invoke(
         feedId: String? = null,
         feedIds: Set<String> = emptySet(),
-        sort: FeedPostSortIntent = FeedPostSortIntent.PublishedNewest
+        sort: RssPostSort = RssPostSort.Published,
+        order: RssPostSortOrder = RssPostSortOrder.Descending
     ): Flow<PagingData<RssPostWithFeedIdentity>> {
         val mergedFeedIds = buildSet {
             if (feedId != null) add(feedId)
             addAll(feedIds)
         }
         return feedRepository.getFeedPostsFlow(
-            queryIntent = FeedPostQueryIntent(
-                feedIds = mergedFeedIds,
-                sort = sort
+            query = RssPostQuery(
+                filters = listOf(RssPostFilter.FeedIds(mergedFeedIds)),
+                sort = sort,
+                order = order
             ),
             pagingConfig = PagingConfig(
                 pageSize = 20,

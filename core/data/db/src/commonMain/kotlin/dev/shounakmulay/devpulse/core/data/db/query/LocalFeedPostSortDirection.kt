@@ -1,6 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.db.query
 
-enum class FeedPostSortDirection(
+enum class LocalFeedPostSortDirection(
     val sql: String
 ) {
     Ascending("ASC"),
@@ -13,7 +13,7 @@ enum class FeedPostSortDirection(
         }
     }
 
-    fun reverse(): FeedPostSortDirection {
+    fun reverse(): LocalFeedPostSortDirection {
         return when (this) {
             Ascending -> Descending
             Descending -> Ascending

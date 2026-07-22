@@ -5,8 +5,8 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursorValue
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostQuery
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostSort
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostSort
 import dev.shounakmulay.devpulse.core.data.db.query.spec
 
 object FeedPostPagingFixtures {
@@ -77,7 +77,7 @@ object FeedPostPagingFixtures {
     )
 
     val publishedNewest = FeedPostPagingDataset(
-        query = FeedPostQuery(sort = FeedPostSort.PublishedNewest),
+        query = LocalFeedPostQuery(sort = LocalFeedPostSort.PublishedNewest),
         pageSize = 3,
         insertedRows = duplicateSortRows,
         expectedIds = listOf(
@@ -91,7 +91,7 @@ object FeedPostPagingFixtures {
     )
 
     val publishedOldest = FeedPostPagingDataset(
-        query = FeedPostQuery(sort = FeedPostSort.PublishedOldest),
+        query = LocalFeedPostQuery(sort = LocalFeedPostSort.PublishedOldest),
         pageSize = 4,
         insertedRows = duplicateSortRows,
         expectedIds = listOf(
@@ -105,7 +105,7 @@ object FeedPostPagingFixtures {
     )
 
     val updatedNewest = FeedPostPagingDataset(
-        query = FeedPostQuery(sort = FeedPostSort.UpdatedNewest),
+        query = LocalFeedPostQuery(sort = LocalFeedPostSort.UpdatedNewest),
         pageSize = 2,
         insertedRows = duplicateSortRows,
         expectedIds = listOf(
@@ -119,7 +119,7 @@ object FeedPostPagingFixtures {
     )
 
     val createdOldest = FeedPostPagingDataset(
-        query = FeedPostQuery(sort = FeedPostSort.CreatedOldest),
+        query = LocalFeedPostQuery(sort = LocalFeedPostSort.CreatedOldest),
         pageSize = 3,
         insertedRows = duplicateSortRows,
         expectedIds = listOf(
@@ -133,7 +133,7 @@ object FeedPostPagingFixtures {
     )
 
     val titleAtoZ = FeedPostPagingDataset(
-        query = FeedPostQuery(sort = FeedPostSort.TitleAtoZ),
+        query = LocalFeedPostQuery(sort = LocalFeedPostSort.TitleAtoZ),
         pageSize = 2,
         insertedRows = duplicateSortRows,
         expectedIds = listOf(
@@ -147,7 +147,7 @@ object FeedPostPagingFixtures {
     )
 
     val feedNameAtoZ = FeedPostPagingDataset(
-        query = FeedPostQuery(sort = FeedPostSort.FeedNameAtoZ),
+        query = LocalFeedPostQuery(sort = LocalFeedPostSort.FeedNameAtoZ),
         pageSize = 2,
         insertedRows = duplicateSortRows,
         expectedIds = listOf(
@@ -229,7 +229,7 @@ object FeedPostPagingFixtures {
 }
 
 data class FeedPostPagingDataset(
-    val query: FeedPostQuery,
+    val query: LocalFeedPostQuery,
     val pageSize: Int,
     val insertedRows: List<LocalRssPostWithFeedMetadataProjection>,
     val expectedIds: List<String>

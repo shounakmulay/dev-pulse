@@ -97,9 +97,20 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
     }
 
     override fun getRefreshKey(state: PagingState<KEY, VALUE>): KEY? {
-        return state.anchorPosition?.let { anchorPosition ->
-            state.closestItemToPosition(anchorPosition)?.let { dataProvider.getId(it) }
+        val anchorPosition = state.anchorPosition
+
+        logger.d {
+            "[FEED-PAGING] RefreshKey anchorPosition=$anchorPosition " +
+                    "pages=${state.pages.size}"
         }
+
+        val item = anchorPosition?.let(state::closestItemToPosition)
+
+        logger.d {
+            "[FEED-PAGING] RefreshKey item=${item?.let(dataProvider::getId)}"
+        }
+
+        return item?.let(dataProvider::getId)
     }
 
     private fun LoadParams<KEY>.loadTypeName(): String {

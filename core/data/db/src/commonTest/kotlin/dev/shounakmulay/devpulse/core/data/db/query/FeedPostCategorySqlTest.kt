@@ -7,7 +7,7 @@ class FeedPostCategorySqlTest {
 
     @Test
     fun `Given exact category match When building page Then uses category mapping table directly`() {
-        val query = FeedPostQuery(filters = setOf(FeedPostFilter.Category(setOf("Technology", "NEWS"))))
+        val query = LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.Category(setOf("Technology", "NEWS"))))
         initialPage(query)
             .assertSqlContains("WHERE p.id IN (SELECT postId FROM LocalRssPostCategory WHERE LOWER(category) IN (?, ?))")
             .assertBindings(
@@ -19,7 +19,7 @@ class FeedPostCategorySqlTest {
 
     @Test
     fun `Given empty category filter When building page Then ignores filter completely`() {
-        val query = FeedPostQuery(filters = setOf(FeedPostFilter.Category(emptySet())))
+        val query = LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.Category(emptySet())))
         initialPage(query).assertSqlExcludes("LocalRssPostCategory")
     }
 }

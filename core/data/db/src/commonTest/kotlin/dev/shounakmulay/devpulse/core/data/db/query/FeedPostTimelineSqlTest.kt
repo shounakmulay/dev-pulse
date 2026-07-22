@@ -8,7 +8,7 @@ class FeedPostTimelineSqlTest {
 
     @Test
     fun `Given published newest sort When building initial page Then orders by published updated and id descending`() {
-        val sql = timelineSql(FeedPostSort.PublishedNewest)
+        val sql = timelineSql(LocalFeedPostSort.PublishedNewest)
 
         assertContains(
             sql.normalized(),
@@ -19,7 +19,7 @@ class FeedPostTimelineSqlTest {
 
     @Test
     fun `Given published oldest sort When building initial page Then orders by published updated and id ascending`() {
-        val sql = timelineSql(FeedPostSort.PublishedOldest)
+        val sql = timelineSql(LocalFeedPostSort.PublishedOldest)
 
         assertContains(
             sql.normalized(),
@@ -28,9 +28,9 @@ class FeedPostTimelineSqlTest {
         assertTimelineSqlDoesNotUseFallbackPaging(sql)
     }
 
-    private fun timelineSql(sort: FeedPostSort): String {
-        return FeedPostSqlQueryBuilder(
-            FeedPostQuery(sort = sort)
+    private fun timelineSql(sort: LocalFeedPostSort): String {
+        return LocalFeedPostSqlQueryBuilder(
+            LocalFeedPostQuery(sort = sort)
         ).buildInitialPage(limit = FeedPostQueryFixtures.DefaultLimit).sql
     }
 

@@ -10,8 +10,8 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentF
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursorValue
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostQuery
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostSort
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostSort
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -99,7 +99,7 @@ class FeedPostKeysetPagingTest {
         val dataProvider: LocalCursorPagingSourceDataProvider<FeedPostCursor, LocalRssPostWithFeedMetadataProjection> =
             LocalRssPostWithFeedMetadataPagingDataProvider(
                 feedContentDao = FakeFeedContentDao(pages),
-                query = FeedPostQuery(sort = FeedPostSort.PublishedNewest)
+                query = LocalFeedPostQuery(sort = LocalFeedPostSort.PublishedNewest)
             )
         return LocalCursorPagingSource(
             dataProvider = dataProvider,
@@ -110,7 +110,7 @@ class FeedPostKeysetPagingTest {
 
     private fun cursor(id: String): FeedPostCursor {
         return FeedPostCursor(
-            sort = FeedPostSort.PublishedNewest,
+            sort = LocalFeedPostSort.PublishedNewest,
             values = listOf(
                 FeedPostCursorValue.LongValue(PublishedAt),
                 FeedPostCursorValue.LongValue(UpdatedAt),

@@ -19,7 +19,7 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentF
 import dev.shounakmulay.devpulse.core.data.db.paging.LocalCursorPagingSource
 import dev.shounakmulay.devpulse.core.data.db.paging.LocalRssPostWithFeedMetadataPagingDataProvider
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostQuery
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -27,7 +27,7 @@ interface FeedContentDao {
 
     fun getFeedPostPagingSource(
         database: RoomDatabase,
-        query: FeedPostQuery
+        query: LocalFeedPostQuery
     ): PagingSource<FeedPostCursor, LocalRssPostWithFeedMetadataProjection> {
         return LocalCursorPagingSource(
             database = database,

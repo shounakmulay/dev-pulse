@@ -7,15 +7,15 @@ class FeedPostPerformanceCoverageTest {
 
     @Test
     fun `Verify TimelineLatest SQL`() {
-        val query = FeedPostQuery(sort = FeedPostSort.PublishedNewest)
+        val query = LocalFeedPostQuery(sort = LocalFeedPostSort.PublishedNewest)
         initialPage(query).assertOrderBy("p.publishedAtEpochMillis DESC", "p.updatedAt DESC", "p.id DESC")
     }
 
     @Test
     fun `Verify FeedTimelineLatest SQL`() {
-        val query = FeedPostQuery(
-            sort = FeedPostSort.PublishedNewest,
-            filters = setOf(FeedPostFilter.FeedIds(setOf("f1")))
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.PublishedNewest,
+            filters = setOf(LocalFeedPostFilter.LocalFeedIds(setOf("f1")))
         )
         initialPage(query)
             .assertSqlContains("WHERE p.feedId IN (?)")
@@ -24,9 +24,9 @@ class FeedPostPerformanceCoverageTest {
 
     @Test
     fun `Verify BookmarkedTimelineLatest SQL`() {
-        val query = FeedPostQuery(
-            sort = FeedPostSort.PublishedNewest,
-            filters = setOf(FeedPostFilter.Bookmarked(true))
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.PublishedNewest,
+            filters = setOf(LocalFeedPostFilter.Bookmarked(true))
         )
         initialPage(query)
             .assertSqlContains("WHERE p.bookmarked = ?")
@@ -35,11 +35,11 @@ class FeedPostPerformanceCoverageTest {
 
     @Test
     fun `Verify FeedBookmarkedTimelineLatest SQL`() {
-        val query = FeedPostQuery(
-            sort = FeedPostSort.PublishedNewest,
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.PublishedNewest,
             filters = setOf(
-                FeedPostFilter.FeedIds(setOf("f1")),
-                FeedPostFilter.Bookmarked(true)
+                LocalFeedPostFilter.LocalFeedIds(setOf("f1")),
+                LocalFeedPostFilter.Bookmarked(true)
             )
         )
         initialPage(query)
@@ -49,9 +49,9 @@ class FeedPostPerformanceCoverageTest {
 
     @Test
     fun `Verify PinnedFeedsTimelineLatest SQL`() {
-        val query = FeedPostQuery(
-            sort = FeedPostSort.PinnedFeedsFirstLatest,
-            filters = setOf(FeedPostFilter.PinnedFeed(true))
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.PinnedFeedsFirstLatest,
+            filters = setOf(LocalFeedPostFilter.PinnedLocalFeed(true))
         )
         initialPage(query)
             .assertSqlContains("WHERE f.pinned = ?")
@@ -60,25 +60,25 @@ class FeedPostPerformanceCoverageTest {
 
     @Test
     fun `Verify UpdatedLatest SQL`() {
-        val query = FeedPostQuery(sort = FeedPostSort.UpdatedNewest)
+        val query = LocalFeedPostQuery(sort = LocalFeedPostSort.UpdatedNewest)
         initialPage(query).assertOrderBy("p.updatedAt DESC", "p.id DESC")
     }
 
     @Test
     fun `Verify CreatedLatest SQL`() {
-        val query = FeedPostQuery(sort = FeedPostSort.CreatedNewest)
+        val query = LocalFeedPostQuery(sort = LocalFeedPostSort.CreatedNewest)
         initialPage(query).assertOrderBy("p.createdAt DESC", "p.id DESC")
     }
 
     @Test
     fun `Verify TitleAlphabetical SQL`() {
-        val query = FeedPostQuery(sort = FeedPostSort.TitleAtoZ)
+        val query = LocalFeedPostQuery(sort = LocalFeedPostSort.TitleAtoZ)
         initialPage(query).assertOrderBy("p.title ASC", "p.id ASC")
     }
 
     @Test
     fun `Verify FeedNameAlphabetical SQL`() {
-        val query = FeedPostQuery(sort = FeedPostSort.FeedNameAtoZ)
+        val query = LocalFeedPostQuery(sort = LocalFeedPostSort.FeedNameAtoZ)
         initialPage(query).assertOrderBy("f.name ASC", "p.publishedAtEpochMillis DESC", "p.id DESC")
     }
 }

@@ -8,17 +8,16 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostFilter
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostQuery
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostSort
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
+import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostQueryMapper
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.opml.OpmlParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.opml.model.ParsedOpmlDocument
 import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostQuery
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.bodyAsText
@@ -36,6 +35,7 @@ internal class ContentFeedRepositoryImpl(
     private val feedPostPagingSourceProvider: FeedPostPagingSourceProvider,
     private val rssFeedMapper: RssFeedMapper,
     private val rssPostMapper: RssPostMapper,
+    private val rssPostQueryMapper: RssPostQueryMapper,
     logger: DPLogger
 ) : ContentFeedRepository {
     private val logger = logger.withTag(Tag)
@@ -90,26 +90,14 @@ internal class ContentFeedRepositoryImpl(
     }
 
     override fun getFeedPostsFlow(
-        queryIntent: FeedPostQueryIntent,
+        query: RssPostQuery,
         pagingConfig: PagingConfig
     ): Flow<PagingData<RssPostWithFeedIdentity>> {
-        val filters = mutableSetOf<FeedPostFilter>()
-        if (queryIntent.feedIds.isNotEmpty()) {
-            filters.add(FeedPostFilter.FeedIds(queryIntent.feedIds))
-        }
-        val sort = when (queryIntent.sort) {
-            FeedPostSortIntent.PublishedNewest -> FeedPostSort.PublishedNewest
-            FeedPostSortIntent.PublishedOldest -> FeedPostSort.PublishedOldest
-        }
+        val query = rssPostQueryMapper.fromPostQueryMapper(query)
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = {
-                feedPostPagingSourceProvider.getFeedPostPagingSource(
-                    FeedPostQuery(
-                        filters = filters,
-                        sort = sort
-                    )
-                )
+                feedPostPagingSourceProvider.getFeedPostPagingSource(query)
             }
         )
             .flow

@@ -1,20 +1,20 @@
 package dev.shounakmulay.devpulse.core.data.db.query
 
-sealed interface FeedPostFilter {
-    data class FeedIds(val values: Set<String>) : FeedPostFilter
-    data class TagIdsAny(val values: Set<Int>) : FeedPostFilter
-    data class Bookmarked(val value: Boolean) : FeedPostFilter
-    data class PinnedFeed(val value: Boolean) : FeedPostFilter
-    data class PublishedRange(val range: FeedPostLongRange) : FeedPostFilter
-    data class UpdatedRange(val range: FeedPostLongRange) : FeedPostFilter
-    data class CreatedRange(val range: FeedPostLongRange) : FeedPostFilter
-    data class HasImage(val value: Boolean) : FeedPostFilter
-    data class HasAudio(val value: Boolean) : FeedPostFilter
-    data class HasVideo(val value: Boolean) : FeedPostFilter
-    data class HasYouTubeData(val value: Boolean) : FeedPostFilter
-    data class HasEnclosure(val value: Boolean) : FeedPostFilter
-    data class Author(val values: Set<String>) : FeedPostFilter
-    data class SourceFeed(val values: Set<String>) : FeedPostFilter
-    data class Category(val values: Set<String>) : FeedPostFilter
-    data class SearchText(val value: String) : FeedPostFilter
+sealed interface LocalFeedPostFilter {
+    data class FeedIds(val values: Set<String>) : LocalFeedPostFilter
+    data class TagIdsAny(val values: Set<Int>) : LocalFeedPostFilter
+    data class Bookmarked(val value: Boolean) : LocalFeedPostFilter
+    data class PinnedFeed(val value: Boolean) : LocalFeedPostFilter
+    data class PublishedRange(val range: FeedPostLongRange) : LocalFeedPostFilter
+    data class UpdatedRange(val range: FeedPostLongRange) : LocalFeedPostFilter
+    data class CreatedRange(val range: FeedPostLongRange) : LocalFeedPostFilter
+    data class HasImage(val value: Boolean) : LocalFeedPostFilter
+    data class HasAudio(val value: Boolean) : LocalFeedPostFilter
+    data class HasVideo(val value: Boolean) : LocalFeedPostFilter
+    data class HasYouTubeData(val value: Boolean) : LocalFeedPostFilter
+    data class HasEnclosure(val value: Boolean) : LocalFeedPostFilter
+    data class Author(val values: Set<String>) : LocalFeedPostFilter
+    data class SourceFeed(val values: Set<String>) : LocalFeedPostFilter
+    data class Category(val values: Set<String>) : LocalFeedPostFilter
+    data class SearchText(val value: String) : LocalFeedPostFilter
 }

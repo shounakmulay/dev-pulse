@@ -3,11 +3,11 @@ package dev.shounakmulay.devpulse.core.data.db.query
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostQueryFixtures.initialPage
 import kotlin.test.Test
 
-class FeedPostFilterCatalogSqlTest {
+class LocalFeedPostFilterCatalogSqlTest {
 
     @Test
     fun `Given feed ids filter When building page Then uses IN clause with correct placeholders`() {
-        val query = FeedPostQuery(filters = setOf(FeedPostFilter.FeedIds(setOf("f1", "f2"))))
+        val query = LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.LocalFeedIds(setOf("f1", "f2"))))
         initialPage(query)
             .assertSqlContains("WHERE p.feedId IN (?, ?)")
             .assertBindings(
@@ -19,13 +19,13 @@ class FeedPostFilterCatalogSqlTest {
 
     @Test
     fun `Given empty feed ids filter When building page Then ignores filter completely`() {
-        val query = FeedPostQuery(filters = setOf(FeedPostFilter.FeedIds(emptySet())))
+        val query = LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.LocalFeedIds(emptySet())))
         initialPage(query).assertSqlExcludes("WHERE")
     }
 
     @Test
     fun `Given tag ids any filter When building page Then uses IN clause with SELECT from mapping table`() {
-        val query = FeedPostQuery(filters = setOf(FeedPostFilter.TagIdsAny(setOf(1, 2))))
+        val query = LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.TagIdsAny(setOf(1, 2))))
         initialPage(query)
             .assertSqlContains("WHERE p.id IN (SELECT postId FROM LocalRssPostToTagMapping WHERE tagId IN (?, ?))")
             .assertBindings(
@@ -37,7 +37,7 @@ class FeedPostFilterCatalogSqlTest {
 
     @Test
     fun `Given tag ids all filter When building page Then uses IN clause with GROUP BY and HAVING COUNT`() {
-        val query = FeedPostQuery(filters = setOf(FeedPostFilter.TagIdsAll(setOf(1, 2))))
+        val query = LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.TagIdsAll(setOf(1, 2))))
         initialPage(query)
             .assertSqlContains(
                 "WHERE p.id IN ( SELECT postId FROM LocalRssPostToTagMapping WHERE tagId IN (?, ?) GROUP BY postId HAVING COUNT(DISTINCT tagId) = ? )"
@@ -52,10 +52,10 @@ class FeedPostFilterCatalogSqlTest {
 
     @Test
     fun `Given boolean filters When building page Then uses exact matching`() {
-        val query = FeedPostQuery(
+        val query = LocalFeedPostQuery(
             filters = setOf(
-                FeedPostFilter.Bookmarked(true),
-                FeedPostFilter.PinnedFeed(false)
+                LocalFeedPostFilter.Bookmarked(true),
+                LocalFeedPostFilter.PinnedLocalFeed(false)
             )
         )
         initialPage(query)
@@ -69,10 +69,10 @@ class FeedPostFilterCatalogSqlTest {
 
     @Test
     fun `Given range filters When building page Then applies bounds correctly`() {
-        val query = FeedPostQuery(
+        val query = LocalFeedPostQuery(
             filters = setOf(
-                FeedPostFilter.PublishedRange(FeedPostLongRange(min = 10L, max = 20L)),
-                FeedPostFilter.UpdatedRange(FeedPostLongRange(min = 30L))
+                LocalFeedPostFilter.PublishedRange(FeedPostLongRange(min = 10L, max = 20L)),
+                LocalFeedPostFilter.UpdatedRange(FeedPostLongRange(min = 30L))
             )
         )
         initialPage(query)
@@ -87,10 +87,10 @@ class FeedPostFilterCatalogSqlTest {
 
     @Test
     fun `Given has image filter When building page Then checks image null and empty`() {
-        initialPage(FeedPostQuery(filters = setOf(FeedPostFilter.HasImage(true))))
+        initialPage(LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.HasImage(true))))
             .assertSqlContains("WHERE (p.image IS NOT NULL AND p.image != '')")
             
-        initialPage(FeedPostQuery(filters = setOf(FeedPostFilter.HasImage(false))))
+        initialPage(LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.HasImage(false))))
             .assertSqlContains("WHERE NOT ((p.image IS NOT NULL AND p.image != ''))")
     }
 }

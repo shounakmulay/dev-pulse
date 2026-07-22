@@ -4,11 +4,11 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertFalse
 
-class FeedPostSqlQueryBuilderTest {
+class LocalFeedPostSqlQueryBuilderTest {
 
     @Test
     fun `Given default query When building initial page Then joins posts and feeds with keyset compatible sort`() {
-        val sql = FeedPostSqlQueryBuilder(FeedPostQuery())
+        val sql = LocalFeedPostSqlQueryBuilder(LocalFeedPostQuery())
             .buildInitialPage(limit = 20)
             .sql
 
@@ -24,17 +24,17 @@ class FeedPostSqlQueryBuilderTest {
 
     @Test
     fun `Given approved filters When building initial page Then applies feed tag bookmark pinned date and media clauses`() {
-        val sql = FeedPostSqlQueryBuilder(
-            FeedPostQuery(
+        val sql = LocalFeedPostSqlQueryBuilder(
+            LocalFeedPostQuery(
                 filters = setOf(
-                    FeedPostFilter.FeedIds(values = setOf("feed-1", "feed-2")),
-                    FeedPostFilter.TagIdsAll(values = setOf(1, 2)),
-                    FeedPostFilter.Bookmarked(value = true),
-                    FeedPostFilter.PinnedFeed(value = false),
-                    FeedPostFilter.PublishedRange(range = FeedPostLongRange(min = 10L, max = 20L)),
-                    FeedPostFilter.UpdatedRange(range = FeedPostLongRange(min = 30L, max = 40L)),
-                    FeedPostFilter.HasAudio(value = true),
-                    FeedPostFilter.HasVideo(value = true)
+                    LocalFeedPostFilter.LocalFeedIds(values = setOf("feed-1", "feed-2")),
+                    LocalFeedPostFilter.TagIdsAll(values = setOf(1, 2)),
+                    LocalFeedPostFilter.Bookmarked(value = true),
+                    LocalFeedPostFilter.PinnedLocalFeed(value = false),
+                    LocalFeedPostFilter.PublishedRange(range = FeedPostLongRange(min = 10L, max = 20L)),
+                    LocalFeedPostFilter.UpdatedRange(range = FeedPostLongRange(min = 30L, max = 40L)),
+                    LocalFeedPostFilter.HasAudio(value = true),
+                    LocalFeedPostFilter.HasVideo(value = true)
                 )
             )
         ).buildInitialPage(limit = 20).sql
@@ -54,11 +54,11 @@ class FeedPostSqlQueryBuilderTest {
 
     @Test
     fun `Given negative media filters When building initial page Then negates null-safe media clauses`() {
-        val sql = FeedPostSqlQueryBuilder(
-            FeedPostQuery(
+        val sql = LocalFeedPostSqlQueryBuilder(
+            LocalFeedPostQuery(
                 filters = setOf(
-                    FeedPostFilter.HasAudio(value = false),
-                    FeedPostFilter.HasVideo(value = false)
+                    LocalFeedPostFilter.HasAudio(value = false),
+                    LocalFeedPostFilter.HasVideo(value = false)
                 )
             )
         ).buildInitialPage(limit = 20).sql
@@ -70,8 +70,8 @@ class FeedPostSqlQueryBuilderTest {
 
     @Test
     fun `Given published cursor When building next page Then uses published updated and id keyset predicate`() {
-        val sort = FeedPostSort.PublishedNewest
-        val sql = FeedPostSqlQueryBuilder(FeedPostQuery(sort = sort))
+        val sort = LocalFeedPostSort.PublishedNewest
+        val sql = LocalFeedPostSqlQueryBuilder(LocalFeedPostQuery(sort = sort))
             .buildPageAfter(
                 cursor = FeedPostCursor(
                     sort = sort,
@@ -94,9 +94,9 @@ class FeedPostSqlQueryBuilderTest {
 
     @Test
     fun `Given title ascending cursor When building next page Then uses text keyset predicate`() {
-        val sort = FeedPostSort.TitleAtoZ
-        val sql = FeedPostSqlQueryBuilder(
-            FeedPostQuery(sort = sort)
+        val sort = LocalFeedPostSort.TitleAtoZ
+        val sql = LocalFeedPostSqlQueryBuilder(
+            LocalFeedPostQuery(sort = sort)
         ).buildPageAfter(
             cursor = FeedPostCursor(
                 sort = sort,

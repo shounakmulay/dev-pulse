@@ -8,7 +8,7 @@ class FeedPostCursorPredicateTest {
     @Test
     fun `Given long descending cursor When building next page Then predicate advances by long term and id`() {
         val sql = cursorPageSql(
-            sort = FeedPostSort.PublishedNewest,
+            sort = LocalFeedPostSort.PublishedNewest,
             values = listOf(
                 FeedPostCursorValue.LongValue(1_000L),
                 FeedPostCursorValue.LongValue(900L),
@@ -28,7 +28,7 @@ class FeedPostCursorPredicateTest {
     @Test
     fun `Given text ascending cursor When building next page Then predicate advances by text term and id`() {
         val sql = cursorPageSql(
-            sort = FeedPostSort.TitleAtoZ,
+            sort = LocalFeedPostSort.TitleAtoZ,
             values = listOf(
                 FeedPostCursorValue.TextValue("A title"),
                 FeedPostCursorValue.TextValue("post-100")
@@ -47,7 +47,7 @@ class FeedPostCursorPredicateTest {
     @Test
     fun `Given boolean first cursor When building next page Then predicate advances by boolean term before timeline terms`() {
         val sql = cursorPageSql(
-            sort = FeedPostSort.BookmarkedFirstLatest,
+            sort = LocalFeedPostSort.BookmarkedFirstLatest,
             values = listOf(
                 FeedPostCursorValue.BooleanValue(true),
                 FeedPostCursorValue.LongValue(1_000L),
@@ -69,7 +69,7 @@ class FeedPostCursorPredicateTest {
     @Test
     fun `Given feed derived cursor When building next page Then predicate advances by feed term before post terms`() {
         val sql = cursorPageSql(
-            sort = FeedPostSort.FeedNameAtoZ,
+            sort = LocalFeedPostSort.FeedNameAtoZ,
             values = listOf(
                 FeedPostCursorValue.TextValue("Android Weekly"),
                 FeedPostCursorValue.LongValue(1_000L),
@@ -90,7 +90,7 @@ class FeedPostCursorPredicateTest {
     @Test
     fun `Given pinned feed cursor When building next page Then predicate can use feed boolean term`() {
         val sql = cursorPageSql(
-            sort = FeedPostSort.PinnedFeedsFirstLatest,
+            sort = LocalFeedPostSort.PinnedFeedsFirstLatest,
             values = listOf(
                 FeedPostCursorValue.BooleanValue(true),
                 FeedPostCursorValue.LongValue(1_000L),
@@ -110,11 +110,11 @@ class FeedPostCursorPredicateTest {
     }
 
     private fun cursorPageSql(
-        sort: FeedPostSort,
+        sort: LocalFeedPostSort,
         values: List<FeedPostCursorValue>
     ): String {
-        return FeedPostSqlQueryBuilder(
-            FeedPostQuery(
+        return LocalFeedPostSqlQueryBuilder(
+            LocalFeedPostQuery(
                 sort = sort,
                 cursor = FeedPostCursor(
                     sort = sort,

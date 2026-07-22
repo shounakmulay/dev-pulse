@@ -21,7 +21,7 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostCategory
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostTag
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostToTagMapping
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostQuery
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionScope
 import dev.shounakmulay.devpulse.core.data.db.transaction.RoomTransactionScopeWrapper
@@ -55,7 +55,7 @@ abstract class DevPulseDatabase :
     override suspend fun clearAllTables() {
     }
 
-    override fun getFeedPostPagingSource(query: FeedPostQuery) =
+    override fun getFeedPostPagingSource(query: LocalFeedPostQuery) =
         getFeedContentDao().getFeedPostPagingSource(this, query)
 
     override suspend fun <T> readTransaction(block: DevPulseDatabaseTransactionScope<T>.() -> T): T {

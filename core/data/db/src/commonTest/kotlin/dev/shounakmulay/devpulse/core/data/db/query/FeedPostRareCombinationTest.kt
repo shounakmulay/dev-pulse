@@ -7,9 +7,9 @@ class FeedPostRareCombinationTest {
 
     @Test
     fun `Verify SearchText correctness`() {
-        val query = FeedPostQuery(
-            sort = FeedPostSort.PublishedNewest,
-            filters = setOf(FeedPostFilter.SearchText("rare"))
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.PublishedNewest,
+            filters = setOf(LocalFeedPostFilter.SearchText("rare"))
         )
         initialPage(query)
             .assertSqlContains("(LOWER(p.title) LIKE ? ESCAPE '\\' OR LOWER(p.description) LIKE ? ESCAPE '\\')")
@@ -17,9 +17,9 @@ class FeedPostRareCombinationTest {
 
     @Test
     fun `Verify Author correctness`() {
-        val query = FeedPostQuery(
-            sort = FeedPostSort.PublishedNewest,
-            filters = setOf(FeedPostFilter.Author(setOf("writer")))
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.PublishedNewest,
+            filters = setOf(LocalFeedPostFilter.Author(setOf("writer")))
         )
         initialPage(query)
             .assertSqlContains("LOWER(p.author) IN (?)")
@@ -27,9 +27,9 @@ class FeedPostRareCombinationTest {
 
     @Test
     fun `Verify Source correctness`() {
-        val query = FeedPostQuery(
-            sort = FeedPostSort.PublishedNewest,
-            filters = setOf(FeedPostFilter.SourceFeed(setOf("url")))
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.PublishedNewest,
+            filters = setOf(LocalFeedPostFilter.SourceLocalFeed(setOf("url")))
         )
         initialPage(query)
             .assertSqlContains("LOWER(p.sourceUrl) IN (?)")
@@ -37,12 +37,12 @@ class FeedPostRareCombinationTest {
 
     @Test
     fun `Verify multi filter combination correctness`() {
-        val query = FeedPostQuery(
-            sort = FeedPostSort.UpdatedNewest,
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.UpdatedNewest,
             filters = setOf(
-                FeedPostFilter.Category(setOf("tech")),
-                FeedPostFilter.HasImage(true),
-                FeedPostFilter.TagIdsAll(setOf(1, 2))
+                LocalFeedPostFilter.Category(setOf("tech")),
+                LocalFeedPostFilter.HasImage(true),
+                LocalFeedPostFilter.TagIdsAll(setOf(1, 2))
             )
         )
         initialPage(query)

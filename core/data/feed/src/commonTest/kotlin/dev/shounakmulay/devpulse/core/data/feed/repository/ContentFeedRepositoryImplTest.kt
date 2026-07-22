@@ -3,8 +3,7 @@ package dev.shounakmulay.devpulse.core.data.feed.repository
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
-import dev.shounakmulay.devpulse.core.data.db.paging.LocalRssPostWithFeedMetadataCursor
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostQuery
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
@@ -189,7 +188,7 @@ class ContentFeedRepositoryImplTest {
 
     private class FakeFeedPostPagingSourceProvider : FeedPostPagingSourceProvider {
         override fun getFeedPostPagingSource(
-            query: FeedPostQuery
+            query: LocalFeedPostQuery
         ): PagingSource<dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor, LocalRssPostWithFeedMetadataProjection> {
             return object : PagingSource<dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor, LocalRssPostWithFeedMetadataProjection>() {
                 override fun getRefreshKey(

@@ -1,8 +1,8 @@
 package dev.shounakmulay.devpulse.core.data.db.query
 
-data class FeedPostQuery(
-    val filters: Set<FeedPostFilter> = emptySet(),
-    val sort: FeedPostSort = FeedPostSort.PublishedNewest,
+data class LocalFeedPostQuery(
+    val filters: Set<LocalFeedPostFilter> = emptySet(),
+    val sort: LocalFeedPostSort = LocalFeedPostSort.PublishedNewest,
     val cursor: FeedPostCursor? = null,
     val pageSize: Int = DEFAULT_PAGE_SIZE,
 ) {
@@ -18,6 +18,6 @@ data class FeedPostLongRange(
 
 data class FeedPostCursor(
     val id: String,
-    val sort: FeedPostSort,
+    val sort: LocalFeedPostSort,
     val sortValue: SqlBinding
 )

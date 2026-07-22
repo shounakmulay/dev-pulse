@@ -1,9 +1,10 @@
 package dev.shounakmulay.devpulse.core.data.db.query
 
 import androidx.room3.RoomRawQuery
+import dev.shounakmulay.devpulse.core.logging.logger
 
-class FeedPostSqlQueryBuilder(
-    private val query: FeedPostQuery
+class LocalFeedPostSqlQueryBuilder(
+    private val query: LocalFeedPostQuery
 ) {
 
     private val filterClauses by lazy {
@@ -69,7 +70,7 @@ class FeedPostSqlQueryBuilder(
             )
         }
 
-        val orderBySql = buildOrderBy(sort = query.sort)
+        val orderBySql = buildOrderBy(sort = if (reversed) query.sort.reversed() else query.sort)
 
         val sql = buildString {
             appendProjection()
@@ -79,6 +80,7 @@ class FeedPostSqlQueryBuilder(
             appendLine("ORDER BY $orderBySql")
             append("LIMIT ?")
         }
+        logger().d { "[FEED-PAGING] sql: $sql" }
         filterBindings += SqlBinding.LongValue(limit.toLong())
         return RoomRawQuery(sql = sql) { statement ->
             filterBindings.forEachIndexed { index, binding ->
@@ -87,42 +89,42 @@ class FeedPostSqlQueryBuilder(
         }
     }
 
-    private fun buildOrderBy(sort: FeedPostSort): String {
+    private fun buildOrderBy(sort: LocalFeedPostSort): String {
         val sortTerms = when (sort) {
-            FeedPostSort.PublishedNewest -> {
+            LocalFeedPostSort.PublishedNewest -> {
                 listOf(
-                    "${FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS} ${FeedPostSortDirection.Descending.sql}",
-                    orderByIdClause(FeedPostSortDirection.Descending)
+                    "${FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS} ${LocalFeedPostSortDirection.Descending.sql}",
+                    orderByIdClause(LocalFeedPostSortDirection.Descending)
                 )
             }
 
-            FeedPostSort.PublishedOldest -> {
+            LocalFeedPostSort.PublishedOldest -> {
                 listOf(
-                    "${FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS} ${FeedPostSortDirection.Ascending.sql}",
+                    "${FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS} ${LocalFeedPostSortDirection.Ascending.sql}",
                     orderByIdClause(
-                        FeedPostSortDirection.Ascending
+                        LocalFeedPostSortDirection.Ascending
                     )
                 )
             }
 
-            FeedPostSort.TitleAtoZ -> {
+            LocalFeedPostSort.TitleAtoZ -> {
                 listOf(
-                    "${FeedColumnsSelector.TITLE} ${FeedPostSortDirection.Ascending.sql}",
-                    orderByIdClause(FeedPostSortDirection.Descending)
+                    "${FeedColumnsSelector.TITLE} ${LocalFeedPostSortDirection.Ascending.sql}",
+                    orderByIdClause(LocalFeedPostSortDirection.Descending)
                 )
             }
 
-            FeedPostSort.TitleZtoA -> {
+            LocalFeedPostSort.TitleZtoA -> {
                 listOf(
-                    "${FeedColumnsSelector.TITLE} ${FeedPostSortDirection.Descending.sql}",
-                    orderByIdClause(FeedPostSortDirection.Descending)
+                    "${FeedColumnsSelector.TITLE} ${LocalFeedPostSortDirection.Descending.sql}",
+                    orderByIdClause(LocalFeedPostSortDirection.Descending)
                 )
             }
         }
         return sortTerms.joinToString(", ")
     }
 
-    private fun orderByIdClause(direction: FeedPostSortDirection): String {
+    private fun orderByIdClause(direction: LocalFeedPostSortDirection): String {
         return "${FeedColumnsSelector.ID} ${direction.sql}"
     }
 
@@ -152,19 +154,19 @@ class FeedPostSqlQueryBuilder(
 
         for (filter in filters) {
             when (filter) {
-                is FeedPostFilter.Author -> {
+                is LocalFeedPostFilter.Author -> {
                     if (filter.values.isNotEmpty()) {
                         clauses += "LOWER(${FeedColumnsSelector.AUTHOR}) IN (${placeholders(filter.values.size)})"
                         bindings += filter.values.bindLowercasedTextPlaceholders()
                     }
                 }
 
-                is FeedPostFilter.Bookmarked -> {
+                is LocalFeedPostFilter.Bookmarked -> {
                     clauses += "${FeedColumnsSelector.BOOKMARKED} = ?"
                     bindings += SqlBinding.BooleanValue(filter.value)
                 }
 
-                is FeedPostFilter.Category -> {
+                is LocalFeedPostFilter.Category -> {
                     if (filter.values.isNotEmpty()) {
                         clauses += "${FeedColumnsSelector.ID} IN (SELECT ${FeedColumnsSelector.POST_ID} FROM LocalRssPostCategory WHERE LOWER(${FeedColumnsSelector.CATEGORY}) IN (${
                             placeholders(
@@ -175,56 +177,57 @@ class FeedPostSqlQueryBuilder(
                     }
                 }
 
-                is FeedPostFilter.CreatedRange -> {
+                is LocalFeedPostFilter.CreatedRange -> {
                     val (binding, clause) = filter.range.appendRangeClause(FeedColumnsSelector.CREATED_AT)
                         ?: continue
                     clauses += clause
                     bindings += binding
                 }
 
-                is FeedPostFilter.FeedIds -> {
+                is LocalFeedPostFilter.FeedIds -> {
                     if (filter.values.isNotEmpty()) {
                         clauses += "${FeedColumnsSelector.POST_FEED_ID} IN (${placeholders(filter.values.size)})"
                         bindings += filter.values.sorted().map { SqlBinding.Text(it) }
                     }
                 }
 
-                is FeedPostFilter.HasAudio -> {
+                is LocalFeedPostFilter.HasAudio -> {
                     clauses += if (filter.value) audioExistsClause() else "NOT (${audioExistsClause()})"
                 }
 
-                is FeedPostFilter.HasEnclosure -> {
-                    val clause = "(${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} IS NOT NULL AND ${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} != '')"
+                is LocalFeedPostFilter.HasEnclosure -> {
+                    val clause =
+                        "(${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} IS NOT NULL AND ${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} != '')"
                     clauses += if (filter.value) clause else "NOT ($clause)"
                 }
 
-                is FeedPostFilter.HasImage -> {
+                is LocalFeedPostFilter.HasImage -> {
                     clauses += if (filter.value) imageExistsClause() else "NOT (${imageExistsClause()})"
                 }
 
-                is FeedPostFilter.HasVideo -> {
+                is LocalFeedPostFilter.HasVideo -> {
                     clauses += if (filter.value) videoExistsClause() else "NOT (${videoExistsClause()})"
                 }
 
-                is FeedPostFilter.HasYouTubeData -> {
+                is LocalFeedPostFilter.HasYouTubeData -> {
                     val clause =
                         "(${FeedColumnsSelector.YOUTUBE_DATA_VIDEO_ID} IS NOT NULL AND ${FeedColumnsSelector.YOUTUBE_DATA_VIDEO_ID} != '')"
                     clauses += if (filter.value) clause else "NOT ($clause)"
                 }
 
-                is FeedPostFilter.PinnedFeed -> {
+                is LocalFeedPostFilter.PinnedFeed -> {
                     clauses += "${FeedColumnsSelector.FEED_PINNED} = ?"
                     bindings += SqlBinding.BooleanValue(filter.value)
                 }
 
-                is FeedPostFilter.PublishedRange -> {
+                is LocalFeedPostFilter.PublishedRange -> {
                     val (binding, clause) = filter.range.appendRangeClause(FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS)
                         ?: continue
                     clauses += clause
                     bindings += binding
                 }
 
-                is FeedPostFilter.SearchText -> {
+                is LocalFeedPostFilter.SearchText -> {
                     val trimmed = filter.value.trim()
                     if (trimmed.isNotEmpty()) {
                         val escaped = escapeLikePattern(trimmed)
@@ -235,14 +238,18 @@ class FeedPostSqlQueryBuilder(
                     }
                 }
 
-                is FeedPostFilter.SourceFeed -> {
+                is LocalFeedPostFilter.SourceFeed -> {
                     if (filter.values.isNotEmpty()) {
-                        clauses += "LOWER(${FeedColumnsSelector.SOURCE_URL}) IN (${placeholders(filter.values.size)})"
+                        clauses += "LOWER(${FeedColumnsSelector.SOURCE_URL}) IN (${
+                            placeholders(
+                                filter.values.size
+                            )
+                        })"
                         bindings += filter.values.bindLowercasedTextPlaceholders()
                     }
                 }
 
-                is FeedPostFilter.TagIdsAny -> {
+                is LocalFeedPostFilter.TagIdsAny -> {
                     if (filter.values.isNotEmpty()) {
                         clauses += "${FeedColumnsSelector.ID} IN (SELECT ${FeedColumnsSelector.POST_ID} FROM LocalRssPostToTagMapping WHERE ${FeedColumnsSelector.TAG_ID} IN (${
                             placeholders(
@@ -253,7 +260,7 @@ class FeedPostSqlQueryBuilder(
                     }
                 }
 
-                is FeedPostFilter.UpdatedRange -> {
+                is LocalFeedPostFilter.UpdatedRange -> {
                     val (binding, clause) = filter.range.appendRangeClause(FeedColumnsSelector.UPDATED_AT)
                         ?: continue
                     clauses += clause
@@ -335,13 +342,13 @@ class FeedPostSqlQueryBuilder(
         return clauses
     }
 
-    private fun FeedPostSort.asColumnName(): String {
+    private fun LocalFeedPostSort.asColumnName(): String {
         return when (this) {
-            FeedPostSort.PublishedNewest,
-            FeedPostSort.PublishedOldest -> FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS
+            LocalFeedPostSort.PublishedNewest,
+            LocalFeedPostSort.PublishedOldest -> FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS
 
-            FeedPostSort.TitleAtoZ,
-            FeedPostSort.TitleZtoA -> FeedColumnsSelector.TITLE
+            LocalFeedPostSort.TitleAtoZ,
+            LocalFeedPostSort.TitleZtoA -> FeedColumnsSelector.TITLE
         }
     }
 
@@ -362,44 +369,4 @@ class FeedPostSqlQueryBuilder(
             .replace("%", "\\%")
             .replace("_", "\\_")
     }
-}
-
-object FeedColumnsSelector {
-    const val SOURCE_URL = "p.sourceUrl"
-    const val PUBLISHED_AT_EPOCH_MILLIS = "p.publishedAtEpochMillis"
-    const val TITLE = "p.title"
-    const val ID = "p.id"
-    const val AUTHOR = "p.author"
-    const val BOOKMARKED = "p.bookmarked"
-    const val CREATED_AT = "p.createdAt"
-    const val DESCRIPTION = "p.description"
-    const val IMAGE = "p.image"
-    const val AUDIO = "p.audio"
-    const val VIDEO = "p.video"
-    const val RAW_ENCLOSURE_TYPE = "p.rawEnclosure_type"
-    const val RAW_MEDIA_TYPE = "p.rawMedia_type"
-    const val RAW_MEDIA_MEDIUM = "p.rawMedia_medium"
-    const val YOUTUBE_DATA_VIDEO_ID = "p.youtubeData_videoId"
-    const val YOUTUBE_DATA_VIDEO_URL = "p.youtubeData_videoUrl"
-    const val POST_FEED_ID = "p.feedId"
-    const val UPDATED_AT = "p.updatedAt"
-    const val FEED_ID = "f.id"
-    const val FEED_TITLE = "f.title"
-    const val FEED_NAME = "f.name"
-    const val FEED_PINNED = "f.pinned"
-    const val FEED_SOURCE_URL = "f.sourceUrl"
-    const val FEED_LINK = "f.link"
-    const val FEED_CREATED_AT = "f.createdAt"
-    const val FEED_UPDATED_AT = "f.updatedAt"
-    const val FEED_ID_ALIAS = "feed_id"
-    const val FEED_TITLE_ALIAS = "feed_title"
-    const val FEED_NAME_ALIAS = "feed_name"
-    const val FEED_PINNED_ALIAS = "feed_pinned"
-    const val FEED_SOURCE_URL_ALIAS = "feed_sourceUrl"
-    const val FEED_LINK_ALIAS = "feed_link"
-    const val FEED_CREATED_AT_ALIAS = "feed_createdAt"
-    const val FEED_UPDATED_AT_ALIAS = "feed_updatedAt"
-    const val POST_ID = "postId"
-    const val CATEGORY = "category"
-    const val TAG_ID = "tagId"
 }
