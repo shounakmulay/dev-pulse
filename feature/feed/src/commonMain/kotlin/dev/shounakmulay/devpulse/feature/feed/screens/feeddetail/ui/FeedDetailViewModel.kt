@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetFeedDetailUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedFeedPostsUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
@@ -12,7 +13,6 @@ import dev.shounakmulay.devpulse.feature.feed.interactor.FeedInteractor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
@@ -21,7 +21,8 @@ class FeedDetailViewModel(
     private val feedInteractor: FeedInteractor,
     private val getFeedDetailUseCase: GetFeedDetailUseCase,
     private val getPaginatedFeedPostsUseCase: GetPaginatedFeedPostsUseCase,
-    private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase
+    private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
+    private val setFeedPinnedUseCase: SetFeedPinnedUseCase
 ) : MviViewModel<FeedDetailScreenState, FeedDetailScreenEffect>(),
     EventHandler<FeedDetailScreenEvent> {
     override fun createInitialState() = FeedDetailScreenState()
@@ -48,11 +49,20 @@ class FeedDetailViewModel(
             )
 
             FeedDetailScreenEvent.Retry -> Unit
+            FeedDetailScreenEvent.PinToggled -> onPinToggled()
+        }
+    }
+
+    private fun onPinToggled() {
+        intent {
+            state.feed?.let {
+                setFeedPinnedUseCase(id = feedId, pinned = !it.pinned)
+            }
         }
     }
 
     private fun onPostBookmarkChanged(postId: String, bookmarked: Boolean) {
-        viewModelScope.launch {
+        intent {
             setPostBookmarkedUseCase(id = postId, bookmarked = bookmarked)
         }
     }

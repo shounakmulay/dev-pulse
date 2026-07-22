@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,12 +32,14 @@ import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
+import dev.shounakmulay.devpulse.core.ui.transition.sharedElement
 import devpulse.core.resources.generated.resources.feed_image_content_description
 import devpulse.core.resources.generated.resources.feed_pinned_content_description
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LazyGridItemScope.FeedsGridItem(
+    feedId: String,
     imageUrl: String?,
     title: String,
     initials: String,
@@ -68,7 +71,12 @@ fun LazyGridItemScope.FeedsGridItem(
                     .size(spacing.listItemHeight)
                     .padding(spacing.sm),
             ) {
-                FeedsGridItemImage(imageUrl = imageUrl, initials = initials, title = title)
+                FeedsGridItemImage(
+                    imageUrl = imageUrl,
+                    initials = initials,
+                    title = title,
+                    feedId = feedId
+                )
                 if (pinned) {
                     PinnedIcon()
                 }
@@ -80,6 +88,7 @@ fun LazyGridItemScope.FeedsGridItem(
 
 @Composable
 private fun FeedsGridItemImage(
+    feedId: String,
     imageUrl: String?,
     initials: String,
     title: String,
@@ -87,9 +96,10 @@ private fun FeedsGridItemImage(
 
     Box(
         modifier = Modifier.fillMaxSize().clip(MaterialTheme.shapes.large),
-        contentAlignment = Alignment.Center) {
+        contentAlignment = Alignment.Center
+    ) {
         DPImage(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().sharedElement("feed_header_$feedId").clip(MaterialTheme.shapes.large),
             url = imageUrl.orEmpty(),
             contentDescription = stringResource(
                 stringRes.feed_image_content_description,
@@ -137,7 +147,8 @@ private fun BoxScope.PinnedIcon() {
         Icon(
             modifier = Modifier
                 .padding(3.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .rotate(45f),
             imageVector = DPIcons.Pin,
             contentDescription = stringResource(stringRes.feed_pinned_content_description),
             tint = MaterialTheme.colorScheme.onTertiary,

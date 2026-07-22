@@ -30,6 +30,7 @@ kotlin {
             implementation(libs.compose.components.resources)
             implementation(libs.androidx.paging.common)
             implementation(libs.androidx.paging.compose)
+            implementation(libs.coil.compose)
         }
 
 

@@ -2,6 +2,9 @@
 
 package dev.shounakmulay.devpulse.core.designsystem.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -85,6 +88,7 @@ enum class DPTopAppBarVariant {
 @Composable
 fun DPTopAppBar(
     title: String,
+    titleMaxLines: Int = 1,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     variant: DPTopAppBarVariant = DPTopAppBarVariant.Small,
@@ -108,6 +112,7 @@ fun DPTopAppBar(
 
     DPTopAppBar(
         title = title,
+        titleMaxLines = titleMaxLines,
         modifier = modifier,
         subtitle = subtitle,
         variant = variant,
@@ -123,6 +128,7 @@ fun DPTopAppBar(
 @Composable
 fun DPTopAppBar(
     title: String,
+    titleMaxLines: Int = 1,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     variant: DPTopAppBarVariant = DPTopAppBarVariant.Small,
@@ -132,7 +138,15 @@ fun DPTopAppBar(
     colors: TopAppBarColors? = null,
     windowInsets: WindowInsets? = null,
 ) {
-    val titleSlot: @Composable () -> Unit = { DPTextView(text = title, variant = DPTextViewVariant.TitleLarge) }
+    val titleSlot: @Composable () -> Unit = {
+        AnimatedVisibility(visible = title.isNotBlank(), enter = fadeIn(), exit = fadeOut()) {
+            DPTextView(
+                text = title,
+                maxLines = titleMaxLines,
+                variant = DPTextViewVariant.TitleLarge
+            )
+        }
+    }
     val subtitleSlot: @Composable () -> Unit = {
         DPTextView(
             text = subtitle!!,

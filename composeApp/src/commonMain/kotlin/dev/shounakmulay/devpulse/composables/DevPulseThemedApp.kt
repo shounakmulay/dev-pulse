@@ -8,6 +8,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import dev.shounakmulay.devpulse.core.designsystem.theme.AppTheme
+import dev.shounakmulay.devpulse.core.ui.transition.DevPulseSharedTransitionLayout
 import dev.shounakmulay.devpulse.theme.ThemeSettingsViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -41,7 +42,9 @@ internal fun DevPulseThemedApp() {
         isDarkTheme = isDarkTheme,
     ) {
         Scaffold {
-            DevPulseNavApp()
+            DevPulseSharedTransitionLayout {
+                DevPulseNavApp()
+            }
         }
     }
 }

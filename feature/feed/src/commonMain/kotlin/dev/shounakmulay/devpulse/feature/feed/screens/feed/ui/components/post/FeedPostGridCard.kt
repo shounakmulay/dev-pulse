@@ -35,7 +35,10 @@ fun FeedPostGridCard(
                     onBookmarkChanged(article, !article.bookmarked)
                 }
             ),
-        border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.surfaceContainerHighest),
+        border = BorderStroke(
+            1.dp,
+            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.25f)
+        ),
         shape = MaterialTheme.shapes.large,
     ) {
         FeedPostListItem(
