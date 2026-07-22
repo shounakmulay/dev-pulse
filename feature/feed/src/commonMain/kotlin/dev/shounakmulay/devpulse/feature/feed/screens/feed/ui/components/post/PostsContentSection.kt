@@ -22,7 +22,6 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
 import dev.shounakmulay.devpulse.core.resources.stringRes
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeedPost
 import devpulse.core.resources.generated.resources.feed_articles
 import devpulse.core.resources.generated.resources.feed_view_all
@@ -73,8 +72,13 @@ fun LazyListScope.postsContentSection(
                     article.id
                 }
             ) { index, article ->
+                val showImage by remember(article, index) {
+                    derivedStateOf {
+                        article.feed.pinned || (article.imageUrl != null && index % 2 == 0)
+                    }
+                }
                 FeedPostGridCard(
-                    index = index,
+                    showImage = showImage,
                     article = article,
                     onBookmarkChanged = onBookmarkChanged,
                     onPostClick = onPostClick,

@@ -17,8 +17,11 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedQueueDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedQueue
+import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostCategory
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostTag
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostToTagMapping
+import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionScope
 import dev.shounakmulay.devpulse.core.data.db.transaction.RoomTransactionScopeWrapper
@@ -34,19 +37,26 @@ private object SchemaVersions {
         LocalRssFeedQueue::class,
         LocalRssPostTag::class,
         LocalRssPostToTagMapping::class,
+        LocalRssPostCategory::class,
     ],
     autoMigrations = [],
     version = BASE
 )
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @ConstructedBy(DevPulseDatabaseConstructor::class)
-abstract class DevPulseDatabase : RoomDatabase(), DevPulseDatabaseTransactionAccessor {
+abstract class DevPulseDatabase :
+    RoomDatabase(),
+    DevPulseDatabaseTransactionAccessor,
+    FeedPostPagingSourceProvider {
 
     abstract fun getFeedContentDao(): FeedContentDao
     abstract fun getFeedDao(): FeedDao
     abstract fun getFeedQueueDao(): FeedQueueDao
     override suspend fun clearAllTables() {
     }
+
+    override fun getFeedPostPagingSource(query: LocalFeedPostQuery) =
+        getFeedContentDao().getFeedPostPagingSource(this, query)
 
     override suspend fun <T> readTransaction(block: DevPulseDatabaseTransactionScope<T>.() -> T): T {
         return withReadTransaction {

@@ -1,9 +1,11 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.material3.MaterialTheme
@@ -32,9 +34,14 @@ import org.jetbrains.compose.resources.stringResource
 fun LazyGridItemScope.FeedListRow(
     feed: UIFeed,
     onTogglePinned: (Boolean) -> Unit,
+    onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().animateItem(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateItem()
+            .clickable(onClick = onClick)
+            .padding(LocalDPSpacing.current.lg),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
     ) {

@@ -18,10 +18,13 @@ interface FeedDao {
     fun getPinnedFeedPagingSource(): PagingSource<Int, LocalRssFeed>
 
     @Query("SELECT * FROM LocalRssFeed ORDER BY pinned DESC, updatedAt DESC LIMIT :count")
-     fun getPinnedAndRecentFeeds(count: Int) : Flow<List<LocalRssFeed>>
+    fun getPinnedAndRecentFeeds(count: Int): Flow<List<LocalRssFeed>>
 
     @Query("SELECT * FROM LocalRssFeed WHERE id = :id")
     suspend fun getFeed(id: String): LocalRssFeed
+
+    @Query("SELECT * FROM LocalRssFeed WHERE id = :id")
+    fun observeFeed(id: String): Flow<LocalRssFeed>
 
     @Query("SELECT * FROM LocalRssFeed WHERE sourceUrl = :sourceUrl")
     suspend fun getFeedBySourceUrl(sourceUrl: String): LocalRssFeed?

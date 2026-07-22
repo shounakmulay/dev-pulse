@@ -1,12 +1,21 @@
 *.iml
+*.class
+*.jar
+*.log
+*.tmp
+*.swp
+.env*
 .kotlin
 .gradle
 **/build/
+out/
 xcuserdata
 !src/**/build/
 local.properties
 .idea
+.vscode/
 .DS_Store
+Thumbs.db
 captures
 .externalNativeBuild
 .cxx
@@ -18,3 +27,5 @@ captures
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
 /.antigravitycli/
+.specify/
+.agents/

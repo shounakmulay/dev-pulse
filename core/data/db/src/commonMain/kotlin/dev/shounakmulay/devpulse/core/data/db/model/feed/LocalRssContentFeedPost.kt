@@ -17,9 +17,14 @@ import androidx.room3.PrimaryKey
         )
     ],
     indices = [
-        Index(value = ["feedId"]),
         Index(value = ["fingerprint"], unique = true),
-        Index(value = ["bookmarked"])
+        Index(value = ["publishedAtEpochMillis", "updatedAt", "id"]),
+        Index(value = ["feedId", "publishedAtEpochMillis", "updatedAt", "id"]),
+        Index(value = ["bookmarked", "publishedAtEpochMillis", "updatedAt", "id"]),
+        Index(value = ["feedId", "bookmarked", "publishedAtEpochMillis", "updatedAt", "id"]),
+        Index(value = ["updatedAt", "id"]),
+        Index(value = ["createdAt", "id"]),
+        Index(value = ["title", "id"])
     ]
 )
 data class LocalRssContentFeedPost(
@@ -28,18 +33,23 @@ data class LocalRssContentFeedPost(
     val feedId: String,
     val fingerprint: String,
     val guid: String?,
-    val title: String?,
-    val author: String?,
+    @ColumnInfo(defaultValue = "''")
+    val title: String = "",
+    @ColumnInfo(defaultValue = "''")
+    val author: String = "",
     val link: String?,
     val pubDate: String?,
-    val publishedAtEpochMillis: Long?,
+    @ColumnInfo(defaultValue = "-9223372036854775808")
+    val publishedAtEpochMillis: Long = Long.MIN_VALUE,
     val description: String?,
     val content: String?,
     val image: String?,
     val audio: String?,
     val video: String?,
-    val sourceName: String?,
-    val sourceUrl: String?,
+    @ColumnInfo(defaultValue = "''")
+    val sourceName: String = "",
+    @ColumnInfo(defaultValue = "''")
+    val sourceUrl: String = "",
     val categories: String,
     val commentsUrl: String?,
     @ColumnInfo(defaultValue = "0")

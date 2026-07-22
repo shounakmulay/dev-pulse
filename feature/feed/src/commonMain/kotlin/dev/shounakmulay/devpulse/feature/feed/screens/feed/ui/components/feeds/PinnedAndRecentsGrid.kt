@@ -46,6 +46,7 @@ fun PinnedAndRecentsGrid(
     ) {
         items(pinnedAndRecentFeeds, key = { it.id }) { item ->
             FeedsGridItem(
+                feedId = item.id,
                 imageUrl = item.websiteImageUrl,
                 title = item.title,
                 initials = item.initials,

@@ -5,6 +5,7 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemMediaContent
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemRawEnclosure
 import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemYoutubeData
+import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostCategory
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
@@ -41,25 +42,26 @@ class RssPostMapper(
         existingIdentity: LocalRssContentFeedPostIdentitySlice?
     ): LocalRssContentFeedPost {
         val now = dateTimeProvider.nowEpochMilliseconds()
+        val publishedAt = item.pubDate?.let {
+            dateTimeProvider.parse(it)?.toEpochMilliseconds()
+        } ?: Long.MIN_VALUE
         return LocalRssContentFeedPost(
             id = existingIdentity?.id ?: idGenerator.generateSortableId(),
             feedId = feedId,
             fingerprint = fingerprint,
             guid = item.guid,
-            title = item.title,
-            author = item.author,
+            title = item.title.orEmpty(),
+            author = item.author.orEmpty(),
             link = item.link,
             pubDate = item.pubDate,
-            publishedAtEpochMillis = item.pubDate?.let {
-                dateTimeProvider.parse(it)?.toEpochMilliseconds()
-            },
+            publishedAtEpochMillis = publishedAt,
             description = item.description,
             content = item.content,
             image = item.image,
             audio = item.audio,
             video = item.video,
-            sourceName = item.sourceName,
-            sourceUrl = item.sourceUrl,
+            sourceName = item.sourceName.orEmpty(),
+            sourceUrl = item.sourceUrl.orEmpty(),
             categories = item.categories.joinToString(),
             commentsUrl = item.commentsUrl,
             bookmarked = existingIdentity?.bookmarked ?: false,
@@ -70,6 +72,23 @@ class RssPostMapper(
             updatedAt = now
         )
     }
+
+    fun toLocalRssPostCategories(
+        postId: String,
+        categories: List<String>
+    ): List<LocalRssPostCategory> {
+        return categories
+            .map { it.trim().lowercase() }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .map {
+                LocalRssPostCategory(
+                    postId = postId,
+                    category = it
+                )
+            }
+    }
+
     fun toRssFeedPost(from: LocalRssContentFeedPost): RssFeedPost {
         return RssFeedPost(
             id = from.id,

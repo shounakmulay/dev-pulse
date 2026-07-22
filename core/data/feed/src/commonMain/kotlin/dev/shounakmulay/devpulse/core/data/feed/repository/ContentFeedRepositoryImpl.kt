@@ -6,14 +6,18 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
+import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
+import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostQueryMapper
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.opml.OpmlParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.opml.model.ParsedOpmlDocument
 import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostQuery
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.bodyAsText
@@ -28,13 +32,15 @@ internal class ContentFeedRepositoryImpl(
     private val networkClient: DevPulseNetworkClient,
     private val feedDao: FeedDao,
     private val feedContentDao: FeedContentDao,
+    private val feedPostPagingSourceProvider: FeedPostPagingSourceProvider,
     private val rssFeedMapper: RssFeedMapper,
     private val rssPostMapper: RssPostMapper,
+    private val rssPostQueryMapper: RssPostQueryMapper,
     logger: DPLogger
 ) : ContentFeedRepository {
     private val logger = logger.withTag(Tag)
 
-    override fun getFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {
+    override fun getFeedsListFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = {
@@ -62,6 +68,11 @@ internal class ContentFeedRepositoryImpl(
             }
     }
 
+    override fun getFeed(id: String): Flow<RssFeed> {
+        return feedDao.observeFeed(id)
+            .map(rssFeedMapper::toRssFeed)
+    }
+
     override fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeed>> {
         return feedDao.getPinnedAndRecentFeeds(maxCount).map {
             it.map { feed ->
@@ -73,12 +84,28 @@ internal class ContentFeedRepositoryImpl(
     override fun getRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentity>> {
         return feedContentDao.observeRecentPosts(maxCount).map {
             it.map { post ->
-                rssPostMapper.toRssPostWithFeedIdentity(
-                    post = rssPostMapper.toRssFeedPost(post.post),
-                    identity = rssFeedMapper.toRssIdentity(post.feed)
-                )
+                post.toRssPostWithFeedIdentity()
             }
         }
+    }
+
+    override fun getFeedPostsFlow(
+        query: RssPostQuery,
+        pagingConfig: PagingConfig
+    ): Flow<PagingData<RssPostWithFeedIdentity>> {
+        val query = rssPostQueryMapper.fromPostQueryMapper(query)
+        return Pager(
+            config = pagingConfig,
+            pagingSourceFactory = {
+                feedPostPagingSourceProvider.getFeedPostPagingSource(query)
+            }
+        )
+            .flow
+            .map { pagingData ->
+                pagingData.map { post ->
+                    post.toRssPostWithFeedIdentity()
+                }
+            }
     }
 
     override suspend fun extractOpmlFeeds(opml: String): List<OpmlFeedImportData> {
@@ -96,6 +123,13 @@ internal class ContentFeedRepositoryImpl(
                 name = feed.title ?: feed.text,
             )
         }
+    }
+
+    private fun LocalRssPostWithFeedMetadataProjection.toRssPostWithFeedIdentity(): RssPostWithFeedIdentity {
+        return rssPostMapper.toRssPostWithFeedIdentity(
+            post = rssPostMapper.toRssFeedPost(post),
+            identity = rssFeedMapper.toRssIdentity(feed)
+        )
     }
 
     override suspend fun addRssFeed(entry: RssFeedQueueEntry) {

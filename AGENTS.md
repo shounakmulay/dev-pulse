@@ -221,68 +221,95 @@ For commit workflows, extract the ticket prefix from the current branch name usi
 <claude-mem-context>
 # Memory Context
 
-# [DevPulse] recent context, 2026-05-27 3:25pm GMT+5:30
+# [DevPulse] recent context, 2026-07-15 4:38pm GMT+5:30
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (10,380t read) | 875,578t work | 99% savings
+Stats: 50 obs (12,902t read) | 786,844t work | 98% savings
 
-### May 26, 2026
-821 7:39a 🔵 AddFeedViewModel event handling
-822 " 🔵 UIFeedQueueData structure
-824 " 🔵 ImportFeedUseCase functionality
-826 " 🔵 RssFeedQueueRepository interface and implementation
-831 " 🔵 Database models and DAO for Feed Queue
-837 10:01a 🔄 Extract Add Feed UI Strings to TextResource
-838 10:04a 🔵 Add Feed Screen Text Resource Usage
-839 5:34p 🟣 Add Screen for Feed List
-840 5:35p 🔵 add-screen Skill Documentation
-841 " 🔵 Locate Screen.kt File
-842 " 🔵 FeedScreen Composable Structure
-844 " 🔵 StateEffectViewModel Not Found
-846 " 🔵 ViewModel Inheritance Pattern Not Found
-850 " 🔵 MviViewModel Implementation Details
-858 5:36p 🟣 Create Directories for Feed List Screen
-860 " 🟣 Add FeedList Screen and Navigation
-865 5:37p 🔴 Gradle Build for Feed Feature
-888 5:44p ✅ Git Status Update
-891 7:49p 🟣 Add Pin Icon to Feed Grid Items
-892 " 🔵 Codebase Search for Feed Grid and Pin Keywords
 ### May 27, 2026
-895 12:16p 🔄 Extract UI strings to resources and add content descriptions
-896 12:30p 🟣 Implement Feed UI String Resources and Accessibility
-897 " 🟣 Add Feed Accessibility for Artwork and Pin Toggle
-898 " 🟣 Add Feed Accessibility for Pinned Badge and Loading Indicator
-899 " 🟣 Add Feed Accessibility for Search Back Button
-900 " ✅ Add Feed UI String Resources
-901 " ✅ Refactor Feed Landing UI Text to String Resources
-902 " ✅ Refactor Feed List UI Text to String Resources
-903 " ✅ Verify Add Feed UI Strings
-904 " ✅ Compile Kotlin for iOS Simulator
-905 " 🔴 Resolve Skiko Dependency Incompatibility
-906 " 🔴 Fix Unresolved References in FeedScreen
-907 " ✅ Deprecated Modifier Usage in DPMenus
-908 " ✅ Recompile Kotlin for iOS Simulator
-910 " ✅ Update Feed UI String Resources
-911 " ✅ Refactor FeedScreen UI Components and String Usage
-912 " ✅ Update FeedViewModel for State Management and Interactor Integration
-913 " ✅ Refactor FeedDetailScreen to Use String Resources
+S36 Generate detailed commits for feed feature development (May 27 at 12:31 PM)
 S35 Implement Feed UI String Resources and Accessibility Plan (May 27 at 12:31 PM)
-914 12:34p 🟣 Implement detailed commit generation
-915 " 🔵 Current Git branch identified
-916 12:35p ✅ Modified files identified for feed feature
-918 " 🟣 Enhanced feed management with pinning functionality
-920 " 🟣 Introduced Feed List screen and navigation
-923 " 🟣 Implemented Feed List Screen UI
-S36 Generate detailed commits for feed feature development (May 27 at 12:36 PM)
-925 12:37p ✅ Staged changes identified in Git repository
-927 " ✅ No diff found for specified feed list UI components
-928 " ✅ Staged selected files for feed feature development
-931 " ✅ Updated feed use case and extension file
-933 12:38p ✅ No whitespace errors found in staged changes
-935 " ✅ Staged navigation and feed-related files
+S37 Create GitHub PR for recent post presentation changes (May 27 at 12:36 PM)
+### May 29, 2026
+S38 Refactor Feed Parsing and Mapper Logic (May 29 at 1:53 PM)
+### Jun 2, 2026
+S39 Refine OPML parser to strict minimal style and plan implementation (Jun 2 at 6:23 PM)
+### Jun 5, 2026
+S41 Generate detailed commits and identify feed detail screen files (Jun 5 at 6:15 PM)
+### Jun 9, 2026
+1447 6:36p 🔵 Feed Detail Screen Navigation Entry
+1455 6:37p 🔵 Feed Interaction Handlers Identified
+1461 " 🟣 Feed Detail Screen Implementation
+1462 " 🔵 FeedScreen Refactoring for FeedDetail Navigation
+1464 " 🟣 Feed Detail Screen Implementation - State and ViewModel Refinement
+1467 6:38p 🟣 FeedScreen Cleanup and Navigation Update
+1473 " 🟣 FeedScreen Cleanup: Removed Unused Imports and Redundant Code
+1480 " 🟣 Feed Detail Screen State and Navigation Update
+### Jun 10, 2026
+1514 6:53p 🟣 Add Feed Detail Screen to Feed Feature
+1515 7:03p 🟣 Implement detailed commit generation
+1516 " 🔵 Current Git branch identified
+1517 " 🔄 Refactor feed repository and use case methods
+1519 " 🔵 Files related to Feed Detail screen identified
+1521 7:04p 🔵 Feed Detail screen navigation entry point
+S42 Finalize feed filtering and sorting contracts, and propose database indexes. (Jun 10 at 7:04 PM)
+1525 " ✅ Staged modified files for commit
+1540 7:05p ✅ Commit dependencies update
+1553 7:15p ✅ Refined media filtering for search
+1554 " ✅ Updated development plan for feed entities
+1555 " 🔵 Inspected LocalRssContentFeedPost entity schema
+1557 7:16p 🔵 Inspected LocalRssFeedItemRawEnclosure schema
+S43 Refine feed entity indexes and filters based on trade-offs. (Jun 10 at 7:16 PM)
+S44 Set Default Model (Jun 10 at 7:19 PM)
+1559 7:20p ✅ Updated development plan for feed query implementation
+1561 " 🔵 Searched for Room/SQLite query-related classes in Gradle cache
+1565 7:21p 🔵 Examined Room runtime source JAR contents
+1569 " 🔵 Examined Room Paging JVM source JAR contents
+1575 " 🔵 Searched for Room source JARs in Gradle cache
+### Jun 11, 2026
+1586 5:34p ✅ Default Model Configuration
+1587 5:50p 🔄 Improved SQL query builder and pagination
+1588 " ✅ Defined supported filters and sorting criteria
+1589 " ✅ Optimized database indexing strategy
+1590 " 🔵 Room KMP raw query binding nuances
+1591 " ⚖️ Adopted whitelisted query spec for SQL generation
+1592 " 🔵 Speckit-specify skill documentation structure
+1593 " 🔵 Speckit-specify skill guidelines and completion criteria
+1595 5:51p 🔵 Standard feature specification template structure
+1597 " 🔵 Feed post query and filter data classes
+1599 5:52p 🔵 Feed post SQL query builder logic
+1603 " ✅ Created directory for specification quality checklists
+1604 5:54p ✅ Created feature specification and checklist files
+1607 " 🔵 Search for specific keywords in specification files
+1609 " 🔵 Git status of the repository
+1612 5:58p 🟣 Implement Speckit Plan Functionality
+1613 " ✅ Speckit Plan Skill Definition Loaded
+1614 5:59p ✅ Loaded Speckit Plan Template
+1616 " 🔵 Feed Post Query Data Structures Defined
+1617 " 🔵 Feed Post Query Data Structures Defined
+1618 " 🔵 DevPulse Database Structure and Configuration
+1622 " 🔵 Content Feed Repository Implementation Details
+1628 " ✅ Speckit Agent Context Update Skill Definition
+1630 6:01p ✅ Created Contracts Directory for Feed Query Engine
+### Jul 15, 2026
+1675 4:36p 🟣 Implement Authentication Code Endpoint
+S47 Clarification on "auth code" request (Jul 15 at 4:36 PM)
+**Investigated**: The user's request for "auth code" was ambiguous. The system prompted for clarification, asking for the context of the request (CLI, connector, specific service/tool).
 
-Access 876k tokens of past work via get_observations([IDs]) or mem-search skill.
+**Learned**: The initial request for "auth code" lacked sufficient context to proceed with a specific action or implementation.
+
+**Completed**: No code changes or deployments were completed as the request required further clarification.
+
+**Next Steps**: Awaiting user clarification on the specific type and context of the "auth code" request to determine the appropriate action.
+
+
+Access 787k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read specs/001-feed-query-engine/plan.md
+<!-- SPECKIT END -->
