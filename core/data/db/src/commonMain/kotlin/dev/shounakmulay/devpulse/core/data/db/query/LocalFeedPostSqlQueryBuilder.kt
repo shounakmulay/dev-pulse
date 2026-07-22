@@ -91,14 +91,14 @@ class FeedPostSqlQueryBuilder(
         val sortTerms = when (sort) {
             FeedPostSort.PublishedNewest -> {
                 listOf(
-                    "p.publishedAtEpochMillis ${FeedPostSortDirection.Descending.sql}",
+                    "${FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS} ${FeedPostSortDirection.Descending.sql}",
                     orderByIdClause(FeedPostSortDirection.Descending)
                 )
             }
 
             FeedPostSort.PublishedOldest -> {
                 listOf(
-                    "p.publishedAtEpochMillis ${FeedPostSortDirection.Ascending.sql}",
+                    "${FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS} ${FeedPostSortDirection.Ascending.sql}",
                     orderByIdClause(
                         FeedPostSortDirection.Ascending
                     )
@@ -107,13 +107,14 @@ class FeedPostSqlQueryBuilder(
 
             FeedPostSort.TitleAtoZ -> {
                 listOf(
-                    "p.title ${FeedPostSortDirection.Ascending.sql}",
+                    "${FeedColumnsSelector.TITLE} ${FeedPostSortDirection.Ascending.sql}",
                     orderByIdClause(FeedPostSortDirection.Descending)
                 )
             }
+
             FeedPostSort.TitleZtoA -> {
                 listOf(
-                    "p.title ${FeedPostSortDirection.Descending.sql}",
+                    "${FeedColumnsSelector.TITLE} ${FeedPostSortDirection.Descending.sql}",
                     orderByIdClause(FeedPostSortDirection.Descending)
                 )
             }
@@ -122,7 +123,7 @@ class FeedPostSqlQueryBuilder(
     }
 
     private fun orderByIdClause(direction: FeedPostSortDirection): String {
-        return "p.id ${direction.sql}"
+        return "${FeedColumnsSelector.ID} ${direction.sql}"
     }
 
     private fun StringBuilder.appendProjection() {
@@ -130,16 +131,16 @@ class FeedPostSqlQueryBuilder(
             """
             SELECT 
                 p.*,
-                f.id AS feed_id,
-                f.title AS feed_title,
-                f.name AS feed_name,
-                f.pinned AS feed_pinned,
-                f.sourceUrl AS feed_sourceUrl,
-                f.link AS feed_link,
-                f.createdAt AS feed_createdAt,
-                f.updatedAt AS feed_updatedAt
+                ${FeedColumnsSelector.FEED_ID} AS ${FeedColumnsSelector.FEED_ID_ALIAS},
+                ${FeedColumnsSelector.FEED_TITLE} AS ${FeedColumnsSelector.FEED_TITLE_ALIAS},
+                ${FeedColumnsSelector.FEED_NAME} AS ${FeedColumnsSelector.FEED_NAME_ALIAS},
+                ${FeedColumnsSelector.FEED_PINNED} AS ${FeedColumnsSelector.FEED_PINNED_ALIAS},
+                ${FeedColumnsSelector.FEED_SOURCE_URL} AS ${FeedColumnsSelector.FEED_SOURCE_URL_ALIAS},
+                ${FeedColumnsSelector.FEED_LINK} AS ${FeedColumnsSelector.FEED_LINK_ALIAS},
+                ${FeedColumnsSelector.FEED_CREATED_AT} AS ${FeedColumnsSelector.FEED_CREATED_AT_ALIAS},
+                ${FeedColumnsSelector.FEED_UPDATED_AT} AS ${FeedColumnsSelector.FEED_UPDATED_AT_ALIAS}
             FROM LocalRssContentFeedPost p
-            INNER JOIN LocalRssFeed f ON p.feedId = f.id
+            INNER JOIN LocalRssFeed f ON ${FeedColumnsSelector.POST_FEED_ID} = ${FeedColumnsSelector.FEED_ID}
             """.trimIndent()
         )
     }
@@ -153,19 +154,19 @@ class FeedPostSqlQueryBuilder(
             when (filter) {
                 is FeedPostFilter.Author -> {
                     if (filter.values.isNotEmpty()) {
-                        clauses += "LOWER(p.author) IN (${placeholders(filter.values.size)})"
+                        clauses += "LOWER(${FeedColumnsSelector.AUTHOR}) IN (${placeholders(filter.values.size)})"
                         bindings += filter.values.bindLowercasedTextPlaceholders()
                     }
                 }
 
                 is FeedPostFilter.Bookmarked -> {
-                    clauses += "p.bookmarked = ?"
+                    clauses += "${FeedColumnsSelector.BOOKMARKED} = ?"
                     bindings += SqlBinding.BooleanValue(filter.value)
                 }
 
                 is FeedPostFilter.Category -> {
                     if (filter.values.isNotEmpty()) {
-                        clauses += "p.id IN (SELECT postId FROM LocalRssPostCategory WHERE LOWER(category) IN (${
+                        clauses += "${FeedColumnsSelector.ID} IN (SELECT ${FeedColumnsSelector.POST_ID} FROM LocalRssPostCategory WHERE LOWER(${FeedColumnsSelector.CATEGORY}) IN (${
                             placeholders(
                                 filter.values.size
                             )
@@ -175,7 +176,7 @@ class FeedPostSqlQueryBuilder(
                 }
 
                 is FeedPostFilter.CreatedRange -> {
-                    val (binding, clause) = filter.range.appendRangeClause("p.createdAt")
+                    val (binding, clause) = filter.range.appendRangeClause(FeedColumnsSelector.CREATED_AT)
                         ?: continue
                     clauses += clause
                     bindings += binding
@@ -183,7 +184,7 @@ class FeedPostSqlQueryBuilder(
 
                 is FeedPostFilter.FeedIds -> {
                     if (filter.values.isNotEmpty()) {
-                        clauses += "p.feedId IN (${placeholders(filter.values.size)})"
+                        clauses += "${FeedColumnsSelector.POST_FEED_ID} IN (${placeholders(filter.values.size)})"
                         bindings += filter.values.sorted().map { SqlBinding.Text(it) }
                     }
                 }
@@ -193,7 +194,7 @@ class FeedPostSqlQueryBuilder(
                 }
 
                 is FeedPostFilter.HasEnclosure -> {
-                    val clause = "(p.rawEnclosure_type IS NOT NULL AND p.rawEnclosure_type != '')"
+                    val clause = "(${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} IS NOT NULL AND ${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} != '')"
                     clauses += if (filter.value) clause else "NOT ($clause)"
                 }
 
@@ -207,17 +208,17 @@ class FeedPostSqlQueryBuilder(
 
                 is FeedPostFilter.HasYouTubeData -> {
                     val clause =
-                        "(p.youtubeData_videoId IS NOT NULL AND p.youtubeData_videoId != '')"
+                        "(${FeedColumnsSelector.YOUTUBE_DATA_VIDEO_ID} IS NOT NULL AND ${FeedColumnsSelector.YOUTUBE_DATA_VIDEO_ID} != '')"
                     clauses += if (filter.value) clause else "NOT ($clause)"
                 }
 
                 is FeedPostFilter.PinnedFeed -> {
-                    clauses += "f.pinned = ?"
+                    clauses += "${FeedColumnsSelector.FEED_PINNED} = ?"
                     bindings += SqlBinding.BooleanValue(filter.value)
                 }
 
                 is FeedPostFilter.PublishedRange -> {
-                    val (binding, clause) = filter.range.appendRangeClause("p.publishedAtEpochMillis")
+                    val (binding, clause) = filter.range.appendRangeClause(FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS)
                         ?: continue
                     clauses += clause
                     bindings += binding
@@ -228,7 +229,7 @@ class FeedPostSqlQueryBuilder(
                     if (trimmed.isNotEmpty()) {
                         val escaped = escapeLikePattern(trimmed)
                         val pattern = "%$escaped%"
-                        clauses += "(LOWER(p.title) LIKE ? ESCAPE '\\' OR LOWER(p.description) LIKE ? ESCAPE '\\')"
+                        clauses += "(LOWER(${FeedColumnsSelector.TITLE}) LIKE ? ESCAPE '\\' OR LOWER(${FeedColumnsSelector.DESCRIPTION}) LIKE ? ESCAPE '\\')"
                         bindings += SqlBinding.Text(pattern.lowercase())
                         bindings += SqlBinding.Text(pattern.lowercase())
                     }
@@ -236,14 +237,14 @@ class FeedPostSqlQueryBuilder(
 
                 is FeedPostFilter.SourceFeed -> {
                     if (filter.values.isNotEmpty()) {
-                        clauses += "LOWER(p.sourceUrl) IN (${placeholders(filter.values.size)})"
+                        clauses += "LOWER(${FeedColumnsSelector.SOURCE_URL}) IN (${placeholders(filter.values.size)})"
                         bindings += filter.values.bindLowercasedTextPlaceholders()
                     }
                 }
 
                 is FeedPostFilter.TagIdsAny -> {
                     if (filter.values.isNotEmpty()) {
-                        clauses += "p.id IN (SELECT postId FROM LocalRssPostToTagMapping WHERE tagId IN (${
+                        clauses += "${FeedColumnsSelector.ID} IN (SELECT ${FeedColumnsSelector.POST_ID} FROM LocalRssPostToTagMapping WHERE ${FeedColumnsSelector.TAG_ID} IN (${
                             placeholders(
                                 filter.values.size
                             )
@@ -253,7 +254,7 @@ class FeedPostSqlQueryBuilder(
                 }
 
                 is FeedPostFilter.UpdatedRange -> {
-                    val (binding, clause) = filter.range.appendRangeClause("p.updatedAt")
+                    val (binding, clause) = filter.range.appendRangeClause(FeedColumnsSelector.UPDATED_AT)
                         ?: continue
                     clauses += clause
                     bindings += binding
@@ -283,16 +284,16 @@ class FeedPostSqlQueryBuilder(
     }
 
     private fun imageExistsClause(): String {
-        return "(p.image IS NOT NULL AND p.image != '')"
+        return "(${FeedColumnsSelector.IMAGE} IS NOT NULL AND ${FeedColumnsSelector.IMAGE} != '')"
     }
 
     private fun audioExistsClause(): String {
         return """
             (
-                (p.audio IS NOT NULL AND p.audio != '') OR
-                (p.rawEnclosure_type IS NOT NULL AND p.rawEnclosure_type LIKE 'audio/%') OR
-                (p.rawMedia_type IS NOT NULL AND p.rawMedia_type LIKE 'audio/%') OR
-                (p.rawMedia_medium IS NOT NULL AND p.rawMedia_medium = 'audio')
+                (${FeedColumnsSelector.AUDIO} IS NOT NULL AND ${FeedColumnsSelector.AUDIO} != '') OR
+                (${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} IS NOT NULL AND ${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} LIKE 'audio/%') OR
+                (${FeedColumnsSelector.RAW_MEDIA_TYPE} IS NOT NULL AND ${FeedColumnsSelector.RAW_MEDIA_TYPE} LIKE 'audio/%') OR
+                (${FeedColumnsSelector.RAW_MEDIA_MEDIUM} IS NOT NULL AND ${FeedColumnsSelector.RAW_MEDIA_MEDIUM} = 'audio')
             )
         """.trimIndent()
     }
@@ -300,12 +301,12 @@ class FeedPostSqlQueryBuilder(
     private fun videoExistsClause(): String {
         return """
             (
-                (p.video IS NOT NULL AND p.video != '') OR
-                (p.youtubeData_videoId IS NOT NULL AND p.youtubeData_videoId != '') OR
-                (p.youtubeData_videoUrl IS NOT NULL AND p.youtubeData_videoUrl != '') OR
-                (p.rawEnclosure_type IS NOT NULL AND p.rawEnclosure_type LIKE 'video/%') OR
-                (p.rawMedia_type IS NOT NULL AND p.rawMedia_type LIKE 'video/%') OR
-                (p.rawMedia_medium IS NOT NULL AND p.rawMedia_medium = 'video')
+                (${FeedColumnsSelector.VIDEO} IS NOT NULL AND ${FeedColumnsSelector.VIDEO} != '') OR
+                (${FeedColumnsSelector.YOUTUBE_DATA_VIDEO_ID} IS NOT NULL AND ${FeedColumnsSelector.YOUTUBE_DATA_VIDEO_ID} != '') OR
+                (${FeedColumnsSelector.YOUTUBE_DATA_VIDEO_URL} IS NOT NULL AND ${FeedColumnsSelector.YOUTUBE_DATA_VIDEO_URL} != '') OR
+                (${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} IS NOT NULL AND ${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} LIKE 'video/%') OR
+                (${FeedColumnsSelector.RAW_MEDIA_TYPE} IS NOT NULL AND ${FeedColumnsSelector.RAW_MEDIA_TYPE} LIKE 'video/%') OR
+                (${FeedColumnsSelector.RAW_MEDIA_MEDIUM} IS NOT NULL AND ${FeedColumnsSelector.RAW_MEDIA_MEDIUM} = 'video')
             )
         """.trimIndent()
     }
@@ -316,68 +317,31 @@ class FeedPostSqlQueryBuilder(
         reversed: Boolean,
         bindings: MutableList<SqlBinding>
     ): String {
-        val spec = query.sort.spec
-        return buildKeysetPredicate(
-            terms = spec.terms,
-            cursorValues = cursor.values,
-            includeCursor = includeCursor,
-            reversed = reversed,
-            bindings = bindings
-        )
+        val comparator = when {
+            reversed && includeCursor -> ">="
+            reversed -> ">"
+            includeCursor -> "<="
+            else -> "<"
+        }
+        val sortColumnName = cursor.sort.asColumnName()
+        val clauses = """
+            (
+                $sortColumnName $comparator ? OR
+                ($sortColumnName = ? AND ${FeedColumnsSelector.ID} $comparator ?)
+            )
+        """
+        val idBinding = SqlBinding.Text(cursor.id)
+        bindings += listOf(cursor.sortValue, cursor.sortValue, idBinding)
+        return clauses
     }
 
-    private fun buildKeysetPredicate(
-        terms: List<FeedPostSortTerm>,
-        cursorValues: List<FeedPostCursorValue>,
-        includeCursor: Boolean,
-        reversed: Boolean,
-        bindings: MutableList<SqlBinding>
-    ): String {
-        require(terms.size == cursorValues.size) {
-            "Cursor value count (${cursorValues.size}) must match sort term count (${terms.size})"
-        }
-        val clauses = mutableListOf<String>()
-        for (pivot in terms.indices) {
-            val term = terms[pivot]
-            val cursorValue = cursorValues[pivot]
-            val direction = if (reversed) term.direction.reverse() else term.direction
-            val isLastTerm = pivot == terms.lastIndex
-            val useInclusive = isLastTerm && includeCursor
-            val strictOp = direction.keysetOperator(includeCursor = false)
-            val eqOrInclusiveOp = direction.keysetOperator(includeCursor = useInclusive)
-
-            val equalityPrefix = (0 until pivot).joinToString(separator = " AND ") { i ->
-                "${terms[i].expression} = ?"
-            }
-
-            if (pivot < terms.lastIndex) {
-                val strictClause = buildString {
-                    if (equalityPrefix.isNotEmpty()) append("$equalityPrefix AND ")
-                    append("${term.expression} $strictOp ?")
-                }
-                val eqBindings = (0 until pivot).map { cursorValues[it].toBinding() }
-                bindings += eqBindings
-                bindings += cursorValue.toBinding()
-                clauses += strictClause
-            } else {
-                val finalClause = buildString {
-                    if (equalityPrefix.isNotEmpty()) append("$equalityPrefix AND ")
-                    append("${term.expression} $eqOrInclusiveOp ?")
-                }
-                val eqBindings = (0 until pivot).map { cursorValues[it].toBinding() }
-                bindings += eqBindings
-                bindings += cursorValue.toBinding()
-                clauses += finalClause
-            }
-        }
-        return "(\n${clauses.joinToString(separator = " OR\n")}\n)"
-    }
-
-    private fun FeedPostCursorValue.toBinding(): SqlBinding {
+    private fun FeedPostSort.asColumnName(): String {
         return when (this) {
-            is FeedPostCursorValue.LongValue -> SqlBinding.LongValue(value)
-            is FeedPostCursorValue.TextValue -> SqlBinding.Text(value)
-            is FeedPostCursorValue.BooleanValue -> SqlBinding.BooleanValue(value)
+            FeedPostSort.PublishedNewest,
+            FeedPostSort.PublishedOldest -> FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS
+
+            FeedPostSort.TitleAtoZ,
+            FeedPostSort.TitleZtoA -> FeedColumnsSelector.TITLE
         }
     }
 
@@ -398,4 +362,44 @@ class FeedPostSqlQueryBuilder(
             .replace("%", "\\%")
             .replace("_", "\\_")
     }
+}
+
+object FeedColumnsSelector {
+    const val SOURCE_URL = "p.sourceUrl"
+    const val PUBLISHED_AT_EPOCH_MILLIS = "p.publishedAtEpochMillis"
+    const val TITLE = "p.title"
+    const val ID = "p.id"
+    const val AUTHOR = "p.author"
+    const val BOOKMARKED = "p.bookmarked"
+    const val CREATED_AT = "p.createdAt"
+    const val DESCRIPTION = "p.description"
+    const val IMAGE = "p.image"
+    const val AUDIO = "p.audio"
+    const val VIDEO = "p.video"
+    const val RAW_ENCLOSURE_TYPE = "p.rawEnclosure_type"
+    const val RAW_MEDIA_TYPE = "p.rawMedia_type"
+    const val RAW_MEDIA_MEDIUM = "p.rawMedia_medium"
+    const val YOUTUBE_DATA_VIDEO_ID = "p.youtubeData_videoId"
+    const val YOUTUBE_DATA_VIDEO_URL = "p.youtubeData_videoUrl"
+    const val POST_FEED_ID = "p.feedId"
+    const val UPDATED_AT = "p.updatedAt"
+    const val FEED_ID = "f.id"
+    const val FEED_TITLE = "f.title"
+    const val FEED_NAME = "f.name"
+    const val FEED_PINNED = "f.pinned"
+    const val FEED_SOURCE_URL = "f.sourceUrl"
+    const val FEED_LINK = "f.link"
+    const val FEED_CREATED_AT = "f.createdAt"
+    const val FEED_UPDATED_AT = "f.updatedAt"
+    const val FEED_ID_ALIAS = "feed_id"
+    const val FEED_TITLE_ALIAS = "feed_title"
+    const val FEED_NAME_ALIAS = "feed_name"
+    const val FEED_PINNED_ALIAS = "feed_pinned"
+    const val FEED_SOURCE_URL_ALIAS = "feed_sourceUrl"
+    const val FEED_LINK_ALIAS = "feed_link"
+    const val FEED_CREATED_AT_ALIAS = "feed_createdAt"
+    const val FEED_UPDATED_AT_ALIAS = "feed_updatedAt"
+    const val POST_ID = "postId"
+    const val CATEGORY = "category"
+    const val TAG_ID = "tagId"
 }
