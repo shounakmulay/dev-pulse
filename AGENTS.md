@@ -221,17 +221,16 @@ For commit workflows, extract the ticket prefix from the current branch name usi
 <claude-mem-context>
 # Memory Context
 
-# [DevPulse] recent context, 2026-07-15 4:38pm GMT+5:30
+# [DevPulse] recent context, 2026-07-23 2:52pm GMT+5:30
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (12,902t read) | 786,844t work | 98% savings
+Stats: 50 obs (14,210t read) | 815,004t work | 98% savings
 
 ### May 27, 2026
 S36 Generate detailed commits for feed feature development (May 27 at 12:31 PM)
-S35 Implement Feed UI String Resources and Accessibility Plan (May 27 at 12:31 PM)
 S37 Create GitHub PR for recent post presentation changes (May 27 at 12:36 PM)
 ### May 29, 2026
 S38 Refactor Feed Parsing and Mapper Logic (May 29 at 1:53 PM)
@@ -239,45 +238,13 @@ S38 Refactor Feed Parsing and Mapper Logic (May 29 at 1:53 PM)
 S39 Refine OPML parser to strict minimal style and plan implementation (Jun 2 at 6:23 PM)
 ### Jun 5, 2026
 S41 Generate detailed commits and identify feed detail screen files (Jun 5 at 6:15 PM)
-### Jun 9, 2026
-1447 6:36p 🔵 Feed Detail Screen Navigation Entry
-1455 6:37p 🔵 Feed Interaction Handlers Identified
-1461 " 🟣 Feed Detail Screen Implementation
-1462 " 🔵 FeedScreen Refactoring for FeedDetail Navigation
-1464 " 🟣 Feed Detail Screen Implementation - State and ViewModel Refinement
-1467 6:38p 🟣 FeedScreen Cleanup and Navigation Update
-1473 " 🟣 FeedScreen Cleanup: Removed Unused Imports and Redundant Code
-1480 " 🟣 Feed Detail Screen State and Navigation Update
 ### Jun 10, 2026
-1514 6:53p 🟣 Add Feed Detail Screen to Feed Feature
-1515 7:03p 🟣 Implement detailed commit generation
-1516 " 🔵 Current Git branch identified
-1517 " 🔄 Refactor feed repository and use case methods
-1519 " 🔵 Files related to Feed Detail screen identified
-1521 7:04p 🔵 Feed Detail screen navigation entry point
 S42 Finalize feed filtering and sorting contracts, and propose database indexes. (Jun 10 at 7:04 PM)
-1525 " ✅ Staged modified files for commit
-1540 7:05p ✅ Commit dependencies update
-1553 7:15p ✅ Refined media filtering for search
-1554 " ✅ Updated development plan for feed entities
-1555 " 🔵 Inspected LocalRssContentFeedPost entity schema
-1557 7:16p 🔵 Inspected LocalRssFeedItemRawEnclosure schema
 S43 Refine feed entity indexes and filters based on trade-offs. (Jun 10 at 7:16 PM)
 S44 Set Default Model (Jun 10 at 7:19 PM)
-1559 7:20p ✅ Updated development plan for feed query implementation
-1561 " 🔵 Searched for Room/SQLite query-related classes in Gradle cache
-1565 7:21p 🔵 Examined Room runtime source JAR contents
-1569 " 🔵 Examined Room Paging JVM source JAR contents
-1575 " 🔵 Searched for Room source JARs in Gradle cache
 ### Jun 11, 2026
-1586 5:34p ✅ Default Model Configuration
-1587 5:50p 🔄 Improved SQL query builder and pagination
-1588 " ✅ Defined supported filters and sorting criteria
-1589 " ✅ Optimized database indexing strategy
-1590 " 🔵 Room KMP raw query binding nuances
-1591 " ⚖️ Adopted whitelisted query spec for SQL generation
-1592 " 🔵 Speckit-specify skill documentation structure
-1593 " 🔵 Speckit-specify skill guidelines and completion criteria
+S47 Clarification on "auth code" request (Jun 11 at 5:34 PM)
+1593 5:50p 🔵 Speckit-specify skill guidelines and completion criteria
 1595 5:51p 🔵 Standard feature specification template structure
 1597 " 🔵 Feed post query and filter data classes
 1599 5:52p 🔵 Feed post SQL query builder logic
@@ -296,17 +263,44 @@ S44 Set Default Model (Jun 10 at 7:19 PM)
 1630 6:01p ✅ Created Contracts Directory for Feed Query Engine
 ### Jul 15, 2026
 1675 4:36p 🟣 Implement Authentication Code Endpoint
-S47 Clarification on "auth code" request (Jul 15 at 4:36 PM)
-**Investigated**: The user's request for "auth code" was ambiguous. The system prompted for clarification, asking for the context of the request (CLI, connector, specific service/tool).
+S48 Explanation of device-code login flow (Jul 15 at 4:38 PM)
+### Jul 21, 2026
+1676 3:29p 🔄 Extract SQL column names to a dedicated object
+1677 " ✅ Inspect FeedPostSqlQueryBuilder file content
+1678 " 🔵 Locate usage of specific SQL columns and selectors
+1679 3:30p 🔴 Corrected SQL column name references in FeedPostSqlQueryBuilder
+1681 " 🔄 Updated SQL column name references using FeedColumnsSelector
+1682 " 🔴 Corrected FeedPostSqlQueryBuilder patch for category and feed ID filters
+1684 " 🔄 Completed refactoring of SQL column name references
+1686 3:31p 🔄 Finalized SQL column name references in FeedPostSqlQueryBuilder
+1690 " 🔄 Expanded FeedColumnsSelector with additional SQL column constants
+1698 " 🔄 Formatted code with ktlint
+1706 4:04p 🔴 Fix feed post jumping and duplicate issues with pagination
+1707 " 🔵 Code modifications related to feed post querying and pagination
+1708 4:05p 🔵 Paging implementation details and ViewModel interactions
+1709 " 🔵 Paging implementation and testing details
+1710 4:06p 🔴 Failed to execute feed post paging tests
+### Jul 22, 2026
+1711 9:33a 🟣 Implement Detailed Commit Generation
+1712 " ✅ Executed Git Commands for Commit Analysis
+1713 " 🔵 Identified Deleted and Renamed Files in DB Query Module
+1716 2:53p 🔴 LaunchedEffect re-subscription issue
+1717 " 🔵 SKILL.md not found during diagnostic command
+1718 " 🔵 Diagnostic skill file path corrected
+1719 " 🔵 FeedDetailScreen code and related navigation terms identified
+1721 2:54p 🔵 Navigation core files listed and search for test files initiated
+1723 " 🔴 Navigator reselect event handling updated
+1725 " 🔵 Ktlint fix skill and modified files identified
+1727 " 🔵 Gradle compilation of navigation module completed successfully
+1729 " 🔵 Gradle daemon initialization and buildSrc compilation
+### Jul 23, 2026
+1733 2:51p 🟣 Implement detailed commit generation and PR creation without ticket numbers
+1734 " 🔵 Found documentation for detailed-commits and create-pr skills
+1735 " 🔵 Identified debugging tasks for feed paging and SQL query building
+1736 " 🔵 Identified active branches and recent commit history
+1737 " 🔵 Detailed memory entries for feed paging and SQL query builder tasks
 
-**Learned**: The initial request for "auth code" lacked sufficient context to proceed with a specific action or implementation.
-
-**Completed**: No code changes or deployments were completed as the request required further clarification.
-
-**Next Steps**: Awaiting user clarification on the specific type and context of the "auth code" request to determine the appropriate action.
-
-
-Access 787k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 815k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
 
 <!-- SPECKIT START -->
