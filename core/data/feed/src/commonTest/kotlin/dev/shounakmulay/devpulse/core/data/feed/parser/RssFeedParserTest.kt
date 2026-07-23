@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.feed.parser
 
+import dev.shounakmulay.devpulse.core.data.feed.parser.common.ArticleHtmlParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.AtomFeedParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.KtXmlRssFeedParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.RdfFeedParser
@@ -15,6 +16,8 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class RssFeedParserTest {
+
+    private val articleHtmlParser = ArticleHtmlParser()
 
     @Test
     fun `Given RSS with optional malformed values When parsed Then usable fields are extracted`() = runTest {
@@ -54,6 +57,31 @@ class RssFeedParserTest {
 
         assertEquals("Post title", firstItem.title)
         assertTrue(chars.consumed > consumedBeforeItems)
+    }
+
+    @Test
+    fun `Given RSS with content encoded HTML When parsed Then hero image is extracted from content`() = runTest {
+        val parser = ktXmlParser()
+
+        val result = parser.parse(rssHtmlFixture.iterator())
+        val items = result.items.toList()
+
+        assertEquals(1, items.size)
+        assertEquals("HTML Post", items[0].title)
+        assertEquals("https://example.com/html-post", items[0].link)
+        assertEquals("https://example.com/hero.jpg", items[0].image)
+    }
+
+    @Test
+    fun `Given RSS with content encoded HTML and no other image When parsed Then hero image extracted from description HTML`() = runTest {
+        val parser = ktXmlParser()
+
+        val result = parser.parse(rssDescriptionHtmlFixture.iterator())
+        val items = result.items.toList()
+
+        assertEquals(1, items.size)
+        assertEquals("Desc HTML Post", items[0].title)
+        assertEquals("https://example.com/desc-image.png", items[0].image)
     }
 
     @Test
@@ -97,6 +125,17 @@ class RssFeedParserTest {
     }
 
     @Test
+    fun `Given Atom feed with HTML content When parsed Then hero image is extracted from content`() = runTest {
+        val parser = ktXmlParser()
+
+        val result = parser.parse(atomHtmlFixture.iterator())
+        val item = result.items.toList().single()
+
+        assertEquals("Atom HTML Entry", item.title)
+        assertEquals("https://example.com/atom-hero.jpg", item.image)
+    }
+
+    @Test
     fun `Given RDF feed When parsed Then channel and items are normalized`() = runTest {
         val parser = ktXmlParser()
 
@@ -129,6 +168,17 @@ class RssFeedParserTest {
 
         assertEquals("RDF title", item.title)
         assertTrue(chars.consumed > consumedBeforeItems)
+    }
+
+    @Test
+    fun `Given RDF feed with HTML content When parsed Then hero image is extracted from content`() = runTest {
+        val parser = ktXmlParser()
+
+        val result = parser.parse(rdfHtmlFixture.iterator())
+        val item = result.items.toList().single()
+
+        assertEquals("RDF HTML Item", item.title)
+        assertEquals("https://example.com/rdf-hero.jpg", item.image)
     }
 
     @Test
@@ -201,9 +251,9 @@ class RssFeedParserTest {
 
     private fun ktXmlParser(): KtXmlRssFeedParser {
         return KtXmlRssFeedParser(
-            rssFeedParser = RssFeedParser(),
-            rdfFeedParser = RdfFeedParser(),
-            atomFeedParser = AtomFeedParser()
+            rssFeedParser = RssFeedParser(articleHtmlParser),
+            rdfFeedParser = RdfFeedParser(articleHtmlParser),
+            atomFeedParser = AtomFeedParser(articleHtmlParser)
         )
     }
 
@@ -242,6 +292,39 @@ class RssFeedParserTest {
         </rss>
     """.trimIndent()
 
+    private val rssHtmlFixture = """
+        <rss xmlns:content="http://purl.org/rss/1.0/modules/content/">
+            <channel>
+                <title>HTML Feed</title>
+                <link>https://example.com</link>
+                <description>Feed with HTML content</description>
+                <item>
+                    <guid>html-guid-1</guid>
+                    <title>HTML Post</title>
+                    <link>https://example.com/html-post</link>
+                    <description>Plain text summary</description>
+                    <content:encoded><![CDATA[<p>Some intro text</p><img src="https://example.com/hero.jpg" alt="Hero" /><p>More text</p>]]></content:encoded>
+                </item>
+            </channel>
+        </rss>
+    """.trimIndent()
+
+    private val rssDescriptionHtmlFixture = """
+        <rss xmlns:content="http://purl.org/rss/1.0/modules/content/">
+            <channel>
+                <title>Desc HTML Feed</title>
+                <link>https://example.com</link>
+                <description>Feed with HTML description</description>
+                <item>
+                    <guid>desc-html-guid-1</guid>
+                    <title>Desc HTML Post</title>
+                    <link>https://example.com/desc-html-post</link>
+                    <description><![CDATA[<img src="https://example.com/desc-image.png" alt="Desc" />Some text]]></description>
+                </item>
+            </channel>
+        </rss>
+    """.trimIndent()
+
     private val atomFixture = """
         <feed xmlns="http://www.w3.org/2005/Atom">
             <title>Atom Feed</title>
@@ -264,6 +347,22 @@ class RssFeedParserTest {
         </feed>
     """.trimIndent()
 
+    private val atomHtmlFixture = """
+        <feed xmlns="http://www.w3.org/2005/Atom">
+            <title>Atom HTML Feed</title>
+            <link rel="alternate" href="https://example.com" />
+            <updated>2026-05-19T10:00:00Z</updated>
+            <entry>
+                <id>atom-html-1</id>
+                <title>Atom HTML Entry</title>
+                <link rel="alternate" href="https://example.com/atom-html-post" />
+                <published>2026-05-18T10:00:00Z</published>
+                <summary>Plain summary</summary>
+                <content type="html"><![CDATA[<p>Intro</p><img src="https://example.com/atom-hero.jpg" /><p>Body</p>]]></content>
+            </entry>
+        </feed>
+    """.trimIndent()
+
     private val rdfFixture = """
         <rdf:RDF
             xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -280,6 +379,26 @@ class RssFeedParserTest {
                 <link>https://example.com/rdf-post</link>
                 <description>RDF summary</description>
                 <content:encoded>RDF content</content:encoded>
+                <dc:date>2026-05-19T10:00:00Z</dc:date>
+            </item>
+        </rdf:RDF>
+    """.trimIndent()
+
+    private val rdfHtmlFixture = """
+        <rdf:RDF
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+            xmlns:content="http://purl.org/rss/1.0/modules/content/"
+            xmlns:dc="http://purl.org/dc/elements/1.1/">
+            <channel rdf:about="https://example.com/rdf-html">
+                <title>RDF HTML Feed</title>
+                <link>https://example.com/rdf-html</link>
+                <description>RDF HTML description</description>
+            </channel>
+            <item rdf:about="https://example.com/rdf-html-post">
+                <title>RDF HTML Item</title>
+                <link>https://example.com/rdf-html-post</link>
+                <description>Plain summary</description>
+                <content:encoded><![CDATA[<p>Intro</p><img src="https://example.com/rdf-hero.jpg" /><p>Body</p>]]></content:encoded>
                 <dc:date>2026-05-19T10:00:00Z</dc:date>
             </item>
         </rdf:RDF>

@@ -21,6 +21,7 @@ kotlin {
             implementation(project(Modules.Core.Data.DB))
 
             implementation(libs.ktxml.core)
+            implementation(libs.ksoup)
             implementation(libs.rssparser)
             implementation(libs.androidx.paging.common)
             implementation(libs.okio)

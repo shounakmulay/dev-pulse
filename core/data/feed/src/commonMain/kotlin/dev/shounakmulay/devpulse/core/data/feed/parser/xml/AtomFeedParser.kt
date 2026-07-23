@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.feed.parser.xml
 
+import dev.shounakmulay.devpulse.core.data.feed.parser.common.ArticleHtmlParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeed
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedImage
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
@@ -9,7 +10,9 @@ import org.kobjects.ktxml.api.XmlPullParser
 import org.koin.core.annotation.Factory
 
 @Factory
-class AtomFeedParser : FeedParser() {
+class AtomFeedParser(
+    private val articleHtmlParser: ArticleHtmlParser,
+) : FeedParser() {
 
     override suspend fun parse(pullParser: XmlPullParser): ParsedFeed {
         val feedMetadataBuilder = ParsedFeedMetadata.Companion.Builder()
@@ -119,11 +122,25 @@ class AtomFeedParser : FeedParser() {
                     }
 
                     TAG_SUMMARY -> {
-                        description = pullParser.nextText()
+                        val rawSummary = pullParser.nextText()
+                        description = rawSummary
+                        // Extract hero image from summary HTML as fallback
+                        if (image.isNullOrBlank()) {
+                            image = extractHeroImage(rawSummary)
+                        }
                     }
 
                     TAG_CONTENT -> {
-                        content = pullParser.nextText()
+                        val rawContent = pullParser.nextText()
+                        content = rawContent
+                        // Extract hero image from content HTML as fallback
+                        if (image.isNullOrBlank()) {
+                            image = extractHeroImage(rawContent)
+                        }
+                        // Extract audio from content HTML as fallback
+                        if (audio.isNullOrBlank()) {
+                            audio = extractAudioUrl(rawContent)
+                        }
                     }
 
                     TAG_AUTHOR -> {
@@ -198,5 +215,27 @@ class AtomFeedParser : FeedParser() {
         }
 
         return null
+    }
+
+    /**
+     * Parses HTML content using [ArticleHtmlParser] to extract the first non-GIF
+     * `<img src>` URL. Returns null if the HTML is blank or no suitable image is found.
+     *
+     * Ported from Twine's `XmlContentParser.parsePostContent()` → `ArticleHtmlParser.parse()`.
+     */
+    private fun extractHeroImage(htmlContent: String?): String? {
+        if (htmlContent.isNullOrBlank()) return null
+        return articleHtmlParser.parse(htmlContent)?.heroImage
+    }
+
+    /**
+     * Parses HTML content using [ArticleHtmlParser] to extract the first
+     * `<audio src>` URL. Returns null if the HTML is blank or no audio is found.
+     *
+     * Ported from Twine's `XmlContentParser.parsePostContent()` → `ArticleHtmlParser.parse()`.
+     */
+    private fun extractAudioUrl(htmlContent: String?): String? {
+        if (htmlContent.isNullOrBlank()) return null
+        return articleHtmlParser.parse(htmlContent)?.audioUrl
     }
 }

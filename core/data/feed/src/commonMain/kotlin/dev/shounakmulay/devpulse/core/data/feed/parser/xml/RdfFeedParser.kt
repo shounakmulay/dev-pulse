@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.feed.parser.xml
 
+import dev.shounakmulay.devpulse.core.data.feed.parser.common.ArticleHtmlParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeed
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedImage
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
@@ -9,7 +10,9 @@ import org.kobjects.ktxml.api.XmlPullParser
 import org.koin.core.annotation.Factory
 
 @Factory
-class RdfFeedParser : FeedParser() {
+class RdfFeedParser(
+    private val articleHtmlParser: ArticleHtmlParser,
+) : FeedParser() {
 
     override suspend fun parse(pullParser: XmlPullParser): ParsedFeed {
         val feedMetadataBuilder = ParsedFeedMetadata.Companion.Builder()
@@ -86,8 +89,28 @@ class RdfFeedParser : FeedParser() {
                         link = link ?: parsedLink
                     }
 
-                    TAG_DESCRIPTION -> description = pullParser.nextText()
-                    TAG_CONTENT_ENCODED -> content = pullParser.nextText()
+                    TAG_DESCRIPTION -> {
+                        val rawDescription = pullParser.nextText()
+                        description = rawDescription
+                        // Extract hero image from description HTML as fallback
+                        if (image.isNullOrBlank()) {
+                            image = extractHeroImage(rawDescription)
+                        }
+                    }
+
+                    TAG_CONTENT_ENCODED -> {
+                        val rawContent = pullParser.nextText()
+                        content = rawContent
+                        // Extract hero image from content HTML as fallback
+                        if (image.isNullOrBlank()) {
+                            image = extractHeroImage(rawContent)
+                        }
+                        // Extract audio from content HTML as fallback
+                        if (audio.isNullOrBlank()) {
+                            audio = extractAudioUrl(rawContent)
+                        }
+                    }
+
                     TAG_PUB_DATE -> pubDate = pullParser.nextText()
                     TAG_DC_DATE -> {
                         val parsedDate = pullParser.nextText()
@@ -98,5 +121,27 @@ class RdfFeedParser : FeedParser() {
                 }
             }
         }
+    }
+
+    /**
+     * Parses HTML content using [ArticleHtmlParser] to extract the first non-GIF
+     * `<img src>` URL. Returns null if the HTML is blank or no suitable image is found.
+     *
+     * Ported from Twine's `XmlContentParser.parsePostContent()` → `ArticleHtmlParser.parse()`.
+     */
+    private fun extractHeroImage(htmlContent: String?): String? {
+        if (htmlContent.isNullOrBlank()) return null
+        return articleHtmlParser.parse(htmlContent)?.heroImage
+    }
+
+    /**
+     * Parses HTML content using [ArticleHtmlParser] to extract the first
+     * `<audio src>` URL. Returns null if the HTML is blank or no audio is found.
+     *
+     * Ported from Twine's `XmlContentParser.parsePostContent()` → `ArticleHtmlParser.parse()`.
+     */
+    private fun extractAudioUrl(htmlContent: String?): String? {
+        if (htmlContent.isNullOrBlank()) return null
+        return articleHtmlParser.parse(htmlContent)?.audioUrl
     }
 }

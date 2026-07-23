@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.feed.parser.xml
 
+import dev.shounakmulay.devpulse.core.data.feed.parser.common.ArticleHtmlParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeed
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedImage
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
@@ -9,7 +10,9 @@ import org.kobjects.ktxml.api.XmlPullParser
 import org.koin.core.annotation.Factory
 
 @Factory
-class RssFeedParser : FeedParser() {
+class RssFeedParser(
+    private val articleHtmlParser: ArticleHtmlParser,
+) : FeedParser() {
 
     override suspend fun parse(pullParser: XmlPullParser): ParsedFeed {
         pullParser.nextTag()
@@ -75,18 +78,6 @@ class RssFeedParser : FeedParser() {
             while (tagNotClosed(pullParser = pullParser, tag = TAG_RSS_ITEM)) {
                 if (pullParser.eventType != EventType.START_TAG) continue
 
-//                var content: String? = null
-//                var image: String? = null
-//                var audio: String? = null
-//                var video: String? = null
-//                var sourceName: String? = null
-//                var sourceUrl: String? = null
-//                var categories: List<String> = emptyList()
-//                var commentsUrl: String? = null
-//                var youtubeItemData: ParsedFeedItemYoutubeData? = null
-//                var rawEnclosure: ParsedFeedItemRawEnclosure? = null
-//                var rawMediaContent: ParsedFeedItemMediaContent? = null
-
                 when (pullParser.name) {
                     TAG_GUID -> {
                         guid = pullParser.nextText()
@@ -101,7 +92,12 @@ class RssFeedParser : FeedParser() {
                     }
 
                     TAG_DESCRIPTION -> {
-                        description = pullParser.nextText()
+                        val rawDescription = pullParser.nextText()
+                        description = rawDescription
+                        // Try extracting hero image from description HTML if no image yet
+                        if (image.isNullOrBlank()) {
+                            image = extractHeroImage(rawDescription)
+                        }
                     }
 
                     TAG_PUB_DATE -> {
@@ -147,7 +143,16 @@ class RssFeedParser : FeedParser() {
                     }
 
                     TAG_CONTENT_ENCODED -> {
-                        content = pullParser.nextText()
+                        val rawContent = pullParser.nextText()
+                        content = rawContent
+                        // Extract hero image from content HTML as fallback
+                        if (image.isNullOrBlank()) {
+                            image = extractHeroImage(rawContent)
+                        }
+                        // Extract audio from content HTML as fallback
+                        if (audio.isNullOrBlank()) {
+                            audio = extractAudioUrl(rawContent)
+                        }
                     }
 
                     TAG_DC_CREATOR, TAG_AUTHOR -> {
@@ -164,6 +169,28 @@ class RssFeedParser : FeedParser() {
                 }
             }
         }
+    }
+
+    /**
+     * Parses HTML content using [ArticleHtmlParser] to extract the first non-GIF
+     * `<img src>` URL. Returns null if the HTML is blank or no suitable image is found.
+     *
+     * Ported from Twine's `XmlContentParser.parsePostContent()` → `ArticleHtmlParser.parse()`.
+     */
+    private fun extractHeroImage(htmlContent: String?): String? {
+        if (htmlContent.isNullOrBlank()) return null
+        return articleHtmlParser.parse(htmlContent)?.heroImage
+    }
+
+    /**
+     * Parses HTML content using [ArticleHtmlParser] to extract the first
+     * `<audio src>` URL. Returns null if the HTML is blank or no audio is found.
+     *
+     * Ported from Twine's `XmlContentParser.parsePostContent()` → `ArticleHtmlParser.parse()`.
+     */
+    private fun extractAudioUrl(htmlContent: String?): String? {
+        if (htmlContent.isNullOrBlank()) return null
+        return articleHtmlParser.parse(htmlContent)?.audioUrl
     }
 
     private fun parseFeedImage(pullParser: XmlPullParser): ParsedFeedImage? {
