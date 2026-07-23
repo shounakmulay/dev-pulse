@@ -14,6 +14,7 @@ fun FeedPostImage(
     article: UIFeedPost,
     modifier: Modifier,
 ) {
+    if (article.imageUrl.isNullOrBlank()) return
     DPImage(
         url = article.imageUrl.orEmpty(),
         contentDescription = stringResource(
@@ -23,14 +24,14 @@ fun FeedPostImage(
         modifier = modifier,
         contentScale = ContentScale.Crop,
     ) {
-        DPImage(
-            url = article.feed.websiteImageUrl.orEmpty(),
-            contentDescription = stringResource(
-                stringRes.feed_article_image_content_description,
-                article.title
-            ),
-            modifier = it,
-            contentScale = ContentScale.Crop,
-        )
+//        DPImage(
+//            url = article.feed.websiteImageUrl.orEmpty(),
+//            contentDescription = stringResource(
+//                stringRes.feed_article_image_content_description,
+//                article.title
+//            ),
+//            modifier = it,
+//            contentScale = ContentScale.Crop,
+//        )
     }
 }

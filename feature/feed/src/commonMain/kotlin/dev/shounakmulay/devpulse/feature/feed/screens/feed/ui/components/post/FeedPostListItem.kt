@@ -1,14 +1,19 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,6 +42,44 @@ fun FeedPostListItem(
     modifier: Modifier = Modifier,
     showImage: Boolean = true,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
+    onPostClick: (UIFeedPost) -> Unit
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxHeight()
+            .clip(MaterialTheme.shapes.large)
+            .combinedClickable(
+                onClick = { onPostClick(post) },
+                onLongClick = {},
+                onDoubleClick = {
+                    onBookmarkChanged(post, !post.bookmarked)
+                }
+            ),
+        border = BorderStroke(
+            1.dp,
+            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.25f)
+        ),
+        shape = MaterialTheme.shapes.large,
+    ) {
+        PostListItemContent(
+            modifier = Modifier.padding(
+                LocalDPSpacing.current.md
+            ),
+            variant = variant,
+            showImage = showImage,
+            post = post,
+            onBookmarkChanged = onBookmarkChanged
+        )
+    }
+}
+
+@Composable
+private fun PostListItemContent(
+    modifier: Modifier,
+    variant: FeedsPostListItemVariant,
+    showImage: Boolean,
+    post: UIFeedPost,
+    onBookmarkChanged: (UIFeedPost, Boolean) -> Unit
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),

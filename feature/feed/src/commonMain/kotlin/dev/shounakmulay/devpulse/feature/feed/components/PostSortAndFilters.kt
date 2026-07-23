@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.feature.feed.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -10,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -18,15 +20,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.common.extensions.ifNullOrBlank
 import dev.shounakmulay.devpulse.core.designsystem.components.DPClickableRow
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonStyle
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
+import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.DPModalBottomSheet
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.dpModalBottomSheetController
@@ -44,20 +52,50 @@ internal fun PostSortAndFilters(
     sortValues: ImmutableList<UIPostSort>,
     onSortUpdated: (UIPostSort) -> Unit,
     filters: ImmutableList<RssPostFilter>,
-    onFilterUpdated: (RssPostFilter) -> Unit
+    onFilterUpdated: (RssPostFilter) -> Unit,
+    clearFilters: () -> Unit
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.sm),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         sortItem(sortValues, onSortUpdated)
-        filterItems(filters, onFilterUpdated)
+        filterItems(
+            filters = filters,
+            onFilterUpdated = onFilterUpdated,
+            clearFilters = clearFilters
+        )
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun LazyListScope.filterItems(
     filters: ImmutableList<RssPostFilter>,
-    onFilterUpdated: (RssPostFilter) -> Unit
+    onFilterUpdated: (RssPostFilter) -> Unit,
+    clearFilters: () -> Unit
 ) {
+    item(key = "filter_icon") {
+        Icon(
+            DPIcons.Filter,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            contentDescription = ""
+        )
+    }
+    item(key = "clear_filter") {
+        val hasFilters = remember(filters) {
+            filters.any { it.isEmpty().not() }
+        }
+        DPIconButton(
+            modifier = Modifier.animateItem().size(24.dp),
+            variant = DPIconButtonVariant.Tertiary,
+            style = DPIconButtonStyle.Tonal,
+            size = DPSize.Small,
+            icon = DPIcons.Close,
+            enabled = hasFilters,
+            contentDescription = "",
+            onClick = clearFilters
+        )
+    }
     items(
         filters,
         key = { it::class.simpleName.ifNullOrBlank { it::class.toString() } }) {
@@ -122,7 +160,14 @@ private fun LazyListScope.sortItem(
     sortValues: ImmutableList<UIPostSort>,
     onSortUpdated: (UIPostSort) -> Unit,
 ) {
-    item(key = "sort") {
+    item(key = "sort_icon") {
+        Icon(
+            DPIcons.Sort,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            contentDescription = ""
+        )
+    }
+    item(key = "sort_content") {
         val selected by remember(sortValues) {
             derivedStateOf {
                 sortValues.firstOrNull { it.selected }
@@ -149,8 +194,19 @@ private fun LazyListScope.sortItem(
         DPModalBottomSheet(controller = optionsBottomSheetController) {
             LazyColumn {
                 items(sortValues) {
+                    val icon = remember(it.sort) {
+                        when (it.sort) {
+                            RssPostSort.PublishedNewest -> DPIcons.ArrowUp
+                            RssPostSort.PublishedOldest -> DPIcons.ArrowDownward
+                            RssPostSort.TitleAtoZ -> DPIcons.SortAlphabetical
+                            RssPostSort.TitleZtoA -> DPIcons.SortAlphabetical
+                        }
+                    }
                     DPClickableRow(
+                        modifier = Modifier.padding(LocalDPSpacing.current.lg),
+                        leadingIcon = icon,
                         trailingIcon = if (it.selected) DPIcons.Check else null,
+                        trailingIconTint = MaterialTheme.colorScheme.primary,
                         title = it.name.asString(),
                         onClick = {
                             onSortUpdated(it)

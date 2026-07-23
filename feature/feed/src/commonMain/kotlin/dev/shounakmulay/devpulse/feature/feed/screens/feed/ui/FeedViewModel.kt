@@ -5,7 +5,7 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
-import dev.shounakmulay.devpulse.feature.feed.interactor.FeedInteractor
+import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onEach

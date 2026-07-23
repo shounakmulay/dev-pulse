@@ -27,11 +27,12 @@ import devpulse.core.resources.generated.resources.feed_articles
 import devpulse.core.resources.generated.resources.feed_view_all
 import org.jetbrains.compose.resources.stringResource
 
-fun LazyListScope.postsContentSection(
+fun LazyListScope.postsSection(
     articles: List<UIFeedPost>,
     isLoading: Boolean,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UIFeedPost) -> Unit,
+    onViewAll: () -> Unit
 ) {
     stickyHeader {
         DPSectionDivider(
@@ -39,7 +40,7 @@ fun LazyListScope.postsContentSection(
         ) {
             DPButton(
                 text = stringResource(stringRes.feed_view_all),
-                onClick = {},
+                onClick = onViewAll,
                 variant = DPButtonVariant.Secondary,
                 style = DPButtonStyle.Text,
                 size = DPSize.Small

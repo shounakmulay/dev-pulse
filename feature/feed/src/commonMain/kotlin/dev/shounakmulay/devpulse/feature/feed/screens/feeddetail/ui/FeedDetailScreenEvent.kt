@@ -7,6 +7,7 @@ import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
 sealed interface FeedDetailScreenEvent : ScreenEvent {
     data object Retry : FeedDetailScreenEvent
     data object PinToggled : FeedDetailScreenEvent
+    data object ClearFilters : FeedDetailScreenEvent
 
     data class OnPostBookmarkChanged(
         val postId: String,
