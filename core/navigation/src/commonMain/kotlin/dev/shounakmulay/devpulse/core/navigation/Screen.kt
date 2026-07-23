@@ -33,7 +33,13 @@ sealed interface Screen : NavKey {
 
             @Serializable
             @Immutable
-            data object PostList : Screen
+            data class PostList(val launchFor: PostListLaunchData) : Screen {
+                @Serializable
+                sealed interface PostListLaunchData {
+                    @Serializable
+                    data object All : PostListLaunchData
+                }
+            }
 
             @Serializable
             @Immutable
