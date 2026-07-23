@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.feature.feed.screens.model
+package dev.shounakmulay.devpulse.feature.feed.model
 
 import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable

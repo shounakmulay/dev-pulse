@@ -11,8 +11,8 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
 import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeedPost
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
