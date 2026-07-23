@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +27,7 @@ import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.Fee
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedListPlaceholderRow
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedListRow
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FilterTabs
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import devpulse.core.resources.generated.resources.add_feed_feeds
 import devpulse.core.resources.generated.resources.feed_list_load_error
 import org.jetbrains.compose.resources.stringResource

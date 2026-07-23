@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
@@ -20,20 +21,28 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
+import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilters
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
+import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostGridCard
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeedPost
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 internal fun FeedPostList(
     lazyGridState: LazyGridState,
     uiFeed: UIFeed,
     feed: RssFeed,
     posts: LazyPagingItems<UIFeedPost>,
+    filters: ImmutableList<RssPostFilter>,
+    sortValues: ImmutableList<UIPostSort>,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UIFeedPost) -> Unit,
+    onFilterUpdated: (RssPostFilter) -> Unit,
+    onSortUpdated: (UIPostSort) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = Modifier.fillMaxWidth(),
@@ -61,6 +70,15 @@ internal fun FeedPostList(
             }
         }
 
+        stickyHeader {
+            PostSortAndFilters(
+                sortValues = sortValues,
+                onSortUpdated = onSortUpdated,
+                filters = filters,
+                onFilterUpdated = onFilterUpdated
+            )
+        }
+
         items(
             count = posts.itemCount,
             key = posts.itemKey { it.id }
@@ -68,6 +86,7 @@ internal fun FeedPostList(
             val post = posts[index]
             if (post != null) {
                 FeedPostGridCard(
+                    modifier = Modifier.animateItem(),
                     article = post,
                     showImage = true,
                     onPostClick = onPostClick,

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -26,9 +27,12 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.rememberContainedSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,6 +41,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs
+import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds.feedsSection
@@ -69,9 +74,11 @@ fun FeedScreen(
         SearchBarDefaults.appBarWithSearchColors(
             searchBarColors = SearchBarDefaults.containedColors(state = searchBarState)
         )
+    val searchFocusRequester = remember { FocusRequester() }
     val inputField =
         @Composable {
             SearchBarDefaults.InputField(
+                modifier = Modifier.focusRequester(searchFocusRequester),
                 textFieldState = textFieldState,
                 searchBarState = searchBarState,
                 colors = appBarWithSearchColors.searchBarColors.inputFieldColors,
@@ -136,8 +143,19 @@ fun FeedScreen(
     ) { state ->
         val pinnedAndRecentFeeds by viewModel.pinnedAndRecentFeeds.collectAsStateWithLifecycle()
         val recentArticles by viewModel.recentArticles.collectAsStateWithLifecycle()
+        val listState = rememberLazyListState()
+
+        OnTabReselect(navigator = navigator, tab = Tabs.Feed) {
+            if (listState.firstVisibleItemIndex != 0 && listState.firstVisibleItemScrollOffset != 0) {
+                listState.animateScrollToItem(0)
+            } else {
+                searchFocusRequester.requestFocus()
+            }
+        }
+
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
+            state = listState,
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(bottom = 100.dp)
         ) {

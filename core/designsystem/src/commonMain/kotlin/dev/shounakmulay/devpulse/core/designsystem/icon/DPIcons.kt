@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RssFeed
@@ -65,4 +66,6 @@ object DPIcons {
     val PinOutlined = Icons.Outlined.PushPinOutlined
     val BookmarkAddOutline = Icons.Outlined.BookmarkAdd
     val BookmarkAdded = Icons.Default.BookmarkAdded
+    val ChevronUp = Icons.Default.KeyboardArrowUp
+    val Check = Icons.Default.Check
 }

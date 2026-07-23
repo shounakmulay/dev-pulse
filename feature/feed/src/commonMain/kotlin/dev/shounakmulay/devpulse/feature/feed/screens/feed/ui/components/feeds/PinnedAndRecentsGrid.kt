@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import devpulse.core.resources.generated.resources.feed_grid_loading_content_description
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource

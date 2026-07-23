@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeedPost
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 
 @Composable
 fun FeedPostGridCard(

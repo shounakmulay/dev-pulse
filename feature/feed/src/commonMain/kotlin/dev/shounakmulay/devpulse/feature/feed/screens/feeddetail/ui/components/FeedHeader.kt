@@ -30,8 +30,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
-import dev.shounakmulay.devpulse.core.ui.transition.sharedElement
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)

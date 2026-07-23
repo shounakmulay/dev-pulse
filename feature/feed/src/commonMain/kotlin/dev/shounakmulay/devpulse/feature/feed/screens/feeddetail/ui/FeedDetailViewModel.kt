@@ -7,11 +7,19 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedFeedPostsUseC
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.FeedInteractor
+import dev.shounakmulay.devpulse.feature.feed.interactor.PostInteractor
+import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import org.koin.core.annotation.KoinViewModel
 
@@ -19,21 +27,35 @@ import org.koin.core.annotation.KoinViewModel
 class FeedDetailViewModel(
     private val feedId: String,
     private val feedInteractor: FeedInteractor,
+    private val postInteractor: PostInteractor,
     private val getFeedDetailUseCase: GetFeedDetailUseCase,
     private val getPaginatedFeedPostsUseCase: GetPaginatedFeedPostsUseCase,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val setFeedPinnedUseCase: SetFeedPinnedUseCase
-) : MviViewModel<FeedDetailScreenState, FeedDetailScreenEffect>(),
+) : MviViewModel<FeedDetailScreenState, FeedDetailScreenEffect>(
+    initialState = FeedDetailScreenState(
+        sort = postInteractor.getDefaultUIPostSortValues()
+    )
+),
     EventHandler<FeedDetailScreenEvent> {
-    override fun createInitialState() = FeedDetailScreenState()
 
     override fun createStateSerializer() = FeedDetailScreenState.serializer()
 
-    val posts = feedInteractor.getUIFeedPostFlow(
-        getPaginatedFeedPostsUseCase(
-            feedIds = setOf(feedId),
-        )
-    ).cachedIn(viewModelScope)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val posts = state
+        .map { it.filters to it.sort }
+        .flatMapLatest { (filters, sort) ->
+            feedInteractor.getUIFeedPostFlow(
+                getPaginatedFeedPostsUseCase(
+                    filters = buildList {
+                        add(RssPostFilter.FeedIds(setOf(feedId)))
+                        addAll(filters)
+                    },
+                    sort = sort.firstOrNull { it.selected }?.sort ?: RssPostSort.PublishedNewest
+                )
+            )
+        }
+        .cachedIn(viewModelScope)
 
     override fun bindStateSources(stateSubscriptionScope: CoroutineScope) {
         getFeedDetailUseCase(feedId)
@@ -50,6 +72,30 @@ class FeedDetailViewModel(
 
             FeedDetailScreenEvent.Retry -> Unit
             FeedDetailScreenEvent.PinToggled -> onPinToggled()
+            is FeedDetailScreenEvent.OnFilterUpdated -> onFilterUpdated(event.filter)
+            is FeedDetailScreenEvent.OnSortUpdated -> onSortUpdated(event.sort)
+        }
+    }
+
+    private fun onSortUpdated(selectedSort: UIPostSort) {
+        setState {
+            copy(
+                sort = sort.map {
+                    it.copy(selected = it == selectedSort)
+                }.toPersistentList()
+            )
+        }
+    }
+
+    private fun onFilterUpdated(filter: RssPostFilter) {
+        setState {
+            copy(
+                filters = filters.map {
+                    if (it::class == filter::class) {
+                        filter
+                    } else it
+                }.toPersistentList()
+            )
         }
     }
 

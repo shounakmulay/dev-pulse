@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.FloatingActionButtonElevation
@@ -18,12 +18,12 @@ import androidx.compose.material3.FloatingActionButtonMenuScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumFloatingActionButton
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults
 import androidx.compose.material3.ToggleFloatingActionButtonScope
+import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
@@ -53,6 +52,7 @@ private fun DPFABStyle.containerColor(): Color = when (this) {
 @Composable
 fun DPFAB(
     icon: ImageVector,
+    visible: Boolean = true,
     contentDescription: String? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -67,29 +67,33 @@ fun DPFAB(
     val iconSlot: @Composable () -> Unit = {
         Icon(imageVector = icon, contentDescription = contentDescription)
     }
+    val animatedFabModifier =
+        modifier.animateFloatingActionButton(visible, alignment = Alignment.Center)
 
     when (size) {
         DPSize.Small -> SmallFloatingActionButton(
             onClick = onClick,
-            modifier = modifier,
+            modifier = animatedFabModifier,
             shape = shape ?: FloatingActionButtonDefaults.smallShape,
             containerColor = containerColor,
             contentColor = contentColor,
             elevation = resolvedElevation,
             content = iconSlot,
         )
+
         DPSize.Medium -> FloatingActionButton(
             onClick = onClick,
-            modifier = modifier,
+            modifier = animatedFabModifier,
             shape = shape ?: FloatingActionButtonDefaults.shape,
             containerColor = containerColor,
             contentColor = contentColor,
             elevation = resolvedElevation,
             content = iconSlot,
         )
+
         DPSize.Large -> LargeFloatingActionButton(
             onClick = onClick,
-            modifier = modifier,
+            modifier = animatedFabModifier,
             shape = shape ?: FloatingActionButtonDefaults.largeShape,
             containerColor = containerColor,
             contentColor = contentColor,

@@ -35,7 +35,12 @@ internal fun DevPulseNavSuiteScaffold(
     NavigationSuiteScaffold(
         state = navigationSuiteState,
         navigationItems = {
-            NavigationSuiteTabs(tabRoutes, navigationState, haptic, navigator)
+            NavigationSuiteTabs(
+                tabRoutes = tabRoutes,
+                navigationState = navigationState,
+                haptic = haptic,
+                navigator = navigator
+            )
         }
     ) {
         DevPulseNavDisplay(
@@ -60,6 +65,12 @@ private fun NavigationSuiteTabs(
             selected = tab == navigationState.selectedTab,
             onClick = {
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+
+                if (tab == navigationState.selectedTab) {
+                    navigator.onReselect(tab)
+                    return@NavigationSuiteItem
+                }
+
                 navigator.navigate(tab, false)
             },
             icon = {

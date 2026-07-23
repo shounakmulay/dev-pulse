@@ -5,7 +5,7 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.FeedInteractor
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeedPost
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onEach
@@ -17,9 +17,8 @@ import org.koin.core.annotation.KoinViewModel
 class PostListViewModel(
     private val feedInteractor: FeedInteractor,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase
-) : MviViewModel<PostListScreenState, PostListScreenEffect>(),
+) : MviViewModel<PostListScreenState, PostListScreenEffect>(PostListScreenState()),
     EventHandler<PostListScreenEvent> {
-    override fun createInitialState(): PostListScreenState = PostListScreenState()
 
     override fun createStateSerializer() = PostListScreenState.serializer()
 

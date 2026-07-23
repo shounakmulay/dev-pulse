@@ -22,7 +22,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
 import dev.shounakmulay.devpulse.core.resources.stringRes
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeedPost
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import devpulse.core.resources.generated.resources.feed_articles
 import devpulse.core.resources.generated.resources.feed_view_all
 import org.jetbrains.compose.resources.stringResource

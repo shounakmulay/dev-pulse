@@ -2,6 +2,9 @@ package dev.shounakmulay.devpulse.core.navigation
 
 import androidx.compose.runtime.Immutable
 import dev.shounakmulay.devpulse.core.logging.DPLogger
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.filter
 
 
 @Immutable
@@ -9,6 +12,19 @@ class Navigator(
     val state: NavigationState,
     private val logger: DPLogger
 ) {
+
+    private val reselectEvents = MutableSharedFlow<Screen>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+
+    fun reselectEvents(screen: Screen) = reselectEvents.filter { it == screen }
+
+    fun onReselect(screen: Screen) {
+        reselectEvents.tryEmit(screen)
+    }
+
     fun navigate(screen: Screen, onRootStack: Boolean = false): Boolean {
         val currentRootScreen = state.rootStack.last()
         val isOnTabs = currentRootScreen == Screen.Tabs
@@ -147,7 +163,9 @@ class Navigator(
     fun navigateBack(): Boolean {
         logger.d {
             "Navigation mutation action=navigateBack " +
-                "selectedTab=${state.selectedTab.summary()} rootTop=${state.rootStack.last().summary()}"
+                    "selectedTab=${state.selectedTab.summary()} rootTop=${
+                        state.rootStack.last().summary()
+                    }"
         }
         if (state.rootStack.last() == Screen.Tabs) {
             return navigateBackTabs()
@@ -177,7 +195,7 @@ class Navigator(
     private fun logAttempt(action: String, screen: Screen, onRootStack: Boolean) {
         logger.d {
             "Navigation mutation action=$action target=${screen.summary()} " +
-                "selectedTab=${state.selectedTab.summary()} requestedStack=${if (onRootStack) "root" else "tab"}"
+                    "selectedTab=${state.selectedTab.summary()} requestedStack=${if (onRootStack) "root" else "tab"}"
         }
     }
 
@@ -190,8 +208,8 @@ class Navigator(
     ): Boolean {
         logger.d {
             "Navigation result action=$action target=${screen.summary()} " +
-                "selectedTab=${state.selectedTab.summary()} stack=$stack result=$result" +
-                reason.asLogSuffix()
+                    "selectedTab=${state.selectedTab.summary()} stack=$stack result=$result" +
+                    reason.asLogSuffix()
         }
         return result
     }
@@ -199,8 +217,8 @@ class Navigator(
     private fun logBackResult(stack: String, result: Boolean, reason: String? = null): Boolean {
         logger.d {
             "Navigation result action=navigateBack selectedTab=${state.selectedTab.summary()} " +
-                "stack=$stack result=$result" +
-                reason.asLogSuffix()
+                    "stack=$stack result=$result" +
+                    reason.asLogSuffix()
         }
         return result
     }
