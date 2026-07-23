@@ -63,4 +63,14 @@
     <string name="feed_tab_all">All</string>
     <string name="feed_tab_pinned">Pinned</string>
     <string name="opml">OPML</string>
+    <string name="newest">Newest</string>
+    <string name="oldest">Oldest</string>
+    <string name="title_a_z">Title A-Z</string>
+    <string name="title_z_a">Title Z-A</string>
+    <string name="bookmarked">Bookmarked</string>
+    <string name="pinned">Pinned</string>
+    <string name="has_audio">With audio</string>
+    <string name="has_video">With video</string>
+    <string name="author">Author</string>
+    <string name="category">Category</string>
 </resources>

@@ -14,7 +14,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import devpulse.core.resources.generated.resources.add_feed_action_import
 import devpulse.core.resources.generated.resources.feed_empty_imported
 import kotlinx.collections.immutable.ImmutableList

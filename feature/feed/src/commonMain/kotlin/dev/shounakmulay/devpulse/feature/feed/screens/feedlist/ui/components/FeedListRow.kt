@@ -25,7 +25,7 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import devpulse.core.resources.generated.resources.feed_action_pin
 import devpulse.core.resources.generated.resources.feed_action_unpin
 import org.jetbrains.compose.resources.stringResource

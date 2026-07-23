@@ -18,9 +18,8 @@ class FeedViewModel(
     private val feedInteractor: FeedInteractor,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val setFeedPinnedUseCase: SetFeedPinnedUseCase
-) : MviViewModel<FeedScreenState, FeedScreenEffect>(),
+) : MviViewModel<FeedScreenState, FeedScreenEffect>(FeedScreenState()),
     EventHandler<FeedScreenEvent> {
-    override fun createInitialState(): FeedScreenState = FeedScreenState()
     override fun createStateSerializer() = FeedScreenState.serializer()
 
     val pinnedAndRecentFeeds = feedInteractor

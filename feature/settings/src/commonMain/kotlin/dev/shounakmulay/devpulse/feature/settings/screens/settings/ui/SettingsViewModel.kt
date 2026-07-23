@@ -18,7 +18,7 @@ class SettingsViewModel(
     private val observeThemeSettingsUseCase: ObserveThemeSettingsUseCase,
     private val setThemeSettingsUseCase: SetThemeSettingsUseCase,
     logger: DPLogger
-) : MviViewModel<SettingsScreenState, SettingsScreenEffect>(),
+) : MviViewModel<SettingsScreenState, SettingsScreenEffect>(SettingsScreenState()),
     EventHandler<SettingsScreenEvent> {
     private val logger = logger.withTag(Tag)
 
@@ -37,8 +37,6 @@ class SettingsViewModel(
             }
             .launchIn(viewModelScope)
     }
-
-    override fun createInitialState() = SettingsScreenState()
 
     override fun createStateSerializer() = SettingsScreenState.serializer()
 

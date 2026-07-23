@@ -162,6 +162,7 @@ class LocalFeedPostSqlQueryBuilder(
                 }
 
                 is LocalFeedPostFilter.Bookmarked -> {
+                    if (filter.value == null) continue
                     clauses += "${FeedColumnsSelector.BOOKMARKED} = ?"
                     bindings += SqlBinding.BooleanValue(filter.value)
                 }
@@ -192,30 +193,36 @@ class LocalFeedPostSqlQueryBuilder(
                 }
 
                 is LocalFeedPostFilter.HasAudio -> {
+                    if (filter.value == null) continue
                     clauses += if (filter.value) audioExistsClause() else "NOT (${audioExistsClause()})"
                 }
 
                 is LocalFeedPostFilter.HasEnclosure -> {
+                    if (filter.value == null) continue
                     val clause =
                         "(${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} IS NOT NULL AND ${FeedColumnsSelector.RAW_ENCLOSURE_TYPE} != '')"
                     clauses += if (filter.value) clause else "NOT ($clause)"
                 }
 
                 is LocalFeedPostFilter.HasImage -> {
+                    if (filter.value == null) continue
                     clauses += if (filter.value) imageExistsClause() else "NOT (${imageExistsClause()})"
                 }
 
                 is LocalFeedPostFilter.HasVideo -> {
+                    if (filter.value == null) continue
                     clauses += if (filter.value) videoExistsClause() else "NOT (${videoExistsClause()})"
                 }
 
                 is LocalFeedPostFilter.HasYouTubeData -> {
+                    if (filter.value == null) continue
                     val clause =
                         "(${FeedColumnsSelector.YOUTUBE_DATA_VIDEO_ID} IS NOT NULL AND ${FeedColumnsSelector.YOUTUBE_DATA_VIDEO_ID} != '')"
                     clauses += if (filter.value) clause else "NOT ($clause)"
                 }
 
                 is LocalFeedPostFilter.PinnedFeed -> {
+                    if (filter.value == null) continue
                     clauses += "${FeedColumnsSelector.FEED_PINNED} = ?"
                     bindings += SqlBinding.BooleanValue(filter.value)
                 }
@@ -324,22 +331,37 @@ class LocalFeedPostSqlQueryBuilder(
         reversed: Boolean,
         bindings: MutableList<SqlBinding>
     ): String {
-        val comparator = when {
-            reversed && includeCursor -> ">="
-            reversed -> ">"
-            includeCursor -> "<="
-            else -> "<"
-        }
+        val effectiveSort = if (reversed) cursor.sort.reversed() else cursor.sort
+        val (primaryDirection, idDirection) = effectiveSort.getDirections()
+        val primaryOp = primaryDirection.toOperator(includeCursor)
+        val idOp = idDirection.toOperator(includeCursor)
         val sortColumnName = cursor.sort.asColumnName()
         val clauses = """
-            (
-                $sortColumnName $comparator ? OR
-                ($sortColumnName = ? AND ${FeedColumnsSelector.ID} $comparator ?)
-            )
-        """
+        (
+            $sortColumnName $primaryOp ? OR
+            ($sortColumnName = ? AND ${FeedColumnsSelector.ID} $idOp ?)
+        )
+    """.trimIndent()
+
         val idBinding = SqlBinding.Text(cursor.id)
         bindings += listOf(cursor.sortValue, cursor.sortValue, idBinding)
         return clauses
+    }
+
+    private fun LocalFeedPostSort.getDirections(): Pair<LocalFeedPostSortDirection, LocalFeedPostSortDirection> {
+        return when (this) {
+            LocalFeedPostSort.PublishedNewest -> LocalFeedPostSortDirection.Descending to LocalFeedPostSortDirection.Descending
+            LocalFeedPostSort.PublishedOldest -> LocalFeedPostSortDirection.Ascending to LocalFeedPostSortDirection.Ascending
+            LocalFeedPostSort.TitleAtoZ -> LocalFeedPostSortDirection.Ascending to LocalFeedPostSortDirection.Descending
+            LocalFeedPostSort.TitleZtoA -> LocalFeedPostSortDirection.Descending to LocalFeedPostSortDirection.Descending
+        }
+    }
+
+    private fun LocalFeedPostSortDirection.toOperator(includeCursor: Boolean): String {
+        return when (this) {
+            LocalFeedPostSortDirection.Ascending -> if (includeCursor) ">=" else ">"
+            LocalFeedPostSortDirection.Descending -> if (includeCursor) "<=" else "<"
+        }
     }
 
     private fun LocalFeedPostSort.asColumnName(): String {

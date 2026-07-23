@@ -13,11 +13,11 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.container
 
-abstract class MviViewModel<STATE : ScreenState, EFFECT : Effect> :
+abstract class MviViewModel<STATE : ScreenState, EFFECT : Effect>(initialState: STATE) :
     ContainerHost<STATE, EFFECT>, ViewModel(), KoinComponent {
     private val savedStateHandle: SavedStateHandle by inject()
     override val container = container<STATE, EFFECT>(
-        initialState = createInitialState(),
+        initialState = initialState,
         savedStateHandle = savedStateHandle,
         serializer = createStateSerializer(),
     ) {
@@ -42,7 +42,6 @@ abstract class MviViewModel<STATE : ScreenState, EFFECT : Effect> :
         postSideEffect(effect)
     }
 
-    abstract fun createInitialState(): STATE
     abstract fun createStateSerializer(): KSerializer<STATE>
 
     protected open fun bindStateSources(stateSubscriptionScope: CoroutineScope) {}

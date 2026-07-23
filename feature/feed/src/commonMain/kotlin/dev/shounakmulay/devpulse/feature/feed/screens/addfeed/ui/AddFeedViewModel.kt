@@ -37,8 +37,7 @@ class AddFeedViewModel(
     private val observeFeedQueueForUrlsUseCase: ObserveFeedQueueForUrlsUseCase,
     private val normalizeUrlUseCase: NormalizeUrlUseCase,
     private val validateUrlUseCase: ValidateUrlUseCase
-) : MviViewModel<AddFeedScreenState, AddFeedScreenEffect>(), EventHandler<AddFeedScreenEvent> {
-    override fun createInitialState() = AddFeedScreenState()
+) : MviViewModel<AddFeedScreenState, AddFeedScreenEffect>(AddFeedScreenState()), EventHandler<AddFeedScreenEvent> {
     override fun createStateSerializer() = AddFeedScreenState.serializer()
 
     init {

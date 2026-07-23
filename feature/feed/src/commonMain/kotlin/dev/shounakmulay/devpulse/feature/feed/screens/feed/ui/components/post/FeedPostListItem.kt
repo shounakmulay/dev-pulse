@@ -24,7 +24,7 @@ import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
-import dev.shounakmulay.devpulse.feature.feed.screens.model.UIFeedPost
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 
 enum class FeedsPostListItemVariant {
     XS, S, M, L, XL

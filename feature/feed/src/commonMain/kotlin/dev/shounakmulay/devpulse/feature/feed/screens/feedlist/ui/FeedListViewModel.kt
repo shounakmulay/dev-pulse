@@ -1,7 +1,6 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui
 
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedFeedSourcesUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedPinnedFeedSourcesUseCase
@@ -11,11 +10,9 @@ import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.UISelectedTab
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
@@ -25,9 +22,8 @@ class FeedListViewModel(
     private val getPaginatedPinnedFeedSourcesUseCase: GetPaginatedPinnedFeedSourcesUseCase,
     private val setFeedPinnedUseCase: SetFeedPinnedUseCase,
     private val feedInteractor: FeedInteractor,
-) : MviViewModel<FeedListScreenState, FeedListScreenEffect>(),
+) : MviViewModel<FeedListScreenState, FeedListScreenEffect>(FeedListScreenState()),
     EventHandler<FeedListScreenEvent> {
-    override fun createInitialState() = FeedListScreenState()
 
     override fun createStateSerializer() = FeedListScreenState.serializer()
 
