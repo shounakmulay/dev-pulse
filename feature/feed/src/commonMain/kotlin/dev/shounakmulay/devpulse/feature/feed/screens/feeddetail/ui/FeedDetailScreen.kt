@@ -6,26 +6,18 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.paging.compose.collectAsLazyPagingItems
-import dev.shounakmulay.devpulse.core.designsystem.components.DPFAB
-import dev.shounakmulay.devpulse.core.designsystem.components.DPFABStyle
-import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.FeedDetail
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
+import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components.FeedDetailTopAppBar
 import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components.FeedPostList
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -58,20 +50,7 @@ fun FeedDetailScreen(
             )
         },
         floatingActionButton = {
-            val visible by remember {
-                derivedStateOf { lazyGridState.firstVisibleItemIndex > 0 && scrollBehavior.state.collapsedFraction in 0f..0.5f }
-            }
-            val coroutineScope = rememberCoroutineScope()
-            DPFAB(
-                icon = DPIcons.ChevronUp,
-                visible = visible,
-                style = DPFABStyle.Secondary,
-                onClick = {
-                    coroutineScope.launch {
-                        lazyGridState.animateScrollToItem(0)
-                    }
-                }
-            )
+            ScrollToTopFAB(lazyGridState, scrollBehavior)
         },
         onEffect = {},
     ) { state ->
@@ -86,8 +65,8 @@ fun FeedDetailScreen(
             lazyGridState = lazyGridState,
             uiFeed = state.uiFeed,
             feed = state.feed,
-            filters = state.filters,
-            sortValues = state.sort.toImmutableList(),
+            filters = state.postFilterSortState.filters,
+            sortValues = state.postFilterSortState.sortValues,
             posts = posts,
             onBookmarkChanged = { selectedPost, bookmarked ->
                 viewModel.onEvent(
@@ -101,10 +80,18 @@ fun FeedDetailScreen(
             },
             onFilterUpdated = {
                 viewModel.onEvent(FeedDetailScreenEvent.OnFilterUpdated(it))
+                lazyGridState.requestScrollToItem(0)
             },
             onSortUpdated = {
                 viewModel.onEvent(FeedDetailScreenEvent.OnSortUpdated(it))
+                lazyGridState.requestScrollToItem(0)
+            },
+            clearFilters = {
+                viewModel.onEvent(FeedDetailScreenEvent.ClearFilters)
+                lazyGridState.requestScrollToItem(0)
             }
         )
     }
 }
+
+

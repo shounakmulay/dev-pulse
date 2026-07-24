@@ -27,7 +27,8 @@ import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilters
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
-import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostGridCard
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedsPostListItemVariant
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -42,7 +43,8 @@ internal fun FeedPostList(
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UIFeedPost) -> Unit,
     onFilterUpdated: (RssPostFilter) -> Unit,
-    onSortUpdated: (UIPostSort) -> Unit
+    onSortUpdated: (UIPostSort) -> Unit,
+    clearFilters: () -> Unit
 ) {
     LazyVerticalGrid(
         modifier = Modifier.fillMaxWidth(),
@@ -75,7 +77,8 @@ internal fun FeedPostList(
                 sortValues = sortValues,
                 onSortUpdated = onSortUpdated,
                 filters = filters,
-                onFilterUpdated = onFilterUpdated
+                onFilterUpdated = onFilterUpdated,
+                clearFilters = clearFilters
             )
         }
 
@@ -85,12 +88,13 @@ internal fun FeedPostList(
         ) { index ->
             val post = posts[index]
             if (post != null) {
-                FeedPostGridCard(
+                FeedPostListItem(
                     modifier = Modifier.animateItem(),
-                    article = post,
+                    post = post,
                     showImage = true,
                     onPostClick = onPostClick,
-                    onBookmarkChanged = onBookmarkChanged
+                    onBookmarkChanged = onBookmarkChanged,
+                    variant = FeedsPostListItemVariant.M
                 )
             }
         }

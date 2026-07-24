@@ -7,7 +7,7 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedPinnedFeedSou
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
-import dev.shounakmulay.devpulse.feature.feed.interactor.FeedInteractor
+import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.UISelectedTab
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged

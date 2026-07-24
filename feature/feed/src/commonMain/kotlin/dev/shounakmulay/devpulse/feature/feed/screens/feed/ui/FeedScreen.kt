@@ -1,57 +1,33 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.AppBarWithSearch
-import androidx.compose.material3.ExpandedFullScreenContainedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
-import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SearchBarValue
-import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.rememberContainedSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.shounakmulay.devpulse.core.designsystem.components.DPClickableRow
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
+import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
+import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
+import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs
+import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.PostList
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds.feedsSection
-import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
-import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedsPostListItemVariant
-import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.postsContentSection
-import devpulse.core.resources.generated.resources.feed_search
-import devpulse.core.resources.generated.resources.feed_search_back
-import devpulse.core.resources.generated.resources.feed_search_result
-import kotlinx.coroutines.launch
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.postsSection
+import devpulse.core.resources.generated.resources.feed_view_all
+import devpulse.core.resources.generated.resources.folders
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(
@@ -63,78 +39,8 @@ fun FeedScreen(
     navigator: Navigator,
     viewModel: FeedViewModel,
 ) {
-    val textFieldState = rememberTextFieldState()
-    val searchBarState = rememberContainedSearchBarState()
-    val scope = rememberCoroutineScope()
-    val searchText = stringResource(stringRes.feed_search)
-    val searchBackContentDescription = stringResource(stringRes.feed_search_back)
-    val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior(
-    )
-    val appBarWithSearchColors =
-        SearchBarDefaults.appBarWithSearchColors(
-            searchBarColors = SearchBarDefaults.containedColors(state = searchBarState)
-        )
-    val searchFocusRequester = remember { FocusRequester() }
-    val inputField =
-        @Composable {
-            SearchBarDefaults.InputField(
-                modifier = Modifier.focusRequester(searchFocusRequester),
-                textFieldState = textFieldState,
-                searchBarState = searchBarState,
-                colors = appBarWithSearchColors.searchBarColors.inputFieldColors,
-                onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
-                placeholder = {
-                    Text(modifier = Modifier.clearAndSetSemantics {}, text = searchText)
-                },
-                leadingIcon = {
-                    val scope = rememberCoroutineScope()
-                    AnimatedVisibility(
-                        visible = searchBarState.targetValue == SearchBarValue.Expanded,
-                        enter = slideInHorizontally() + fadeIn(),
-                        exit = slideOutHorizontally() + fadeOut()
-                    ) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = searchBackContentDescription,
-                            modifier = Modifier.clickable {
-                                scope.launch {
-                                    searchBarState.animateToCollapsed()
-                                }
-                            }
-                        )
-                    }
-                },
-            )
-        }
     Screen(
         viewModel = viewModel,
-        topAppBar = {
-            AppBarWithSearch(
-                scrollBehavior = scrollBehavior,
-                state = searchBarState,
-                colors = appBarWithSearchColors,
-                inputField = inputField,
-            )
-            ExpandedFullScreenContainedSearchBar(
-                state = searchBarState,
-                inputField = inputField,
-                colors = appBarWithSearchColors.searchBarColors,
-            ) {
-                LazyColumn {
-                    items(10) {
-                        DPClickableRow(
-                            onClick = { },
-                            content = {
-                                DPTextView(
-                                    text = stringResource(stringRes.feed_search_result, it),
-                                    variant = DPTextViewVariant.BodyMedium
-                                )
-                            },
-                        )
-                    }
-                }
-            }
-        },
         onEffect = {
             when (it) {
                 else -> viewModel.unhandledEffect(it)
@@ -148,8 +54,6 @@ fun FeedScreen(
         OnTabReselect(navigator = navigator, tab = Tabs.Feed) {
             if (listState.firstVisibleItemIndex != 0 && listState.firstVisibleItemScrollOffset != 0) {
                 listState.animateScrollToItem(0)
-            } else {
-                searchFocusRequester.requestFocus()
             }
         }
 
@@ -177,7 +81,7 @@ fun FeedScreen(
                     )
                 },
             )
-            postsContentSection(
+            postsSection(
                 articles = recentArticles,
                 isLoading = state.isArticlesLoading,
                 onPostClick = {},
@@ -189,21 +93,22 @@ fun FeedScreen(
                         )
                     )
                 },
+                onViewAll = {
+                    navigator.navigate(PostList(PostList.PostListLaunchData.All))
+                }
             )
-            items(recentArticles) { post ->
-                FeedPostListItem(
-                    post = post,
-                    variant = if (post.feed.pinned) FeedsPostListItemVariant.L else FeedsPostListItemVariant.M,
-                    onBookmarkChanged = { selectedPost, bookmarked ->
-                        viewModel.onEvent(
-                            FeedScreenEvent.OnPostBookmarkChanged(
-                                postId = selectedPost.id,
-                                bookmarked = bookmarked
-                            )
-                        )
-                    },
-                    modifier = Modifier.padding(16.dp)
-                )
+            stickyHeader {
+                DPSectionDivider(
+                    title = stringResource(stringRes.folders)
+                ) {
+                    DPButton(
+                        text = stringResource(stringRes.feed_view_all),
+                        onClick = {},
+                        variant = DPButtonVariant.Secondary,
+                        style = DPButtonStyle.Text,
+                        size = DPSize.Small
+                    )
+                }
             }
         }
     }

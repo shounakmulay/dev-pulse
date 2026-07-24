@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.feature.feed.interactor
+package dev.shounakmulay.devpulse.feature.feed.interactor.feed
 
 import androidx.paging.PagingData
 import androidx.paging.map

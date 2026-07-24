@@ -57,6 +57,7 @@
     <string name="feed_pinned_content_description">Pinned feed</string>
     <string name="feed_grid_loading_content_description">Loading feeds</string>
     <string name="feed_articles">Articles</string>
+    <string name="folders">Folders</string>
     <string name="feed_articles_loading_content_description">Loading articles</string>
     <string name="feed_article_image_content_description">Image for %1$s</string>
     <string name="feed_loading_more_content_description">Loading more feeds</string>
@@ -73,4 +74,5 @@
     <string name="has_video">With video</string>
     <string name="author">Author</string>
     <string name="category">Category</string>
+    <string name="all_posts">All Posts</string>
 </resources>

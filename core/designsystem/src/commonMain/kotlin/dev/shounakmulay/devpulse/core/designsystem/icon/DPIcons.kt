@@ -2,8 +2,11 @@ package dev.shounakmulay.devpulse.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddToQueue
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ClearAll
@@ -11,10 +14,13 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.RssFeed
+import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.runtime.Composable
@@ -68,4 +74,10 @@ object DPIcons {
     val BookmarkAdded = Icons.Default.BookmarkAdded
     val ChevronUp = Icons.Default.KeyboardArrowUp
     val Check = Icons.Default.Check
+    val ArrowUp = Icons.Default.ArrowUpward
+    val ArrowDownward = Icons.Default.ArrowDownward
+    val SortAlphabetical = Icons.Default.SortByAlpha
+    val Sort = Icons.AutoMirrored.Default.Sort
+    val Filter = Icons.Default.FilterAlt
+    val RemoveSelection = Icons.Default.Remove
 }
