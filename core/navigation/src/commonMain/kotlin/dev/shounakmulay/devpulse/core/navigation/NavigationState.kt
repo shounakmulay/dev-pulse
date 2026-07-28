@@ -59,6 +59,7 @@ fun rememberNavigationState(
                 )
                 subclass(Screen.Tabs.Time::class, Screen.Tabs.Time.serializer())
                 subclass(Screen.Settings::class, Screen.Settings.serializer())
+                subclass(Screen.AboutLibs::class, Screen.AboutLibs.serializer())
                 subclass(
                     Screen.DeveloperTools.DesignSystemBoard::class,
                     Screen.DeveloperTools.DesignSystemBoard.serializer()

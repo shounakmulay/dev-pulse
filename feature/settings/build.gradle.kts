@@ -26,6 +26,7 @@ kotlin {
             implementation(project(Modules.Core.Domain.SETTINGS))
             implementation(project(Modules.Core.COMMON))
             implementation(libs.compose.components.resources)
+            implementation(libs.aboutlibraries.compose.m3)
         }
     }
 }

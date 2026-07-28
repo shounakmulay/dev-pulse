@@ -28,6 +28,8 @@ import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import devpulse.core.resources.generated.resources.black_mode
 import devpulse.core.resources.generated.resources.design_system_board
 import devpulse.core.resources.generated.resources.developer_tools
+import devpulse.core.resources.generated.resources.licenses
+import devpulse.core.resources.generated.resources.others
 import devpulse.core.resources.generated.resources.select_app_theme
 import devpulse.core.resources.generated.resources.settings
 import devpulse.core.resources.generated.resources.theme
@@ -41,6 +43,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
         onEffect = {
             when (it) {
                 SettingsScreenEffect.NavigateToDesignSystemBoard -> navigator.navigate(Screen.DeveloperTools.DesignSystemBoard)
+                SettingsScreenEffect.NavigateToLicenses -> navigator.navigate(Screen.AboutLibs)
                 else -> viewModel.unhandledEffect(it)
             }
         },
@@ -66,6 +69,13 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                     },
                     onBlackModeToggled = { value ->
                         viewModel.onEvent(SettingsScreenEvent.OnBlackModeToggled(value))
+                    }
+                )
+            }
+            item {
+                OthersSection(
+                    onLicensesClick = {
+                        viewModel.onEvent(SettingsScreenEvent.OnLicensesClicked)
                     }
                 )
             }
@@ -111,6 +121,15 @@ private fun DeveloperSettingsSection(
     SettingsSubPageLink(
         headlineText = stringResource(stringRes.design_system_board),
         onClick = onDesignSystemBoardClick
+    )
+}
+
+@Composable
+private fun OthersSection(onLicensesClick: () -> Unit) {
+    SettingsSectionHeading(title = stringResource(stringRes.others))
+    SettingsSubPageLink(
+        headlineText = stringResource(stringRes.licenses),
+        onClick = onLicensesClick
     )
 }
 

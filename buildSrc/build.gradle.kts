@@ -13,6 +13,7 @@ dependencies {
     implementation(libs.ksp.gradle.plugin)
     implementation(libs.koin.compiler.gradle.plugin)
     implementation(libs.androidx.room.gradle.plugin)
+    implementation(libs.aboutLibraries.gradle.plugin)
 }
 
 gradlePlugin {
