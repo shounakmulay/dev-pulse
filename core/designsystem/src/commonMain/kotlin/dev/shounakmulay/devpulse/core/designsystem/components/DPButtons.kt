@@ -127,7 +127,6 @@ private fun resolveButtonBorder(
 @Composable
 fun DPButton(
     text: String,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     style: DPButtonStyle = DPButtonStyle.Filled,
     variant: DPButtonVariant = DPButtonVariant.Primary,
@@ -140,6 +139,7 @@ fun DPButton(
     contentPadding: PaddingValues? = null,
     border: BorderStroke? = null,
     elevation: ButtonElevation? = null,
+    onClick: () -> Unit,
 ) {
     DPButton(
         onClick = onClick,

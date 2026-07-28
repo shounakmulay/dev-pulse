@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
@@ -73,6 +74,8 @@ object DPIcons {
     val BookmarkAddOutline = Icons.Outlined.BookmarkAdd
     val BookmarkAdded = Icons.Default.BookmarkAdded
     val ChevronUp = Icons.Default.KeyboardArrowUp
+    val ChevronLeft = Icons.AutoMirrored.Default.KeyboardArrowLeft
+    val ChevronRight = Icons.AutoMirrored.Default.KeyboardArrowRight
     val Check = Icons.Default.Check
     val ArrowUp = Icons.Default.ArrowUpward
     val ArrowDownward = Icons.Default.ArrowDownward
@@ -80,4 +83,5 @@ object DPIcons {
     val Sort = Icons.AutoMirrored.Default.Sort
     val Filter = Icons.Default.FilterAlt
     val RemoveSelection = Icons.Default.Remove
+    val EmptyList = EmptyListIcon
 }
