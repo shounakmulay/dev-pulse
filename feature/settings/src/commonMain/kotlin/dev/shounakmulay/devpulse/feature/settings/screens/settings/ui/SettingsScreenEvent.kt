@@ -7,4 +7,5 @@ sealed interface SettingsScreenEvent : ScreenEvent {
     data class OnThemeModeSelected(val themeMode: ThemeMode) : SettingsScreenEvent
     data class OnBlackModeToggled(val value: Boolean) : SettingsScreenEvent
     data object OnDesignSystemBoardClicked : SettingsScreenEvent
+    data object OnLicensesClicked : SettingsScreenEvent
 }

@@ -45,7 +45,12 @@ class SettingsViewModel(
             is SettingsScreenEvent.OnThemeModeSelected -> updateThemeMode(event.themeMode)
             is SettingsScreenEvent.OnBlackModeToggled -> toggleBlackMode(event.value)
             SettingsScreenEvent.OnDesignSystemBoardClicked -> navigateToDesignSystemBoard()
+            SettingsScreenEvent.OnLicensesClicked -> navigateToLicenses()
         }
+    }
+
+    private fun navigateToLicenses() {
+        postEffect(SettingsScreenEffect.NavigateToLicenses)
     }
 
     private fun toggleBlackMode(value: Boolean) {
