@@ -72,14 +72,6 @@ fun FeedScreen(
                 onFeedLongClick = {
 
                 },
-                onPinChanged = { feed, pinned ->
-                    viewModel.onEvent(
-                        FeedScreenEvent.OnFeedPinChanged(
-                            feedId = feed.id,
-                            pinned = pinned
-                        )
-                    )
-                },
             )
             postsSection(
                 articles = recentArticles,

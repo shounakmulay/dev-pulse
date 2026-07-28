@@ -51,9 +51,6 @@ fun FeedPostListItem(
             .combinedClickable(
                 onClick = { onPostClick(post) },
                 onLongClick = {},
-                onDoubleClick = {
-                    onBookmarkChanged(post, !post.bookmarked)
-                }
             ),
         border = BorderStroke(
             1.dp,

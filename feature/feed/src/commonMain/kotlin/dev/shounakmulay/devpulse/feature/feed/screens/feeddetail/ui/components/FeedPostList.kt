@@ -17,19 +17,21 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
+import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilterState
 import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilters
+import dev.shounakmulay.devpulse.feature.feed.components.postsListEmptyMessage
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedsPostListItemVariant
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -38,8 +40,7 @@ internal fun FeedPostList(
     uiFeed: UIFeed,
     feed: RssFeed,
     posts: LazyPagingItems<UIFeedPost>,
-    filters: ImmutableList<RssPostFilter>,
-    sortValues: ImmutableList<UIPostSort>,
+    postSortAndFilterState: PostSortAndFilterState,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UIFeedPost) -> Unit,
     onFilterUpdated: (RssPostFilter) -> Unit,
@@ -74,12 +75,15 @@ internal fun FeedPostList(
 
         stickyHeader {
             PostSortAndFilters(
-                sortValues = sortValues,
-                onSortUpdated = onSortUpdated,
-                filters = filters,
+                state = postSortAndFilterState,
                 onFilterUpdated = onFilterUpdated,
+                onSortUpdated = onSortUpdated,
                 clearFilters = clearFilters
             )
+        }
+
+        if (posts.loadState.refresh is LoadState.NotLoading && posts.itemCount == 0) {
+            postsListEmptyMessage(clearFilters)
         }
 
         items(
@@ -100,3 +104,5 @@ internal fun FeedPostList(
         }
     }
 }
+
+

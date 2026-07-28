@@ -27,7 +27,6 @@ fun LazyListScope.feedsSection(
     onNavigateToFeedList: () -> Unit,
     onFeedClick: (UIFeed) -> Unit,
     onFeedLongClick: (UIFeed) -> Unit,
-    onPinChanged: (UIFeed, Boolean) -> Unit
 ) {
     stickyHeader(key = "FeedsSectionHeader") {
         FeedsSectionHeader(
@@ -63,9 +62,6 @@ fun LazyListScope.feedsSection(
                 pinnedAndRecentFeeds = pinnedAndRecentFeeds,
                 onFeedClick = onFeedClick,
                 onFeedLongClick = onFeedLongClick,
-                onPinChanged = { feed ->
-                    onPinChanged(feed, !feed.pinned)
-                }
             )
         }
     }
