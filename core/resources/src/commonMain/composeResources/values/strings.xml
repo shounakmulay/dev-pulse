@@ -94,4 +94,6 @@
     <string name="no_posts_for_filter">No matching posts.</string>
     <string name="no_posts_for_filter_subtitle">Adjust or clear your filters to find what you're looking for.</string>
     <string name="clear_filters">Clear All Filters</string>
+    <string name="others">Others</string>
+    <string name="licenses">Licenses</string>
 </resources>
