@@ -6,54 +6,85 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 class DPModalBottomSheetController(
     val sheetState: SheetState,
-    val coroutineScope: CoroutineScope,
+    val initialPresentState: Boolean = false
 ) {
-    private val _presentInComposition = mutableStateOf(false)
     val presentInComposition: State<Boolean>
-        get() = _presentInComposition
+        field = mutableStateOf(initialPresentState)
 
     fun show() {
-        _presentInComposition.value = true
+        presentInComposition.value = true
     }
 
-    fun hide() {
-        coroutineScope.launch {
+    suspend fun hide() {
+        try {
             sheetState.hide()
-        }.invokeOnCompletion {
-            _presentInComposition.value = false
+        } finally {
+            presentInComposition.value = false
         }
     }
 
     internal fun hideOnDismiss() {
-        _presentInComposition.value = false
+        presentInComposition.value = false
     }
+
+    companion object {
+        fun Saver(
+            sheetState: SheetState,
+            coroutineScope: CoroutineScope
+        ) = listSaver(
+            save = { controller ->
+                listOf(controller.presentInComposition.value)
+            },
+            restore = { savedList ->
+                DPModalBottomSheetController(
+                    sheetState = sheetState,
+                    initialPresentState = savedList[0]
+                )
+            }
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun rememberDPModalBottomSheetController(
+    skipPartiallyExpanded: Boolean,
+): DPModalBottomSheetController {
+    return rememberDPModalBottomSheetController(
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = skipPartiallyExpanded
+        )
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun dpModalBottomSheetController(
+fun rememberDPModalBottomSheetController(
     sheetState: SheetState? = null,
 ): DPModalBottomSheetController {
     val sheetState = sheetState ?: rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
-    val controller = remember(sheetState, coroutineScope) {
-        DPModalBottomSheetController(
-            sheetState = sheetState,
-            coroutineScope = coroutineScope
-        )
-    }
+    val controller =
+        rememberSaveable(
+            sheetState,
+            coroutineScope,
+            saver = DPModalBottomSheetController.Saver(sheetState, coroutineScope)
+        ) {
+            DPModalBottomSheetController(
+                sheetState = sheetState,
+            )
+        }
 
     return controller
 }
@@ -62,7 +93,7 @@ fun dpModalBottomSheetController(
 @Composable
 fun DPModalBottomSheet(
     modifier: Modifier = Modifier,
-    controller: DPModalBottomSheetController = dpModalBottomSheetController(),
+    controller: DPModalBottomSheetController = rememberDPModalBottomSheetController(),
     content: @Composable ColumnScope.(DPModalBottomSheetController) -> Unit
 ) {
     if (controller.presentInComposition.value) {

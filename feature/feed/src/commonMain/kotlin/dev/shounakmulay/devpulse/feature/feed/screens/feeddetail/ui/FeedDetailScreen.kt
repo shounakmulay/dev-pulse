@@ -6,6 +6,8 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -16,6 +18,8 @@ import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.FeedDetail
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
 import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
+import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilterEvent
+import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilterViewModel
 import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components.FeedDetailTopAppBar
 import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components.FeedPostList
 
@@ -24,6 +28,7 @@ import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components.F
 fun FeedDetailScreen(
     route: FeedDetail,
     navigator: Navigator,
+    postSortAndFiltersViewModel: PostSortAndFilterViewModel,
     viewModel: FeedDetailViewModel,
 ) {
     val posts = viewModel.posts.collectAsLazyPagingItems()
@@ -61,12 +66,11 @@ fun FeedDetailScreen(
                 )
             )
 
+        val postSortAndFilterState by postSortAndFiltersViewModel.state.collectAsState()
         FeedPostList(
             lazyGridState = lazyGridState,
             uiFeed = state.uiFeed,
             feed = state.feed,
-            filters = state.postFilterSortState.filters,
-            sortValues = state.postFilterSortState.sortValues,
             posts = posts,
             onBookmarkChanged = { selectedPost, bookmarked ->
                 viewModel.onEvent(
@@ -78,18 +82,19 @@ fun FeedDetailScreen(
             },
             onPostClick = {
             },
+            postSortAndFilterState = postSortAndFilterState,
             onFilterUpdated = {
-                viewModel.onEvent(FeedDetailScreenEvent.OnFilterUpdated(it))
+                postSortAndFiltersViewModel.onEvent(PostSortAndFilterEvent.OnFilterUpdated(it))
                 lazyGridState.requestScrollToItem(0)
             },
             onSortUpdated = {
-                viewModel.onEvent(FeedDetailScreenEvent.OnSortUpdated(it))
+                postSortAndFiltersViewModel.onEvent(PostSortAndFilterEvent.OnSortUpdated(it))
                 lazyGridState.requestScrollToItem(0)
             },
             clearFilters = {
-                viewModel.onEvent(FeedDetailScreenEvent.ClearFilters)
+                postSortAndFiltersViewModel.onEvent(PostSortAndFilterEvent.OnClearFilters)
                 lazyGridState.requestScrollToItem(0)
-            }
+            },
         )
     }
 }

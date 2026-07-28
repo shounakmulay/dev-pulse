@@ -88,12 +88,14 @@ val LocalDPElevation = staticCompositionLocalOf { DefaultElevation }
 
 val LocalDPDarkTheme = staticCompositionLocalOf { false }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 val dpShapes: Shapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
     small = RoundedCornerShape(6.dp),
     medium = RoundedCornerShape(10.dp),
     large = RoundedCornerShape(14.dp),
     extraLarge = RoundedCornerShape(20.dp),
+    extraExtraLarge = RoundedCornerShape(28.dp)
 )
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

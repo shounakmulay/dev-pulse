@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedFeedPostsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
+import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
@@ -25,27 +26,52 @@ class PostInteractor(
     private val feedInteractor: FeedInteractor,
     private val getPaginatedFeedPostsUseCase: GetPaginatedFeedPostsUseCase
 ) {
-    fun getDefaultUIPostSortValues(): ImmutableList<UIPostSort> {
-        return RssPostSort.entries.map {
-            val nameRes = when (it) {
-                RssPostSort.PublishedNewest -> stringRes.newest
-                RssPostSort.PublishedOldest -> stringRes.oldest
-                RssPostSort.TitleAtoZ -> stringRes.title_a_z
-                RssPostSort.TitleZtoA -> stringRes.title_z_a
-            }
-            UIPostSort(
-                name = TextResource.fromStringRes(nameRes),
-                selected = it == RssPostSort.PublishedNewest,
-                sort = it
-            )
-        }.toImmutableList()
+    companion object {
+        fun getDefaultFiltersFor(screen: Screen): ImmutableList<RssPostFilter> {
+            return when (screen) {
+                is Screen.Tabs.Feed.FeedDetail -> listOf(
+                    RssPostFilter.Bookmarked(null),
+                    RssPostFilter.PublishedRange(),
+                    RssPostFilter.Category(emptySet()),
+                    RssPostFilter.TagIdsAny(emptySet()),
+                )
+
+                else -> listOf(
+                    RssPostFilter.FeedIds(emptySet()),
+                    RssPostFilter.Bookmarked(null),
+                    RssPostFilter.PublishedRange(),
+                    RssPostFilter.Category(emptySet()),
+                    RssPostFilter.TagIdsAny(emptySet()),
+                )
+            }.sortedWith(compareBy<RssPostFilter> {
+                it.isEmpty()
+            }.thenBy {
+                it.order()
+            }).toImmutableList()
+        }
+
+        val DEFAULT_SORT_OPTIONS: ImmutableList<UIPostSort> by lazy {
+            RssPostSort.entries.map {
+                val nameRes = when (it) {
+                    RssPostSort.PublishedNewest -> stringRes.newest
+                    RssPostSort.PublishedOldest -> stringRes.oldest
+                    RssPostSort.TitleAtoZ -> stringRes.title_a_z
+                    RssPostSort.TitleZtoA -> stringRes.title_z_a
+                }
+                UIPostSort(
+                    name = TextResource.fromStringRes(nameRes),
+                    selected = it == RssPostSort.PublishedNewest,
+                    sort = it
+                )
+            }.toImmutableList()
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getPostsWithFilterAndSort(
-        filerAndSortFlow: Flow<Pair<List<RssPostFilter>, RssPostSort?>>
+        filerAndSortFlow: Flow<Pair<RssPostSort?, List<RssPostFilter>>>
     ): Flow<PagingData<UIFeedPost>> {
-        return filerAndSortFlow.flatMapLatest { (filters, sort) ->
+        return filerAndSortFlow.flatMapLatest { (sort, filters) ->
             feedInteractor.getUIFeedPostFlow(
                 getPaginatedFeedPostsUseCase(
                     filters = buildList {

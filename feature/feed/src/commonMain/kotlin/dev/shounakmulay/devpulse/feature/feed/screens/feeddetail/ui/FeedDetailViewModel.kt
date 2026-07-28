@@ -7,18 +7,14 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
-import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostFilterAndSort
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
-import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostsFilterSortController
-import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostsFilterSortControllerDelegate
-import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -28,41 +24,29 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 class FeedDetailViewModel(
     private val feedId: String,
+    postSortAndFiltersFlow: Flow<Pair<RssPostSort?, List<RssPostFilter>>>,
     private val feedInteractor: FeedInteractor,
     private val postInteractor: PostInteractor,
     private val getFeedDetailUseCase: GetFeedDetailUseCase,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val setFeedPinnedUseCase: SetFeedPinnedUseCase
 ) : MviViewModel<FeedDetailScreenState, FeedDetailScreenEffect>(
-    initialState = FeedDetailScreenState(
-        postFilterSortState = PostFilterAndSort(
-            filters = persistentListOf(
-                RssPostFilter.Bookmarked(null),
-                RssPostFilter.PublishedRange(),
-                RssPostFilter.Category(emptySet()),
-                RssPostFilter.TagIdsAny(emptySet()),
-            ),
-            sortValues = postInteractor.getDefaultUIPostSortValues()
-        )
-    )
+    initialState = FeedDetailScreenState()
 ),
-    EventHandler<FeedDetailScreenEvent>,
-    PostsFilterSortController by PostsFilterSortControllerDelegate() {
+    EventHandler<FeedDetailScreenEvent> {
 
     override fun createStateSerializer() = FeedDetailScreenState.serializer()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val posts = postInteractor
-        .getPostsWithFilterAndSort(state.map {
+        .getPostsWithFilterAndSort(filerAndSortFlow = postSortAndFiltersFlow.map {
             it.copy(
-                postFilterSortState = it.postFilterSortState.copy(
-                    filters = buildList {
-                        add(RssPostFilter.FeedIds(setOf(feedId)))
-                        addAll(it.postFilterSortState.filters)
-                    }.toPersistentList()
-                )
+                second = buildList {
+                    add(RssPostFilter.FeedIds(setOf(feedId)))
+                    addAll(it.second)
+                }
             )
-        }.map(::toFiltersAndSelectedState))
+        })
         .cachedIn(viewModelScope)
 
     override fun bindStateSources(stateSubscriptionScope: CoroutineScope) {
@@ -80,33 +64,6 @@ class FeedDetailViewModel(
 
             FeedDetailScreenEvent.Retry -> Unit
             FeedDetailScreenEvent.PinToggled -> onPinToggled()
-            is FeedDetailScreenEvent.OnFilterUpdated -> onFilterUpdated(event.filter)
-            is FeedDetailScreenEvent.OnSortUpdated -> onSortUpdated(event.sort)
-            FeedDetailScreenEvent.ClearFilters -> clearFilters()
-        }
-    }
-
-    private fun clearFilters() {
-        setState {
-            copy(
-                postFilterSortState = clearFilters()
-            )
-        }
-    }
-
-    private fun onSortUpdated(selectedSort: UIPostSort) {
-        setState {
-            copy(
-                postFilterSortState = updateSort(selectedSort)
-            )
-        }
-    }
-
-    private fun onFilterUpdated(filter: RssPostFilter) {
-        setState {
-            copy(
-                postFilterSortState = updateFilter(filter)
-            )
         }
     }
 

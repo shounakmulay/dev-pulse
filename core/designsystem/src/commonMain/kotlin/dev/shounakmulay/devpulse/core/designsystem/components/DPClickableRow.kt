@@ -98,6 +98,8 @@ fun DPClickableRow(
 @Composable
 fun DPClickableRow(
     onClick: () -> Unit,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     modifier: Modifier = Modifier,
     density: DPDensity = DPDensity.Default,
     enabled: Boolean = true,
@@ -112,8 +114,8 @@ fun DPClickableRow(
             .alpha(if (enabled) 1f else 0.38f)
             .clickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = hPad, vertical = vPad),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = verticalAlignment,
+        horizontalArrangement = horizontalArrangement,
         content = content,
     )
 }

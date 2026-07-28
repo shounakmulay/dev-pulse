@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBar
@@ -24,18 +25,26 @@ import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
+import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilterEvent
+import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilterViewModel
 import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilters
+import dev.shounakmulay.devpulse.feature.feed.components.postsListEmptyMessage
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedsPostListItemVariant
 import devpulse.core.resources.generated.resources.all_posts
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PostListScreen(
+    screen: Screen.Tabs.Feed.PostList,
     navigator: Navigator,
-    viewModel: PostListViewModel = koinViewModel(),
+    postSortAndFilterViewModel: PostSortAndFilterViewModel = koinViewModel { parametersOf(screen) },
+    viewModel: PostListViewModel = koinViewModel {
+        parametersOf(postSortAndFilterViewModel.sortAndFiltersFlow)
+    },
 ) {
     val lazyGridState = rememberLazyGridState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -75,22 +84,19 @@ fun PostListScreen(
             ) {
                 stickyHeader {
                     PostSortAndFilters(
-                        sortValues = state.postFilterSortState.sortValues,
-                        onSortUpdated = {
-                            viewModel.onEvent(PostListScreenEvent.OnSortUpdated(it))
-                            lazyGridState.requestScrollToItem(0)
-                        },
-                        filters = state.postFilterSortState.filters,
-                        onFilterUpdated = {
-                            viewModel.onEvent(PostListScreenEvent.OnFilterUpdated(it))
-                            lazyGridState.requestScrollToItem(0)
-                        },
-                        clearFilters = {
-                            viewModel.onEvent(PostListScreenEvent.ClearFilters)
+                        viewModel = postSortAndFilterViewModel,
+                        onSortAndFilterDataChanged = {
                             lazyGridState.requestScrollToItem(0)
                         }
                     )
                 }
+
+                if (posts.loadState.refresh is LoadState.NotLoading && posts.itemCount == 0) {
+                    postsListEmptyMessage {
+                        postSortAndFilterViewModel.onEvent(PostSortAndFilterEvent.OnClearFilters)
+                    }
+                }
+
                 items(posts.itemCount, key = posts.itemKey { it.id }) { index ->
                     val post = posts[index]
                     if (post != null) {

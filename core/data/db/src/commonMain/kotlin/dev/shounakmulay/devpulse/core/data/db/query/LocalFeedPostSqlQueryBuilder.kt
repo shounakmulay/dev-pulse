@@ -281,20 +281,24 @@ class LocalFeedPostSqlQueryBuilder(
 
     private fun FeedPostLongRange.appendRangeClause(
         column: String,
-    ): Pair<SqlBinding, String>? {
-        val clause: String
-        val binding: SqlBinding
+    ): Pair<List<SqlBinding>, String>? {
+        var clause: MutableList<String> = mutableListOf()
+        val binding: MutableList<SqlBinding> = mutableListOf()
         min?.let {
-            clause = "$column >= ?"
-            binding = SqlBinding.LongValue(it)
-            return binding to clause
+            clause += "$column >= ?"
+            binding += SqlBinding.LongValue(it)
         }
         max?.let {
-            clause = "$column <= ?"
-            binding = SqlBinding.LongValue(it)
-            return binding to clause
+            clause += "$column <= ?"
+            binding += SqlBinding.LongValue(it)
         }
-        return null
+
+        if (clause.isEmpty() || binding.isEmpty()) {
+            return null
+        }
+
+        val joinedClause = "(${clause.joinToString(separator = " AND ")})"
+        return binding to joinedClause
     }
 
     private fun imageExistsClause(): String {

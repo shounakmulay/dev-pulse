@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
+import dev.shounakmulay.devpulse.core.common.time.toUTCMillis
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostLongRange
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostFilter
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
@@ -30,7 +31,7 @@ class RssPostQueryMapper {
                 is RssPostFilter.HasVideo -> LocalFeedPostFilter.HasVideo(it.value)
                 is RssPostFilter.PinnedFeed -> LocalFeedPostFilter.PinnedFeed(it.value)
                 is RssPostFilter.PublishedRange -> LocalFeedPostFilter.PublishedRange(
-                    FeedPostLongRange(it.min, it.max)
+                    FeedPostLongRange(it.min?.toUTCMillis(), it.max?.toUTCMillis())
                 )
 
                 is RssPostFilter.SearchText -> LocalFeedPostFilter.SearchText(it.value)

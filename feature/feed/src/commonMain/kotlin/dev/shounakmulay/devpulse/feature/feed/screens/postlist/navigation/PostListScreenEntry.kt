@@ -9,8 +9,8 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun EntryProviderScope<Screen>.postListScreen(navigator: Navigator) {
     entry<Screen.Tabs.Feed.PostList> {
         PostListScreen(
+            screen = it,
             navigator = navigator,
-            viewModel = koinViewModel(),
         )
     }
 }

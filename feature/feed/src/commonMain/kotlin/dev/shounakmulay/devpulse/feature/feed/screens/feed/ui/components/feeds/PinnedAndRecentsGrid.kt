@@ -33,7 +33,6 @@ fun PinnedAndRecentsGrid(
     pinnedAndRecentFeeds: ImmutableList<UIFeed>,
     onFeedClick: (UIFeed) -> Unit,
     onFeedLongClick: (UIFeed) -> Unit,
-    onPinChanged: (UIFeed) -> Unit,
 ) {
     val rowsCount = pinnedAndRecentsGridRowsCount(pinnedAndRecentFeeds.size)
     val spacing = LocalDPSpacing.current
@@ -54,7 +53,6 @@ fun PinnedAndRecentsGrid(
                 sourceUrl = item.sourceUrl,
                 onClick = { onFeedClick(item) },
                 onLongClick = { onFeedLongClick(item) },
-                onDoubleClick = { onPinChanged(item) }
             )
         }
     }

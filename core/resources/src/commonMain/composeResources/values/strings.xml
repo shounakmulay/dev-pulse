@@ -75,4 +75,23 @@
     <string name="author">Author</string>
     <string name="category">Category</string>
     <string name="all_posts">All Posts</string>
+    <string name="apply_filter">Apply Filter</string>
+    <string name="clear">Clear</string>
+    <string name="published_date">Published Date</string>
+    <string name="published_min_max">Published: %1$s - %2$s</string>
+    <string name="feeds">Feeds</string>
+    <string name="feeds_count">Feeds: %1$d</string>
+    <string name="today">Today</string>
+    <string name="last_24_hours">Last 24 hours</string>
+    <string name="last_7_days">Last 7 days</string>
+    <string name="last_30_days">Last 30 days</string>
+    <string name="this_month">This month</string>
+    <string name="custom">Custom</string>
+    <string name="custom_min_max">Custom: %1$s - %2$s</string>
+    <string name="select_published_range">Select published range</string>
+    <string name="select_feeds">Select Feeds</string>
+    <string name="no_results_found">No Results Found</string>
+    <string name="no_posts_for_filter">No matching posts.</string>
+    <string name="no_posts_for_filter_subtitle">Adjust or clear your filters to find what you're looking for.</string>
+    <string name="clear_filters">Clear All Filters</string>
 </resources>
