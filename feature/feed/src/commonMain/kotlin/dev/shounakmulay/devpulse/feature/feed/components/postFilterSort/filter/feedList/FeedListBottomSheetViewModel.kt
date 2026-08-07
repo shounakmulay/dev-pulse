@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.paging.map
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedFeedSourcesUseCase
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.ui.effect.Effect
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.event.ScreenEvent
@@ -19,19 +20,19 @@ import org.koin.core.annotation.KoinViewModel
 @Serializable
 data class FeedListBottomSheetState(
     val searchTerm: String = "",
-    val selectedFeedIds: Set<String>
+    val selectedFeedIds: Set<UUID>
 ) : ScreenState
 
 sealed class FeedListBottomSheetEffect : Effect {}
 
 sealed interface FeedListBottomSheetEvent : ScreenEvent {
     data class OnSearchTermChanged(val searchTerm: String) : FeedListBottomSheetEvent
-    data class OnFeedToggled(val feedId: String) : FeedListBottomSheetEvent
+    data class OnFeedToggled(val feedId: UUID) : FeedListBottomSheetEvent
 }
 
 @KoinViewModel
 class FeedListBottomSheetViewModel(
-    preselectedFeedIds: Set<String>,
+    preselectedFeedIds: Set<UUID>,
     feedInteractor: FeedInteractor,
     getPaginatedFeedSourcesUseCase: GetPaginatedFeedSourcesUseCase
 ) : EventHandler<FeedListBottomSheetEvent>,
@@ -69,7 +70,7 @@ class FeedListBottomSheetViewModel(
         }
     }
 
-    private fun onFeedToggled(feedId: String) {
+    private fun onFeedToggled(feedId: UUID) {
         setState {
             copy(
                 selectedFeedIds = if (feedId in selectedFeedIds) {

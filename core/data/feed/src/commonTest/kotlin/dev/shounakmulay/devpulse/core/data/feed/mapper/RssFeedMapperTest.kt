@@ -19,7 +19,8 @@ import kotlin.test.assertEquals
 class RssFeedMapperTest {
     private val mapper = RssFeedMapper(
         identityGenerator = RssIdentityGenerator(),
-        dateTimeProvider = FixedDateTimeProvider
+        dateTimeProvider = FixedDateTimeProvider,
+        uuidMapper = UuidMapper()
     )
     @Test
     fun `Given RSS channel date When mapped to local feed Then raw publisher date is preserved`() {

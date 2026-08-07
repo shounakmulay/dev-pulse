@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Sort
@@ -79,6 +80,7 @@ object DPIcons {
     val Check = Icons.Default.Check
     val ArrowUp = Icons.Default.ArrowUpward
     val ArrowDownward = Icons.Default.ArrowDownward
+    val ArrowBack = Icons.AutoMirrored.Default.ArrowBack
     val SortAlphabetical = Icons.Default.SortByAlpha
     val Sort = Icons.AutoMirrored.Default.Sort
     val Filter = Icons.Default.FilterAlt

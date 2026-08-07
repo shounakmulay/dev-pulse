@@ -20,11 +20,15 @@ kotlin {
             implementation(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Data.DB))
 
+            implementation(project(Modules.Bridge.MARKDOWN_CONVERTER))
+            implementation(project(Modules.Bridge.READABILITY))
+
             implementation(libs.ktxml.core)
             implementation(libs.rssparser)
             implementation(libs.androidx.paging.common)
             implementation(libs.okio)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.ksoup)
         }
 
         commonTest.dependencies {

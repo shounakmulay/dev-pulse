@@ -67,7 +67,7 @@ private fun FeedsList(
         LazyColumn(
             modifier = Modifier.heightIn(max = maxHeight),
         ) {
-            items(feeds.itemCount, feeds.itemKey { it.first.id }) {
+            items(feeds.itemCount, feeds.itemKey { it.first.id.value }) {
                 val (feed, selected) = feeds[it] ?: return@items
                 FeedListItem(onEvent, feed, selected)
             }

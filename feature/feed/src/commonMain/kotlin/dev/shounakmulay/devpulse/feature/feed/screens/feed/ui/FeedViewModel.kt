@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui
 import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
@@ -67,13 +68,13 @@ class FeedViewModel(
         }
     }
 
-    private fun onPostBookmarkChanged(postId: String, bookmarked: Boolean) {
+    private fun onPostBookmarkChanged(postId: UUID, bookmarked: Boolean) {
         viewModelScope.launch {
             setPostBookmarkedUseCase(id = postId, bookmarked = bookmarked)
         }
     }
 
-    private fun onFeedPinChanged(feedId: String, pinned: Boolean) {
+    private fun onFeedPinChanged(feedId: UUID, pinned: Boolean) {
         viewModelScope.launch {
             setFeedPinnedUseCase(id = feedId, pinned = pinned)
         }

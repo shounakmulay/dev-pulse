@@ -1,7 +1,9 @@
 package dev.shounakmulay.devpulse.core.domain.models.feed
 
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+
 data class RssFeed(
-    val id: String,
+    val id: UUID,
     val pinned: Boolean,
     val name: String?,
     val sourceUrl: String,

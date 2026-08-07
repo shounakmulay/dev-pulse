@@ -21,6 +21,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(Modules.Core.Domain.MODELS))
             implementation(libs.compose.components.resources)
         }
     }

@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.domain.models.post
 
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import kotlinx.datetime.LocalDateTime
 
 sealed interface RssPostFilter {
@@ -30,7 +31,7 @@ sealed interface RssPostFilter {
         is SearchText -> value.isEmpty()
     }
 
-    data class FeedIds(val values: Set<String>) : RssPostFilter
+    data class FeedIds(val values: Set<UUID>) : RssPostFilter
     data class TagIdsAny(val values: Set<Int>) : RssPostFilter
     data class Bookmarked(val value: Boolean?) : RssPostFilter
     data class PinnedFeed(val value: Boolean?) : RssPostFilter

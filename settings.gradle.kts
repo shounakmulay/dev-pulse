@@ -25,6 +25,7 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        maven("https://jogamp.org/deployment/maven")
     }
 }
 
@@ -53,3 +54,6 @@ include(":core:domain:feed")
 include(":core:domain:models")
 include(":core:domain:settings")
 include(":core:common")
+include(":bridge:markdownconverter")
+include(":bridge:sqlitevec")
+include(":bridge:readability")

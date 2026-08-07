@@ -157,22 +157,21 @@ class PublishedRangeFilterViewModel(
             val (startDate, endDate) = this
             if (startDate == null || endDate == null) return null
 
+            val isCurrentMonthAndYear = isCurrentMonthAndYear(startDate.date, endDate.date)
             when {
                 startDate.date == endDate.date -> {
                     return UIPublishedRange.Today
                 }
 
-                startDate.date == endDate.date.minus(DatePeriod(days = 1)) -> {
+                isCurrentMonthAndYear && startDate.date == endDate.date.minus(DatePeriod(days = 1)) -> {
                     return UIPublishedRange.Last24Hours
                 }
 
-                startDate.date == endDate.date.minus(DatePeriod(days = 7)) -> {
+                isCurrentMonthAndYear && startDate.date == endDate.date.minus(DatePeriod(days = 7)) -> {
                     return UIPublishedRange.Last7Days
                 }
 
-                startDate.date.year == endDate.date.year
-                        && startDate.date.month == endDate.date.month
-                        && startDate.day == 1 && endDate.day == endDate.date.lengthOfMonth() -> {
+                isCurrentMonthAndYear && startDate.day == 1 && endDate.day == endDate.date.lengthOfMonth() -> {
                     return UIPublishedRange.ThisMonth
                 }
 
@@ -184,6 +183,17 @@ class PublishedRangeFilterViewModel(
                     return UIPublishedRange.Custom(min, max)
                 }
             }
+        }
+
+        private fun isCurrentMonthAndYear(vararg date: LocalDate): Boolean {
+            val currentMonth = LocalDate.now().month
+            val currentYear = LocalDate.now().year
+            for (d in date) {
+                if (d.year != currentYear || d.month != currentMonth) {
+                    return false
+                }
+            }
+            return true
         }
     }
 }

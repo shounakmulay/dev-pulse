@@ -6,6 +6,24 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8B16B3233021F3EA00B19956 /* vector in Frameworks */ = {isa = PBXBuildFile; productRef = 8B16B3223021F3EA00B19956 /* vector */; };
+		8BECEB6C3021A97B00013A96 /* HtmlToMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = 8BECEB6B3021A97B00013A96 /* HtmlToMarkdown */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8BAED746301CD6DA00AD62B9 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		9C3A2499CB7AA44381222227 /* DevPulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevPulse.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -41,6 +59,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BECEB6C3021A97B00013A96 /* HtmlToMarkdown in Frameworks */,
+				8B16B3233021F3EA00B19956 /* vector in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,11 +75,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8B868650301CCD96003795BC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		B2063FC2B8689BD8D3786E76 = {
 			isa = PBXGroup;
 			children = (
 				954EBB187E742EB8182E986A /* Configuration */,
 				EE42F7DA22FE086A788F962E /* iosApp */,
+				8B868650301CCD96003795BC /* Frameworks */,
 				0D214C63A60B029018168CD5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -75,6 +103,7 @@
 				B5C31AEABE5E8898E83DB9A4 /* Sources */,
 				CD5681DE6F8ECCA8B522A147 /* Frameworks */,
 				5677177FA334863A9A19336C /* Resources */,
+				8BAED746301CD6DA00AD62B9 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -85,6 +114,8 @@
 			);
 			name = iosApp;
 			packageProductDependencies = (
+				8BECEB6B3021A97B00013A96 /* HtmlToMarkdown */,
+				8B16B3223021F3EA00B19956 /* vector */,
 			);
 			productName = iosApp;
 			productReference = 9C3A2499CB7AA44381222227 /* DevPulse.app */;
@@ -114,6 +145,10 @@
 			);
 			mainGroup = B2063FC2B8689BD8D3786E76;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8BECEB6A3021A97B00013A96 /* XCRemoteSwiftPackageReference "html-to-markdown" */,
+				8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0D214C63A60B029018168CD5 /* Products */;
 			projectDirPath = "";
@@ -366,6 +401,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sqliteai/sqlite-vector#swift-package";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		8BECEB6A3021A97B00013A96 /* XCRemoteSwiftPackageReference "html-to-markdown" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/xberg-io/html-to-markdown";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 3.10.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8B16B3223021F3EA00B19956 /* vector */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector" */;
+			productName = vector;
+		};
+		8BECEB6B3021A97B00013A96 /* HtmlToMarkdown */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BECEB6A3021A97B00013A96 /* XCRemoteSwiftPackageReference "html-to-markdown" */;
+			productName = HtmlToMarkdown;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0B875B322DCE099289777EE2 /* Project object */;
 }

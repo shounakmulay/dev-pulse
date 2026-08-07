@@ -1,6 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.db.paging
 
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor

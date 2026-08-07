@@ -2,9 +2,9 @@ package dev.shounakmulay.devpulse.core.data.db.paging
 
 import androidx.paging.PagingSource
 import androidx.room3.RoomRawQuery
-import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostCategory
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
@@ -98,7 +98,7 @@ class FeedPostKeysetPagingTest {
     ): LocalCursorPagingSource<FeedPostCursor, LocalRssPostWithFeedMetadataProjection> {
         val dataProvider: LocalCursorPagingSourceDataProvider<FeedPostCursor, LocalRssPostWithFeedMetadataProjection> =
             LocalRssPostWithFeedMetadataPagingDataProvider(
-                feedContentDao = FakeFeedContentDao(pages),
+                feedPostDao = FakeFeedPostDao(pages),
                 query = LocalFeedPostQuery(sort = LocalFeedPostSort.PublishedNewest)
             )
         return LocalCursorPagingSource(
@@ -164,9 +164,9 @@ class FeedPostKeysetPagingTest {
         return map { it.post.id }
     }
 
-    private class FakeFeedContentDao(
+    private class FakeFeedPostDao(
         pages: List<List<LocalRssPostWithFeedMetadataProjection>>
-    ) : FeedContentDao {
+    ) : FeedPostDao {
 
         private val remainingPages = pages.toMutableList()
 

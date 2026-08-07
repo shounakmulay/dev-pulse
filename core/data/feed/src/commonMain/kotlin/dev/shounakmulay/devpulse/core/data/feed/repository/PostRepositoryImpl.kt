@@ -1,0 +1,204 @@
+package dev.shounakmulay.devpulse.core.data.feed.repository
+
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
+import dev.shounakmulay.devpulse.bridge.markdownconverter.HtmlToMarkdownConverter
+import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
+import dev.shounakmulay.devpulse.core.data.db.dao.PostContentDao
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
+import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
+import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
+import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostContentMapper
+import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
+import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostQueryMapper
+import dev.shounakmulay.devpulse.core.data.feed.mapper.UuidMapper
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContent
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
+import dev.shounakmulay.devpulse.core.domain.models.post.RssParsedPostContent
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostQuery
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentity
+import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
+import dev.shounakmulay.devpulse.core.network.DevPulseUrlHelper
+import dev.shounakmulay.devpulse.core.network.bodyAsText
+import dev.shounakmulay.devpulse.readability.ArticleExtractor
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Factory
+
+@Factory
+class PostRepositoryImpl(
+    private val articleExtractor: ArticleExtractor,
+    private val feedPostDao: FeedPostDao,
+    private val postContentDao: PostContentDao,
+    private val feedPostPagingSourceProvider: FeedPostPagingSourceProvider,
+    private val rssPostQueryMapper: RssPostQueryMapper,
+    private val rssPostMapper: RssPostMapper,
+    private val rssFeedMapper: RssFeedMapper,
+    private val rssPostContentMapper: RssPostContentMapper,
+    private val uuidMapper: UuidMapper,
+    private val dispatcherProvider: DispatcherProvider,
+    private val devPulseNetworkClient: DevPulseNetworkClient,
+    private val devPulseUrlHelper: DevPulseUrlHelper,
+    private val markdownConverter: HtmlToMarkdownConverter
+) : PostRepository {
+    override fun getPost(id: UUID): Flow<RssPostWithFeedIdentity> {
+        return feedPostDao.observePost(uuidMapper.fromUuid(id)).map { post ->
+            post.toRssPostWithFeedIdentity()
+        }
+    }
+
+    override fun observePosts(
+        query: RssPostQuery,
+        pagingConfig: PagingConfig
+    ): Flow<PagingData<RssPostWithFeedIdentity>> {
+        val query = rssPostQueryMapper.fromPostQueryMapper(query)
+        return Pager(
+            config = pagingConfig,
+            pagingSourceFactory = {
+                feedPostPagingSourceProvider.getFeedPostPagingSource(query)
+            }
+        )
+            .flow
+            .map { pagingData ->
+                pagingData.map { post ->
+                    post.toRssPostWithFeedIdentity()
+                }
+            }
+    }
+
+    override fun observeRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentity>> {
+        return feedPostDao.observeRecentPosts(maxCount).map {
+            it.map { post ->
+                post.toRssPostWithFeedIdentity()
+            }
+        }
+    }
+
+    override suspend fun setPostBookmarked(id: UUID, bookmarked: Boolean) {
+        feedPostDao.updateBookmarkStatus(id = uuidMapper.fromUuid(id), isBookmarked = bookmarked)
+    }
+
+    override suspend fun parsePostContent(
+        postId: UUID,
+        type: RssFeedPostContentType
+    ): RssParsedPostContent = withContext(dispatcherProvider.defaultDispatcher) {
+        val post = feedPostDao.getPost(uuidMapper.fromUuid(postId))
+        val link = requireNotNull(post.link)
+        val html = devPulseNetworkClient.get(
+            url = link,
+            headers = mapOf(
+                DevPulseNetworkClient.Companion.HttpHeaders.USER_AGENT to DevPulseNetworkClient.Companion.HttpUserAgent.BROWSER
+            )
+        ).bodyAsText()
+        val baseUrl = devPulseUrlHelper.getBaseUrl(link)
+        val articleHtml = articleExtractor.extract(
+            html = html,
+            baseUrl = baseUrl
+        )?.content
+        val markdown = articleHtml?.let { markdownConverter.convert(it) }
+
+        RssParsedPostContent(
+            html = articleHtml,
+            markdown = markdown
+        )
+    }
+
+    override suspend fun getPostContent(
+        postId: UUID,
+        type: RssFeedPostContentType
+    ): RssFeedPostContent? {
+        val content = postContentDao.getPostContents(
+            postId = uuidMapper.fromUuid(postId),
+            type = rssPostContentMapper.fromPostContentType(type)
+        )
+
+        return content?.let {
+            rssPostContentMapper.toRssPostContent(it)
+        }
+    }
+
+    override suspend fun savePostContent(
+        content: RssFeedPostContent,
+    ) {
+        postContentDao.upsertPostContent(
+            rssPostContentMapper.fromRssPostContent(content)
+        )
+    }
+
+    private fun LocalRssPostWithFeedMetadataProjection.toRssPostWithFeedIdentity(): RssPostWithFeedIdentity {
+        return rssPostMapper.toRssPostWithFeedIdentity(
+            post = rssPostMapper.toRssFeedPost(post),
+            identity = rssFeedMapper.toRssIdentity(feed)
+        )
+    }
+
+    private val IMAGE_REGEX = Regex("""!\[[^\]]*]\([^)]*\)""")
+    private val CODE_FENCE_REGEX = Regex("""^\s*(```|~~~)""")
+
+    /**
+     * Ensures every Markdown image element (`![alt](src)`) sits on its own line
+     * with a blank line above and below it.
+     *
+     * Rules:
+     * - Lines inside fenced code blocks (``` or ~~~) are left untouched, even if
+     *   they happen to contain image-like syntax.
+     * - If an "image line" is preceded/followed by an existing blank line, no
+     *   extra blank line is added (avoids double blank lines).
+     * - If an image line is adjacent to another image line, they stay separated
+     *   by exactly one blank line, not stacked.
+     * - Leading/trailing blank lines are not force-added at doc boundaries.
+     *
+     * Note: if a line mixes an image with other prose (e.g. `Text ![a](b) more`),
+     * the whole line is treated as an "image line" and isolated as-is — this
+     * function does not split inline text away from the image. If you need that,
+     * pre-process to hoist images onto their own line first.
+     */
+    fun addBlankLinesAroundImages(markdown: String): String {
+        val lines = markdown.split("\n")
+
+        // Precompute fenced-code-block state per line so we don't touch content inside ``` blocks.
+        val inCodeBlock = BooleanArray(lines.size)
+        var toggled = false
+        for (i in lines.indices) {
+            if (CODE_FENCE_REGEX.containsMatchIn(lines[i])) {
+                inCodeBlock[i] = toggled // the fence line itself isn't "inside"
+                toggled = !toggled
+            } else {
+                inCodeBlock[i] = toggled
+            }
+        }
+
+        fun isImageLine(index: Int): Boolean =
+            !inCodeBlock[index] &&
+                    lines[index].isNotBlank() &&
+                    IMAGE_REGEX.containsMatchIn(lines[index])
+
+        val result = StringBuilder()
+        for (i in lines.indices) {
+            val line = lines[i]
+            val currentIsImage = isImageLine(i)
+            val prevIsImage = i > 0 && isImageLine(i - 1)
+
+            // Insert blank line above, if this is an image line following non-blank, non-image content
+            if (currentIsImage && i > 0 && lines[i - 1].isNotBlank() && result.isNotEmpty()) {
+                result.append('\n')
+            }
+
+            result.append(line)
+            if (i != lines.lastIndex) result.append('\n')
+
+            // Insert blank line below, if this is (or was) an image line and the next line is non-blank
+            val nextExists = i + 1 <= lines.lastIndex
+            if (currentIsImage && nextExists && lines[i + 1].isNotBlank()) {
+                result.append('\n')
+            }
+        }
+
+        return result.toString()
+    }
+}

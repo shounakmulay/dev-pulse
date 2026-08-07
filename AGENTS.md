@@ -221,86 +221,85 @@ For commit workflows, extract the ticket prefix from the current branch name usi
 <claude-mem-context>
 # Memory Context
 
-# [DevPulse] recent context, 2026-07-23 2:52pm GMT+5:30
+# [DevPulse] recent context, 2026-08-07 2:46pm GMT+5:30
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (14,210t read) | 815,004t work | 98% savings
+Stats: 50 obs (11,260t read) | 713,135t work | 98% savings
 
-### May 27, 2026
-S36 Generate detailed commits for feed feature development (May 27 at 12:31 PM)
-S37 Create GitHub PR for recent post presentation changes (May 27 at 12:36 PM)
-### May 29, 2026
-S38 Refactor Feed Parsing and Mapper Logic (May 29 at 1:53 PM)
-### Jun 2, 2026
-S39 Refine OPML parser to strict minimal style and plan implementation (Jun 2 at 6:23 PM)
-### Jun 5, 2026
-S41 Generate detailed commits and identify feed detail screen files (Jun 5 at 6:15 PM)
 ### Jun 10, 2026
-S42 Finalize feed filtering and sorting contracts, and propose database indexes. (Jun 10 at 7:04 PM)
 S43 Refine feed entity indexes and filters based on trade-offs. (Jun 10 at 7:16 PM)
 S44 Set Default Model (Jun 10 at 7:19 PM)
 ### Jun 11, 2026
 S47 Clarification on "auth code" request (Jun 11 at 5:34 PM)
-1593 5:50p 🔵 Speckit-specify skill guidelines and completion criteria
-1595 5:51p 🔵 Standard feature specification template structure
-1597 " 🔵 Feed post query and filter data classes
-1599 5:52p 🔵 Feed post SQL query builder logic
-1603 " ✅ Created directory for specification quality checklists
-1604 5:54p ✅ Created feature specification and checklist files
-1607 " 🔵 Search for specific keywords in specification files
-1609 " 🔵 Git status of the repository
-1612 5:58p 🟣 Implement Speckit Plan Functionality
-1613 " ✅ Speckit Plan Skill Definition Loaded
-1614 5:59p ✅ Loaded Speckit Plan Template
-1616 " 🔵 Feed Post Query Data Structures Defined
-1617 " 🔵 Feed Post Query Data Structures Defined
-1618 " 🔵 DevPulse Database Structure and Configuration
-1622 " 🔵 Content Feed Repository Implementation Details
-1628 " ✅ Speckit Agent Context Update Skill Definition
-1630 6:01p ✅ Created Contracts Directory for Feed Query Engine
 ### Jul 15, 2026
-1675 4:36p 🟣 Implement Authentication Code Endpoint
-S48 Explanation of device-code login flow (Jul 15 at 4:38 PM)
-### Jul 21, 2026
-1676 3:29p 🔄 Extract SQL column names to a dedicated object
-1677 " ✅ Inspect FeedPostSqlQueryBuilder file content
-1678 " 🔵 Locate usage of specific SQL columns and selectors
-1679 3:30p 🔴 Corrected SQL column name references in FeedPostSqlQueryBuilder
-1681 " 🔄 Updated SQL column name references using FeedColumnsSelector
-1682 " 🔴 Corrected FeedPostSqlQueryBuilder patch for category and feed ID filters
-1684 " 🔄 Completed refactoring of SQL column name references
-1686 3:31p 🔄 Finalized SQL column name references in FeedPostSqlQueryBuilder
-1690 " 🔄 Expanded FeedColumnsSelector with additional SQL column constants
-1698 " 🔄 Formatted code with ktlint
-1706 4:04p 🔴 Fix feed post jumping and duplicate issues with pagination
-1707 " 🔵 Code modifications related to feed post querying and pagination
-1708 4:05p 🔵 Paging implementation details and ViewModel interactions
-1709 " 🔵 Paging implementation and testing details
-1710 4:06p 🔴 Failed to execute feed post paging tests
-### Jul 22, 2026
-1711 9:33a 🟣 Implement Detailed Commit Generation
-1712 " ✅ Executed Git Commands for Commit Analysis
-1713 " 🔵 Identified Deleted and Renamed Files in DB Query Module
-1716 2:53p 🔴 LaunchedEffect re-subscription issue
-1717 " 🔵 SKILL.md not found during diagnostic command
-1718 " 🔵 Diagnostic skill file path corrected
-1719 " 🔵 FeedDetailScreen code and related navigation terms identified
-1721 2:54p 🔵 Navigation core files listed and search for test files initiated
-1723 " 🔴 Navigator reselect event handling updated
-1725 " 🔵 Ktlint fix skill and modified files identified
-1727 " 🔵 Gradle compilation of navigation module completed successfully
-1729 " 🔵 Gradle daemon initialization and buildSrc compilation
+S48 Explanation of device-code login flow (Jul 15 at 4:36 PM)
+S49 Create and push feature branch, then open a pull request (Jul 15 at 4:38 PM)
 ### Jul 23, 2026
-1733 2:51p 🟣 Implement detailed commit generation and PR creation without ticket numbers
-1734 " 🔵 Found documentation for detailed-commits and create-pr skills
-1735 " 🔵 Identified debugging tasks for feed paging and SQL query building
-1736 " 🔵 Identified active branches and recent commit history
-1737 " 🔵 Detailed memory entries for feed paging and SQL query builder tasks
+S50 Scaffold :bridge:markdownconverter module and investigate project structure. (Jul 23 at 2:55 PM)
+### Jul 31, 2026
+1880 9:56a 🔵 Module Inclusion in settings.gradle.kts
+1881 " 🔵 DevPulse BuildSrc Constants - Modules Object
+1882 " 🔵 Core Module build.gradle.kts Files
+S51 Create subfolders in modules based on package names (Jul 31 at 9:57 AM)
+1885 9:58a ✅ Added :bridge:markdownconverter module to project
+1886 " ✅ Successfully compiled JVM target for :bridge:markdownconverter
+1888 " 🔵 Gradle Task Graph Calculation for :bridge:markdownconverter
+1890 " 🔵 BuildSrc Task Execution Status
+1892 " 🔵 Empty Output from Gradle Execution
+1896 " 🔵 Empty Output from Gradle Execution
+1904 " ✅ Successful Gradle Build with Module Compilation
+1906 9:59a ✅ Modified files related to new module integration
+1909 10:00a 🔵 Directory structure of core/network module
+1934 10:12a 🟣 Subfolder Creation Based on Package Name
+1935 " ✅ Organized Module Structure with Package-Named Subfolders
+S53 Investigate and resolve the missing native libraries for the html-to-markdown-android dependency. (Jul 31 at 10:12 AM)
+1936 10:58a 🔵 32-bit ABI Filters Identified in Android Build Files
+1937 " 🔵 Presence of 32-bit Native Libraries Detected
+1938 " 🔵 Transitive Dependency Forces 32-bit Architectures
+1939 " 🔵 CI/CD Pipeline Configured for Universal APKs
+1940 " ✅ Removal of 32-bit ABI Filters
+1941 " ✅ Exclusion of 32-bit Native Libraries
+1942 " ✅ Dependency Update for 64-bit Compatibility
+1943 " ✅ CI/CD Pipeline Modified for 64-bit Only Builds
+1944 " 🔵 Build Configuration Files Identified
+1945 10:59a 🔵 Gradle Wrapper Lock File Error
+1946 11:00a 🔵 Gradle Dependency Analysis for 32-bit Architectures
+1947 " 🔵 Analysis of Android Runtime Dependencies
+1956 4:41p 🔴 HTML to Markdown Android dependency artifact missing native code
+1957 " 🔵 HTML to Markdown Android dependency identified in libs.versions.toml
+1958 " 🔵 HTML to Markdown Android dependency configuration confirmed
+1959 " 🔵 HTML to Markdown Android API details confirmed
+1961 4:42p 🔵 Gradle dependency tree for HTML to Markdown Android confirmed
+1962 " 🔴 HTML to Markdown Android dependency resolution issue
+1964 4:43p 🔵 HTML to Markdown Android compile classpath analysis
+1966 " 🔴 HTML to Markdown Android AAR missing native libraries
+S54 Verify Android build fix for html-to-markdown-android (Jul 31 at 4:43 PM)
+### Aug 1, 2026
+1988 4:47p 🔴 Android build issue resolved in version 3.10.1
+1989 " 🔵 Verified Android AAR contents for version 3.10.1
+### Aug 3, 2026
+1990 1:02p 🔵 Xcode linker error for header-only C target
+1991 " ⚖️ Introduce modulemap for header-only C target
+1992 " 🔴 Fix Xcode linking error for header-only C target
+1993 " ⚖️ Ranked solutions for Xcode header-only C target issue
+S55 Diagnose and fix Xcode linking error for header-only C target in Swift Package Manager. (Aug 3 at 1:03 PM)
+### Aug 4, 2026
+1994 4:20p 🟣 Add sqlite-vector JVM dependency
+1995 " 🔵 Investigate sqlite-vector dependency in project
+1996 " ✅ Add JVM dependency for sqlite-vector
+1998 " ✅ Compile Kotlin JVM for sqlitevec module
+2000 " 🔵 Gradle task graph calculation for sqlitevec
+2004 " 🔵 BuildSrc compilation tasks status
+2008 " 🔵 Gradle build execution completion
+2016 4:21p 🔵 Gradle tasks execution and configuration cache
+2021 4:23p 🔵 SQLite-Vector extension for JVM and Android
+### Aug 7, 2026
+2028 2:46p 🟣 Automated PR creation and commit detailing
 
-Access 815k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 713k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
 
 <!-- SPECKIT START -->

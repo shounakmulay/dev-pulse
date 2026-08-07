@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui
 
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.ui.event.ScreenEvent
 
 sealed interface FeedDetailScreenEvent : ScreenEvent {
@@ -7,7 +8,7 @@ sealed interface FeedDetailScreenEvent : ScreenEvent {
     data object PinToggled : FeedDetailScreenEvent
 
     data class OnPostBookmarkChanged(
-        val postId: String,
+        val postId: UUID,
         val bookmarked: Boolean
     ) : FeedDetailScreenEvent
 

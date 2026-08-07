@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.core.data.db.di
 import androidx.room3.RoomDatabase
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.db.DevPulseDatabase
+import dev.shounakmulay.devpulse.core.data.db.converter.LocalCompressedTextTypeConverter
 import dev.shounakmulay.devpulse.core.data.db.getDevPulseDatabase
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
@@ -28,11 +29,13 @@ class DatabaseModule {
     )
     fun provideDevPulseDatabase(
         builder: RoomDatabase.Builder<DevPulseDatabase>,
-        dispatcherProvider: DispatcherProvider
+        dispatcherProvider: DispatcherProvider,
+        compressedTextTypeConverter: LocalCompressedTextTypeConverter,
     ): DevPulseDatabase {
         return getDevPulseDatabase(
             builder = builder,
-            dispatcherProvider = dispatcherProvider
+            dispatcherProvider = dispatcherProvider,
+            compressedTextTypeConverter = compressedTextTypeConverter
         )
     }
 
@@ -50,4 +53,9 @@ class DatabaseModule {
     fun provideFeedQueueDao(
         db: DevPulseDatabase
     ) = db.getFeedQueueDao()
+
+    @Factory
+    fun providePostContentDao(
+        db: DevPulseDatabase
+    ) = db.getPostContentDao()
 }

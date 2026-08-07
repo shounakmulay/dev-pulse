@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.core.navigation
 
 import androidx.compose.runtime.Immutable
 import androidx.navigation3.runtime.NavKey
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -43,7 +44,11 @@ sealed interface Screen : NavKey {
 
             @Serializable
             @Immutable
-            data class FeedDetail(val id: String) : Screen
+            data class PostDetail(val id: UUID) : Screen
+
+            @Serializable
+            @Immutable
+            data class FeedDetail(val id: UUID) : Screen
         }
 
         @Serializable

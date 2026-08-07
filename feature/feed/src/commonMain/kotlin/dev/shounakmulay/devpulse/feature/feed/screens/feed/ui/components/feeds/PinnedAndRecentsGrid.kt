@@ -43,7 +43,7 @@ fun PinnedAndRecentsGrid(
         horizontalArrangement = Arrangement.spacedBy(spacing.xs),
         verticalArrangement = Arrangement.spacedBy(spacing.sm)
     ) {
-        items(pinnedAndRecentFeeds, key = { it.id }) { item ->
+        items(pinnedAndRecentFeeds, key = { it.id.value }) { item ->
             FeedsGridItem(
                 feedId = item.id,
                 imageUrl = item.websiteImageUrl,

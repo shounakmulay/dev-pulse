@@ -4,8 +4,9 @@ import androidx.paging.PagingSource
 import androidx.room3.Dao
 import androidx.room3.Query
 import androidx.room3.Upsert
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
+import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -24,17 +25,17 @@ interface FeedDao {
     suspend fun getFeed(id: String): LocalRssFeed
 
     @Query("SELECT * FROM LocalRssFeed WHERE id = :id")
-    fun observeFeed(id: String): Flow<LocalRssFeed>
+    fun observeFeed(id: LocalUUID): Flow<LocalRssFeed>
 
     @Query("SELECT * FROM LocalRssFeed WHERE sourceUrl = :sourceUrl")
     suspend fun getFeedBySourceUrl(sourceUrl: String): LocalRssFeed?
 
     @Query("UPDATE LocalRssFeed SET pinned = :pinned WHERE id = :id")
-    suspend fun setFeedPinned(id: String, pinned: Boolean)
+    suspend fun setFeedPinned(id: LocalUUID, pinned: Boolean)
 
     @Query(
         """
-        SELECT id, title, pinned, sourceUrl, link, createdAt, updatedAt
+        SELECT id, title, name, pinned, sourceUrl, link, createdAt, updatedAt
         FROM LocalRssFeed
         WHERE sourceUrl = :sourceUrl
     """
@@ -48,5 +49,5 @@ interface FeedDao {
     suspend fun upsertFeeds(feeds: List<LocalRssFeed>)
 
     @Query("DELETE from LocalRssFeed WHERE id IN (:feeds)")
-    suspend fun deleteFeeds(feeds: List<String>)
+    suspend fun deleteFeeds(feeds: List<LocalUUID>)
 }

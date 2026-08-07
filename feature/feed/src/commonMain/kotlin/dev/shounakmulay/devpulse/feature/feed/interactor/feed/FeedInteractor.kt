@@ -7,9 +7,10 @@ import dev.shounakmulay.devpulse.core.common.extensions.ifNullOrBlank
 import dev.shounakmulay.devpulse.core.domain.feed.feed.ExtractInitialsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPinnedAndRecentFeedsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentity
 import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
@@ -90,7 +91,7 @@ class FeedInteractor(
     }
 
     private fun createUIFeed(
-        id: String,
+        id: UUID,
         name: String?,
         title: String?,
         link: String?,
