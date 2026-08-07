@@ -11,7 +11,9 @@ kotlin {
     android {
         namespace = "dev.shounakmulay.devpulse"
     }
-    iosFrameworks(baseName = "ComposeApp", isStatic = true)
+    iosFrameworks(baseName = "ComposeApp", isStatic = true) {
+        export(project(Modules.Bridge.MARKDOWN_CONVERTER))
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(project(Modules.Core.UI))
@@ -32,9 +34,14 @@ kotlin {
             implementation(project(Modules.Feature.DEVTOOLS))
             implementation(project(Modules.Feature.SETTINGS))
 
+            api(project(Modules.Bridge.MARKDOWN_CONVERTER))
+
             implementation(libs.navigation3.ui)
             implementation(libs.kotlinx.datetime)
             implementation(libs.ktxml.core)
+            implementation(libs.multiplatform.markdown.renderer.m3)
+            implementation(libs.multiplatform.markdown.renderer)
+            implementation(libs.multiplatform.markdown.renderer.coil3)
         }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)

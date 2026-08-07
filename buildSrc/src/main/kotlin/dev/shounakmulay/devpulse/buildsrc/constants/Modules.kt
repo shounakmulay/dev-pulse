@@ -4,6 +4,10 @@ object Modules {
     const val COMPOSE_APP = ":composeApp"
     const val ANDROID_APP = ":androidApp"
 
+    object Bridge {
+        const val MARKDOWN_CONVERTER = ":bridge:markdownconverter"
+    }
+
     object Feature {
         const val DEVTOOLS = ":feature:devtools"
         const val HOME = ":feature:home"

@@ -55,11 +55,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8B868650301CCD96003795BC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		B2063FC2B8689BD8D3786E76 = {
 			isa = PBXGroup;
 			children = (
 				954EBB187E742EB8182E986A /* Configuration */,
 				EE42F7DA22FE086A788F962E /* iosApp */,
+				8B868650301CCD96003795BC /* Frameworks */,
 				0D214C63A60B029018168CD5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,6 +93,7 @@
 			);
 			name = iosApp;
 			packageProductDependencies = (
+				8BB4D62C301CC61000ED112E /* HtmlToMarkdown */,
 			);
 			productName = iosApp;
 			productReference = 9C3A2499CB7AA44381222227 /* DevPulse.app */;
@@ -114,6 +123,9 @@
 			);
 			mainGroup = B2063FC2B8689BD8D3786E76;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8BB4D62B301CC61000ED112E /* XCRemoteSwiftPackageReference "html-to-markdown" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0D214C63A60B029018168CD5 /* Products */;
 			projectDirPath = "";
@@ -366,6 +378,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8BB4D62B301CC61000ED112E /* XCRemoteSwiftPackageReference "html-to-markdown" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/xberg-io/html-to-markdown";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8BB4D62C301CC61000ED112E /* HtmlToMarkdown */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BB4D62B301CC61000ED112E /* XCRemoteSwiftPackageReference "html-to-markdown" */;
+			productName = HtmlToMarkdown;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0B875B322DCE099289777EE2 /* Project object */;
 }

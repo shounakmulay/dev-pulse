@@ -33,7 +33,5 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.calendar)
         }
-
-
     }
 }

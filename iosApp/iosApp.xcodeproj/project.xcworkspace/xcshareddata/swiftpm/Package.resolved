@@ -1,0 +1,15 @@
+{
+  "originHash" : "6d0ce5d5f0151d08b20cb328e8dfb11b40d38a2a88ec084724defe36ae30728a",
+  "pins" : [
+    {
+      "identity" : "html-to-markdown",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/xberg-io/html-to-markdown",
+      "state" : {
+        "revision" : "0b42e1fa7eb1ef0736ecf87244f2d8948da40e66",
+        "version" : "3.10.0"
+      }
+    }
+  ],
+  "version" : 3
+}

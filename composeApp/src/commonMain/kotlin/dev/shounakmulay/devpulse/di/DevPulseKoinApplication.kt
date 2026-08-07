@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.di
 
+import dev.shounakmulay.devpulse.bridge.markdownconverter.di.MarkdownConverterModule
 import dev.shounakmulay.devpulse.core.common.di.CoreCommonModule
 import dev.shounakmulay.devpulse.core.data.db.di.DatabaseModule
 import dev.shounakmulay.devpulse.core.data.db.di.DatabasePlatformModule
@@ -35,7 +36,8 @@ import org.koin.plugin.module.dsl.koinConfiguration as generatedKoinConfiguratio
         FeedModule::class,
         FeedDataModule::class,
         DomainFeedModule::class,
-        CoreUIModule::class
+        CoreUIModule::class,
+        MarkdownConverterModule::class,
     ]
 )
 class DevPulseKoinApplication

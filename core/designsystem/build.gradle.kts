@@ -23,6 +23,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(Modules.Core.NAVIGATION))
             implementation(libs.compose.components.resources)
+            implementation(libs.calf.ui)
         }
     }
 }
