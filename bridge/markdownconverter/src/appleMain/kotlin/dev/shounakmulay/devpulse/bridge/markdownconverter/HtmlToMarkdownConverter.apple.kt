@@ -8,7 +8,7 @@ import org.koin.core.annotation.Factory
 class AppleHtmlToMarkdownConverter(
     private val dispatcherProvider: DispatcherProvider
 ) : HtmlToMarkdownConverter {
-    override suspend fun convert(html: String): String? = dispatcherProvider.runCatchingOnDefault {
+        override suspend fun convert(html: String): String? = dispatcherProvider.runCatchingOnDefault {
         requireNotNull(nativeHtmlToMarkdownConverter)
         nativeHtmlToMarkdownConverter?.convert(html)
     }.getOrNull()

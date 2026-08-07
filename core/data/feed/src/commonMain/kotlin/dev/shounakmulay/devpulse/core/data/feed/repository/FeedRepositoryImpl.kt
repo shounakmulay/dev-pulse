@@ -4,20 +4,19 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
-import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostQueryMapper
+import dev.shounakmulay.devpulse.core.data.feed.mapper.UuidMapper
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.opml.OpmlParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.opml.model.ParsedOpmlDocument
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
-import dev.shounakmulay.devpulse.core.domain.models.post.RssPostQuery
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.bodyAsText
@@ -36,6 +35,7 @@ internal class FeedRepositoryImpl(
     private val rssFeedMapper: RssFeedMapper,
     private val rssPostMapper: RssPostMapper,
     private val rssPostQueryMapper: RssPostQueryMapper,
+    private val uuidMapper: UuidMapper,
     logger: DPLogger
 ) : FeedRepository {
     private val logger = logger.withTag(Tag)
@@ -68,8 +68,8 @@ internal class FeedRepositoryImpl(
             }
     }
 
-    override fun getFeed(id: String): Flow<RssFeed> {
-        return feedDao.observeFeed(id)
+    override fun getFeed(id: UUID): Flow<RssFeed> {
+        return feedDao.observeFeed(uuidMapper.fromUuid(id))
             .map(rssFeedMapper::toRssFeed)
     }
 
@@ -79,39 +79,6 @@ internal class FeedRepositoryImpl(
                 rssFeedMapper.toRssFeed(feed)
             }
         }
-    }
-
-    override fun getRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentity>> {
-        return feedPostDao.observeRecentPosts(maxCount).map {
-            it.map { post ->
-                post.toRssPostWithFeedIdentity()
-            }
-        }
-    }
-
-    override fun getPost(id: String): Flow<RssPostWithFeedIdentity> {
-        return feedPostDao.observePost(id).map { post ->
-            post.toRssPostWithFeedIdentity()
-        }
-    }
-
-    override fun getFeedPostsFlow(
-        query: RssPostQuery,
-        pagingConfig: PagingConfig
-    ): Flow<PagingData<RssPostWithFeedIdentity>> {
-        val query = rssPostQueryMapper.fromPostQueryMapper(query)
-        return Pager(
-            config = pagingConfig,
-            pagingSourceFactory = {
-                feedPostPagingSourceProvider.getFeedPostPagingSource(query)
-            }
-        )
-            .flow
-            .map { pagingData ->
-                pagingData.map { post ->
-                    post.toRssPostWithFeedIdentity()
-                }
-            }
     }
 
     override suspend fun extractOpmlFeeds(opml: String): List<OpmlFeedImportData> {
@@ -131,13 +98,6 @@ internal class FeedRepositoryImpl(
         }
     }
 
-    private fun LocalRssPostWithFeedMetadataProjection.toRssPostWithFeedIdentity(): RssPostWithFeedIdentity {
-        return rssPostMapper.toRssPostWithFeedIdentity(
-            post = rssPostMapper.toRssFeedPost(post),
-            identity = rssFeedMapper.toRssIdentity(feed)
-        )
-    }
-
     override suspend fun addRssFeed(entry: RssFeedQueueEntry) {
         logger.d { "RSS import started queueId=${entry.id} source=${entry.url.sourceSummary()}" }
         try {
@@ -153,21 +113,16 @@ internal class FeedRepositoryImpl(
         }
     }
 
-    override suspend fun deleteFeed(id: String) {
-        feedDao.deleteFeeds(listOf(id))
+    override suspend fun deleteFeed(id: UUID) {
+        feedDao.deleteFeeds(listOf(uuidMapper.fromUuid(id)))
     }
 
-    override suspend fun setFeedPinned(id: String, pinned: Boolean): Result<Unit> {
+    override suspend fun setFeedPinned(id: UUID, pinned: Boolean): Result<Unit> {
         return runCatching {
-            feedDao.setFeedPinned(id = id, pinned = pinned)
+            feedDao.setFeedPinned(id = uuidMapper.fromUuid(id), pinned = pinned)
         }
     }
 
-    override suspend fun setPostBookmarked(id: String, bookmarked: Boolean): Result<Unit> {
-        return runCatching {
-            feedPostDao.updateBookmarkStatus(id = id, isBookmarked = bookmarked)
-        }
-    }
 
     private fun String.sourceSummary(): String {
         val withoutScheme = substringAfter("://", this)

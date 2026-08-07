@@ -70,7 +70,7 @@ fun LazyListScope.postsSection(
             itemsIndexed(
                 items = articles,
                 key = { index, article ->
-                    article.id
+                    article.id.value
                 }
             ) { index, article ->
                 val showImage by remember(article, index) {

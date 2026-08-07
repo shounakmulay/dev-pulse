@@ -30,6 +30,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
 import dev.shounakmulay.devpulse.core.ui.transition.sharedElement
@@ -39,7 +40,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LazyGridItemScope.FeedsGridItem(
-    feedId: String,
+    feedId: UUID,
     imageUrl: String?,
     title: String,
     initials: String,
@@ -86,7 +87,7 @@ fun LazyGridItemScope.FeedsGridItem(
 
 @Composable
 private fun FeedsGridItemImage(
-    feedId: String,
+    feedId: UUID,
     imageUrl: String?,
     initials: String,
     title: String,
@@ -97,7 +98,7 @@ private fun FeedsGridItemImage(
         contentAlignment = Alignment.Center
     ) {
         DPImage(
-            modifier = Modifier.fillMaxSize().sharedElement("feed_header_$feedId").clip(MaterialTheme.shapes.large),
+            modifier = Modifier.fillMaxSize().sharedElement("feed_header_${feedId.value}").clip(MaterialTheme.shapes.large),
             url = imageUrl.orEmpty(),
             contentDescription = stringResource(
                 stringRes.feed_image_content_description,

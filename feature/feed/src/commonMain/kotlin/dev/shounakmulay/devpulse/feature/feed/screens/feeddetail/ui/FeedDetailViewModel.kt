@@ -5,6 +5,7 @@ import androidx.paging.cachedIn
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetFeedDetailUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
@@ -23,7 +24,7 @@ import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 class FeedDetailViewModel(
-    private val feedId: String,
+    private val feedId: UUID,
     postSortAndFiltersFlow: Flow<Pair<RssPostSort?, List<RssPostFilter>>>,
     private val feedInteractor: FeedInteractor,
     private val postInteractor: PostInteractor,
@@ -75,7 +76,7 @@ class FeedDetailViewModel(
         }
     }
 
-    private fun onPostBookmarkChanged(postId: String, bookmarked: Boolean) {
+    private fun onPostBookmarkChanged(postId: UUID, bookmarked: Boolean) {
         intent {
             setPostBookmarkedUseCase(id = postId, bookmarked = bookmarked)
         }

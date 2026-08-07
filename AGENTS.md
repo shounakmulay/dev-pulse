@@ -221,18 +221,15 @@ For commit workflows, extract the ticket prefix from the current branch name usi
 <claude-mem-context>
 # Memory Context
 
-# [DevPulse] recent context, 2026-07-31 5:04pm GMT+5:30
+# [DevPulse] recent context, 2026-08-07 2:46pm GMT+5:30
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (10,449t read) | 729,123t work | 99% savings
+Stats: 50 obs (11,260t read) | 713,135t work | 98% savings
 
-### Jun 5, 2026
-S41 Generate detailed commits and identify feed detail screen files (Jun 5 at 6:15 PM)
 ### Jun 10, 2026
-S42 Finalize feed filtering and sorting contracts, and propose database indexes. (Jun 10 at 7:04 PM)
 S43 Refine feed entity indexes and filters based on trade-offs. (Jun 10 at 7:16 PM)
 S44 Set Default Model (Jun 10 at 7:19 PM)
 ### Jun 11, 2026
@@ -242,27 +239,10 @@ S48 Explanation of device-code login flow (Jul 15 at 4:36 PM)
 S49 Create and push feature branch, then open a pull request (Jul 15 at 4:38 PM)
 ### Jul 23, 2026
 S50 Scaffold :bridge:markdownconverter module and investigate project structure. (Jul 23 at 2:55 PM)
-### Jul 28, 2026
-1820 12:04p 🔴 Pull Request Creation Aborted by User
-1849 12:06p 🟣 Pull Request Created Successfully
-1858 6:48p 🟣 New Branch Creation and PR Initiation
-1859 " 🔵 Memory File Search for Development Workflow Keywords
-1860 " ✅ New Git Branch Created
-1861 " ✅ Settings Screen UI Code Displayed
-1863 6:49p 🔵 Search for Libraries and Navigation Elements
-1865 " 🟣 Commit Added for About Libraries Screen
-1867 " ✅ Commit for Dependency Updates and Build Configuration
-1869 6:50p ✅ KMP Compilation for iOS Simulator
-1873 " 🔵 Review of Recent Commits
-1877 6:53p 🟣 New branch creation for detailed commits
-1878 " 🟣 Pull request creation to main branch
 ### Jul 31, 2026
-1879 9:56a 🟣 MarkdownConverter Module Scaffolding
-1880 " 🔵 Module Inclusion in settings.gradle.kts
+1880 9:56a 🔵 Module Inclusion in settings.gradle.kts
 1881 " 🔵 DevPulse BuildSrc Constants - Modules Object
 1882 " 🔵 Core Module build.gradle.kts Files
-1883 " 🔵 Core Network Module Dependencies
-1884 " 🔵 Core Common Module Dependencies
 S51 Create subfolders in modules based on package names (Jul 31 at 9:57 AM)
 1885 9:58a ✅ Added :bridge:markdownconverter module to project
 1886 " ✅ Successfully compiled JVM target for :bridge:markdownconverter
@@ -275,6 +255,7 @@ S51 Create subfolders in modules based on package names (Jul 31 at 9:57 AM)
 1909 10:00a 🔵 Directory structure of core/network module
 1934 10:12a 🟣 Subfolder Creation Based on Package Name
 1935 " ✅ Organized Module Structure with Package-Named Subfolders
+S53 Investigate and resolve the missing native libraries for the html-to-markdown-android dependency. (Jul 31 at 10:12 AM)
 1936 10:58a 🔵 32-bit ABI Filters Identified in Android Build Files
 1937 " 🔵 Presence of 32-bit Native Libraries Detected
 1938 " 🔵 Transitive Dependency Forces 32-bit Architectures
@@ -295,27 +276,30 @@ S51 Create subfolders in modules based on package names (Jul 31 at 9:57 AM)
 1962 " 🔴 HTML to Markdown Android dependency resolution issue
 1964 4:43p 🔵 HTML to Markdown Android compile classpath analysis
 1966 " 🔴 HTML to Markdown Android AAR missing native libraries
-S53 Investigate and resolve the missing native libraries for the html-to-markdown-android dependency. (Jul 31 at 4:43 PM)
-**Investigated**: - Verified the `html-to-markdown-android` dependency declaration in `bridge/markdownconverter/build.gradle.kts` and `gradle/libs.versions.toml`.
-    - Executed Gradle commands to inspect the dependency tree and compile classpath for the Android configuration.
-    - Directly inspected the contents of the `html-to-markdown-android-3.10.0.aar` file, its POM, and module files.
-    - Attempted to access the library's source code and installation documentation from GitHub and the official website.
+S54 Verify Android build fix for html-to-markdown-android (Jul 31 at 4:43 PM)
+### Aug 1, 2026
+1988 4:47p 🔴 Android build issue resolved in version 3.10.1
+1989 " 🔵 Verified Android AAR contents for version 3.10.1
+### Aug 3, 2026
+1990 1:02p 🔵 Xcode linker error for header-only C target
+1991 " ⚖️ Introduce modulemap for header-only C target
+1992 " 🔴 Fix Xcode linking error for header-only C target
+1993 " ⚖️ Ranked solutions for Xcode header-only C target issue
+S55 Diagnose and fix Xcode linking error for header-only C target in Swift Package Manager. (Aug 3 at 1:03 PM)
+### Aug 4, 2026
+1994 4:20p 🟣 Add sqlite-vector JVM dependency
+1995 " 🔵 Investigate sqlite-vector dependency in project
+1996 " ✅ Add JVM dependency for sqlite-vector
+1998 " ✅ Compile Kotlin JVM for sqlitevec module
+2000 " 🔵 Gradle task graph calculation for sqlitevec
+2004 " 🔵 BuildSrc compilation tasks status
+2008 " 🔵 Gradle build execution completion
+2016 4:21p 🔵 Gradle tasks execution and configuration cache
+2021 4:23p 🔵 SQLite-Vector extension for JVM and Android
+### Aug 7, 2026
+2028 2:46p 🟣 Automated PR creation and commit detailing
 
-**Learned**: - The dependency is correctly declared in the project's Gradle files.
-    - The published `io.xberg:html-to-markdown-android:3.10.0` AAR artifact is defective; it lacks the necessary native libraries (e.g., `.so` files) required for Android execution.
-    - The AAR's internal structure and associated metadata files confirm the absence of these native components, contradicting the library's documentation.
-    - Attempts to access the library's source code and documentation from GitHub and the official website failed due to cache misses and unsafe URL errors, preventing further direct code inspection.
-    - The root cause of the issue is the defective nature of the published AAR artifact itself, not the project's dependency configuration.
-
-**Completed**: - Confirmed the correct placement of the `html-to-markdown-android` dependency in the Android source set.
-    - Diagnosed that the published AAR artifact is missing critical native libraries.
-    - Identified that the issue lies with the external dependency's artifact, not the project's configuration.
-
-**Next Steps**: - The current trajectory is to inform the user about the defective nature of the `html-to-markdown-android` artifact and the need for it to be republished correctly by the library maintainers (Xberg).
-    - No further code execution or investigation within the current project is immediately actionable until the external dependency is fixed.
-
-
-Access 729k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 713k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
 
 <!-- SPECKIT START -->

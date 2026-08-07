@@ -8,6 +8,7 @@ import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.navigation.feed
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.navigation.feedScreen
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.navigation.feedListScreen
 import dev.shounakmulay.devpulse.feature.feed.screens.postlist.navigation.postListScreen
+import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.navigation.postDetailScreen
 
 fun EntryProviderScope<Screen>.feedFeatureEntries(navigator: Navigator) {
     feedScreen(navigator)
@@ -15,4 +16,5 @@ fun EntryProviderScope<Screen>.feedFeatureEntries(navigator: Navigator) {
     addFeedScreen(navigator)
     feedDetailScreen(navigator)
     postListScreen(navigator)
+    postDetailScreen(navigator)
 }

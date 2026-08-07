@@ -21,6 +21,7 @@ kotlin {
             implementation(project(Modules.Core.Data.DB))
 
             implementation(project(Modules.Bridge.MARKDOWN_CONVERTER))
+            implementation(project(Modules.Bridge.READABILITY))
 
             implementation(libs.ktxml.core)
             implementation(libs.rssparser)

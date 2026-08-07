@@ -9,10 +9,10 @@ app-desktopPackageVersion = "1.0.0"
 calfUi = "0.13.0"
 coilCompose = "3.5.0"
 composeMultiplatformVersion = "2.10.1"
+composeWebviewMultiplatform = "2.0.3"
 coreSplashscreen = "1.2.0"
 datastore = "1.2.1"
-hazeBlur = "2.0.0-alpha03"
-htmlToMarkdown = "3.10.0"
+htmlToMarkdown = "3.10.1"
 jvm-target = "11"
 ios-deploymentTarget = "18.2"
 ios-marketingVersion = "1.0"
@@ -60,6 +60,7 @@ ksp = "2.3.7"
 turbine = "1.2.1"
 mokkery = "3.4.2"
 aboutLibraries = "15.0.4"
+sqlite-vector = "1.0.0"
 
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
@@ -71,6 +72,7 @@ androidx-paging-compose = { module = "androidx.paging:paging-compose", version.r
 calf-ui = { module = "com.mohamedrejeb.calf:calf-ui", version.ref = "calfUi" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
+coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coilCompose" }
 compose-material3-window-size = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "material3" }
 compose-material3-adaptive-navigation-suite = { module = "org.jetbrains.compose.material3:material3-adaptive-navigation-suite", version.ref = "material3" }
 compose-material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "material3-adaptive" }
@@ -86,8 +88,7 @@ compose-ui-graphics = { module = "org.jetbrains.compose.ui:ui-graphics", version
 compose-ui-text = { module = "org.jetbrains.compose.ui:ui-text", version.ref = "composeMultiplatform" }
 compose-ui-unit = { module = "org.jetbrains.compose.ui:ui-unit", version.ref = "composeMultiplatform" }
 compose-ui-util = { module = "org.jetbrains.compose.ui:ui-util", version.ref = "composeMultiplatform" }
-haze-blur = { module = "dev.chrisbanes.haze:haze-blur", version.ref = "hazeBlur" }
-haze-blur-materials = { module = "dev.chrisbanes.haze:haze-blur-materials", version.ref = "hazeBlur" }
+compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "composeWebviewMultiplatform" }
 html-to-markdown-android = { module = "io.xberg:html-to-markdown-android", version.ref = "htmlToMarkdown" }
 html-to-markdown = { module = "io.xberg:html-to-markdown", version.ref = "htmlToMarkdown" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -117,6 +118,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 multiplatform-markdown-renderer = { module = "com.mikepenz:multiplatform-markdown-renderer", version.ref = "multiplatformMarkdownRenderer" }
+multiplatform-markdown-renderer-code = { module = "com.mikepenz:multiplatform-markdown-renderer-code", version.ref = "multiplatformMarkdownRenderer" }
 multiplatform-markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "multiplatformMarkdownRenderer" }
 multiplatform-markdown-renderer-coil3 = { module = "com.mikepenz:multiplatform-markdown-renderer-coil3", version.ref = "multiplatformMarkdownRenderer" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
@@ -171,6 +173,7 @@ aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref
 aboutlibraries-compose-core = { module = "com.mikepenz:aboutlibraries-compose-core", version.ref = "aboutLibraries" } # Common compose core
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibraries" }      # Material 3 UI
 aboutLibraries-gradle-plugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
+sqlite-vector = { module = "ai.sqlite:vector", version.ref = "sqlite-vector" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

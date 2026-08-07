@@ -1,12 +1,13 @@
 package dev.shounakmulay.devpulse.feature.feed.model
 
 import androidx.compose.runtime.Immutable
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import kotlinx.serialization.Serializable
 
 @Serializable
 @Immutable
 data class UIFeedPost(
-    val id: String,
+    val id: UUID,
     val title: String,
     val sourceName: String,
     val sourceUrl: String?,

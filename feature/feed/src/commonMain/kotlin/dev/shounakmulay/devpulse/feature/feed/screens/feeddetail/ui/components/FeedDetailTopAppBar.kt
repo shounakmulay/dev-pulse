@@ -1,6 +1,8 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components
 
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -8,6 +10,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import com.mohamedrejeb.calf.ui.ExperimentalCalfUiApi
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBar
@@ -16,6 +20,7 @@ import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.FeedDetailScreenState
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalCalfUiApi::class)
 @Composable
 internal fun FeedDetailScreenState.FeedDetailTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
@@ -41,6 +46,7 @@ internal fun FeedDetailScreenState.FeedDetailTopAppBar(
                 navigator.navigateBack()
             }
         },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         actions = {
             DPIconButton(
                 modifier = Modifier.rotate(45f),

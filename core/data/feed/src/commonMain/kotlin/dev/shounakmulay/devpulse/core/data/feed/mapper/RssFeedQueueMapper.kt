@@ -1,11 +1,11 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedQueue
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedQueueActionRequestor
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedQueueActionType
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedQueueStatus
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedType
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedQueue
+import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedQueueActionRequestor
+import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedQueueActionType
+import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedQueueStatus
+import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionRequestor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry

@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.RssIdentityGenerator
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
@@ -13,15 +13,17 @@ import kotlin.time.Duration
 import kotlin.time.Instant
 
 class RssPostMapperTest {
+    private val uuidMapper = UuidMapper()
     private val mapper = RssPostMapper(
         idGenerator = RssIdentityGenerator(),
-        dateTimeProvider = FixedDateTimeProvider
+        dateTimeProvider = FixedDateTimeProvider,
+        uuidMapper = uuidMapper
     )
     @Test
     fun `Given RSS item date When mapped to local post Then raw publisher date is preserved`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = "Tue, 19 May 2026 10:00:00 +0000"),
-            feedId = "feed-1",
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = LocalRssContentFeedPostIdentitySlice(
                 id = "post-1",
@@ -41,7 +43,7 @@ class RssPostMapperTest {
     fun `Given RSS item GMT date When mapped to local post Then published time is parsed`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = "Tue, 19 May 2026 10:00:00 GMT"),
-            feedId = "feed-1",
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = null
         )
@@ -51,7 +53,7 @@ class RssPostMapperTest {
     fun `Given RSS item offset date When mapped to local post Then published time is normalized to UTC`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = "Tue, 19 May 2026 15:30:00 +0530"),
-            feedId = "feed-1",
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = null
         )
@@ -61,7 +63,7 @@ class RssPostMapperTest {
     fun `Given RSS item unparseable date When mapped to local post Then published time is null`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = "not a date"),
-            feedId = "feed-1",
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = null
         )
@@ -71,7 +73,7 @@ class RssPostMapperTest {
     fun `Given bookmarked existing identity When mapped to local post Then bookmark is preserved`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = null),
-            feedId = "feed-1",
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = LocalRssContentFeedPostIdentitySlice(
                 id = "post-1",
@@ -89,7 +91,7 @@ class RssPostMapperTest {
     fun `Given missing existing identity When mapped to local post Then bookmark is false`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = null),
-            feedId = "feed-1",
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = null
         )
@@ -131,15 +133,15 @@ class RssPostMapperTest {
 
     private fun createLocalPost(bookmarked: Boolean): LocalRssContentFeedPost {
         return LocalRssContentFeedPost(
-            id = "post-1",
-            feedId = "feed-1",
+            id = uuidMapper.fromString("post-1"),
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             guid = "guid-1",
             title = "Title",
             author = "Author",
             link = "https://example.com/post",
             pubDate = null,
-            publishedAtEpochMillis = null,
+            publishedAtEpochMillis = Long.MIN_VALUE,
             description = "Description",
             content = "Content",
             image = null,

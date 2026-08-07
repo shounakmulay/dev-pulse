@@ -19,6 +19,7 @@ import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostQueryMapper
+import dev.shounakmulay.devpulse.core.data.feed.mapper.UuidMapper
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.opml.OpmlParser
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.logging.DPLog
@@ -80,11 +81,13 @@ class FeedRepositoryImplTest {
             feedPostPagingSourceProvider = FakeFeedPostPagingSourceProvider(),
             rssFeedMapper = RssFeedMapper(
                 identityGenerator = FakeIdentityGenerator(),
-                dateTimeProvider = FakeDateTimeProvider()
+                dateTimeProvider = FakeDateTimeProvider(),
+                uuidMapper = UuidMapper()
             ),
             rssPostMapper = RssPostMapper(
                 idGenerator = FakeIdentityGenerator(),
-                dateTimeProvider = FakeDateTimeProvider()
+                dateTimeProvider = FakeDateTimeProvider(),
+                uuidMapper = UuidMapper()
             ),
             logger = DPLog.tag("ContentFeedRepositoryImplTest"),
             rssPostQueryMapper = RssPostQueryMapper()

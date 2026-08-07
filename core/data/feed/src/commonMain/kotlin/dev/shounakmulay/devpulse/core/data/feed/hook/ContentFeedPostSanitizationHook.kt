@@ -1,9 +1,9 @@
 package dev.shounakmulay.devpulse.core.data.feed.hook
 
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemMediaContent
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemRawEnclosure
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemYoutubeData
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
+import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemMediaContent
+import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemRawEnclosure
+import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemYoutubeData
 import dev.shounakmulay.devpulse.core.data.feed.hook.model.PostWithIdentity
 import org.koin.core.annotation.Factory
 

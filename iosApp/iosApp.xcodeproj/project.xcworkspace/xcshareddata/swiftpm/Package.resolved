@@ -1,13 +1,22 @@
 {
-  "originHash" : "6d0ce5d5f0151d08b20cb328e8dfb11b40d38a2a88ec084724defe36ae30728a",
+  "originHash" : "b7588977a75bffbc962e8b76d2158faa5d8ad8729a2bc165f7c23677a5077030",
   "pins" : [
     {
       "identity" : "html-to-markdown",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/xberg-io/html-to-markdown",
       "state" : {
-        "revision" : "0b42e1fa7eb1ef0736ecf87244f2d8948da40e66",
-        "version" : "3.10.0"
+        "revision" : "83e692102bceb8bb707c785abcc68f4f9749931b",
+        "version" : "3.10.4"
+      }
+    },
+    {
+      "identity" : "sqlite-vector#swift-package",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sqliteai/sqlite-vector#swift-package",
+      "state" : {
+        "revision" : "b68d34ac66ccbdb781a161b0060dc07020f3cbb2",
+        "version" : "1.0.0"
       }
     }
   ],

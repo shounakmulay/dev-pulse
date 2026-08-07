@@ -1,5 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.db
 
+import androidx.room3.AutoMigration
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.ConstructedBy
 import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Database
@@ -8,18 +10,21 @@ import androidx.room3.RoomDatabaseConstructor
 import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import androidx.room3.withReadTransaction
 import androidx.room3.withWriteTransaction
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
-import dev.shounakmulay.devpulse.core.data.db.SchemaVersions.BASE
-import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
+import dev.shounakmulay.devpulse.core.data.db.converter.LocalCompressedTextTypeConverter
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedQueueDao
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedQueue
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostCategory
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostTag
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostToTagMapping
+import dev.shounakmulay.devpulse.core.data.db.dao.PostContentDao
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedQueue
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostContent
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostTag
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostToTagMapping
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
@@ -38,20 +43,28 @@ private object SchemaVersions {
         LocalRssPostTag::class,
         LocalRssPostToTagMapping::class,
         LocalRssPostCategory::class,
+        LocalRssPostContent::class
     ],
-    autoMigrations = [],
-    version = BASE
+    autoMigrations = [
+        AutoMigration(1, 2),
+        AutoMigration(2, 3)
+    ],
+    version = 3
 )
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
+@ColumnTypeConverters(LocalCompressedTextTypeConverter::class)
 @ConstructedBy(DevPulseDatabaseConstructor::class)
 abstract class DevPulseDatabase :
     RoomDatabase(),
     DevPulseDatabaseTransactionAccessor,
     FeedPostPagingSourceProvider {
 
-    abstract fun getFeedContentDao(): FeedContentDao
+    abstract fun getFeedContentDao(): FeedPostDao
     abstract fun getFeedDao(): FeedDao
     abstract fun getFeedQueueDao(): FeedQueueDao
+
+    abstract fun getPostContentDao(): PostContentDao
+
     override suspend fun clearAllTables() {
     }
 
@@ -80,11 +93,26 @@ expect object DevPulseDatabaseConstructor : RoomDatabaseConstructor<DevPulseData
 
 fun getDevPulseDatabase(
     builder: RoomDatabase.Builder<DevPulseDatabase>,
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    compressedTextTypeConverter: LocalCompressedTextTypeConverter
 ): DevPulseDatabase {
+    val driver = BundledSQLiteDriver().apply {
+//        addExtension("vector")
+    }
     return builder
-        .setDriver(BundledSQLiteDriver())
+        .setDriver(driver)
         .setQueryCoroutineContext(dispatcherProvider.ioDispatcher)
         .fallbackToDestructiveMigration()
+        .addColumnTypeConverter(compressedTextTypeConverter)
+        .addCallback(object : RoomDatabase.Callback() {
+            override suspend fun onCreate(connection: SQLiteConnection) {
+                // TODO: Call vector init
+                // TODO: Call vector quantize on data change not here.
+            }
+
+            override suspend fun onOpen(connection: SQLiteConnection) {
+                // TODO: Call vector quantize preload
+            }
+        })
         .build()
 }

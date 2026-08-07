@@ -25,10 +25,10 @@ import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
-import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilterEvent
-import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilterViewModel
-import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilters
-import dev.shounakmulay.devpulse.feature.feed.components.postsListEmptyMessage
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterEvent
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilters
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.postsListEmptyMessage
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedsPostListItemVariant
 import devpulse.core.resources.generated.resources.all_posts
@@ -97,7 +97,7 @@ fun PostListScreen(
                     }
                 }
 
-                items(posts.itemCount, key = posts.itemKey { it.id }) { index ->
+                items(posts.itemCount, key = posts.itemKey { it.id.value }) { index ->
                     val post = posts[index]
                     if (post != null) {
                         FeedPostListItem(
@@ -113,7 +113,10 @@ fun PostListScreen(
                                 )
                             },
                             onPostClick = {
-
+                                navigator.navigate(
+                                    Screen.Tabs.Feed.PostDetail(it.id),
+                                    onRootStack = true
+                                )
                             }
                         )
                     }

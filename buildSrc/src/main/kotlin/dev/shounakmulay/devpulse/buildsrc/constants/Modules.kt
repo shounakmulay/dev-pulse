@@ -6,6 +6,8 @@ object Modules {
 
     object Bridge {
         const val MARKDOWN_CONVERTER = ":bridge:markdownconverter"
+        const val READABILITY = ":bridge:readability"
+        const val SQLITE_VEC = ":bridge:sqlitevec"
     }
 
     object Feature {

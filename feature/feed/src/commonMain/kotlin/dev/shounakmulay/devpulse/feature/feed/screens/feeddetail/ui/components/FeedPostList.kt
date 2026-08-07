@@ -25,9 +25,9 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
-import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilterState
-import dev.shounakmulay.devpulse.feature.feed.components.PostSortAndFilters
-import dev.shounakmulay.devpulse.feature.feed.components.postsListEmptyMessage
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterState
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilters
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.postsListEmptyMessage
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
@@ -89,7 +89,7 @@ internal fun FeedPostList(
 
         items(
             count = posts.itemCount,
-            key = posts.itemKey { it.id }
+            key = posts.itemKey { it.id.value }
         ) { index ->
             val post = posts[index]
             if (post != null) {

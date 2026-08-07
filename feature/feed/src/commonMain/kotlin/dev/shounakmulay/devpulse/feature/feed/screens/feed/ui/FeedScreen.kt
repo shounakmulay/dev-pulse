@@ -19,6 +19,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.PostList
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
@@ -76,7 +77,9 @@ fun FeedScreen(
             postsSection(
                 articles = recentArticles,
                 isLoading = state.isArticlesLoading,
-                onPostClick = {},
+                onPostClick = {
+                    navigator.navigate(Screen.Tabs.Feed.PostDetail(it.id), onRootStack = true)
+                },
                 onBookmarkChanged = { post, bookmarked ->
                     viewModel.onEvent(
                         FeedScreenEvent.OnPostBookmarkChanged(

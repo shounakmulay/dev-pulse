@@ -15,6 +15,7 @@ import dev.shounakmulay.devpulse.core.ui.di.CoreUIModule
 import dev.shounakmulay.devpulse.feature.feed.di.FeedModule
 import dev.shounakmulay.devpulse.feature.home.di.HomeModule
 import dev.shounakmulay.devpulse.feature.settings.di.SettingsModule
+import dev.shounakmulay.devpulse.readability.di.ReadabilityModule
 import org.koin.core.annotation.KoinApplication
 import org.koin.dsl.KoinConfiguration
 import org.koin.dsl.koinConfiguration
@@ -38,6 +39,7 @@ import org.koin.plugin.module.dsl.koinConfiguration as generatedKoinConfiguratio
         DomainFeedModule::class,
         CoreUIModule::class,
         MarkdownConverterModule::class,
+        ReadabilityModule::class
     ]
 )
 class DevPulseKoinApplication

@@ -7,13 +7,13 @@ import ComposeApp
 import HtmlToMarkdown
 
 class HtmlToMarkdownConverter: HtmlToMarkdownConverterProtocol {
-    func convert(html: String) -> String? {
-         do {
-            let result = try HtmlToMarkdown.convert(html: html, options: nil)
-            let markdown = result.content()?.toString()
-            return markdown
-        } catch {
-            return nil
-        }
-    }
+   func convert(html: String) -> String? {
+        do {
+           let result = try HtmlToMarkdown.convert(html: html, options: nil)
+           let markdown = result.content()?.toString()
+           return markdown
+       } catch {
+           return nil
+       }
+   }
 }

@@ -3,11 +3,11 @@ package dev.shounakmulay.devpulse.core.domain.feed.feed
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
-import dev.shounakmulay.devpulse.core.data.feed.repository.ContentFeedRepository
+import dev.shounakmulay.devpulse.core.data.feed.repository.FeedRepository
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +21,7 @@ class ExtractOpmlFeedsUseCaseTest {
     fun `Given URL repository failure When extracting OPML feeds Then failure is returned`() = runBlocking {
         val failure = IllegalStateException("boom")
         val useCase = ExtractOpmlFeedsUseCase(
-            feedRepository = FakeContentFeedRepository(failure = failure),
+            feedRepository = FakeFeedRepository(failure = failure),
             dispatcherProvider = TestDispatcherProvider
         )
 
@@ -31,14 +31,14 @@ class ExtractOpmlFeedsUseCaseTest {
         assertSame(failure, result.exceptionOrNull())
     }
 
-    private class FakeContentFeedRepository(
+    private class FakeFeedRepository(
         private val failure: Exception
-    ) : ContentFeedRepository {
+    ) : FeedRepository {
         override fun getFeedsListFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> = error("Unused")
 
         override fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeed>> = error("Unused")
 
-        override fun getRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentity>> = error("Unused")
+        override fun getFeed(id: UUID): Flow<RssFeed> = error("Unused")
 
         override suspend fun extractOpmlFeeds(opml: String): List<OpmlFeedImportData> = error("Unused")
 
@@ -48,11 +48,9 @@ class ExtractOpmlFeedsUseCaseTest {
 
         override suspend fun addRssFeed(entry: RssFeedQueueEntry) = error("Unused")
 
-        override suspend fun deleteFeed(id: String) = error("Unused")
+        override suspend fun deleteFeed(id: UUID) = error("Unused")
 
-        override suspend fun setFeedPinned(id: String, pinned: Boolean): Result<Unit> = error("Unused")
-
-        override suspend fun setPostBookmarked(id: String, bookmarked: Boolean): Result<Unit> = error("Unused")
+        override suspend fun setFeedPinned(id: UUID, pinned: Boolean): Result<Unit> = error("Unused")
 
         override fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> = error("Unused")
     }

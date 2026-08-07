@@ -1,7 +1,9 @@
 package dev.shounakmulay.devpulse.core.data.db.model.feed.slices
 
+import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
+
 data class LocalRssFeedIdentitySlice(
-    val id: String,
+    val id: LocalUUID,
     val title: String?,
     val name: String?,
     val pinned: Boolean,

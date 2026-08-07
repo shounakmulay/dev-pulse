@@ -1,29 +1,31 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemMediaContent
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemRawEnclosure
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeedItemYoutubeData
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssPostCategory
+import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
+import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemMediaContent
+import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemRawEnclosure
+import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemYoutubeData
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemMediaContent
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemRawEnclosure
 import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemYoutubeData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedPost
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedPostMediaContent
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedPostRawEnclosure
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedPostYoutubeData
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssPostWithFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPost
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostMediaContent
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostRawEnclosure
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostYoutubeData
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentity
 import org.koin.core.annotation.Factory
 
 @Factory
 class RssPostMapper(
     private val idGenerator: IdentityGenerator,
-    private val dateTimeProvider: DateTimeProvider
+    private val dateTimeProvider: DateTimeProvider,
+    private val uuidMapper: UuidMapper
 ) {
     fun toRssPostWithFeedIdentity(
         post: RssFeedPost,
@@ -37,7 +39,7 @@ class RssPostMapper(
 
     fun toLocalRssContentFeedPost(
         item: ParsedFeedItem,
-        feedId: String,
+        feedId: LocalUUID,
         fingerprint: String,
         existingIdentity: LocalRssContentFeedPostIdentitySlice?
     ): LocalRssContentFeedPost {
@@ -46,7 +48,7 @@ class RssPostMapper(
             dateTimeProvider.parse(it)?.toEpochMilliseconds()
         } ?: Long.MIN_VALUE
         return LocalRssContentFeedPost(
-            id = existingIdentity?.id ?: idGenerator.generateSortableId(),
+            id = existingIdentity?.id ?: uuidMapper.fromUuid(idGenerator.generateSortableId()),
             feedId = feedId,
             fingerprint = fingerprint,
             guid = item.guid,
@@ -91,8 +93,8 @@ class RssPostMapper(
 
     fun toRssFeedPost(from: LocalRssContentFeedPost): RssFeedPost {
         return RssFeedPost(
-            id = from.id,
-            feedId = from.feedId,
+            id = uuidMapper.toUuid(from.id),
+            feedId = uuidMapper.toUuid(from.feedId),
             fingerprint = from.fingerprint,
             guid = from.guid,
             title = from.title,
@@ -115,6 +117,7 @@ class RssPostMapper(
             createdAtMillis = from.createdAt
         )
     }
+
     private fun mapRawMediaContent(from: ParsedFeedItemMediaContent): LocalRssFeedItemMediaContent {
         return LocalRssFeedItemMediaContent(
             url = from.url,
@@ -152,11 +155,13 @@ class RssPostMapper(
         viewsCount = viewsCount,
         likesCount = likesCount,
     )
+
     private fun LocalRssFeedItemRawEnclosure.toRssFeedItemRawEnclosure() = RssFeedPostRawEnclosure(
         url = url,
         length = length,
         type = type,
     )
+
     private fun LocalRssFeedItemMediaContent.toRssFeedItemMediaContent() = RssFeedPostMediaContent(
         url = url,
         type = type,

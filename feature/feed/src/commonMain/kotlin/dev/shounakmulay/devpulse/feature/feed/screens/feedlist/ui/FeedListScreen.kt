@@ -103,7 +103,7 @@ internal fun FeedsList(
     ) {
         items(
             count = feeds.itemCount,
-            key = { index -> feeds[index]?.id ?: "feed-placeholder-$index" },
+            key = { index -> feeds[index]?.id?.value ?: "feed-placeholder-$index" },
         ) { index ->
             val feed = feeds[index]
             if (feed == null) {

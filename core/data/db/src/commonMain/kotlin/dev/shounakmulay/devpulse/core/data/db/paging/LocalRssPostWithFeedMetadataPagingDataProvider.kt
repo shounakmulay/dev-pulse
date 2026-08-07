@@ -1,6 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.db.paging
 
-import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
@@ -10,7 +10,7 @@ import dev.shounakmulay.devpulse.core.data.db.query.SqlBinding
 import dev.shounakmulay.devpulse.core.logging.DPLog
 
 class LocalRssPostWithFeedMetadataPagingDataProvider(
-    private val feedContentDao: FeedContentDao,
+    private val feedPostDao: FeedPostDao,
     private val query: LocalFeedPostQuery
 ) : LocalCursorPagingSourceDataProvider<
         FeedPostCursor,
@@ -37,7 +37,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
             "[FEED-PAGING] initial:start loadSize=$loadSize sort=${query.sort} " +
                     "filters=${query.filters}"
         }
-        val items = feedContentDao.getPostPage(queryBuilder.buildInitialPage(loadSize))
+        val items = feedPostDao.getPostPage(queryBuilder.buildInitialPage(loadSize))
         logger.d { "[FEED-PAGING] initial:end ${items.summary()}" }
         return items
     }
@@ -49,7 +49,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
         logger.d {
             "[FEED-PAGING] append:start loadSize=$loadSize cursor=${cursor.summary()}"
         }
-        val items = feedContentDao.getPostPage(
+        val items = feedPostDao.getPostPage(
             queryBuilder.buildPageAfter(
                 cursor = cursor,
                 limit = loadSize
@@ -66,7 +66,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
         logger.d {
             "[FEED-PAGING] prepend:start loadSize=$loadSize cursor=${cursor.summary()}"
         }
-        val items = feedContentDao.getPostPage(
+        val items = feedPostDao.getPostPage(
             queryBuilder.buildPageBefore(
                 cursor = cursor,
                 limit = loadSize
@@ -88,7 +88,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
                     "afterLimit=$afterLimit anchor=${anchorCursor.summary()}"
         }
         val beforeItems = getPageBefore(anchorCursor, beforeLimit)
-        val afterItems = feedContentDao.getPostPage(
+        val afterItems = feedPostDao.getPostPage(
             queryBuilder.buildRefreshPageAround(
                 cursor = anchorCursor,
                 limit = afterLimit
@@ -130,7 +130,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
 
     private fun List<LocalRssPostWithFeedMetadataProjection>.summary(): String {
         return "count=$size firstId=${firstOrNull()?.post?.id} lastId=${lastOrNull()?.post?.id} " +
-                "ids=${joinToString(prefix = "[", postfix = "]") { it.post.id }}"
+                "ids=${joinToString(prefix = "[", postfix = "]") { it.post.id.value }}"
     }
 
     private companion object {

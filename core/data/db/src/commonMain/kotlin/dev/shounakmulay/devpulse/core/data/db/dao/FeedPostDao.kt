@@ -9,6 +9,7 @@ import androidx.room3.RawQuery
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomRawQuery
 import androidx.room3.Upsert
+import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
@@ -51,13 +52,13 @@ interface FeedPostDao {
     suspend fun deletePostCategories(postId: String)
 
     @Query("DELETE FROM LocalRssPostCategory WHERE postId IN (:postIds)")
-    suspend fun deletePostCategories(postIds: Set<String>)
+    suspend fun deletePostCategories(postIds: Set<LocalUUID>)
 
     @Delete
     suspend fun deletePosts(posts: List<LocalRssContentFeedPost>)
 
     @Query("SELECT * FROM LocalRssContentFeedPost WHERE id = :id")
-    suspend fun getPost(id: String): LocalRssContentFeedPost
+    suspend fun getPost(id: LocalUUID): LocalRssContentFeedPost
 
 
     @Query(
@@ -77,10 +78,10 @@ interface FeedPostDao {
         WHERE p.id = :id
         """
     )
-    fun observePost(id: String): Flow<LocalRssPostWithFeedMetadataProjection>
+    fun observePost(id: LocalUUID): Flow<LocalRssPostWithFeedMetadataProjection>
 
     @Query("UPDATE LocalRssContentFeedPost SET bookmarked = :isBookmarked WHERE id = :id")
-    suspend fun updateBookmarkStatus(id: String, isBookmarked: Boolean)
+    suspend fun updateBookmarkStatus(id: LocalUUID, isBookmarked: Boolean)
 
     @Query(
         """

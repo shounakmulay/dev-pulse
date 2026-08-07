@@ -5,6 +5,7 @@ import androidx.paging.cachedIn
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedFeedSourcesUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedPinnedFeedSourcesUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
@@ -53,7 +54,7 @@ class FeedListViewModel(
         }
     }
 
-    private fun onTogglePinned(id: String, pinned: Boolean) {
+    private fun onTogglePinned(id: UUID, pinned: Boolean) {
         viewModelScope.launch {
             setFeedPinnedUseCase(id = id, pinned = pinned)
         }

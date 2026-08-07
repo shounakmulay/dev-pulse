@@ -1,9 +1,10 @@
 package dev.shounakmulay.devpulse.core.data.feed.repository
 
-import dev.shounakmulay.devpulse.core.data.db.dao.FeedContentDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssContentFeedPost
-import dev.shounakmulay.devpulse.core.data.db.model.feed.LocalRssFeed
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
+import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.feed.hook.ContentFeedPostFilterExistingHook
 import dev.shounakmulay.devpulse.core.data.feed.hook.ContentFeedPostSanitizationHook
 import dev.shounakmulay.devpulse.core.data.feed.hook.CoreBatchHook
@@ -32,7 +33,7 @@ internal class RssContentFeedProcessor(
     private val identityGenerator: IdentityGenerator,
     private val filterExistingPostsHook: ContentFeedPostFilterExistingHook,
     private val postSanitizationHook: ContentFeedPostSanitizationHook,
-    private val feedContentDao: FeedContentDao,
+    private val feedPostDao: FeedPostDao,
     private val feedDao: FeedDao,
     private val rssPostMapper: RssPostMapper,
     private val rssFeedMapper: RssFeedMapper,
@@ -85,11 +86,11 @@ internal class RssContentFeedProcessor(
             .map {
                 processRssItemsChunk(rssItems = it, feed = localRssFeed)
             }.onEach {
-                feedContentDao.upsertPosts(it)
+                feedPostDao.upsertPosts(it)
                 if (it.isNotEmpty()) {
                     val postIds = it.map { post -> post.id }.toSet()
-                    feedContentDao.deletePostCategories(postIds)
-                    feedContentDao.upsertPostCategories(it.toCategoryRows())
+                    feedPostDao.deletePostCategories(postIds)
+                    feedPostDao.upsertPostCategories(it.toCategoryRows())
                 }
                 upsertedCount += it.size
                 logger.d {
@@ -110,7 +111,7 @@ internal class RssContentFeedProcessor(
             rssItems = rssItems,
             feedId = feedId
         )
-        val existingItems = feedContentDao.getByFingerprints(itemsWithFingerprint.keys)
+        val existingItems = feedPostDao.getByFingerprints(itemsWithFingerprint.keys)
 
         val localPostsWithIdentity = itemsWithFingerprint.map { (fingerprint, rssItem) ->
             val existingLocalIdentity = existingItems[fingerprint]
@@ -157,14 +158,14 @@ internal class RssContentFeedProcessor(
 
     private fun List<LocalRssContentFeedPost>.toCategoryRows() = flatMap { post ->
         rssPostMapper.toLocalRssPostCategories(
-            postId = post.id,
+            postId = post.id.value,
             categories = post.categories.split(",")
         )
     }
 
     private fun generateParsedFeedFingerprints(
         rssItems: List<ParsedFeedItem>,
-        feedId: String
+        feedId: LocalUUID
     ): Map<String, ParsedFeedItem> {
         return rssItems.associateBy { rssItem ->
             val dataForFingerprint: List<String> = buildList {
@@ -198,9 +199,9 @@ internal class RssContentFeedProcessor(
         ).joinToString(separator = "|")
     }
 
-    private fun MutableList<String>.addFeedIdAndExit(feedId: String): Boolean {
+    private fun MutableList<String>.addFeedIdAndExit(feedId: LocalUUID): Boolean {
         if (isNotEmpty()) {
-            add(0, feedId)
+            add(0, feedId.value)
             return true
         }
         return false

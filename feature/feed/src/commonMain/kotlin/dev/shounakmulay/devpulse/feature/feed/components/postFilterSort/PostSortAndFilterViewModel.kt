@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.feature.feed.components
+package dev.shounakmulay.devpulse.feature.feed.components.postFilterSort
 
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.navigation.Screen

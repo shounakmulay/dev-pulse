@@ -1,5 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.db.query
 
+import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
+
 data class LocalFeedPostQuery(
     val filters: Set<LocalFeedPostFilter> = emptySet(),
     val sort: LocalFeedPostSort = LocalFeedPostSort.PublishedNewest,
@@ -17,7 +19,7 @@ data class FeedPostLongRange(
 )
 
 data class FeedPostCursor(
-    val id: String,
+    val id: LocalUUID,
     val sort: LocalFeedPostSort,
     val sortValue: SqlBinding
 )

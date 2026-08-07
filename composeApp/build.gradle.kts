@@ -1,3 +1,6 @@
+
+import com.mikepenz.aboutlibraries.plugin.DuplicateMode
+import com.mikepenz.aboutlibraries.plugin.DuplicateRule
 import dev.shounakmulay.devpulse.buildsrc.constants.Modules
 import dev.shounakmulay.devpulse.buildsrc.constants.buildConfig
 import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
@@ -5,6 +8,17 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     alias(libs.plugins.devpulse.kmp.library.compose)
+    alias(libs.plugins.aboutLibraries)
+}
+
+aboutLibraries {
+    export {
+        outputFile = file("${rootDir}/core/resources/src/commonMain/composeResources/files/aboutlibraries.json")
+    }
+    library {
+        duplicationMode = DuplicateMode.MERGE
+        duplicationRule = DuplicateRule.SIMPLE
+    }
 }
 
 kotlin {
@@ -35,6 +49,7 @@ kotlin {
             implementation(project(Modules.Feature.SETTINGS))
 
             api(project(Modules.Bridge.MARKDOWN_CONVERTER))
+            api(project(Modules.Bridge.READABILITY))
 
             implementation(libs.navigation3.ui)
             implementation(libs.kotlinx.datetime)

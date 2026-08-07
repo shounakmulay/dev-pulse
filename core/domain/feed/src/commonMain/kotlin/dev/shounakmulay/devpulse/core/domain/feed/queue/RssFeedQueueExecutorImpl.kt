@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.core.domain.feed.queue
 
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
-import dev.shounakmulay.devpulse.core.data.feed.repository.ContentFeedRepository
+import dev.shounakmulay.devpulse.core.data.feed.repository.FeedRepository
 import dev.shounakmulay.devpulse.core.data.feed.repository.RssFeedQueueRepository
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
@@ -19,7 +19,7 @@ import org.koin.core.annotation.Single
 @Single(binds = [RssFeedQueueExecutor::class])
 internal class RssFeedQueueExecutorImpl(
     private val dispatcherProvider: DispatcherProvider,
-    private val feedRepository: ContentFeedRepository,
+    private val feedRepository: FeedRepository,
     private val feedQueueRepository: RssFeedQueueRepository,
     logger: DPLogger
 ) : RssFeedQueueExecutor {

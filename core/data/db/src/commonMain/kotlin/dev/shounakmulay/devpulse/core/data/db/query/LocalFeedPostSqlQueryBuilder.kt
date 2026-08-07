@@ -347,7 +347,7 @@ class LocalFeedPostSqlQueryBuilder(
         )
     """.trimIndent()
 
-        val idBinding = SqlBinding.Text(cursor.id)
+        val idBinding = SqlBinding.Text(cursor.id.value)
         bindings += listOf(cursor.sortValue, cursor.sortValue, idBinding)
         return clauses
     }

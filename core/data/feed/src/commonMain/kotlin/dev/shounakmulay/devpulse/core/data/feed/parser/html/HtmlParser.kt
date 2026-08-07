@@ -13,6 +13,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class HtmlParser(
+    private val htmlToMarkdownConverter: HtmlToMarkdownConverter,
     private val networkClient: DevPulseNetworkClient,
     private val dispatcherProvider: DispatcherProvider
 ) {
@@ -30,7 +31,7 @@ class HtmlParser(
             .clean(document)
             .html()
 
-        cleanedHtml
+        htmlToMarkdownConverter.convert(cleanedHtml)
     }.getOrNull()
 
     private fun createStructuralSafelist(): Safelist {

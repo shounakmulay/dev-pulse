@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.feature.feed.components
+package dev.shounakmulay.devpulse.feature.feed.components.postFilterSort
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
