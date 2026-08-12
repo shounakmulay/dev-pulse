@@ -32,12 +32,15 @@ class RssPostContentMapper(
         RssFeedPostContentType.HTML -> LocalRssPostContentType.HTML
         RssFeedPostContentType.MARKDOWN -> LocalRssPostContentType.MARKDOWN
         RssFeedPostContentType.JSON -> LocalRssPostContentType.JSON
+        RssFeedPostContentType.RSS_HTML -> LocalRssPostContentType.RSS_HTML
+        RssFeedPostContentType.RSS_MARKDOWN -> LocalRssPostContentType.RSS_MARKDOWN
     }
 
     fun toPostContentType(type: LocalRssPostContentType) = when (type) {
         LocalRssPostContentType.HTML -> RssFeedPostContentType.HTML
         LocalRssPostContentType.MARKDOWN -> RssFeedPostContentType.MARKDOWN
         LocalRssPostContentType.JSON -> RssFeedPostContentType.JSON
-
+        LocalRssPostContentType.RSS_HTML -> RssFeedPostContentType.RSS_HTML
+        LocalRssPostContentType.RSS_MARKDOWN -> RssFeedPostContentType.RSS_MARKDOWN
     }
 }

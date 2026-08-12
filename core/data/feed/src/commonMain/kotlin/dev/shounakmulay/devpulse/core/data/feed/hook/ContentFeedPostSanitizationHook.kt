@@ -1,9 +1,9 @@
 package dev.shounakmulay.devpulse.core.data.feed.hook
 
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemMediaContent
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemRawEnclosure
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemYoutubeData
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.feed.hook.model.PostWithIdentity
 import org.koin.core.annotation.Factory
 
@@ -21,7 +21,7 @@ internal class ContentFeedPostSanitizationHook : CoreItemHook<PostWithIdentity> 
             author = author.sanitizePlainText().orEmpty(),
             link = link.sanitizeUrl(),
             description = description.sanitizeRichText(),
-            content = content.sanitizeRichText(),
+            content = content,
             image = image.sanitizeUrl(),
             audio = audio.sanitizeUrl(),
             video = video.sanitizeUrl(),

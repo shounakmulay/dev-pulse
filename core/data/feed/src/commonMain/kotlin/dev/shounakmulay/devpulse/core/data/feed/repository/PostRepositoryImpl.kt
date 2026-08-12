@@ -44,7 +44,7 @@ class PostRepositoryImpl(
     private val dispatcherProvider: DispatcherProvider,
     private val devPulseNetworkClient: DevPulseNetworkClient,
     private val devPulseUrlHelper: DevPulseUrlHelper,
-    private val markdownConverter: HtmlToMarkdownConverter
+    private val markdownConverter: HtmlToMarkdownConverter,
 ) : PostRepository {
     override fun getPost(id: UUID): Flow<RssPostWithFeedIdentity> {
         return feedPostDao.observePost(uuidMapper.fromUuid(id)).map { post ->
@@ -83,12 +83,12 @@ class PostRepositoryImpl(
         feedPostDao.updateBookmarkStatus(id = uuidMapper.fromUuid(id), isBookmarked = bookmarked)
     }
 
-    override suspend fun parsePostContent(
+    override suspend fun fetchPostContentUseCase(
         postId: UUID,
         type: RssFeedPostContentType
     ): RssParsedPostContent = withContext(dispatcherProvider.defaultDispatcher) {
         val post = feedPostDao.getPost(uuidMapper.fromUuid(postId))
-        val link = requireNotNull(post.link)
+        val link = requireNotNull(post?.link)
         val html = devPulseNetworkClient.get(
             url = link,
             headers = mapOf(
@@ -100,7 +100,7 @@ class PostRepositoryImpl(
             html = html,
             baseUrl = baseUrl
         )?.content
-        val markdown = articleHtml?.let { markdownConverter.convert(it) }
+        val markdown = articleHtml?.let { convertToMarkdownString(it) }
 
         RssParsedPostContent(
             html = articleHtml,
@@ -128,6 +128,64 @@ class PostRepositoryImpl(
         postContentDao.upsertPostContent(
             rssPostContentMapper.fromRssPostContent(content)
         )
+    }
+
+    override suspend fun getPostRssEncodedContent(
+        postId: UUID,
+        type: RssFeedPostContentType
+    ): RssFeedPostContent? {
+        require(
+            type in setOf(
+                RssFeedPostContentType.RSS_HTML,
+                RssFeedPostContentType.RSS_MARKDOWN
+            )
+        ) {
+            "Invalid post content type: $type"
+        }
+
+
+        val localId = uuidMapper.fromUuid(postId)
+        val post = feedPostDao.getPost(localId) ?: return null
+        return when (type) {
+            RssFeedPostContentType.RSS_HTML -> {
+                val encodedHtmlContent = post.content ?: return null
+                RssFeedPostContent(
+                    postId = postId,
+                    type = type,
+                    content = encodedHtmlContent
+                )
+            }
+
+            RssFeedPostContentType.RSS_MARKDOWN -> {
+                val localContent = postContentDao.getPostContents(
+                    postId = localId,
+                    type = rssPostContentMapper.fromPostContentType(type)
+                ) ?: return null
+                rssPostContentMapper.toRssPostContent(localContent)
+            }
+
+            else -> null
+        }
+
+
+    }
+
+    override suspend fun getPostDescription(postId: UUID): String? {
+        val post = feedPostDao.getPost(uuidMapper.fromUuid(postId)) ?: return null
+        return post.description
+    }
+
+    override suspend fun convertToMarkdown(html: String): RssParsedPostContent? {
+        val markdown = convertToMarkdownString(html)
+        return RssParsedPostContent(
+            html = null,
+            markdown = markdown
+        )
+    }
+
+    private suspend fun convertToMarkdownString(html: String): String? {
+        val markdown = markdownConverter.convert(html)
+        return markdown
     }
 
     private fun LocalRssPostWithFeedMetadataProjection.toRssPostWithFeedIdentity(): RssPostWithFeedIdentity {

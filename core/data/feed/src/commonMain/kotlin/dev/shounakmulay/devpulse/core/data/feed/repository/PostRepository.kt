@@ -19,9 +19,18 @@ interface PostRepository {
 
     fun observeRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentity>>
     suspend fun setPostBookmarked(id: UUID, bookmarked: Boolean)
-    suspend fun parsePostContent(postId: UUID, type: RssFeedPostContentType): RssParsedPostContent
+    suspend fun fetchPostContentUseCase(postId: UUID, type: RssFeedPostContentType): RssParsedPostContent
     suspend fun getPostContent(postId: UUID, type: RssFeedPostContentType): RssFeedPostContent?
     suspend fun savePostContent(
         content: RssFeedPostContent,
     )
+
+    suspend fun getPostRssEncodedContent(
+        postId: UUID,
+        type: RssFeedPostContentType
+    ): RssFeedPostContent?
+
+    suspend fun getPostDescription(postId: UUID): String?
+
+    suspend fun convertToMarkdown(html: String): RssParsedPostContent?
 }

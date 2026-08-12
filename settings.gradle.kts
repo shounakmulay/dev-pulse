@@ -35,6 +35,7 @@ plugins {
 
 include(":composeApp")
 include(":core:designsystem")
+include(":core:webview")
 include(":androidApp")
 include(":core:navigation")
 include(":feature:devtools")

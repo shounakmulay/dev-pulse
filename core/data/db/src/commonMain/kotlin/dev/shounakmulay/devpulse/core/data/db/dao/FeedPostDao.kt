@@ -58,7 +58,7 @@ interface FeedPostDao {
     suspend fun deletePosts(posts: List<LocalRssContentFeedPost>)
 
     @Query("SELECT * FROM LocalRssContentFeedPost WHERE id = :id")
-    suspend fun getPost(id: LocalUUID): LocalRssContentFeedPost
+    suspend fun getPost(id: LocalUUID): LocalRssContentFeedPost?
 
 
     @Query(
