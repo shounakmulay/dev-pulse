@@ -3,12 +3,14 @@
 package dev.shounakmulay.devpulse.core.designsystem.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledIconToggleButton
@@ -20,6 +22,7 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.IconToggleButtonColors
+import androidx.compose.material3.IconToggleButtonShapes
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedIconToggleButton
 import androidx.compose.runtime.Composable
@@ -88,16 +91,19 @@ private fun dpIconButtonColors(
                 containerColor = Color.Transparent,
                 contentColor = c.accent,
             )
+
         DPIconButtonStyle.Filled ->
             IconButtonDefaults.filledIconButtonColors(
                 containerColor = c.accent,
                 contentColor = c.onAccent,
             )
+
         DPIconButtonStyle.Tonal ->
             IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = c.container,
                 contentColor = c.onContainer,
             )
+
         DPIconButtonStyle.Outlined ->
             IconButtonDefaults.outlinedIconButtonColors(
                 containerColor = Color.Transparent,
@@ -132,6 +138,7 @@ private fun dpIconToggleButtonColors(
                 checkedContainerColor = c.accent,
                 checkedContentColor = c.onAccent,
             )
+
         DPIconButtonStyle.Filled ->
             IconButtonDefaults.filledIconToggleButtonColors(
                 containerColor = Color.Transparent,
@@ -139,6 +146,7 @@ private fun dpIconToggleButtonColors(
                 checkedContainerColor = c.accent,
                 checkedContentColor = c.onAccent,
             )
+
         DPIconButtonStyle.Tonal ->
             IconButtonDefaults.filledTonalIconToggleButtonColors(
                 containerColor = c.container,
@@ -146,6 +154,7 @@ private fun dpIconToggleButtonColors(
                 checkedContainerColor = c.accent,
                 checkedContentColor = c.onAccent,
             )
+
         DPIconButtonStyle.Outlined ->
             IconButtonDefaults.outlinedIconToggleButtonColors(
                 containerColor = Color.Transparent,
@@ -272,6 +281,7 @@ fun DPIconToggleButton(
                 shape = resolvedShape,
                 content = { ToggleIconImage(icon, checkedIcon, contentDescription, checked, size) },
             )
+
         DPIconButtonStyle.Filled ->
             FilledIconToggleButton(
                 checked = checked,
@@ -282,6 +292,7 @@ fun DPIconToggleButton(
                 shape = resolvedShape,
                 content = { ToggleIconImage(icon, checkedIcon, contentDescription, checked, size) },
             )
+
         DPIconButtonStyle.Tonal ->
             FilledTonalIconToggleButton(
                 checked = checked,
@@ -292,6 +303,7 @@ fun DPIconToggleButton(
                 shape = resolvedShape,
                 content = { ToggleIconImage(icon, checkedIcon, contentDescription, checked, size) },
             )
+
         DPIconButtonStyle.Outlined ->
             OutlinedIconToggleButton(
                 checked = checked,
@@ -303,6 +315,111 @@ fun DPIconToggleButton(
                 border = borderResolved,
                 content = { ToggleIconImage(icon, checkedIcon, contentDescription, checked, size) },
             )
+    }
+}
+
+@Composable
+fun dpIconToggleButtonShapes(index: Int, lastIndex: Int): IconToggleButtonShapes {
+    return when (index) {
+        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+            .let {
+                IconToggleButtonShapes(
+                    shape = it.shape,
+                    pressedShape = it.pressedShape,
+                    checkedShape = it.checkedShape
+                )
+            }
+
+        lastIndex ->
+            ButtonGroupDefaults.connectedTrailingButtonShapes()
+                .let {
+                    IconToggleButtonShapes(
+                        shape = it.shape,
+                        pressedShape = it.pressedShape,
+                        checkedShape = it.checkedShape
+                    )
+                }
+
+        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+            .let {
+                IconToggleButtonShapes(
+                    shape = it.shape,
+                    pressedShape = it.pressedShape,
+                    checkedShape = it.checkedShape
+                )
+            }
+    }
+}
+
+@Composable
+fun DPIconToggleButton(
+    icon: ImageVector,
+    shapes: IconToggleButtonShapes ,
+    interactionSource: MutableInteractionSource,
+    checkedIcon: ImageVector = icon,
+    contentDescription: String?,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    style: DPIconButtonStyle = DPIconButtonStyle.Standard,
+    variant: DPIconButtonVariant = DPIconButtonVariant.Primary,
+    size: DPSize = DPSize.Medium,
+    enabled: Boolean = true,
+    colors: IconToggleButtonColors? = null,
+) {
+    val resolvedColors = colors ?: dpIconToggleButtonColors(style, variant)
+    val m = modifier.dpIconButtonBox(size)
+    when (style) {
+        DPIconButtonStyle.Standard ->
+            IconToggleButton(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                modifier = m,
+                enabled = enabled,
+                colors = resolvedColors,
+                shapes = shapes,
+                interactionSource = interactionSource,
+                content = { ToggleIconImage(icon, checkedIcon, contentDescription, checked, size) },
+            )
+
+        DPIconButtonStyle.Filled ->
+            FilledIconToggleButton(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                modifier = m,
+                enabled = enabled,
+                colors = resolvedColors,
+                shapes = shapes,
+                interactionSource = interactionSource,
+                content = { ToggleIconImage(icon, checkedIcon, contentDescription, checked, size) },
+            )
+
+        DPIconButtonStyle.Tonal ->
+            FilledTonalIconToggleButton(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                modifier = m,
+                enabled = enabled,
+                colors = resolvedColors,
+                shapes = shapes,
+                interactionSource = interactionSource,
+                content = { ToggleIconImage(icon, checkedIcon, contentDescription, checked, size) },
+            )
+
+        DPIconButtonStyle.Outlined -> {
+            val borderResolved = IconButtonDefaults.outlinedIconToggleButtonBorder(enabled, checked)
+            OutlinedIconToggleButton(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                modifier = m,
+                enabled = enabled,
+                colors = resolvedColors,
+                shapes = shapes,
+                border = borderResolved,
+                interactionSource = interactionSource,
+                content = { ToggleIconImage(icon, checkedIcon, contentDescription, checked, size) },
+            )
+        }
     }
 }
 

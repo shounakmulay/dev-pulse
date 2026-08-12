@@ -34,7 +34,6 @@ kotlin {
             implementation(libs.coil.svg)
             implementation(libs.calendar)
             implementation(libs.calf.ui)
-            implementation(libs.compose.webview.multiplatform)
             implementation(libs.multiplatform.markdown.renderer.m3)
             implementation(libs.multiplatform.markdown.renderer)
             implementation(libs.multiplatform.markdown.renderer.coil3)

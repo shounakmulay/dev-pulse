@@ -10,6 +10,7 @@ import dev.shounakmulay.devpulse.core.navigation.NavDisplay
 import dev.shounakmulay.devpulse.core.navigation.NavigationState
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.core.webview.screen.navigation.webViewScreens
 import dev.shounakmulay.devpulse.feature.devtools.navigation.developerToolsFeatureEntries
 import dev.shounakmulay.devpulse.feature.feed.navigation.feedFeatureEntries
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.FeedQueueViewModel
@@ -40,6 +41,7 @@ internal fun DevPulseNavDisplay(
             homeFeatureEntries(navigator)
             feedFeatureEntries(navigator)
             settingsFeatureEntries(navigator)
+            webViewScreens(navigator)
             entry<Screen.Tabs.Time> {
                 ScreenPlaceholder(
                     it,

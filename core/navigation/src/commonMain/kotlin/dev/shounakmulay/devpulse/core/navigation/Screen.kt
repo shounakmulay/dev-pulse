@@ -64,5 +64,8 @@ sealed interface Screen : NavKey {
     data object Settings : Screen
 
     @Serializable
-    data object AboutLibs: Screen
+    data object AboutLibs : Screen
+
+    @Serializable
+    data class WebView(val url: String) : Screen
 }

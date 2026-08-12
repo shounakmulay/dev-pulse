@@ -10,11 +10,8 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import devpulse.core.resources.generated.resources.Res
-import devpulse.core.resources.generated.resources.dmmono_italic
 import devpulse.core.resources.generated.resources.dmmono_light
-import devpulse.core.resources.generated.resources.dmmono_light_italic
 import devpulse.core.resources.generated.resources.dmmono_medium
-import devpulse.core.resources.generated.resources.dmmono_medium_italic
 import devpulse.core.resources.generated.resources.dmmono_regular
 import devpulse.core.resources.generated.resources.inter
 import devpulse.core.resources.generated.resources.newsreader
@@ -159,11 +156,8 @@ fun displayFontFamily() = FontFamily(
 @Composable
 fun monoFontFamily() = FontFamily(
     Font(Res.font.dmmono_light, FontWeight.Light),
-    Font(Res.font.dmmono_light_italic, FontWeight.Light, FontStyle.Italic),
     Font(Res.font.dmmono_regular, FontWeight.Normal),
-    Font(Res.font.dmmono_italic, FontWeight.Normal, FontStyle.Italic),
     Font(Res.font.dmmono_medium, FontWeight.Medium),
-    Font(Res.font.dmmono_medium_italic, FontWeight.Medium, FontStyle.Italic),
 )
 
 class DPTextVariants(

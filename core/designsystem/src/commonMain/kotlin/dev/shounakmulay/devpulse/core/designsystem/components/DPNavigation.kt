@@ -65,6 +65,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
@@ -143,7 +144,8 @@ fun DPTopAppBar(
             DPTextView(
                 text = title,
                 maxLines = titleMaxLines,
-                variant = DPTextViewVariant.TitleLarge
+                variant = DPTextViewVariant.TitleLarge,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

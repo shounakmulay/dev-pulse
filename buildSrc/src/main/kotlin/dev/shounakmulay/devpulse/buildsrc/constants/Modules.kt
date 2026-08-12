@@ -19,6 +19,7 @@ object Modules {
 
     object Core {
         const val DESIGN_SYSTEM = ":core:designsystem"
+        const val WEBVIEW = ":core:webview"
         const val NAVIGATION = ":core:navigation"
         const val UI = ":core:ui"
         const val RESOURCES = ":core:resources"
