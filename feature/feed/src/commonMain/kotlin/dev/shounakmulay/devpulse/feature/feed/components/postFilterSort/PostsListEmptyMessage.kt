@@ -14,9 +14,10 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
-import dev.shounakmulay.devpulse.core.ui.list.EmptyListMessage
+import dev.shounakmulay.devpulse.core.ui.content.EmptyContentPlaceholder
 import devpulse.core.resources.generated.resources.clear_filters
 import devpulse.core.resources.generated.resources.no_posts_for_filter
 import devpulse.core.resources.generated.resources.no_posts_for_filter_subtitle
@@ -25,8 +26,9 @@ import org.jetbrains.compose.resources.stringResource
 internal fun LazyGridScope.postsListEmptyMessage(clearFilters: () -> Unit) {
     item(span = { GridItemSpan(maxLineSpan) }) {
 
-        EmptyListMessage(
-            modifier = Modifier.padding(top = 32.dp).animateItem()
+        EmptyContentPlaceholder(
+            modifier = Modifier.padding(top = 32.dp).animateItem(),
+            icon = DPIcons.EmptyList,
         ) {
             DPTextView(
                 modifier = Modifier.fillMaxWidth(0.65f),

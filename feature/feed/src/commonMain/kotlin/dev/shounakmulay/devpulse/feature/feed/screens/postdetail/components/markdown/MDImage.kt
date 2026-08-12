@@ -16,7 +16,6 @@ import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
-import coil3.request.crossfade
 import coil3.size.Size
 import coil3.svg.SvgDecoder
 import com.mikepenz.markdown.compose.LocalReferenceLinkHandler
@@ -41,7 +40,6 @@ fun MDImage(
             model = ImageRequest.Builder(LocalPlatformContext.current)
                 .data(link)
                 .size(Size.ORIGINAL)
-                .crossfade(true)
                 .build(),
             contentDescription = alt,
             imageLoader = ImageLoader.Builder(LocalPlatformContext.current)
@@ -52,7 +50,9 @@ fun MDImage(
                 .aspectRatio(aspectRatio)
                 .clip(MaterialTheme.shapes.large),
             contentScale = ContentScale.Fit,
-            placeholder = rememberVectorPainter(DPIcons.Close),
+            placeholder = rememberVectorPainter(DPIcons.ImageLoading),
+            fallback = rememberVectorPainter(DPIcons.ImageError),
+            error = rememberVectorPainter(DPIcons.ImageError),
             onSuccess = { state ->
                 val intrinsic = state.painter.intrinsicSize
                 if (intrinsic.isSpecified && intrinsic.height > 0f) {
