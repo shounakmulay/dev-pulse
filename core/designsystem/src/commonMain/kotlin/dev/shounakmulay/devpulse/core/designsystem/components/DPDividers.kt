@@ -20,6 +20,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
@@ -84,13 +85,7 @@ fun DPSectionDivider(
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     val spacing = LocalDPSpacing.current
-    Surface(
-        shape = MaterialTheme.shapes.extraLargeIncreased.copy(
-            topStart = CornerSize(0.dp),
-            topEnd = CornerSize(0.dp)
-        ),
-        color = MaterialTheme.colorScheme.surface
-    ) {
+    DPSectionDivider {
         Row(
             modifier = modifier
                 .padding(
@@ -108,6 +103,25 @@ fun DPSectionDivider(
             DPHorizontalDivider(Modifier.padding(spacing.sm).weight(1f))
             actions()
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun DPSectionDivider(
+    modifier: Modifier = Modifier,
+    shape: Shape = MaterialTheme.shapes.extraLargeIncreased.copy(
+        topStart = CornerSize(0.dp),
+        topEnd = CornerSize(0.dp)
+    ),
+    content: @Composable () -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        shape = shape,
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        content()
     }
 }
 

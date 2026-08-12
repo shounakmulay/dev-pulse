@@ -19,6 +19,7 @@ inline fun <STATE : ScreenState, EFFECT : Effect, reified VM : MviViewModel<STAT
     modifier: Modifier = Modifier,
     crossinline onEffect: suspend (Effect) -> Unit,
     noinline topAppBar: (@Composable STATE.() -> Unit)? = null,
+    noinline bottomBar: (@Composable STATE.() -> Unit)? = null,
     noinline floatingActionButton: (@Composable STATE.() -> Unit)? = null,
     crossinline content: @Composable BoxScope.(STATE) -> Unit
 ) {
@@ -35,6 +36,11 @@ inline fun <STATE : ScreenState, EFFECT : Effect, reified VM : MviViewModel<STAT
         topBar = {
             if (topAppBar != null) {
                 topAppBar(state)
+            }
+        },
+        bottomBar = {
+            if (bottomBar != null) {
+                bottomBar(state)
             }
         },
         floatingActionButton = {

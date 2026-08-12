@@ -68,6 +68,7 @@ fun rememberNavigationState(
                     Screen.DeveloperTools.DesignSystemBoard::class,
                     Screen.DeveloperTools.DesignSystemBoard.serializer()
                 )
+                subclass(Screen.WebView::class, Screen.WebView.serializer())
             }
         }
     }

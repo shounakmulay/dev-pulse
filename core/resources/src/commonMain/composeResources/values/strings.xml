@@ -96,4 +96,6 @@
     <string name="clear_filters">Clear All Filters</string>
     <string name="others">Others</string>
     <string name="licenses">Licenses</string>
+    <string name="no_content">No Content</string>
+    <string name="copy_code_block">Copy code block</string>
 </resources>

@@ -48,6 +48,7 @@ class FeedInteractor(
     }
 
     @JvmName("getUIFeedPostPagingDataFlow")
+    @Deprecated("Use from PostInteractor")
     fun getUIFeedPostFlow(from: Flow<PagingData<RssPostWithFeedIdentity>>): Flow<PagingData<UIFeedPost>> {
         return from.map { pagingData ->
             pagingData.map {
@@ -77,7 +78,8 @@ class FeedInteractor(
         )
     }
 
-    private fun toUIFeed(feedIdentity: RssFeedIdentity): UIFeed {
+
+    fun toUIFeed(feedIdentity: RssFeedIdentity): UIFeed {
         val websiteImageUrl = getWebsiteImageUrl(feedIdentity.link, feedIdentity.sourceUrl)
         return createUIFeed(
             id = feedIdentity.id,
@@ -125,7 +127,8 @@ class FeedInteractor(
         }
     }
 
-    private fun toUIFeedArticle(postWithFeedIdentity: RssPostWithFeedIdentity): UIFeedPost {
+    @Deprecated("Use from PostInteractor")
+    fun toUIFeedArticle(postWithFeedIdentity: RssPostWithFeedIdentity): UIFeedPost {
         val (post, feedIdentity) = postWithFeedIdentity
         val uiFeedIdentity = toUIFeed(feedIdentity)
         val title = post.title.ifNullOrBlank {

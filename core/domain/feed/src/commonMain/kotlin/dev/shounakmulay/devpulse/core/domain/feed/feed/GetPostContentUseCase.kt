@@ -17,7 +17,8 @@ import org.koin.core.annotation.Factory
 class GetPostContentUseCase(
     private val postRepository: PostRepository,
     private val savePostContentUseCase: SavePostContentUseCase,
-    private val parsePostContentUseCase: ParsePostContentUseCase,
+    private val fetchPostContentUseCase: FetchPostContentUseCase,
+    private val convertPostContentUseCase: ConvertToMarkdownUseCase,
     private val dispatcherProvider: DispatcherProvider,
     private val applicationScope: ApplicationScope
 ) {
@@ -25,6 +26,15 @@ class GetPostContentUseCase(
         postId: UUID,
         type: RssFeedPostContentType
     ) = dispatcherProvider.runCatchingOnDefault {
+        require(
+            type in setOf(
+                RssFeedPostContentType.HTML,
+                RssFeedPostContentType.MARKDOWN
+            )
+        ) {
+            "Invalid post content type: $type"
+        }
+
         val content = postRepository.getPostContent(
             postId = postId,
             type = type
@@ -34,32 +44,56 @@ class GetPostContentUseCase(
             return@runCatchingOnDefault content
         }
 
-        val parsedContent = parsePostContentUseCase(postId, type).getOrNull()
+        var parsedContent: RssParsedPostContent? = null
+
+        if (type == RssFeedPostContentType.MARKDOWN) {
+            parsedContent = tryParseFromHtml(postId)
+        }
+
+        if (parsedContent == null) {
+            parsedContent = fetchPostContentUseCase(postId, type).getOrNull()
+        }
 
         if (parsedContent != null) {
-            saveContent(parsedContent, postId)
+            saveContentAsync(parsedContent, postId)
         }
 
-        when (type) {
-            RssFeedPostContentType.HTML -> {
-                RssFeedPostContent(
-                    postId = postId,
-                    type = type,
-                    content = requireNotNull(parsedContent?.html)
-                )
-            }
-
-            RssFeedPostContentType.MARKDOWN -> RssFeedPostContent(
-                postId = postId,
-                type = type,
-                content = requireNotNull(parsedContent?.markdown)
-            )
-
-            RssFeedPostContentType.JSON -> null
-        }
+        feedPostContent(type, postId, parsedContent)
     }
 
-    private fun saveContent(
+    private suspend fun tryParseFromHtml(
+        postId: UUID,
+    ): RssParsedPostContent? {
+        val htmlContent = postRepository.getPostContent(
+            postId = postId,
+            type = RssFeedPostContentType.HTML
+        ) ?: return null
+        return convertPostContentUseCase(htmlContent.content).getOrNull()
+    }
+
+    private fun feedPostContent(
+        type: RssFeedPostContentType,
+        postId: UUID,
+        parsedContent: RssParsedPostContent?
+    ): RssFeedPostContent? = when (type) {
+        RssFeedPostContentType.HTML -> {
+            RssFeedPostContent(
+                postId = postId,
+                type = type,
+                content = requireNotNull(parsedContent?.html)
+            )
+        }
+
+        RssFeedPostContentType.MARKDOWN -> RssFeedPostContent(
+            postId = postId,
+            type = type,
+            content = requireNotNull(parsedContent?.markdown)
+        )
+
+        else -> null
+    }
+
+    private fun saveContentAsync(
         parsedContent: RssParsedPostContent,
         postId: UUID,
     ) = applicationScope.launch {

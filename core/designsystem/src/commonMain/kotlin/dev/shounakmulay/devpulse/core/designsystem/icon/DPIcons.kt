@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Sort
@@ -13,15 +14,20 @@ import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.RssFeed
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.BookmarkAdd
@@ -59,6 +65,8 @@ object DPIcons {
 
     val UserSettings = UserSettingsIcon
     val RssFeed = Icons.Default.RssFeed
+    val Article = Icons.AutoMirrored.Default.Article
+    val OpenInBrowser = Icons.Default.OpenInBrowser
     val Delete = Icons.Default.Delete
     val Close = Icons.Default.Close
     val Add = Icons.Default.Add
@@ -86,4 +94,11 @@ object DPIcons {
     val Filter = Icons.Default.FilterAlt
     val RemoveSelection = Icons.Default.Remove
     val EmptyList = EmptyListIcon
+    val Share = Icons.Default.Share
+    val MoreOptionsVert = Icons.Default.MoreVert
+    val FormatText = Icons.Default.FormatSize
+    val EmptyContent = EmptyContentIcon
+    val ImageLoading = ImageLoadingIcon
+    val ImageError = ImageLoadingError
+    val Copy = Icons.Default.ContentCopy
 }

@@ -31,6 +31,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(Modules.Core.UI))
+            implementation(project(Modules.Core.WEBVIEW))
             implementation(project(Modules.Core.NAVIGATION))
             implementation(project(Modules.Core.RESOURCES))
             implementation(project(Modules.Core.PREFERENCES))

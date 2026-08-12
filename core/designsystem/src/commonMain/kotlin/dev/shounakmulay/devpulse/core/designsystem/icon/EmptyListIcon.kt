@@ -15,7 +15,7 @@ val EmptyListIcon: ImageVector
         if (current != null) return current
 
         return ImageVector.Builder(
-            name = "com.example.theme.AppTheme.MyIcon",
+            name = "EmptyListIcon",
             defaultWidth = 400.0.dp,
             defaultHeight = 400.0.dp,
             viewportWidth = 400.0f,
