@@ -13,7 +13,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(Modules.Core.PREFERENCES))
+            implementation(project(Modules.Core.Data.PREFERENCES))
             implementation(project(Modules.Core.Domain.MODELS))
         }
     }
