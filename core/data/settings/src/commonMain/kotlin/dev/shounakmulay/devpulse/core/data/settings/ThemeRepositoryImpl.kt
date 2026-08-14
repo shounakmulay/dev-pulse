@@ -2,8 +2,8 @@ package dev.shounakmulay.devpulse.core.data.settings
 
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeSettings
-import dev.shounakmulay.devpulse.core.preferences.DevPulsePreferenceKeys
-import dev.shounakmulay.devpulse.core.preferences.DevPulsePreferences
+import dev.shounakmulay.devpulse.core.data.preferences.DevPulsePreferenceKeys
+import dev.shounakmulay.devpulse.core.data.preferences.DevPulsePreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import org.koin.core.annotation.Factory
