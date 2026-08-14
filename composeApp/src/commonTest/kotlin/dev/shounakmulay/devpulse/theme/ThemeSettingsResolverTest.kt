@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.theme
 
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
+import dev.shounakmulay.devpulse.feature.settings.controllers.theme.resolveDarkTheme
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

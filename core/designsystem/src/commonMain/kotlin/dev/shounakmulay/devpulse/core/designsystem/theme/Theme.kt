@@ -5,10 +5,8 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
-import dev.shounakmulay.devpulse.core.logging.DPLog
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -17,12 +15,6 @@ fun AppTheme(
     isDarkTheme: Boolean,
     content: @Composable () -> Unit,
 ) {
-    LaunchedEffect(colorScheme, isDarkTheme) {
-        DPLog.e("THEME") {
-            "colorScheme: ${colorScheme.hashCode()} | isDarkTheme = $isDarkTheme"
-        }
-    }
-
     val contextColors = remember(isDarkTheme) {
         if (isDarkTheme) darkDPContextColors else lightDPContextColors
     }

@@ -9,14 +9,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.KSerializer
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.OrbitContainerHost
 import org.orbitmvi.orbit.syntax.Syntax
-import org.orbitmvi.orbit.viewmodel.container
+import org.orbitmvi.orbit.viewmodel.orbitContainer
 
 abstract class MviViewModel<STATE : ScreenState, EFFECT : Effect>(initialState: STATE) :
-    ContainerHost<STATE, EFFECT>, ViewModel(), KoinComponent {
+    OrbitContainerHost<STATE, STATE, EFFECT>, ViewModel(), KoinComponent {
     private val savedStateHandle: SavedStateHandle by inject()
-    override val container = container<STATE, EFFECT>(
+    override val container = orbitContainer<STATE, EFFECT>(
         initialState = initialState,
         savedStateHandle = savedStateHandle,
         serializer = createStateSerializer(),
