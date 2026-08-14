@@ -64,7 +64,7 @@ private fun NavigationSuiteTabs(
         NavigationSuiteItem(
             selected = tab == navigationState.selectedTab,
             onClick = {
-                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
 
                 if (tab == navigationState.selectedTab) {
                     navigator.onReselect(tab)

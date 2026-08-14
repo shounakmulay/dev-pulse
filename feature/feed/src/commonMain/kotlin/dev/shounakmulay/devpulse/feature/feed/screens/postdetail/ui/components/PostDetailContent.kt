@@ -1,15 +1,18 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -17,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
@@ -31,6 +35,7 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
 import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
+import dev.shounakmulay.devpulse.core.ui.transition.sharedBounds
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.components.markdown.DPMarkdown
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.PostDetailScreenState
@@ -39,33 +44,37 @@ import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.PostDe
 @Composable
 internal fun PostDetailContent(
     state: PostDetailScreenState,
+    listState: LazyListState,
     onBookmarkChanged: (Boolean) -> Unit,
     onOpenInWebView: (String) -> Unit,
+    onOpenContentTextSettings: () -> Unit,
+    onImageClick: (link: String) -> Unit
 ) {
     DPMarkdown(
         markdown = when (state.selectedSection) {
             PostDetailScreenSection.RSS -> state.rssContent?.content
             PostDetailScreenSection.EXTRACTED -> state.content?.content
         }.orEmpty(),
+        listState = listState,
         header = {
-            postDetailContentHeader(state.post)
+            postDetailContentHeader(state.post, onImageClick)
             postDetailContentHeaderActions(
                 post = state.post,
                 onBookmarkChanged = onBookmarkChanged,
-                onOpenInWebView = onOpenInWebView
+                onOpenInWebView = onOpenInWebView,
+                onOpenContentTextSettings = onOpenContentTextSettings
             )
         },
         footer = { },
+        onImageClick = onImageClick
     )
-//    HorizontalPager(state = pagerState) {
-//
-//    }
 }
 
 private fun LazyListScope.postDetailContentHeaderActions(
     post: UIFeedPost?,
     onBookmarkChanged: (Boolean) -> Unit,
-    onOpenInWebView: (String) -> Unit
+    onOpenInWebView: (String) -> Unit,
+    onOpenContentTextSettings: () -> Unit,
 ) {
     if (post == null) return
     stickyHeader {
@@ -87,10 +96,9 @@ private fun LazyListScope.postDetailContentHeaderActions(
                         icon = DPIcons.FormatText,
                         variant = DPIconButtonVariant.Tertiary,
                         contentDescription = "",
-                        size = DPSize.Small
-                    ) {
-
-                    }
+                        size = DPSize.Small,
+                        onClick = onOpenContentTextSettings
+                    )
                 }
                 Row(
                     Modifier
@@ -134,17 +142,31 @@ private fun LazyListScope.postDetailContentHeaderActions(
     }
 }
 
-private fun LazyListScope.postDetailContentHeader(post: UIFeedPost?) {
+private fun LazyListScope.postDetailContentHeader(
+    post: UIFeedPost?,
+    onImageClick: (String) -> Unit
+) {
     if (post == null) return
     item("ArticleHeader") {
         Column(Modifier.fillMaxWidth().padding(horizontal = LocalDPSpacing.current.md)) {
-            DPImage(
-                modifier = Modifier
-                    .padding(top = LocalDPSpacing.current.lg)
-                    .clip(MaterialTheme.shapes.large),
-                url = post.imageUrl.orEmpty(),
-                contentDescription = ""
-            )
+            if (!post.imageUrl.isNullOrBlank()) {
+                DPImage(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = LocalDPSpacing.current.lg)
+                        .clickable {
+                            onImageClick(post.imageUrl)
+                        }
+                        .clip(MaterialTheme.shapes.large)
+                        .sharedBounds(
+                            key = "Image${post.imageUrl}",
+                            clipShape = MaterialTheme.shapes.large
+                        ),
+                    url = post.imageUrl,
+                    contentScale = ContentScale.FillWidth,
+                    contentDescription = ""
+                )
+            }
             Spacer(Modifier.height(LocalDPSpacing.current.lg))
             DPTextView(
                 text = post.title,
@@ -157,7 +179,7 @@ private fun LazyListScope.postDetailContentHeader(post: UIFeedPost?) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(Modifier.weight(1f)) {
+                Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     DPFeedImage(
                         url = post.feed.websiteImageUrl,
                         initials = post.feed.initials,
@@ -165,6 +187,7 @@ private fun LazyListScope.postDetailContentHeader(post: UIFeedPost?) {
                         modifier = Modifier
                             .size(LocalDPSpacing.current.lg)
                             .clip(CircleShape)
+                            .align(Alignment.CenterVertically)
                     )
                     DPTextDot(Modifier.padding(horizontal = LocalDPSpacing.current.sm))
                     DPTextView(

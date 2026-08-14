@@ -1,8 +1,8 @@
 package dev.shounakmulay.devpulse.core.data.feed.hook
 
 import dev.shounakmulay.devpulse.core.data.feed.hook.model.PostWithIdentity
-import dev.shounakmulay.devpulse.core.preferences.DevPulsePreferenceKeys
-import dev.shounakmulay.devpulse.core.preferences.DevPulsePreferences
+import dev.shounakmulay.devpulse.core.data.preferences.DevPulsePreferenceKeys
+import dev.shounakmulay.devpulse.core.data.preferences.DevPulsePreferences
 import org.koin.core.annotation.Factory
 
 @Factory

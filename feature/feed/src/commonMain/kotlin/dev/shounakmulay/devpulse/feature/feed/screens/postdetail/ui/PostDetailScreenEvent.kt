@@ -6,4 +6,6 @@ import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.PostDe
 sealed interface PostDetailScreenEvent : ScreenEvent {
     data class SetPostBookmarked(val bookmarked: Boolean) : PostDetailScreenEvent
     data class OnSectionSelected(val section: PostDetailScreenSection) : PostDetailScreenEvent
+    data class SetContentTextScale(val scale: Float) : PostDetailScreenEvent
+    data class SetContentLineHeightScale(val scale: Float) : PostDetailScreenEvent
 }

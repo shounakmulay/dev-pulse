@@ -7,6 +7,8 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRssEncodedContentUseCa
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
+import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingFontScaleUseCase
+import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingLineHeightScaleUseCase
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
@@ -23,7 +25,9 @@ class PostDetailViewModel(
     private val getPostDetailUseCase: GetPostDetailUseCase,
     private val getPostContentUseCase: GetPostContentUseCase,
     private val getRssEncodedContentUseCase: GetRssEncodedContentUseCase,
-    private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase
+    private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
+    private val setContentTextSettingFontScaleUseCase: SetContentTextSettingFontScaleUseCase,
+    private val setContentTextSettingLineHeightScaleUseCase: SetContentTextSettingLineHeightScaleUseCase
 ) : EventHandler<PostDetailScreenEvent>,
     MviViewModel<PostDetailScreenState, PostDetailScreenEffect>(PostDetailScreenState()) {
     override fun createStateSerializer() = PostDetailScreenState.serializer()
@@ -63,15 +67,31 @@ class PostDetailViewModel(
 
     override fun onEvent(event: PostDetailScreenEvent) {
         when (event) {
-            is PostDetailScreenEvent.SetPostBookmarked -> {
-                intent {
-                    setPostBookmarkedUseCase(postId, event.bookmarked)
-                }
-            }
-
+            is PostDetailScreenEvent.SetPostBookmarked -> setPostBookmarked(event)
             is PostDetailScreenEvent.OnSectionSelected -> onSectionSelected(event.section)
+            is PostDetailScreenEvent.SetContentLineHeightScale -> setContentLineHeightScale(event.scale)
+            is PostDetailScreenEvent.SetContentTextScale -> setContentTextScale(event.scale)
         }
     }
+
+    private fun setPostBookmarked(event: PostDetailScreenEvent.SetPostBookmarked) {
+        intent {
+            setPostBookmarkedUseCase(postId, event.bookmarked)
+        }
+    }
+
+    private fun setContentTextScale(scale: Float) {
+        intent {
+            setContentTextSettingFontScaleUseCase(scale)
+        }
+    }
+
+    private fun setContentLineHeightScale(scale: Float) {
+        intent {
+            setContentTextSettingLineHeightScaleUseCase(scale)
+        }
+    }
+
 
     private fun onSectionSelected(section: PostDetailScreenSection) {
         setState {

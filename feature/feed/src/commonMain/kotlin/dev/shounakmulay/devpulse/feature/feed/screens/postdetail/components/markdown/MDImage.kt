@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.postdetail.components.markdown
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import coil3.size.Size
 import coil3.svg.SvgDecoder
 import com.mikepenz.markdown.compose.LocalReferenceLinkHandler
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
+import dev.shounakmulay.devpulse.core.ui.transition.sharedBounds
 import org.intellij.markdown.ast.ASTNode
 
 @Composable
@@ -27,6 +29,7 @@ fun MDImage(
     content: String,
     node: ASTNode,
     modifier: Modifier = Modifier,
+    onImageClick: (link: String) -> Unit
 ) {
     val link = node.resolveImageLink(
         content,
@@ -48,7 +51,11 @@ fun MDImage(
                 }.build(),
             modifier = modifier
                 .aspectRatio(aspectRatio)
-                .clip(MaterialTheme.shapes.large),
+                .clip(MaterialTheme.shapes.large)
+                .clickable {
+                    onImageClick(link)
+                }
+                .sharedBounds("Image$link", MaterialTheme.shapes.large),
             contentScale = ContentScale.Fit,
             placeholder = rememberVectorPainter(DPIcons.ImageLoading),
             fallback = rememberVectorPainter(DPIcons.ImageError),

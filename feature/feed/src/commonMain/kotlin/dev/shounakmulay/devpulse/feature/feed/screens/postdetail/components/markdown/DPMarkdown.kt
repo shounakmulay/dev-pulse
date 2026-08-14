@@ -44,6 +44,7 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPDarkTheme
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.designsystem.theme.monoFontFamily
 import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.core.ui.content.ContentTextContainer
 import dev.shounakmulay.devpulse.core.ui.content.EmptyContentPlaceholder
 import dev.snipme.highlights.Highlights
 import dev.snipme.highlights.model.SyntaxThemes
@@ -60,6 +61,7 @@ fun DPMarkdown(
     header: LazyListScope.() -> Unit = {},
     footer: LazyListScope.() -> Unit = {},
     listState: LazyListState = rememberLazyListState(),
+    onImageClick: (link: String) -> Unit
 ) {
     val scopedViewModelOwner = rememberViewModelStoreOwner()
     CompositionLocalProvider(LocalViewModelStoreOwner provides scopedViewModelOwner) {
@@ -94,6 +96,7 @@ fun DPMarkdown(
                         header = header,
                         footer = footer,
                         listState = listState,
+                        onImageClick = onImageClick
                     )
                 }
             }
@@ -172,6 +175,7 @@ fun DPMarkdownContent(
     header: LazyListScope.() -> Unit,
     footer: LazyListScope.() -> Unit,
     listState: LazyListState,
+    onImageClick: (link: String) -> Unit
 ) {
     val components = remember {
         markdownComponents(
@@ -205,67 +209,70 @@ fun DPMarkdownContent(
                 SplitMarkdownParagraph(
                     content = it.content,
                     node = it.node,
+                    onImageClick = onImageClick
                 )
             },
             image = {
-                MDImage(it.content, it.node)
+                MDImage(it.content, it.node, onImageClick = onImageClick)
             }
         )
     }
-    Markdown(
-        modifier = Modifier.fillMaxSize(),
-        state = state,
-        imageTransformer = CoilMarkdownTransformer,
-        padding = markdownPadding(block = LocalDPSpacing.current.md),
-        typography = markdownTypography(
-            h1 = MaterialTheme.typography.displaySmall,
-            h2 = MaterialTheme.typography.headlineLarge,
-            h3 = MaterialTheme.typography.headlineMedium,
-            h4 = MaterialTheme.typography.headlineSmall,
-            h5 = MaterialTheme.typography.titleLarge,
-            h6 = MaterialTheme.typography.titleMedium,
-            textLink =
-                TextLinkStyles(
-                    MaterialTheme.typography.bodyLarge
-                        .copy(
-                            fontWeight = FontWeight.Bold,
-                            textDecoration = TextDecoration.Underline,
-                            color = MaterialTheme.colorScheme.tertiary,
-                        )
-                        .toSpanStyle()
+    ContentTextContainer {
+        Markdown(
+            modifier = Modifier.fillMaxSize(),
+            state = state,
+            imageTransformer = CoilMarkdownTransformer,
+            padding = markdownPadding(block = LocalDPSpacing.current.md),
+            typography = markdownTypography(
+                h1 = MaterialTheme.typography.displaySmall,
+                h2 = MaterialTheme.typography.headlineLarge,
+                h3 = MaterialTheme.typography.headlineMedium,
+                h4 = MaterialTheme.typography.headlineSmall,
+                h5 = MaterialTheme.typography.titleLarge,
+                h6 = MaterialTheme.typography.titleMedium,
+                textLink =
+                    TextLinkStyles(
+                        MaterialTheme.typography.bodyLarge
+                            .copy(
+                                fontWeight = FontWeight.Bold,
+                                textDecoration = TextDecoration.Underline,
+                                color = MaterialTheme.colorScheme.tertiary,
+                            )
+                            .toSpanStyle()
+                    ),
+                code = MaterialTheme.typography.bodyMedium.copy(fontFamily = monoFontFamily()),
+                inlineCode = MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = monoFontFamily(),
+                    fontSize = TextUnit.Unspecified
                 ),
-            code = MaterialTheme.typography.bodyMedium.copy(fontFamily = monoFontFamily()),
-            inlineCode = MaterialTheme.typography.bodyLarge.copy(
-                fontFamily = monoFontFamily(),
-                fontSize = TextUnit.Unspecified
             ),
-        ),
-        components = components,
-        success = { state, components, modifier ->
-            val nodes = remember(state.node) { state.node.children }
-            LazyColumn(
-                modifier = modifier.fillMaxWidth(),
-                state = listState
-            ) {
-                header()
-                items(
-                    items = nodes,
-                    key = { node -> node.startOffset },
-                    contentType = { node -> node.type }
-                ) { node ->
-                    Box(modifier = Modifier.padding(horizontal = LocalDPSpacing.current.lg)) {
-                        MarkdownElement(
-                            node = node,
-                            components = components,
-                            content = state.content,
-                            includeSpacer = true,
-                        )
+            components = components,
+            success = { state, components, modifier ->
+                val nodes = remember(state.node) { state.node.children }
+                LazyColumn(
+                    modifier = modifier.fillMaxWidth(),
+                    state = listState
+                ) {
+                    header()
+                    items(
+                        items = nodes,
+                        key = { node -> node.startOffset },
+                        contentType = { node -> node.type }
+                    ) { node ->
+                        Box(modifier = Modifier.padding(horizontal = LocalDPSpacing.current.lg)) {
+                            MarkdownElement(
+                                node = node,
+                                components = components,
+                                content = state.content,
+                                includeSpacer = true,
+                            )
+                        }
                     }
+                    footer()
                 }
-                footer()
             }
-        }
-    )
+        )
+    }
 }
 
 

@@ -24,6 +24,7 @@ fun SplitMarkdownParagraph(
     modifier: Modifier = Modifier,
     style: TextStyle = LocalMarkdownTypography.current.paragraph,
     annotatorSettings: AnnotatorSettings = annotatorSettings(),
+    onImageClick: (link: String) -> Unit
 ) {
     // Group top-level children into runs: consecutive non-image nodes batched together,
     // image nodes isolated on their own. Preserves order.
@@ -79,7 +80,8 @@ fun SplitMarkdownParagraph(
                     MDImage(
                         content = content,
                         node = segment.node,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        onImageClick = onImageClick
                     )
                 }
             }
