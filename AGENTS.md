@@ -26,10 +26,10 @@ Clean Architecture with an MVI presentation layer. Domain and data modules exist
 :core:ui                 # MviViewModel base class, ScreenState, Effect, EventHandler, text helpers
 :core:resources          # Compose resources and generated resource access
 :core:network            # Ktor client and platform engines
-:core:preferences        # Multiplatform DataStore preferences
 :core:common             # Shared utilities and extensions
 :core:domain:models      # Shared domain models
 :core:domain:settings    # Settings use cases
+:core:data:preferences   # Multiplatform DataStore preferences
 :core:data:settings      # Settings repository implementation
 :core:data:feed          # Feed data module scaffold, depends on network
 ```
@@ -170,7 +170,7 @@ Platform variation uses `expect`/`actual`. The most common uses are `Platform.kt
 - **Lifecycle + ViewModel** — lifecycle ViewModel + Compose integration
 - **Orbit MVI** — container-backed ViewModel state and side effects
 - **Ktor** — network client in `:core:network`
-- **DataStore Preferences** — persistence in `:core:preferences`
+- **DataStore Preferences** — persistence in `:core:data:preferences`
 
 Room is planned but not yet present in the codebase.
 
@@ -221,53 +221,23 @@ For commit workflows, extract the ticket prefix from the current branch name usi
 <claude-mem-context>
 # Memory Context
 
-# [DevPulse] recent context, 2026-08-07 2:46pm GMT+5:30
+# [DevPulse] recent context, 2026-08-12 3:38pm GMT+5:30
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (11,260t read) | 713,135t work | 98% savings
+Stats: 50 obs (12,806t read) | 880,232t work | 99% savings
 
-### Jun 10, 2026
-S43 Refine feed entity indexes and filters based on trade-offs. (Jun 10 at 7:16 PM)
-S44 Set Default Model (Jun 10 at 7:19 PM)
-### Jun 11, 2026
-S47 Clarification on "auth code" request (Jun 11 at 5:34 PM)
 ### Jul 15, 2026
 S48 Explanation of device-code login flow (Jul 15 at 4:36 PM)
 S49 Create and push feature branch, then open a pull request (Jul 15 at 4:38 PM)
 ### Jul 23, 2026
 S50 Scaffold :bridge:markdownconverter module and investigate project structure. (Jul 23 at 2:55 PM)
 ### Jul 31, 2026
-1880 9:56a 🔵 Module Inclusion in settings.gradle.kts
-1881 " 🔵 DevPulse BuildSrc Constants - Modules Object
-1882 " 🔵 Core Module build.gradle.kts Files
 S51 Create subfolders in modules based on package names (Jul 31 at 9:57 AM)
-1885 9:58a ✅ Added :bridge:markdownconverter module to project
-1886 " ✅ Successfully compiled JVM target for :bridge:markdownconverter
-1888 " 🔵 Gradle Task Graph Calculation for :bridge:markdownconverter
-1890 " 🔵 BuildSrc Task Execution Status
-1892 " 🔵 Empty Output from Gradle Execution
-1896 " 🔵 Empty Output from Gradle Execution
-1904 " ✅ Successful Gradle Build with Module Compilation
-1906 9:59a ✅ Modified files related to new module integration
-1909 10:00a 🔵 Directory structure of core/network module
-1934 10:12a 🟣 Subfolder Creation Based on Package Name
-1935 " ✅ Organized Module Structure with Package-Named Subfolders
 S53 Investigate and resolve the missing native libraries for the html-to-markdown-android dependency. (Jul 31 at 10:12 AM)
-1936 10:58a 🔵 32-bit ABI Filters Identified in Android Build Files
-1937 " 🔵 Presence of 32-bit Native Libraries Detected
-1938 " 🔵 Transitive Dependency Forces 32-bit Architectures
-1939 " 🔵 CI/CD Pipeline Configured for Universal APKs
-1940 " ✅ Removal of 32-bit ABI Filters
-1941 " ✅ Exclusion of 32-bit Native Libraries
-1942 " ✅ Dependency Update for 64-bit Compatibility
-1943 " ✅ CI/CD Pipeline Modified for 64-bit Only Builds
-1944 " 🔵 Build Configuration Files Identified
-1945 10:59a 🔵 Gradle Wrapper Lock File Error
-1946 11:00a 🔵 Gradle Dependency Analysis for 32-bit Architectures
-1947 " 🔵 Analysis of Android Runtime Dependencies
+1947 11:00a 🔵 Analysis of Android Runtime Dependencies
 1956 4:41p 🔴 HTML to Markdown Android dependency artifact missing native code
 1957 " 🔵 HTML to Markdown Android dependency identified in libs.versions.toml
 1958 " 🔵 HTML to Markdown Android dependency configuration confirmed
@@ -280,12 +250,13 @@ S54 Verify Android build fix for html-to-markdown-android (Jul 31 at 4:43 PM)
 ### Aug 1, 2026
 1988 4:47p 🔴 Android build issue resolved in version 3.10.1
 1989 " 🔵 Verified Android AAR contents for version 3.10.1
+S55 Diagnose and fix Xcode linking error for header-only C target in Swift Package Manager. (Aug 1 at 4:47 PM)
 ### Aug 3, 2026
 1990 1:02p 🔵 Xcode linker error for header-only C target
 1991 " ⚖️ Introduce modulemap for header-only C target
 1992 " 🔴 Fix Xcode linking error for header-only C target
 1993 " ⚖️ Ranked solutions for Xcode header-only C target issue
-S55 Diagnose and fix Xcode linking error for header-only C target in Swift Package Manager. (Aug 3 at 1:03 PM)
+S56 Create detailed commits and a pull request to main without ticket or Gradle runs. (Aug 3 at 1:03 PM)
 ### Aug 4, 2026
 1994 4:20p 🟣 Add sqlite-vector JVM dependency
 1995 " 🔵 Investigate sqlite-vector dependency in project
@@ -298,8 +269,36 @@ S55 Diagnose and fix Xcode linking error for header-only C target in Swift Packa
 2021 4:23p 🔵 SQLite-Vector extension for JVM and Android
 ### Aug 7, 2026
 2028 2:46p 🟣 Automated PR creation and commit detailing
+2029 2:52p 🟣 Implement detailed commit generation and PR creation
+2030 " 🔄 Reorganize feed data and parser modules
+2031 " 🔴 Fix trailing whitespace and blank lines
+2032 " 🟣 Create GitHub Pull Request for Feed Post Content
+2033 " 🔴 GitHub PR creation failed due to collaborator permissions
+2034 2:53p 🔵 Investigate GitHub authentication and repository state
+S57 Detailed commits and PR to main (Aug 7 at 2:53 PM)
+2036 6:29p 🔴 HTML content not rendered in post, displayed as plain text.
+2037 " 🔵 Investigated HTML rendering issue in posts.
+2038 " 🔵 Examined ViewModel and State for post content handling.
+### Aug 11, 2026
+2039 11:46a 🟣 Implement Detailed Commit and PR Creation
+2040 9:16p 🔄 Create new webview core module
+2041 " 🔵 Investigating navigation event handling
+2042 " 🔴 Resolved Gradle cache issue affecting navigation compilation
+2043 " ✅ Reviewed settings.gradle.kts for module inclusion
+2044 9:17p 🔵 Identified files related to webview, core ui, and bridge modules
+2046 " 🔵 Located webview screen and navigation entries
+2048 " 🔵 Confirmed webViewScreens integration in navigation
+2050 " 🔵 Reviewed bridge module scaffolding process
+S58 Refactor webview functionality into a new core module (Aug 11 at 9:18 PM)
+2052 9:18p 🔵 Reviewed feature feed build script for dependencies
+2056 " 🔵 Reviewed core common build script
+2062 9:19p 🔵 Successfully refactored webview functionality into a new core module
+2066 " 🔵 Verified new core webview build script configuration
+2074 9:20p 🔵 Gradle configuration calculation initiated
+2081 " 🔵 Gradle task graph calculation continues
+2091 " 🔵 Gradle compilation progress and Koin compiler warnings
 
-Access 713k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 880k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
 
 <!-- SPECKIT START -->
