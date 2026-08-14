@@ -176,9 +176,11 @@ fun DPSlider(
 ) {
     val c = variant.colors()
     val resolved = colors ?: SliderDefaults.colors(
-        thumbColor = c.accent,
+        thumbColor = c.outline,
         activeTrackColor = c.accent,
         inactiveTrackColor = c.container,
+        activeTickColor = c.onAccent,
+        inactiveTickColor = c.onContainer,
     )
     Slider(
         value = value,

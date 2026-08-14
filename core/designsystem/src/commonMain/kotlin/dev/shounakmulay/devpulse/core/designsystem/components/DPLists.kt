@@ -88,70 +88,37 @@ fun DPListItem(
     val resolvedPadding = contentPadding ?: PaddingValues(horizontal = hPad, vertical = vPad)
     val resolvedColors = colors ?: ListItemDefaults.colors()
 
-    if (selected) {
-        ListItem(
-            selected = selected,
-            onClick = onClick,
-            modifier = modifier,
-            enabled = enabled,
-            leadingContent = leadingContent,
-            trailingContent = trailingContent,
-            overlineContent = overlineText?.let {
-                {
-                    DPTextView(
-                        it,
-                        variant = DPTextViewVariant.LabelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            },
-            supportingContent = supportingText?.let {
-                {
-                    DPTextView(
-                        it,
-                        variant = DPTextViewVariant.BodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            },
-            colors = resolvedColors,
-            elevation = ListItemDefaults.elevation(),
-            contentPadding = resolvedPadding,
-            interactionSource = null,
-            content = { DPTextView(headlineText, variant = DPTextViewVariant.BodyMedium) },
-        )
-    } else {
-        ListItem(
-            onClick = onClick,
-            modifier = modifier,
-            enabled = enabled,
-            leadingContent = leadingContent,
-            trailingContent = trailingContent,
-            overlineContent = overlineText?.let {
-                {
-                    DPTextView(
-                        it,
-                        variant = DPTextViewVariant.LabelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            },
-            supportingContent = supportingText?.let {
-                {
-                    DPTextView(
-                        it,
-                        variant = DPTextViewVariant.BodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            },
-            colors = resolvedColors,
-            elevation = ListItemDefaults.elevation(),
-            contentPadding = resolvedPadding,
-            interactionSource = null,
-            content = { DPTextView(headlineText, variant = DPTextViewVariant.BodyMedium) },
-        )
-    }
+    ListItem(
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        overlineContent = overlineText?.let {
+            {
+                DPTextView(
+                    it,
+                    variant = DPTextViewVariant.LabelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
+        supportingContent = supportingText?.let {
+            {
+                DPTextView(
+                    it,
+                    variant = DPTextViewVariant.BodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
+        colors = resolvedColors,
+        elevation = ListItemDefaults.elevation(),
+        contentPadding = resolvedPadding,
+        interactionSource = null,
+        content = { DPTextView(headlineText, variant = DPTextViewVariant.BodyMedium) },
+    )
 }
 
 // ---- Slot-based overload with branching logic (selected, onClick) ----

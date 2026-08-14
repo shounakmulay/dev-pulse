@@ -4,8 +4,8 @@ import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeSettings
-import dev.shounakmulay.devpulse.core.domain.settings.ObserveThemeSettingsUseCase
-import dev.shounakmulay.devpulse.core.domain.settings.SetThemeSettingsUseCase
+import dev.shounakmulay.devpulse.core.domain.settings.theme.ObserveThemeSettingsUseCase
+import dev.shounakmulay.devpulse.core.domain.settings.theme.SetThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel

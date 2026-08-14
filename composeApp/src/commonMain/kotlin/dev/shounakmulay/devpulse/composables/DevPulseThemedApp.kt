@@ -9,11 +9,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import dev.shounakmulay.devpulse.core.designsystem.theme.AppTheme
 import dev.shounakmulay.devpulse.core.ui.transition.DevPulseSharedTransitionLayout
-import dev.shounakmulay.devpulse.theme.ThemeSettingsViewModel
+import dev.shounakmulay.devpulse.feature.settings.controllers.theme.ThemeSettingsViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-internal fun DevPulseThemedApp() {
+internal fun DevPulseThemedApp(content: @Composable () -> Unit) {
     val themeSettingsViewModel = koinViewModel<ThemeSettingsViewModel>()
     val themeSettingsState by themeSettingsViewModel.state
     val systemDarkTheme = isSystemInDarkTheme()
@@ -43,7 +43,7 @@ internal fun DevPulseThemedApp() {
     ) {
         Scaffold {
             DevPulseSharedTransitionLayout {
-                DevPulseNavApp()
+                content()
             }
         }
     }

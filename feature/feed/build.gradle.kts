@@ -26,6 +26,7 @@ kotlin {
             implementation(project(Modules.Core.COMMON))
             implementation(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Domain.FEED))
+            implementation(project(Modules.Core.Domain.SETTINGS))
 
             implementation(libs.compose.components.resources)
             implementation(libs.androidx.paging.common)
@@ -38,6 +39,8 @@ kotlin {
             implementation(libs.multiplatform.markdown.renderer)
             implementation(libs.multiplatform.markdown.renderer.coil3)
             implementation(libs.multiplatform.markdown.renderer.code)
+            implementation(libs.zoomable)
+            implementation(libs.navigationevent.compose)
         }
     }
 }

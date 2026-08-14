@@ -14,13 +14,15 @@ import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.FormatLineSpacing
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.PushPin
@@ -97,8 +99,10 @@ object DPIcons {
     val Share = Icons.Default.Share
     val MoreOptionsVert = Icons.Default.MoreVert
     val FormatText = Icons.Default.FormatSize
+    val FormatLineSpacing = Icons.Default.FormatLineSpacing
     val EmptyContent = EmptyContentIcon
     val ImageLoading = ImageLoadingIcon
     val ImageError = ImageLoadingError
-    val Copy = Icons.Default.ContentCopy
+    val LightTheme = Icons.Default.LightMode
+    val DarkTheme = Icons.Default.DarkMode
 }

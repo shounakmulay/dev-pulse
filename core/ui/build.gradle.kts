@@ -22,7 +22,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(Modules.Core.DESIGN_SYSTEM))
-            implementation(project(Modules.Core.PREFERENCES))
+            implementation(project(Modules.Core.Data.PREFERENCES))
             implementation(libs.compose.components.resources)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)

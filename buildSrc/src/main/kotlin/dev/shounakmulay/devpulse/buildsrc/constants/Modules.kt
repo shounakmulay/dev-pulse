@@ -26,7 +26,6 @@ object Modules {
         const val LOGGING = ":core:logging"
         const val NETWORK = ":core:network"
         const val NOTIFICATIONS = ":core:notifications"
-        const val PREFERENCES = ":core:preferences"
         const val COMMON = ":core:common"
 
         object Domain {
@@ -36,6 +35,7 @@ object Modules {
         }
 
         object Data {
+            const val PREFERENCES = ":core:data:preferences"
             const val SETTINGS = ":core:data:settings"
             const val FEED = ":core:data:feed"
             const val DB = ":core:data:db"

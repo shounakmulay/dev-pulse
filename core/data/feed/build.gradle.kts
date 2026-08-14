@@ -16,7 +16,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(Modules.Core.COMMON))
             implementation(project(Modules.Core.NETWORK))
-            implementation(project(Modules.Core.PREFERENCES))
+            implementation(project(Modules.Core.Data.PREFERENCES))
             implementation(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Data.DB))
 
