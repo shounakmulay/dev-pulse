@@ -5,8 +5,8 @@ import androidx.room3.Delete
 import androidx.room3.Insert
 import androidx.room3.Query
 import androidx.room3.Upsert
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedQueue
 import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedQueueStatus
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedQueue
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -37,6 +37,16 @@ interface FeedQueueDao {
         """
     )
     suspend fun getNext(): LocalRssFeedQueue?
+
+    @Query(
+        """
+        DELETE FROM LocalRssFeedQueue
+        WHERE status IN ('PROCESSING', 'QUEUED')
+        AND url = :url
+        AND id != :skipId
+        """
+    )
+    suspend fun deleteStaleEntries(url: String, skipId: Int)
 
     @Insert
     suspend fun add(feeds: List<LocalRssFeedQueue>)

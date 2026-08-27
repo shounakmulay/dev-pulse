@@ -13,4 +13,5 @@ interface DateTimeProvider {
     fun now(): Instant
     fun nowEpochMilliseconds(): Long
     fun today(): LocalDate
+    fun timeInFuture(duration: Duration): Long
 }

@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.domain.feed.feed
+package dev.shounakmulay.devpulse.core.domain.feed.posts
 
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.coroutines.runCatchingOnDefault

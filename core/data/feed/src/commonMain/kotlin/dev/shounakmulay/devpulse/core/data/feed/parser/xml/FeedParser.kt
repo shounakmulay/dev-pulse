@@ -1,9 +1,9 @@
 package dev.shounakmulay.devpulse.core.data.feed.parser.xml
 
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeed
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedIssue
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedMetadata
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedIssue
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItem
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedMetadata
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow

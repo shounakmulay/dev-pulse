@@ -4,7 +4,7 @@ import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.RssIdentityGenerator
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItem
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.DateTimeComponents
 import kotlin.test.Test

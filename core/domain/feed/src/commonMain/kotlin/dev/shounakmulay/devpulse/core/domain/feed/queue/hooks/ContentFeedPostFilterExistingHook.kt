@@ -1,16 +1,19 @@
-package dev.shounakmulay.devpulse.core.data.feed.hook
+package dev.shounakmulay.devpulse.core.domain.feed.queue.hooks
 
-import dev.shounakmulay.devpulse.core.data.feed.hook.model.PostWithIdentity
 import dev.shounakmulay.devpulse.core.data.preferences.DevPulsePreferenceKeys
 import dev.shounakmulay.devpulse.core.data.preferences.DevPulsePreferences
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostWithExistingIdentity
 import org.koin.core.annotation.Factory
 
 @Factory
 class ContentFeedPostFilterExistingHook(
     private val preferences: DevPulsePreferences
-) :
-    CoreBatchHook<PostWithIdentity> {
-    override suspend fun process(posts: List<PostWithIdentity>): List<PostWithIdentity> {
+) : CorePostsBatchHook {
+    override suspend fun process(
+        actionType: RssFeedQueueActionType,
+        posts: List<RssFeedPostWithExistingIdentity>
+    ): List<RssFeedPostWithExistingIdentity> {
         val reImportPosts = preferences.get(DevPulsePreferenceKeys.reImportExistingPosts)
         if (reImportPosts == true) {
             return posts

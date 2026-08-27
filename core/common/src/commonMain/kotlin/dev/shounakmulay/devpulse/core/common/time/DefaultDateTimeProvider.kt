@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.core.common.time
 
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.datetime.toLocalDateTime
@@ -43,5 +44,10 @@ class DefaultDateTimeProvider : DateTimeProvider {
             .fromEpochMilliseconds(nowEpochMilliseconds())
             .toLocalDateTime(TimeZone.currentSystemDefault())
             .date
+    }
+
+    override fun timeInFuture(duration: Duration): Long {
+        val instant = now() + duration
+        return instant.toEpochMilliseconds()
     }
 }

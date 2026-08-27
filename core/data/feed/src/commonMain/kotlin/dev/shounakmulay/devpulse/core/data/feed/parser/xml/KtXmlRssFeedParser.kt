@@ -1,12 +1,11 @@
 package dev.shounakmulay.devpulse.core.data.feed.parser.xml
 
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeed
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.FeedParser.Companion.TAG_ATOM
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.FeedParser.Companion.TAG_RDF
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.FeedParser.Companion.TAG_RSS
 import dev.shounakmulay.devpulse.core.data.feed.repository.FeedImportCandidate
-import dev.shounakmulay.devpulse.core.data.feed.repository.RssContentFeedProcessor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
 import org.kobjects.ktxml.api.EventType
 import org.kobjects.ktxml.mini.MiniXmlPullParser
 import org.koin.core.annotation.Factory
@@ -16,24 +15,22 @@ internal class KtXmlRssFeedParser(
     private val rssFeedParser: RssFeedParser,
     private val rdfFeedParser: RdfFeedParser,
     private val atomFeedParser: AtomFeedParser,
-    private val processor: RssContentFeedProcessor? = null
 ) : FeedImportCandidate {
     override val id: String
         get() = ID
 
-    override suspend fun import(
+    override suspend fun parse(
         entry: RssFeedQueueEntry,
         xml: String
-    ) {
-        import(entry = entry, iterator = xml.iterator())
+    ): ParsedFeed {
+        return parse(entry = entry, iterator = xml.iterator())
     }
 
-    override suspend fun import(
+    override suspend fun parse(
         entry: RssFeedQueueEntry,
         iterator: CharIterator
-    ) {
-        val feed = parse(xmlIterator = iterator)
-        checkNotNull(processor).process(entry = entry, parsedFeed = feed)
+    ): ParsedFeed {
+        return parse(xmlIterator = iterator)
     }
 
     suspend fun parse(xmlIterator: CharIterator): ParsedFeed {

@@ -2,7 +2,7 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui
 
 import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
-import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel

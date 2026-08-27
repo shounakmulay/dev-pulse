@@ -1,9 +1,10 @@
-package dev.shounakmulay.devpulse.core.domain.feed.feed
+package dev.shounakmulay.devpulse.core.domain.feed.posts
 
 import dev.shounakmulay.devpulse.core.common.coroutines.ApplicationScope
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.coroutines.runCatchingOnDefault
 import dev.shounakmulay.devpulse.core.data.feed.repository.PostRepository
+import dev.shounakmulay.devpulse.core.domain.feed.feed.ConvertToMarkdownUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContent
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType

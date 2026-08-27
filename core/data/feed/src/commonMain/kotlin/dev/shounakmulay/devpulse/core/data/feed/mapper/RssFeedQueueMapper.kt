@@ -1,11 +1,11 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedQueue
 import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedQueueActionRequestor
 import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedType
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedQueue
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionRequestor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
@@ -15,11 +15,13 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class RssFeedQueueMapper(
+    private val uuidMapper: UuidMapper,
     private val dateTimeProvider: DateTimeProvider
 ) {
     fun toLocalRssFeedQueue(from: RssFeedQueueEntry): LocalRssFeedQueue {
         return LocalRssFeedQueue(
             id = from.id,
+            feedId = from.feedId?.let { uuidMapper.fromUuid(it) },
             url = from.url,
             name = from.name,
             feedType = toLocalRssFeedType(from.feedType),
@@ -37,6 +39,7 @@ class RssFeedQueueMapper(
     fun fromLocalRssFeedQueue(from: LocalRssFeedQueue): RssFeedQueueEntry {
         return RssFeedQueueEntry(
             id = from.id,
+            feedId = from.feedId?.let { uuidMapper.toUuid(it) },
             url = from.url,
             name = from.name,
             feedType = fromLocalRssFeedType(from.feedType),

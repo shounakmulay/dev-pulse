@@ -1,9 +1,9 @@
 package dev.shounakmulay.devpulse.core.data.feed.parser.xml
 
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeed
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedImage
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedMetadata
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedImage
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItem
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedMetadata
 import org.kobjects.ktxml.api.EventType
 import org.kobjects.ktxml.api.XmlPullParser
 import org.koin.core.annotation.Factory

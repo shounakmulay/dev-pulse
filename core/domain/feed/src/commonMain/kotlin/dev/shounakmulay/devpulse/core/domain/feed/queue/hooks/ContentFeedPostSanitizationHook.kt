@@ -1,20 +1,23 @@
-package dev.shounakmulay.devpulse.core.data.feed.hook
+package dev.shounakmulay.devpulse.core.domain.feed.queue.hooks
 
-import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemMediaContent
-import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemRawEnclosure
-import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemYoutubeData
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
-import dev.shounakmulay.devpulse.core.data.feed.hook.model.PostWithIdentity
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPost
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostRawEnclosure
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostWithExistingIdentity
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostYoutubeData
 import org.koin.core.annotation.Factory
 
 @Factory
-class ContentFeedPostSanitizationHook : CoreItemHook<PostWithIdentity> {
+class ContentFeedPostSanitizationHook : CorePostsItemHook {
 
-    override suspend fun process(post: PostWithIdentity): PostWithIdentity {
+    override suspend fun process(
+        actionType: RssFeedQueueActionType,
+        post: RssFeedPostWithExistingIdentity
+    ): RssFeedPostWithExistingIdentity {
         return post.copy(post = post.post.sanitized())
     }
 
-    private fun LocalRssContentFeedPost.sanitized(): LocalRssContentFeedPost {
+    private fun RssFeedPost.sanitized(): RssFeedPost {
         return copy(
             guid = guid.sanitizePlainText(),
             title = title.sanitizePlainText().orEmpty(),
@@ -27,15 +30,14 @@ class ContentFeedPostSanitizationHook : CoreItemHook<PostWithIdentity> {
             video = video.sanitizeUrl(),
             sourceName = sourceName.sanitizePlainText().orEmpty(),
             sourceUrl = sourceUrl.sanitizeUrl().orEmpty(),
-            categories = categories.sanitizeCategories(),
+            categories = categories.map { it.sanitizeCategories() },
             commentsUrl = commentsUrl.sanitizeUrl(),
-            youtubeData = youtubeData?.sanitized(),
+            youtubeItemData = youtubeItemData?.sanitized(),
             rawEnclosure = rawEnclosure?.sanitized(),
-            rawMedia = rawMedia?.sanitized()
         )
     }
 
-    private fun LocalRssFeedItemYoutubeData.sanitized(): LocalRssFeedItemYoutubeData {
+    private fun RssFeedPostYoutubeData.sanitized(): RssFeedPostYoutubeData {
         return copy(
             title = title.sanitizeRichText(),
             videoUrl = videoUrl.sanitizeUrl(),
@@ -44,18 +46,10 @@ class ContentFeedPostSanitizationHook : CoreItemHook<PostWithIdentity> {
         )
     }
 
-    private fun LocalRssFeedItemRawEnclosure.sanitized(): LocalRssFeedItemRawEnclosure {
+    private fun RssFeedPostRawEnclosure.sanitized(): RssFeedPostRawEnclosure {
         return copy(
             url = url.sanitizeUrl(),
             type = type.sanitizeMimeText()
-        )
-    }
-
-    private fun LocalRssFeedItemMediaContent.sanitized(): LocalRssFeedItemMediaContent {
-        return copy(
-            url = url.sanitizeUrl(),
-            type = type.sanitizeMimeText(),
-            medium = medium.sanitizeMimeText()
         )
     }
 

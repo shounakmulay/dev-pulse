@@ -4,7 +4,7 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentF
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemMediaContent
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemRawEnclosure
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemYoutubeData
-import dev.shounakmulay.devpulse.core.data.feed.hook.model.PostWithIdentity
+import dev.shounakmulay.devpulse.core.data.feed.hook.model.LocalPostWithIdentity
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -27,7 +27,7 @@ class ContentFeedPostSanitizationHookTest {
             content = "<article>First<br/>Second</article>"
         )
 
-        val result = hook.process(PostWithIdentity(post = post, identity = null)).post
+        val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
 
         assertEquals("Plain title", result.title)
         assertEquals("Hello world Next line", result.description)
@@ -42,7 +42,7 @@ class ContentFeedPostSanitizationHookTest {
             categories = "Kotlin &amp; Compose"
         )
 
-        val result = hook.process(PostWithIdentity(post = post, identity = null)).post
+        val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
 
         assertEquals("Tom & Jerry", result.title)
         assertEquals("Quoted \"text\" 'here'", result.description)
@@ -59,7 +59,7 @@ class ContentFeedPostSanitizationHookTest {
                 categories = "   "
             )
 
-            val result = hook.process(PostWithIdentity(post = post, identity = null)).post
+            val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
 
             assertNull(result.title)
             assertNull(result.author)
@@ -79,7 +79,7 @@ class ContentFeedPostSanitizationHookTest {
             commentsUrl = "https://"
         )
 
-        val result = hook.process(PostWithIdentity(post = post, identity = null)).post
+        val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
 
         assertEquals("opaque-guid", result.guid)
         assertEquals("http://example.com/article", result.link)
@@ -114,7 +114,7 @@ class ContentFeedPostSanitizationHookTest {
             )
         )
 
-        val result = hook.process(PostWithIdentity(post = post, identity = null)).post
+        val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
 
         assertEquals("video-1", result.youtubeData?.videoId)
         assertEquals("Video title", result.youtubeData?.title)
@@ -156,7 +156,7 @@ class ContentFeedPostSanitizationHookTest {
             )
         )
 
-        val result = hook.process(PostWithIdentity(post = post, identity = null)).post
+        val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
 
         assertEquals("post-2", result.id)
         assertEquals("feed-2", result.feedId)

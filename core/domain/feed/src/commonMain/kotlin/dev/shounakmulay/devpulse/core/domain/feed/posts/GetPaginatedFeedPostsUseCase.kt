@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.domain.feed.feed
+package dev.shounakmulay.devpulse.core.domain.feed.posts
 
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData

@@ -5,12 +5,12 @@ import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 data class RssFeedPost(
     val id: UUID,
     val feedId: UUID,
-    val fingerprint: String?,
+    val fingerprint: String,
     val guid: String?,
     val title: String?,
     val author: String?,
     val link: String?,
-    val publishedAtMillis: Long?,
+    val publishedAtMillis: Long,
     val description: String?,
     val content: String?,
     val image: String?,
@@ -24,5 +24,7 @@ data class RssFeedPost(
     val youtubeItemData: RssFeedPostYoutubeData?,
     val rawEnclosure: RssFeedPostRawEnclosure?,
     val rawMediaContent: RssFeedPostMediaContent? = null,
-    val createdAtMillis: Long
+    val createdAtMillis: Long,
+    val updatedAtMillis: Long,
+    val pubDate: String?
 )

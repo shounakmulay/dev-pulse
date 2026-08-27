@@ -14,7 +14,6 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostTag
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostToTagMapping
 import dev.shounakmulay.devpulse.core.data.db.paging.LocalCursorPagingSource
@@ -45,14 +44,7 @@ interface FeedPostDao {
     @Upsert
     suspend fun upsertPosts(posts: List<LocalRssContentFeedPost>)
 
-    @Upsert
-    suspend fun upsertPostCategories(categories: List<LocalRssPostCategory>)
 
-    @Query("DELETE FROM LocalRssPostCategory WHERE postId = :postId")
-    suspend fun deletePostCategories(postId: String)
-
-    @Query("DELETE FROM LocalRssPostCategory WHERE postId IN (:postIds)")
-    suspend fun deletePostCategories(postIds: Set<LocalUUID>)
 
     @Delete
     suspend fun deletePosts(posts: List<LocalRssContentFeedPost>)
@@ -123,4 +115,8 @@ interface FeedPostDao {
         ]
     )
     suspend fun getPostPage(query: RoomRawQuery): List<LocalRssPostWithFeedMetadataProjection>
+
+
+    @Query("SELECT publishedAtEpochMillis FROM LocalRssContentFeedPost WHERE feedId = :fromUuid ORDER BY publishedAtEpochMillis DESC LIMIT 1")
+    suspend fun getLatestPostPublishedTimeForFeed(fromUuid: LocalUUID): Long?
 }

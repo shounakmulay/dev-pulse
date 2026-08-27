@@ -13,8 +13,9 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import org.koin.core.annotation.Factory
 
+
 @Factory
-class ImportFeedUseCase(
+class EnqueueFeedImportsUseCase(
     private val rssFeedQueueRepository: RssFeedQueueRepository,
     private val dispatcherProvider: DispatcherProvider,
     private val dateTimeProvider: DateTimeProvider,
@@ -29,6 +30,7 @@ class ImportFeedUseCase(
                 val now = dateTimeProvider.now().toEpochMilliseconds()
                 val queueEntry = RssFeedQueueEntry(
                     url = addFeedData.url,
+                    feedId = null,
                     name = addFeedData.name,
                     feedType = addFeedData.type,
                     actionType = RssFeedQueueActionType.IMPORT,

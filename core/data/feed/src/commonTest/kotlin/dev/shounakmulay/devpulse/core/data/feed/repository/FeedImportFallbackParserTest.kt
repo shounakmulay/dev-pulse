@@ -103,14 +103,14 @@ class FeedImportFallbackParserTest {
             private set
         val xmlRequests = mutableListOf<String>()
 
-        override suspend fun import(entry: RssFeedQueueEntry, xml: String) {
+        override suspend fun parse(entry: RssFeedQueueEntry, xml: String) {
             callCount += 1
             xmlRequests += xml
             failure?.let { throw it }
         }
 
-        override suspend fun import(entry: RssFeedQueueEntry, iterator: CharIterator) {
-            import(entry = entry, xml = iterator.asSequence().joinToString(separator = ""))
+        override suspend fun parse(entry: RssFeedQueueEntry, iterator: CharIterator) {
+            parse(entry = entry, xml = iterator.asSequence().joinToString(separator = ""))
         }
     }
 

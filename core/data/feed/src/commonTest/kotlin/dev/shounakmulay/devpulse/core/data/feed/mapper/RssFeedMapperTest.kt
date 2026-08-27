@@ -3,7 +3,7 @@ package dev.shounakmulay.devpulse.core.data.feed.mapper
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.RssIdentityGenerator
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedMetadata
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedMetadata
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionRequestor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry

@@ -1,9 +1,18 @@
-package dev.shounakmulay.devpulse.core.data.feed.hook
+package dev.shounakmulay.devpulse.core.domain.feed.queue.hooks
 
-fun interface CoreItemHook<R> {
-    suspend fun process(post: R): R
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostWithExistingIdentity
+
+fun interface CorePostsItemHook {
+    suspend fun process(
+        actionType: RssFeedQueueActionType,
+        post: RssFeedPostWithExistingIdentity
+    ): RssFeedPostWithExistingIdentity
 }
 
-fun interface CoreBatchHook<R> {
-    suspend fun process(posts: List<R>): List<R>
+fun interface CorePostsBatchHook {
+    suspend fun process(
+        actionType: RssFeedQueueActionType,
+        posts: List<RssFeedPostWithExistingIdentity>
+    ): List<RssFeedPostWithExistingIdentity>
 }

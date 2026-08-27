@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetFeedDetailUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
-import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter

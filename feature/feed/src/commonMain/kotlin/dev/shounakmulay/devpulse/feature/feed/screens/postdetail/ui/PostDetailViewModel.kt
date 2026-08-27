@@ -1,10 +1,10 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui
 
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
-import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPostContentUseCase
-import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPostDetailUseCase
-import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRssEncodedContentUseCase
-import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.posts.GetPostContentUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.posts.GetPostDetailUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.posts.GetRssEncodedContentUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
 import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingFontScaleUseCase

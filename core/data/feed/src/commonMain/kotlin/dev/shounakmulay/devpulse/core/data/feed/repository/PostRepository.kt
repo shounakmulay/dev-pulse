@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.core.data.feed.repository
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPost
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContent
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
 import dev.shounakmulay.devpulse.core.domain.models.post.RssParsedPostContent
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface PostRepository {
     fun getPost(id: UUID): Flow<RssPostWithFeedIdentity>
+    suspend fun upsertPosts(posts: List<RssFeedPost>)
     fun observePosts(
         query: RssPostQuery,
         pagingConfig: PagingConfig
@@ -33,4 +35,6 @@ interface PostRepository {
     suspend fun getPostDescription(postId: UUID): String?
 
     suspend fun convertToMarkdown(html: String): RssParsedPostContent?
+
+    suspend fun getLatestPostPublishedTimeForFeed(feedId: UUID): Long?
 }

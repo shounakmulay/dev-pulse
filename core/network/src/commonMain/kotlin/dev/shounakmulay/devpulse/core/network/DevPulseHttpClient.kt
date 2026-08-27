@@ -4,6 +4,7 @@ import dev.shounakmulay.devpulse.core.logging.DPLogger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRedirect
 import io.ktor.client.plugins.cache.HttpCache
+import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
@@ -35,6 +36,11 @@ internal fun createHttpClient(dpLogger: DPLogger): HttpClient = HttpClient(creat
         sanitizeHeader { header ->
             header == HttpHeaders.Authorization || header == HttpHeaders.Cookie
         }
+    }
+
+    install(ContentEncoding) {
+        gzip()
+        deflate()
     }
 
     install(HttpCache)

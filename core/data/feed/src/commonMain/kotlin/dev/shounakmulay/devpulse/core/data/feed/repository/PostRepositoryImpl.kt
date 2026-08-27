@@ -16,6 +16,7 @@ import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostQueryMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.UuidMapper
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPost
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContent
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
 import dev.shounakmulay.devpulse.core.domain.models.post.RssParsedPostContent
@@ -50,6 +51,10 @@ class PostRepositoryImpl(
         return feedPostDao.observePost(uuidMapper.fromUuid(id)).map { post ->
             post.toRssPostWithFeedIdentity()
         }
+    }
+
+    override suspend fun upsertPosts(posts: List<RssFeedPost>) {
+        feedPostDao.upsertPosts(posts.map(rssPostMapper::toLocalRssContentFeedPost))
     }
 
     override fun observePosts(
@@ -181,6 +186,10 @@ class PostRepositoryImpl(
             html = null,
             markdown = markdown
         )
+    }
+
+    override suspend fun getLatestPostPublishedTimeForFeed(feedId: UUID): Long? {
+        return feedPostDao.getLatestPostPublishedTimeForFeed(uuidMapper.fromUuid(feedId))
     }
 
     private suspend fun convertToMarkdownString(html: String): String? {

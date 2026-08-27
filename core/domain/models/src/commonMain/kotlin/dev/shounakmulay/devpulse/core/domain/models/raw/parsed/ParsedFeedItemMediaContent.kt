@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.data.feed.parser.model
+package dev.shounakmulay.devpulse.core.domain.models.raw.parsed
 
 data class ParsedFeedItemMediaContent(
     val url: String?,

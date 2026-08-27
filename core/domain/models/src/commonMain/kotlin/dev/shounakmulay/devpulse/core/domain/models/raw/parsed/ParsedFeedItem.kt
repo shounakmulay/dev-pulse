@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.data.feed.parser.model
+package dev.shounakmulay.devpulse.core.domain.models.raw.parsed
 
 data class ParsedFeedItem(
     val guid: String?,
@@ -20,11 +20,11 @@ data class ParsedFeedItem(
     val rawMediaContent: ParsedFeedItemMediaContent?
 ) {
     companion object {
-        internal inline fun build(block: Builder.() -> Unit): ParsedFeedItem {
+        inline fun build(block: Builder.() -> Unit): ParsedFeedItem {
             return Builder().apply(block).build()
         }
 
-        internal class Builder {
+        class Builder {
             var guid: String? = null
             var title: String? = null
             var author: String? = null

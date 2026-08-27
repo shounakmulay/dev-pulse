@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.data.feed.parser.model
+package dev.shounakmulay.devpulse.core.domain.models.raw.parsed
 
 data class ParsedFeedMetadata(
     val title: String?,
@@ -7,14 +7,15 @@ data class ParsedFeedMetadata(
     val image: ParsedFeedImage?,
     val lastBuildDate: String?,
     val updatePeriod: String?,
+    val etag: String?,
     val youtubeChannel: ParsedFeedYoutubeChannel?
 ) {
     companion object {
-        internal inline fun build(block: Builder.() -> Unit): ParsedFeedMetadata {
+        inline fun build(block: Builder.() -> Unit): ParsedFeedMetadata {
             return Builder().apply(block).build()
         }
 
-        internal class Builder {
+        class Builder {
             var title: String? = null
             var link: String? = null
             var description: String? = null
@@ -22,6 +23,7 @@ data class ParsedFeedMetadata(
             var lastBuildDate: String? = null
             var updatePeriod: String? = null
             var youtubeChannelId: String? = null
+            var etag: String? = null
 
             fun build(): ParsedFeedMetadata {
                 return ParsedFeedMetadata(
@@ -31,7 +33,8 @@ data class ParsedFeedMetadata(
                     image = image,
                     lastBuildDate = lastBuildDate,
                     updatePeriod = updatePeriod,
-                    youtubeChannel = youtubeChannelId?.let { ParsedFeedYoutubeChannel(channelId = it) }
+                    youtubeChannel = youtubeChannelId?.let { ParsedFeedYoutubeChannel(channelId = it) },
+                    etag = etag
                 )
             }
         }

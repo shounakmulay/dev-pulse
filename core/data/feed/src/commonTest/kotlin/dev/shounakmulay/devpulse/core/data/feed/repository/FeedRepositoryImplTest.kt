@@ -106,9 +106,9 @@ class FeedRepositoryImplTest {
     private class FakeFeedImportCandidate : FeedImportCandidate {
         override val id: String = "fake"
 
-        override suspend fun import(entry: RssFeedQueueEntry, xml: String) = Unit
+        override suspend fun parse(entry: RssFeedQueueEntry, xml: String) = Unit
 
-        override suspend fun import(entry: RssFeedQueueEntry, iterator: CharIterator) = Unit
+        override suspend fun parse(entry: RssFeedQueueEntry, iterator: CharIterator) = Unit
     }
 
     private class FakeNetworkClient(
