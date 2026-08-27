@@ -62,6 +62,7 @@ turbine = "1.2.1"
 mokkery = "3.4.2"
 aboutLibraries = "15.0.4"
 sqlite-vector = "1.0.0"
+workRuntimeKtx = "2.11.2"
 zoomable = "2.13.0"
 
 [libraries]
@@ -71,6 +72,7 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "pagingRuntime" }
 androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "pagingRuntime" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingRuntime" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 calf-ui = { module = "com.mohamedrejeb.calf:calf-ui", version.ref = "calfUi" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
@@ -93,9 +95,12 @@ compose-ui-util = { module = "org.jetbrains.compose.ui:ui-util", version.ref = "
 compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "composeWebviewMultiplatform" }
 html-to-markdown-android = { module = "io.xberg:html-to-markdown-android", version.ref = "htmlToMarkdown" }
 html-to-markdown = { module = "io.xberg:html-to-markdown", version.ref = "htmlToMarkdown" }
+koin-android = { module = "io.insert-koin:koin-android" }
+koin-androidx-workmanager = { module = "io.insert-koin:koin-androidx-workmanager" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
+ktor-client-encoding = { module = "io.ktor:ktor-client-encoding" }
 ktxml-core = { module = "org.kobjects.ktxml:core", version.ref = "ktxml" }
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
