@@ -3,8 +3,8 @@ package dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui
 import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.devpulse.core.domain.feed.NormalizeUrlUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.ValidateUrlUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.feed.EnqueueFeedImportsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.ExtractOpmlFeedsUseCase
-import dev.shounakmulay.devpulse.core.domain.feed.feed.ImportFeedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.queue.ObserveFeedQueueForUrlsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.feed.AddFeedData
 import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
@@ -32,7 +32,7 @@ import org.koin.core.annotation.KoinViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
 @KoinViewModel
 class AddFeedViewModel(
-    private val importFeedUseCase: ImportFeedUseCase,
+    private val importFeedUseCase: EnqueueFeedImportsUseCase,
     private val extractOpmlFeedsUseCase: ExtractOpmlFeedsUseCase,
     private val observeFeedQueueForUrlsUseCase: ObserveFeedQueueForUrlsUseCase,
     private val normalizeUrlUseCase: NormalizeUrlUseCase,

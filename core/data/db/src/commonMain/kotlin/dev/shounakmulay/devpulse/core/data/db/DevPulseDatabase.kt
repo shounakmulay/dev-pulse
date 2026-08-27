@@ -15,12 +15,15 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.db.converter.LocalCompressedTextTypeConverter
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostCategoryDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedQueueDao
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedSyncMetadataDao
 import dev.shounakmulay.devpulse.core.data.db.dao.PostContentDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedQueue
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedSyncMetadata
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostContent
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostTag
@@ -43,13 +46,16 @@ private object SchemaVersions {
         LocalRssPostTag::class,
         LocalRssPostToTagMapping::class,
         LocalRssPostCategory::class,
-        LocalRssPostContent::class
+        LocalRssPostContent::class,
+        LocalRssFeedSyncMetadata::class
     ],
     autoMigrations = [
         AutoMigration(1, 2),
-        AutoMigration(2, 3)
+        AutoMigration(2, 3),
+        AutoMigration(3, 4),
+        AutoMigration(4, 5),
     ],
-    version = 3
+    version = 5
 )
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @ColumnTypeConverters(LocalCompressedTextTypeConverter::class)
@@ -62,8 +68,9 @@ abstract class DevPulseDatabase :
     abstract fun getFeedContentDao(): FeedPostDao
     abstract fun getFeedDao(): FeedDao
     abstract fun getFeedQueueDao(): FeedQueueDao
-
     abstract fun getPostContentDao(): PostContentDao
+    abstract fun getPostCategoryDao(): FeedPostCategoryDao
+    abstract fun getFeedSyncMetadataDao(): FeedSyncMetadataDao
 
     override suspend fun clearAllTables() {
     }
@@ -71,14 +78,14 @@ abstract class DevPulseDatabase :
     override fun getFeedPostPagingSource(query: LocalFeedPostQuery) =
         getFeedContentDao().getFeedPostPagingSource(this, query)
 
-    override suspend fun <T> readTransaction(block: DevPulseDatabaseTransactionScope<T>.() -> T): T {
+    override suspend fun <T> readTransaction(block: suspend DevPulseDatabaseTransactionScope<T>.() -> T): T {
         return withReadTransaction {
             val scope = RoomTransactionScopeWrapper.fromRoomScope(this)
             scope.block()
         }
     }
 
-    override suspend fun <T> writeTransaction(block: DevPulseDatabaseTransactionScope<T>.() -> T): T {
+    override suspend fun <T> writeTransaction(block: suspend DevPulseDatabaseTransactionScope<T>.() -> T): T {
         return withWriteTransaction {
             val scope = RoomTransactionScopeWrapper.fromRoomScope(this)
             scope.block()

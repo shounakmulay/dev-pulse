@@ -27,6 +27,7 @@ kotlin {
             implementation(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Domain.FEED))
             implementation(project(Modules.Core.Domain.SETTINGS))
+            implementation(project(Modules.Core.SYNC))
 
             implementation(libs.compose.components.resources)
             implementation(libs.androidx.paging.common)

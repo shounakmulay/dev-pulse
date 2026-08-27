@@ -27,6 +27,7 @@ object Modules {
         const val NETWORK = ":core:network"
         const val NOTIFICATIONS = ":core:notifications"
         const val COMMON = ":core:common"
+        const val SYNC = ":core:sync"
 
         object Domain {
             const val FEED = ":core:domain:feed"

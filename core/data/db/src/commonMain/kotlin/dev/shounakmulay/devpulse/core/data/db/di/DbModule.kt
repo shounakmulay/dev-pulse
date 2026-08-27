@@ -58,4 +58,14 @@ class DatabaseModule {
     fun providePostContentDao(
         db: DevPulseDatabase
     ) = db.getPostContentDao()
+
+    @Factory
+    fun provideFeedSyncMetadataDao(
+        db: DevPulseDatabase
+    ) = db.getFeedSyncMetadataDao()
+
+    @Factory
+    fun providePostCategoryDao(
+        db: DevPulseDatabase
+    ) = db.getPostCategoryDao()
 }

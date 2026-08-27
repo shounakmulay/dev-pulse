@@ -37,6 +37,7 @@ kotlin {
             implementation(project(Modules.Core.Data.PREFERENCES))
             implementation(project(Modules.Core.COMMON))
             implementation(project(Modules.Core.NETWORK))
+            implementation(project(Modules.Core.SYNC))
             implementation(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Domain.SETTINGS))
             implementation(project(Modules.Core.Domain.FEED))
@@ -61,6 +62,7 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.koin.androidx.workmanager)
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)

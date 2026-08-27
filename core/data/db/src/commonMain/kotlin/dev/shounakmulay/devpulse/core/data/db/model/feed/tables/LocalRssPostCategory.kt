@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.core.data.db.model.feed.tables
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
 import androidx.room3.Index
+import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
 
 @Entity(
     primaryKeys = ["postId", "category"],
@@ -19,6 +20,6 @@ import androidx.room3.Index
     ]
 )
 data class LocalRssPostCategory(
-    val postId: String,
+    val postId: LocalUUID,
     val category: String
 )

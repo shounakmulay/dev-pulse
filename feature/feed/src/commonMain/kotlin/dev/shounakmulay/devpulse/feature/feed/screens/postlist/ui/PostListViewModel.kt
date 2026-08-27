@@ -2,7 +2,7 @@ package dev.shounakmulay.devpulse.feature.feed.screens.postlist.ui
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import dev.shounakmulay.devpulse.core.domain.feed.feed.SetPostBookmarkedUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort

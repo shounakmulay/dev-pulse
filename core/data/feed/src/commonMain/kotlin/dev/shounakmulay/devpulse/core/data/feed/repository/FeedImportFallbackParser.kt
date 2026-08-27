@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.feed.repository
 
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.bodyAsText
@@ -15,30 +16,20 @@ internal class FeedImportFallbackParser(
 ) {
     private val logger = logger.withTag(Tag)
 
-    suspend fun import(entry: RssFeedQueueEntry) {
+    suspend fun import(entry: RssFeedQueueEntry): ParsedFeed {
         val xml = networkClient.get(entry.url).bodyAsText()
         var lastFailure: Throwable? = null
 
-        val primaryParserResult = import(
-            entry = entry,
-            xml = xml,
-            candidate = primaryParser
-        ).onFailure {
-            lastFailure = it
-        }
-
-        if (primaryParserResult.isSuccess) {
-            return
-        }
-
-        import(
-            entry = entry,
-            xml = xml,
-            candidate = secondaryParser
-        ).onSuccess {
-            return
-        }.onFailure {
-            lastFailure = it
+        for (parser in listOf(primaryParser, secondaryParser)) {
+            import(
+                entry = entry,
+                xml = xml,
+                candidate = parser
+            ).onSuccess {
+                return it
+            }.onFailure {
+                lastFailure = it
+            }
         }
 
         throw checkNotNull(lastFailure)
@@ -48,24 +39,27 @@ internal class FeedImportFallbackParser(
         entry: RssFeedQueueEntry,
         xml: String,
         candidate: FeedImportCandidate
-    ): Result<Unit> = runCatching {
+    ): Result<ParsedFeed> = runCatching {
         logger.d {
-            "RSS import candidate started candidate=${candidate.id} queueId=${entry.id} source=${entry.url.sourceSummary()}"
+            "RSS import candidate started candidate=${candidate.id} queueId=${entry.id} " +
+                    "source=${entry.url.sourceSummary()}"
         }
-        candidate.import(entry = entry, xml = xml)
+        candidate.parse(entry = entry, xml = xml)
     }.logImportResult(entry = entry, candidate = candidate)
 
-    private fun Result<Unit>.logImportResult(
+    private fun Result<ParsedFeed>.logImportResult(
         entry: RssFeedQueueEntry,
         candidate: FeedImportCandidate
-    ): Result<Unit> {
+    ): Result<ParsedFeed> {
         return this.onSuccess {
             logger.d {
-                "RSS import candidate succeeded candidate=${candidate.id} queueId=${entry.id} source=${entry.url.sourceSummary()}"
+                "RSS import candidate succeeded candidate=${candidate.id} queueId=${entry.id} " +
+                        "source=${entry.url.sourceSummary()}"
             }
         }.onFailure {
             logger.e(it) {
-                "RSS import candidate failed candidate=${candidate.id} queueId=${entry.id} source=${entry.url.sourceSummary()}"
+                "RSS import candidate failed candidate=${candidate.id} queueId=${entry.id} " +
+                        "source=${entry.url.sourceSummary()}"
             }
         }
     }

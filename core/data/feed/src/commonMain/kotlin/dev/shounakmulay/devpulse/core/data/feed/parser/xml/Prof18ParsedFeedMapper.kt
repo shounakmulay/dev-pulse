@@ -7,14 +7,14 @@ import com.prof18.rssparser.model.RssImage
 import com.prof18.rssparser.model.RssItem
 import com.prof18.rssparser.model.YoutubeChannelData
 import com.prof18.rssparser.model.YoutubeItemData
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeed
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedImage
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemMediaContent
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemRawEnclosure
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemYoutubeData
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedMetadata
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedYoutubeChannel
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedImage
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItem
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItemMediaContent
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItemRawEnclosure
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItemYoutubeData
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedMetadata
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedYoutubeChannel
 import kotlinx.coroutines.flow.asFlow
 import org.koin.core.annotation.Factory
 
@@ -38,7 +38,8 @@ internal class Prof18ParsedFeedMapper {
             image = from.image?.toParsedImage(),
             lastBuildDate = from.lastBuildDate,
             updatePeriod = from.updatePeriod,
-            youtubeChannel = from.youtubeChannelData?.toParsedYoutubeChannel()
+            youtubeChannel = from.youtubeChannelData?.toParsedYoutubeChannel(),
+            etag =  ""
         )
     }
 

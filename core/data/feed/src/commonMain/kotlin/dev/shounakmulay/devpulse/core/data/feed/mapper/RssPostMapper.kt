@@ -8,17 +8,22 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedIt
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
+import dev.shounakmulay.devpulse.core.data.feed.hook.model.LocalPostWithIdentity
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItem
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemMediaContent
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemRawEnclosure
-import dev.shounakmulay.devpulse.core.data.feed.parser.model.ParsedFeedItemYoutubeData
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPost
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostIdentity
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostMediaContent
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostRawEnclosure
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostWithExistingIdentity
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostYoutubeData
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostCategory
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItem
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItemMediaContent
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItemRawEnclosure
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItemYoutubeData
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -75,21 +80,32 @@ class RssPostMapper(
         )
     }
 
-    fun toLocalRssPostCategories(
+    fun toRssPostCategories(
         postId: String,
         categories: List<String>
-    ): List<LocalRssPostCategory> {
+    ): List<RssPostCategory> {
         return categories
             .map { it.trim().lowercase() }
             .filter { it.isNotBlank() }
             .distinct()
             .map {
-                LocalRssPostCategory(
-                    postId = postId,
+                RssPostCategory(
+                    postId = UUID(postId),
                     category = it
                 )
             }
     }
+
+    fun toLocalRssPostCategory(from: RssPostCategory) = LocalRssPostCategory(
+        postId = uuidMapper.fromUuid(from.postId),
+        category = from.category
+    )
+
+    fun toRssPostCategory(from: LocalRssPostCategory) = RssPostCategory(
+        postId = uuidMapper.toUuid(from.postId),
+        category = from.category
+    )
+
 
     fun toRssFeedPost(from: LocalRssContentFeedPost): RssFeedPost {
         return RssFeedPost(
@@ -114,11 +130,77 @@ class RssPostMapper(
             youtubeItemData = from.youtubeData?.toRssFeedItemYoutubeData(),
             rawEnclosure = from.rawEnclosure?.toRssFeedItemRawEnclosure(),
             rawMediaContent = from.rawMedia?.toRssFeedItemMediaContent(),
-            createdAtMillis = from.createdAt
+            createdAtMillis = from.createdAt,
+            updatedAtMillis = from.updatedAt,
+            pubDate = from.pubDate
+        )
+    }
+
+    fun toLocalRssContentFeedPost(from: RssFeedPost): LocalRssContentFeedPost {
+        return LocalRssContentFeedPost(
+            id = uuidMapper.fromUuid(from.id),
+            feedId = uuidMapper.fromUuid(from.feedId),
+            fingerprint = from.fingerprint,
+            guid = from.guid,
+            title = from.title.orEmpty(),
+            author = from.author.orEmpty(),
+            link = from.link,
+            description = from.description,
+            content = from.content,
+            image = from.image,
+            audio = from.audio,
+            video = from.video,
+            sourceName = from.sourceName.orEmpty(),
+            sourceUrl = from.sourceUrl.orEmpty(),
+            categories = from.categories.joinToString(","),
+            commentsUrl = from.commentsUrl,
+            bookmarked = from.bookmarked,
+            pubDate = from.pubDate,
+            publishedAtEpochMillis = from.publishedAtMillis,
+            youtubeData = from.youtubeItemData?.let { mapFromYoutubeData(it) },
+            rawEnclosure = from.rawEnclosure?.let { mapFromRawEnclosure(it) },
+            rawMedia = from.rawMediaContent?.let { mapFromMediaContent(it) },
+            createdAt = from.createdAtMillis,
+            updatedAt = from.updatedAtMillis,
+        )
+    }
+
+    fun toRssFeedPostIdentity(from: LocalRssContentFeedPostIdentitySlice): RssFeedPostIdentity {
+        return RssFeedPostIdentity(
+            id = uuidMapper.toUuid(from.id),
+            fingerprint = from.fingerprint,
+            bookmarked = from.bookmarked,
+            createdAt = from.createdAt,
+            updatedAt = from.updatedAt
+        )
+    }
+
+    fun toLocalRssContentFeedPostIdentitySlice(from: RssFeedPostIdentity): LocalRssContentFeedPostIdentitySlice {
+        return LocalRssContentFeedPostIdentitySlice(
+            id = uuidMapper.fromUuid(from.id),
+            fingerprint = from.fingerprint,
+            bookmarked = from.bookmarked,
+            createdAt = from.createdAt,
+            updatedAt = from.updatedAt
+        )
+    }
+
+    fun toRssFeedPostWithIdentity(from: LocalPostWithIdentity): RssFeedPostWithExistingIdentity {
+        return RssFeedPostWithExistingIdentity(
+            post = toRssFeedPost(from.post),
+            identity = from.identity?.let { toRssFeedPostIdentity(it) }
         )
     }
 
     private fun mapRawMediaContent(from: ParsedFeedItemMediaContent): LocalRssFeedItemMediaContent {
+        return LocalRssFeedItemMediaContent(
+            url = from.url,
+            type = from.type,
+            medium = from.medium
+        )
+    }
+
+    private fun mapFromMediaContent(from: RssFeedPostMediaContent): LocalRssFeedItemMediaContent {
         return LocalRssFeedItemMediaContent(
             url = from.url,
             type = from.type,
@@ -134,7 +216,27 @@ class RssPostMapper(
         )
     }
 
+    private fun mapFromRawEnclosure(from: RssFeedPostRawEnclosure): LocalRssFeedItemRawEnclosure {
+        return LocalRssFeedItemRawEnclosure(
+            url = from.url,
+            length = from.length,
+            type = from.type
+        )
+    }
+
     private fun mapYoutubeData(from: ParsedFeedItemYoutubeData): LocalRssFeedItemYoutubeData {
+        return LocalRssFeedItemYoutubeData(
+            videoId = from.videoId,
+            title = from.title,
+            videoUrl = from.videoUrl,
+            thumbnailUrl = from.thumbnailUrl,
+            description = from.description,
+            viewsCount = from.viewsCount,
+            likesCount = from.likesCount
+        )
+    }
+
+    private fun mapFromYoutubeData(from: RssFeedPostYoutubeData): LocalRssFeedItemYoutubeData {
         return LocalRssFeedItemYoutubeData(
             videoId = from.videoId,
             title = from.title,

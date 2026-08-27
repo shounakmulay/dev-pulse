@@ -46,7 +46,7 @@ class ExtractOpmlFeedsUseCaseTest {
             throw failure
         }
 
-        override suspend fun addRssFeed(entry: RssFeedQueueEntry) = error("Unused")
+        override suspend fun fetchRssFeed(entry: RssFeedQueueEntry) = error("Unused")
 
         override suspend fun deleteFeed(id: UUID) = error("Unused")
 
