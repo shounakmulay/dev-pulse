@@ -6,11 +6,11 @@ import dev.shounakmulay.devpulse.core.data.preferences.DevPulsePreferences
 import org.koin.core.annotation.Factory
 
 @Factory
-internal class ContentFeedPostFilterExistingHook(
+class ContentFeedPostFilterExistingHook(
     private val preferences: DevPulsePreferences
 ) :
     CoreBatchHook<PostWithIdentity> {
-     override suspend fun process(posts: List<PostWithIdentity>): List<PostWithIdentity> {
+    override suspend fun process(posts: List<PostWithIdentity>): List<PostWithIdentity> {
         val reImportPosts = preferences.get(DevPulsePreferenceKeys.reImportExistingPosts)
         if (reImportPosts == true) {
             return posts

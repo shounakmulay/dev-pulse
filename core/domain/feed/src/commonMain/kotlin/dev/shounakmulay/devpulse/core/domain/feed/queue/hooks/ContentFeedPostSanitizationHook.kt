@@ -8,7 +8,7 @@ import dev.shounakmulay.devpulse.core.data.feed.hook.model.PostWithIdentity
 import org.koin.core.annotation.Factory
 
 @Factory
-internal class ContentFeedPostSanitizationHook : CoreItemHook<PostWithIdentity> {
+class ContentFeedPostSanitizationHook : CoreItemHook<PostWithIdentity> {
 
     override suspend fun process(post: PostWithIdentity): PostWithIdentity {
         return post.copy(post = post.post.sanitized())
@@ -103,9 +103,9 @@ internal class ContentFeedPostSanitizationHook : CoreItemHook<PostWithIdentity> 
 
         return normalized.takeIf {
             authority.isNotBlank() &&
-                authority.contains('.') &&
-                !authority.contains(Regex("\\s")) &&
-                !it.contains(Regex("[<>]"))
+                    authority.contains('.') &&
+                    !authority.contains(Regex("\\s")) &&
+                    !it.contains(Regex("[<>]"))
         }
     }
 
@@ -136,6 +136,7 @@ internal class ContentFeedPostSanitizationHook : CoreItemHook<PostWithIdentity> 
             entity.startsWith("&#x", ignoreCase = true) -> {
                 entity.removePrefix("&#x").removePrefix("&#X").removeSuffix(";").toIntOrNull(16)
             }
+
             entity.startsWith("&#") -> entity.removePrefix("&#").removeSuffix(";").toIntOrNull()
             else -> null
         } ?: return null
