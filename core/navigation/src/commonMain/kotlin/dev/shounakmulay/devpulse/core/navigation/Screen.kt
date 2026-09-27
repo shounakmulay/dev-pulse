@@ -64,7 +64,10 @@ sealed interface Screen : NavKey {
 
 
     @Serializable
-    data object Settings : Screen
+    data object Settings : Screen {
+        @Serializable
+        data object ArticleSettings : Screen
+    }
 
     @Serializable
     data object AboutLibs : Screen

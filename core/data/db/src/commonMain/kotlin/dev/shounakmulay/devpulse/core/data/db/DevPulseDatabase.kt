@@ -22,6 +22,7 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedSyncMetadataDao
 import dev.shounakmulay.devpulse.core.data.db.dao.PostContentDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedFts
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedQueue
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedSyncMetadata
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
@@ -36,11 +37,13 @@ import dev.shounakmulay.devpulse.core.data.db.transaction.RoomTransactionScopeWr
 
 private object SchemaVersions {
     const val BASE = 1
+    const val FEED_FTS = 2
 }
 
 @Database(
     entities = [
         LocalRssFeed::class,
+        LocalRssFeedFts::class,
         LocalRssContentFeedPost::class,
         LocalRssFeedQueue::class,
         LocalRssPostTag::class,
@@ -50,12 +53,9 @@ private object SchemaVersions {
         LocalRssFeedSyncMetadata::class
     ],
     autoMigrations = [
-        AutoMigration(1, 2),
-        AutoMigration(2, 3),
-        AutoMigration(3, 4),
-        AutoMigration(4, 5),
+        AutoMigration(SchemaVersions.BASE, SchemaVersions.FEED_FTS)
     ],
-    version = 5
+    version = SchemaVersions.FEED_FTS
 )
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @ColumnTypeConverters(LocalCompressedTextTypeConverter::class)

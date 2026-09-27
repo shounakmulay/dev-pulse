@@ -1,19 +1,29 @@
 package dev.shounakmulay.devpulse.feature.feed.interactor.feed
 
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.paging.PagingData
 import androidx.paging.map
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.extensions.ifNullOrBlank
+import dev.shounakmulay.devpulse.core.common.text.HL_END
+import dev.shounakmulay.devpulse.core.common.text.HL_START
 import dev.shounakmulay.devpulse.core.domain.feed.feed.ExtractInitialsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPinnedAndRecentFeedsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.feed.SearchFeedsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedSearchResult
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentity
 import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
+import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeedSearchResult
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +38,7 @@ class FeedInteractor(
     private val extractInitialsUseCase: ExtractInitialsUseCase,
     private val getPinnedAndRecentFeedsUseCase: GetPinnedAndRecentFeedsUseCase,
     private val getRecentFeedItemsUseCase: GetRecentFeedItemsUseCase,
+    private val searchFeedUseCase: SearchFeedsUseCase,
     private val dateTimeStringConverter: DateTimeStringConverter,
     private val dispatcherProvider: DispatcherProvider
 ) {
@@ -66,6 +77,63 @@ class FeedInteractor(
         }.flowOn(dispatcherProvider.defaultDispatcher)
     }
 
+    fun getUIFeedSearchResults(results: List<RssFeedSearchResult>?): List<UIFeedSearchResult> {
+        if (results == null) return emptyList()
+        return results.map {
+            UIFeedSearchResult(
+                id = it.id,
+                title = parseHighlighted(it.highlightedName.ifBlank { it.highlightedTitle }),
+                sourceUrl = it.sourceUrl,
+                pinned = it.pinned,
+                imageUrl = it.image?.url,
+                description = parseHighlighted(it.highlightedDescription),
+                websiteImageUrl = getWebsiteImageUrl(link = it.link, sourceUrl = it.sourceUrl),
+                initials = extractInitialsUseCase(it.highlightedName.ifBlank { it.highlightedTitle }),
+            )
+        }
+    }
+
+    private fun parseHighlighted(text: String): TextResource {
+        if (HL_START !in text) return TextResource.fromText(text)
+
+        return TextResource.fromAnnotatedString(
+            buildAnnotatedString {
+                var cursor = 0
+
+                while (cursor < text.length) {
+                    val start = text.indexOf(HL_START, cursor)
+
+                    if (start == -1) {
+                        append(text.substring(cursor))
+                        break
+                    }
+
+                    if (start > cursor) {
+                        append(text.substring(cursor, start))
+                    }
+
+                    val contentStart = start + HL_START.length
+                    val end = text.indexOf(HL_END, contentStart)
+
+                    if (end == -1) {
+                        append(text.substring(contentStart))
+                        break
+                    }
+
+                    withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                        )
+                    ) {
+                        append(text.substring(contentStart, end))
+                    }
+
+                    cursor = end + HL_END.length
+                }
+            }
+        )
+    }
+
     fun toUIFeed(feed: RssFeed): UIFeed {
         return createUIFeed(
             id = feed.id,
@@ -77,7 +145,6 @@ class FeedInteractor(
             imageUrl = feed.image?.url
         )
     }
-
 
     fun toUIFeed(feedIdentity: RssFeedIdentity): UIFeed {
         val websiteImageUrl = getWebsiteImageUrl(feedIdentity.link, feedIdentity.sourceUrl)

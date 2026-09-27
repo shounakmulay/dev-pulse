@@ -5,4 +5,5 @@ import dev.shounakmulay.devpulse.core.ui.effect.Effect
 sealed interface SettingsScreenEffect : Effect {
     data object NavigateToDesignSystemBoard : SettingsScreenEffect
     data object NavigateToLicenses : SettingsScreenEffect
+    data object NavigateToArticleSettings : SettingsScreenEffect
 }

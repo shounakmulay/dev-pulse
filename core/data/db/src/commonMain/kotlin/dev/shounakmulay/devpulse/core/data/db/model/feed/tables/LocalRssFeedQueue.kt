@@ -12,7 +12,7 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedType
 
 @Entity(
     indices = [
-        Index("feedId", "status", unique = true)
+        Index("feedId", "status")
     ]
 )
 data class LocalRssFeedQueue(

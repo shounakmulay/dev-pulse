@@ -15,5 +15,6 @@ data class RssFeed(
     val updatePeriod: String?,
     val youtubeChannel: RssFeedYoutubeChannel?,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val lastOpenedAt: Long?
 )

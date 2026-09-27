@@ -10,5 +10,6 @@ data class LocalRssFeedIdentitySlice(
     val sourceUrl: String,
     val link: String?,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val lastOpenedAt: Long?,
 )
