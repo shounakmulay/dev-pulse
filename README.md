@@ -4,52 +4,33 @@
   <source media="(prefers-color-scheme: light)" width="470" height="160" srcset="https://github.com/user-attachments/assets/b56a916f-5727-4ffb-9801-e90991726f59">
   <img alt="Project Logo" src="path/to/default-image.png">
 </picture>
-</p>
-This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+DevPulse is a Kotlin Multiplatform productivity workspace for developers.
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+The long-term goal is to bring together the information and context developers interact with throughout the day — technical content, notes, activity, tools, reminders, and other useful signals — into one place that is easy to search, organize, and revisit.
 
-### Build and Run Android Application
+Rather than being centered around a single feature, DevPulse is intended to evolve into a broader developer companion.
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+> **Status:** Early Active development. The product direction is intentionally evolving as the core foundations are built.
 
-### Build and Run Desktop (JVM) Application
+## Product Direction
 
-To build and run the development version of the desktop app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:run
-  ```
+DevPulse is being designed around a few core ideas:
 
-### Build and Run iOS Application
+- **Stay up to date**  
+  Follow technical content, updates, feeds, and other sources relevant to your work.
 
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+- **Capture context**  
+  Save notes, ideas, links, or useful information as you encounter them.
 
----
+- **Remember what you worked with**  
+  Keep track of things you read, viewed, or referenced throughout the day so useful context is easier to rediscover later.
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+- **Organize knowledge**  
+  Tag, categorize, search, and connect content rather than letting useful information disappear into browser history or scattered notes.
+
+- **Turn information into something useful**  
+  Over time, DevPulse can help summarize, extract, or generate notes from the information you consume.
+
+- **Bring developer workflows together**  
+  The broader direction includes developer-focused utilities such as monitoring, calendars, timers, and other day-to-day tools.
