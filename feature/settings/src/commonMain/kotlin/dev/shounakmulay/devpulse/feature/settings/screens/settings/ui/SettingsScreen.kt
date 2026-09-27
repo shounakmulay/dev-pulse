@@ -25,6 +25,8 @@ import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
+import devpulse.core.resources.generated.resources.appearance
+import devpulse.core.resources.generated.resources.article_settings
 import devpulse.core.resources.generated.resources.black_mode
 import devpulse.core.resources.generated.resources.design_system_board
 import devpulse.core.resources.generated.resources.developer_tools
@@ -44,6 +46,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
             when (it) {
                 SettingsScreenEffect.NavigateToDesignSystemBoard -> navigator.navigate(Screen.DeveloperTools.DesignSystemBoard)
                 SettingsScreenEffect.NavigateToLicenses -> navigator.navigate(Screen.AboutLibs)
+                SettingsScreenEffect.NavigateToArticleSettings -> navigator.navigate(Screen.Settings.ArticleSettings)
                 else -> viewModel.unhandledEffect(it)
             }
         },
@@ -73,6 +76,13 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                 )
             }
             item {
+                AppearanceSettingsSection(
+                    onArticleSettingsClick = {
+                        viewModel.onEvent(SettingsScreenEvent.OnArticleSettingsClicked)
+                    }
+                )
+            }
+            item {
                 OthersSection(
                     onLicensesClick = {
                         viewModel.onEvent(SettingsScreenEvent.OnLicensesClicked)
@@ -88,6 +98,15 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
             }
         }
     }
+}
+
+@Composable
+fun AppearanceSettingsSection(onArticleSettingsClick: () -> Unit) {
+    SettingsSectionHeading(stringResource(stringRes.appearance))
+    SettingsSubPageLink(
+        headlineText = stringResource(stringRes.article_settings),
+        onClick = onArticleSettingsClick
+    )
 }
 
 @Composable

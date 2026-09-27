@@ -100,4 +100,8 @@
     <string name="copy_code_block">Copy code block</string>
     <string name="text_size">Text Size</string>
     <string name="text_spacing">Text Spacing</string>
+    <string name="quick_brown_fox">The quick brown fox jumps over the lazy dog.</string>
+    <string name="quick_brown_fox3">The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.</string>
+    <string name="article_settings">Article Settings</string>
+    <string name="appearance">Appearance</string>
 </resources>

@@ -8,4 +8,5 @@ sealed interface SettingsScreenEvent : ScreenEvent {
     data class OnBlackModeToggled(val value: Boolean) : SettingsScreenEvent
     data object OnDesignSystemBoardClicked : SettingsScreenEvent
     data object OnLicensesClicked : SettingsScreenEvent
+    data object OnArticleSettingsClicked : SettingsScreenEvent
 }
