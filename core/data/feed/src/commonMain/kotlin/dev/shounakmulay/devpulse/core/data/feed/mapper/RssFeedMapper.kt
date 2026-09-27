@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.core.data.feed.mapper
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedImage
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedYoutubeChannel
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedSearchResult
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
@@ -10,6 +11,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedImage
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedSearchResult
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedYoutubeChannel
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedImage
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedMetadata
@@ -22,6 +24,19 @@ class RssFeedMapper(
     private val dateTimeProvider: DateTimeProvider,
     private val uuidMapper: UuidMapper
 ) {
+    fun toRssFeedSearchResult(from: LocalRssFeedSearchResult): RssFeedSearchResult {
+        return RssFeedSearchResult(
+            id = uuidMapper.toUuid(from.id),
+            sourceUrl = from.sourceUrl,
+            link = from.link,
+            image = from.image?.toRssFeedImage(),
+            pinned = from.pinned,
+            highlightedTitle = from.highlightedTitle,
+            highlightedName = from.highlightedName,
+            highlightedDescription = from.highlightedDescription,
+        )
+    }
+
     fun toRssIdentity(from: LocalRssFeedIdentitySlice): RssFeedIdentity {
         return RssFeedIdentity(
             id = uuidMapper.toUuid(from.id),
@@ -32,6 +47,7 @@ class RssFeedMapper(
             link = from.link,
             createdAt = from.createdAt,
             updatedAt = from.updatedAt,
+            lastOpenedAt = from.lastOpenedAt,
         )
     }
 
@@ -56,6 +72,7 @@ class RssFeedMapper(
             createdAt = existingIdentity?.createdAt ?: now,
             updatedAt = now,
             pinned = existingIdentity?.pinned ?: false,
+            lastOpenedAt = existingIdentity?.lastOpenedAt,
         )
     }
 
@@ -83,6 +100,7 @@ class RssFeedMapper(
             createdAt = existingIdentity?.createdAt ?: now,
             updatedAt = now,
             pinned = existingIdentity?.pinned ?: false,
+            lastOpenedAt = existingIdentity?.lastOpenedAt,
         )
     }
 
@@ -101,6 +119,7 @@ class RssFeedMapper(
             createdAt = from.createdAt,
             updatedAt = from.updatedAt,
             pinned = from.pinned,
+            lastOpenedAt = from.lastOpenedAt,
         )
     }
 
@@ -126,6 +145,7 @@ class RssFeedMapper(
             createdAt = existingIdentity?.createdAt ?: now,
             updatedAt = now,
             pinned = existingIdentity?.pinned ?: false,
+            lastOpenedAt = existingIdentity?.lastOpenedAt,
         )
     }
 
@@ -145,12 +165,13 @@ class RssFeedMapper(
         )
 
 
-    private fun toLocalRssFeedImage(from: ParsedFeedImage) = LocalRssFeedImage(
-        title = from.title,
-        url = from.url,
-        link = from.link,
-        description = from.description,
-    )
+    private fun toLocalRssFeedImage(from: ParsedFeedImage) =
+        LocalRssFeedImage(
+            title = from.title,
+            url = from.url,
+            link = from.link,
+            description = from.description,
+        )
 
     private fun toRssFeedImage(from: ParsedFeedImage) = RssFeedImage(
         title = from.title,
@@ -159,12 +180,13 @@ class RssFeedMapper(
         description = from.description,
     )
 
-    private fun toLocalRssFeedImage(from: RssFeedImage) = LocalRssFeedImage(
-        title = from.title,
-        url = from.url,
-        link = from.link,
-        description = from.description,
-    )
+    private fun toLocalRssFeedImage(from: RssFeedImage) =
+        LocalRssFeedImage(
+            title = from.title,
+            url = from.url,
+            link = from.link,
+            description = from.description,
+        )
 
 
     fun toRssFeed(from: LocalRssFeed) = RssFeed(
@@ -181,6 +203,7 @@ class RssFeedMapper(
         createdAt = from.createdAt,
         updatedAt = from.updatedAt,
         pinned = from.pinned,
+        lastOpenedAt = from.lastOpenedAt,
     )
 
     private fun LocalRssFeedImage.toRssFeedImage() = RssFeedImage(
@@ -190,7 +213,8 @@ class RssFeedMapper(
         description = description
     )
 
-    private fun LocalRssFeedYoutubeChannel.toRssFeedYoutubeChannel() = RssFeedYoutubeChannel(
-        channelId = channelId
-    )
+    private fun LocalRssFeedYoutubeChannel.toRssFeedYoutubeChannel() =
+        RssFeedYoutubeChannel(
+            channelId = channelId
+        )
 }

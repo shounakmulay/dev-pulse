@@ -5,6 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
+import dev.shounakmulay.devpulse.core.data.db.query.FtsQuerySanitizer
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.UuidMapper
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.opml.OpmlParser
@@ -14,6 +15,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedSearchResult
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.bodyAsText
@@ -24,12 +26,12 @@ import org.koin.core.annotation.Factory
 @Factory(binds = [FeedRepository::class])
 internal class FeedRepositoryImpl(
     private val feedImportFallbackParser: FeedImportFallbackParser,
-    private val parsedFeedProcessor: ParsedFeedProcessor,
     private val opmlParser: OpmlParser,
     private val networkClient: DevPulseNetworkClient,
     private val feedDao: FeedDao,
     private val rssFeedMapper: RssFeedMapper,
     private val uuidMapper: UuidMapper,
+    private val ftsQuerySanitizer: FtsQuerySanitizer
 ) : FeedRepository {
     override suspend fun upsertFeed(feed: RssFeed) {
         feedDao.upsertFeed(rssFeedMapper.toLocalRssFeed(feed))
@@ -47,6 +49,13 @@ internal class FeedRepositoryImpl(
                     rssFeedMapper.toRssFeed(localRssFeed)
                 }
             }
+    }
+
+    override suspend fun searchFeeds(query: String, snippetLength: Int): List<RssFeedSearchResult> {
+        return feedDao.searchFeeds(
+            query = ftsQuerySanitizer.sanitize(query),
+            snippetLength = snippetLength
+        ).map(rssFeedMapper::toRssFeedSearchResult)
     }
 
     override fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {

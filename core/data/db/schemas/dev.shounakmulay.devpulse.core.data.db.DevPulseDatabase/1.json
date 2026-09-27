@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b1e6e43779c6a9d3bc0e9884a0368ffe",
+    "identityHash": "695971e31a4cfbe2b13cbd99ddca5284",
     "entities": [
       {
         "tableName": "LocalRssFeed",
@@ -440,13 +440,19 @@
       },
       {
         "tableName": "LocalRssFeedQueue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `url` TEXT NOT NULL, `name` TEXT, `feedType` TEXT NOT NULL, `actionType` TEXT NOT NULL, `requestor` TEXT NOT NULL, `status` TEXT NOT NULL, `fetchAttempt` INTEGER NOT NULL, `tagIds` TEXT, `folderIds` TEXT, `createAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `feedId` TEXT DEFAULT NULL, `url` TEXT NOT NULL, `name` TEXT, `feedType` TEXT NOT NULL, `actionType` TEXT NOT NULL, `requestor` TEXT NOT NULL, `status` TEXT NOT NULL, `fetchAttempt` INTEGER NOT NULL, `tagIds` TEXT, `folderIds` TEXT, `createAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "feedId",
+            "columnName": "feedId",
+            "affinity": "TEXT",
+            "defaultValue": "NULL"
           },
           {
             "fieldPath": "url",
@@ -517,11 +523,23 @@
           "columnNames": [
             "id"
           ]
-        }
+        },
+        "indices": [
+          {
+            "name": "index_LocalRssFeedQueue_feedId_status",
+            "unique": false,
+            "columnNames": [
+              "feedId",
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LocalRssFeedQueue_feedId_status` ON `${TABLE_NAME}` (`feedId`, `status`)"
+          }
+        ]
       },
       {
         "tableName": "LocalRssPostTag",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `color` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `autoTagged` INTEGER NOT NULL DEFAULT 0, `color` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -534,6 +552,13 @@
             "columnName": "name",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "autoTagged",
+            "columnName": "autoTagged",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "color",
@@ -669,11 +694,142 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "LocalRssPostContent",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`postId` TEXT NOT NULL, `type` TEXT NOT NULL, `content` BLOB NOT NULL, PRIMARY KEY(`postId`, `type`), FOREIGN KEY(`postId`) REFERENCES `LocalRssContentFeedPost`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "postId",
+            "columnName": "postId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "BLOB",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "postId",
+            "type"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "LocalRssContentFeedPost",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "postId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "LocalRssFeedSyncMetadata",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`feedId` TEXT NOT NULL, `checkIntervalHours` INTEGER NOT NULL, `consecutiveEmptyFetches` INTEGER NOT NULL, `consecutiveFailures` INTEGER NOT NULL, `lastFetchedAt` INTEGER NOT NULL, `lastNewArticleAt` INTEGER, `nextEligibleFetchAt` INTEGER NOT NULL, `etag` TEXT, `lastModified` TEXT, PRIMARY KEY(`feedId`), FOREIGN KEY(`feedId`) REFERENCES `LocalRssFeed`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "feedId",
+            "columnName": "feedId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "checkIntervalHours",
+            "columnName": "checkIntervalHours",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "consecutiveEmptyFetches",
+            "columnName": "consecutiveEmptyFetches",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "consecutiveFailures",
+            "columnName": "consecutiveFailures",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastFetchedAt",
+            "columnName": "lastFetchedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastNewArticleAt",
+            "columnName": "lastNewArticleAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "nextEligibleFetchAt",
+            "columnName": "nextEligibleFetchAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "etag",
+            "columnName": "etag",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastModified",
+            "columnName": "lastModified",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "feedId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_LocalRssFeedSyncMetadata_nextEligibleFetchAt",
+            "unique": false,
+            "columnNames": [
+              "nextEligibleFetchAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LocalRssFeedSyncMetadata_nextEligibleFetchAt` ON `${TABLE_NAME}` (`nextEligibleFetchAt`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "LocalRssFeed",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "feedId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b1e6e43779c6a9d3bc0e9884a0368ffe')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '695971e31a4cfbe2b13cbd99ddca5284')"
     ]
   }
 }

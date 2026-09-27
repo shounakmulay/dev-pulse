@@ -4,7 +4,10 @@ import androidx.paging.PagingSource
 import androidx.room3.Dao
 import androidx.room3.Query
 import androidx.room3.Upsert
+import dev.shounakmulay.devpulse.core.common.text.HL_END
+import dev.shounakmulay.devpulse.core.common.text.HL_START
 import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedSearchResult
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +38,7 @@ interface FeedDao {
 
     @Query(
         """
-        SELECT id, title, name, pinned, sourceUrl, link, createdAt, updatedAt
+        SELECT id, title, name, pinned, sourceUrl, link, createdAt, updatedAt, lastOpenedAt
         FROM LocalRssFeed
         WHERE sourceUrl = :sourceUrl
     """
@@ -50,4 +53,31 @@ interface FeedDao {
 
     @Query("DELETE from LocalRssFeed WHERE id IN (:feeds)")
     suspend fun deleteFeeds(feeds: List<LocalUUID>)
+
+    @Query(
+        """
+        SELECT
+            feed.id,
+            feed.pinned,
+            feed.link,
+            feed.sourceUrl,
+            feed.image_title,
+            feed.image_url,
+            feed.image_description,
+            feed.image_link,
+            highlight(LocalRssFeedFts, 0, :hlStart, :hlEnd) AS highlightedTitle,
+            highlight(LocalRssFeedFts, 1, :hlStart, :hlEnd) AS highlightedName,
+            snippet(LocalRssFeedFts, 2, :hlStart, :hlEnd, "...", :snippetLength) AS highlightedDescription
+        FROM LocalRssFeedFts AS feedFts
+        JOIN LocalRssFeed AS feed ON feed.rowId = feedFts.rowId
+        WHERE LocalRssFeedFts MATCH :query
+        ORDER BY rank
+    """
+    )
+    suspend fun searchFeeds(
+        query: String,
+        snippetLength: Int = 30,
+        hlStart: String = HL_START,
+        hlEnd: String = HL_END
+    ): List<LocalRssFeedSearchResult>
 }
