@@ -221,13 +221,13 @@ For commit workflows, extract the ticket prefix from the current branch name usi
 <claude-mem-context>
 # Memory Context
 
-# [DevPulse] recent context, 2026-08-12 3:38pm GMT+5:30
+# [DevPulse] recent context, 2026-10-01 4:36pm GMT+5:30
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (12,806t read) | 880,232t work | 99% savings
+Stats: 50 obs (12,440t read) | 657,594t work | 98% savings
 
 ### Jul 15, 2026
 S48 Explanation of device-code login flow (Jul 15 at 4:36 PM)
@@ -237,19 +237,8 @@ S50 Scaffold :bridge:markdownconverter module and investigate project structure.
 ### Jul 31, 2026
 S51 Create subfolders in modules based on package names (Jul 31 at 9:57 AM)
 S53 Investigate and resolve the missing native libraries for the html-to-markdown-android dependency. (Jul 31 at 10:12 AM)
-1947 11:00a 🔵 Analysis of Android Runtime Dependencies
-1956 4:41p 🔴 HTML to Markdown Android dependency artifact missing native code
-1957 " 🔵 HTML to Markdown Android dependency identified in libs.versions.toml
-1958 " 🔵 HTML to Markdown Android dependency configuration confirmed
-1959 " 🔵 HTML to Markdown Android API details confirmed
-1961 4:42p 🔵 Gradle dependency tree for HTML to Markdown Android confirmed
-1962 " 🔴 HTML to Markdown Android dependency resolution issue
-1964 4:43p 🔵 HTML to Markdown Android compile classpath analysis
-1966 " 🔴 HTML to Markdown Android AAR missing native libraries
 S54 Verify Android build fix for html-to-markdown-android (Jul 31 at 4:43 PM)
 ### Aug 1, 2026
-1988 4:47p 🔴 Android build issue resolved in version 3.10.1
-1989 " 🔵 Verified Android AAR contents for version 3.10.1
 S55 Diagnose and fix Xcode linking error for header-only C target in Swift Package Manager. (Aug 1 at 4:47 PM)
 ### Aug 3, 2026
 1990 1:02p 🔵 Xcode linker error for header-only C target
@@ -297,11 +286,34 @@ S58 Refactor webview functionality into a new core module (Aug 11 at 9:18 PM)
 2074 9:20p 🔵 Gradle configuration calculation initiated
 2081 " 🔵 Gradle task graph calculation continues
 2091 " 🔵 Gradle compilation progress and Koin compiler warnings
+### Sep 26, 2026
+2198 8:39a 🟣 Add new post detail screen
+2199 " 🟣 Implement Keyset Paging Tests for Feed Posts
+2200 " 🟣 Reusable Paging Dataset Fixtures
+2201 " 🟣 Implement detailed commit generation and PR creation without ticket number
+2202 " 🟣 Implement FeedPostTimelineSqlTest for Named Sorts
+2203 " 🔴 Published Date Range Filter Incorrectly Defaults to 30 Days
+2204 " 🟣 Implement Reusable Query Assertion Fixtures
+2205 " 🟣 Implement observePost query in FeedContentDao
+2206 " 🔴 LaunchedEffect event collection stops on tab re-selection
+2207 " 🟣 Implement FeedPostCursorPredicate Tests
+2208 " ✅ Targeted File Modification for T016
 
-Access 880k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 658k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read specs/001-feed-query-engine/plan.md
 <!-- SPECKIT END -->
+
+<!-- CODEGRAPH_START -->
+## CodeGraph
+
+In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the repo root), reach for it BEFORE grep/find or reading files when you need to understand or locate code:
+
+- **MCP tool** (when available): `codegraph_explore` answers most code questions in one call — the relevant symbols' verbatim source plus the call paths between them, including dynamic-dispatch hops grep can't follow. Name a file or symbol in the query to read its current line-numbered source. If it's listed but deferred, load it by name via tool search.
+- **Shell** (always works): `codegraph explore "<symbol names or question>"` prints the same output.
+
+If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
+<!-- CODEGRAPH_END -->
