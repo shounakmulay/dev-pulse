@@ -124,11 +124,14 @@ class NavigationState(
             )
         }
 
-        val rootStackEntries = rememberDecoratedNavEntries(
-            backStack = rootStack.filterNot { it == Screen.Tabs },
-            entryDecorators = rememberNavEntryDecorators(),
-            entryProvider = entryProvider
-        ).associateBy { it.contentKey }
+        val rootScreens = rootStack.filterNot { it == Screen.Tabs }
+        val rootStackEntries = rootScreens.zip(
+            rememberDecoratedNavEntries(
+                backStack = rootScreens,
+                entryDecorators = rememberNavEntryDecorators(),
+                entryProvider = entryProvider
+            )
+        ).toMap()
 
         val entries = buildList {
             rootStack.forEach { screen ->
@@ -136,8 +139,7 @@ class NavigationState(
                     val tabEntries = tabStacksEntries.getTabEntries()
                     addAll(tabEntries)
                 } else {
-                    // Default content key is screen.toString().
-                    val rootEntry = rootStackEntries[screen.toString()]
+                    val rootEntry = rootStackEntries[screen]
                     if (rootEntry != null) add(rootEntry)
                 }
             }
