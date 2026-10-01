@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 2,
-    "identityHash": "176ad87f92a2c5f2a4087f415e0f4e57",
+    "version": 3,
+    "identityHash": "f96865f0e7553e981143b2a3cef77880",
     "entities": [
       {
         "tableName": "LocalRssFeed",
@@ -492,6 +492,52 @@
         ]
       },
       {
+        "tableName": "LocalRssContentFeedPostFts",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS5(`title`, `description`, `content`, tokenize=`trigram`, content=`LocalRssContentFeedPost`)",
+        "fields": [
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": []
+        },
+        "ftsVersion": "FTS5",
+        "ftsOptions": {
+          "tokenizer": "trigram",
+          "tokenizerArgs": [],
+          "contentTable": "LocalRssContentFeedPost",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC",
+          "contentRowId": "",
+          "columnSize": true,
+          "detail": "FULL"
+        },
+        "contentSyncTriggers": [
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_LocalRssContentFeedPostFts_BEFORE_UPDATE BEFORE UPDATE ON `LocalRssContentFeedPost` BEGIN DELETE FROM `LocalRssContentFeedPostFts` WHERE `rowid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_LocalRssContentFeedPostFts_BEFORE_DELETE BEFORE DELETE ON `LocalRssContentFeedPost` BEGIN DELETE FROM `LocalRssContentFeedPostFts` WHERE `rowid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_LocalRssContentFeedPostFts_AFTER_UPDATE AFTER UPDATE ON `LocalRssContentFeedPost` BEGIN INSERT INTO `LocalRssContentFeedPostFts`(`rowid`, `title`, `description`, `content`) VALUES (NEW.`rowid`, NEW.`title`, NEW.`description`, NEW.`content`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_LocalRssContentFeedPostFts_AFTER_INSERT AFTER INSERT ON `LocalRssContentFeedPost` BEGIN INSERT INTO `LocalRssContentFeedPostFts`(`rowid`, `title`, `description`, `content`) VALUES (NEW.`rowid`, NEW.`title`, NEW.`description`, NEW.`content`); END"
+        ]
+      },
+      {
         "tableName": "LocalRssFeedQueue",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `feedId` TEXT DEFAULT NULL, `url` TEXT NOT NULL, `name` TEXT, `feedType` TEXT NOT NULL, `actionType` TEXT NOT NULL, `requestor` TEXT NOT NULL, `status` TEXT NOT NULL, `fetchAttempt` INTEGER NOT NULL, `tagIds` TEXT, `folderIds` TEXT, `createAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)",
         "fields": [
@@ -793,6 +839,45 @@
         ]
       },
       {
+        "tableName": "LocalRssPostContentFts",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS5(`postId` UNINDEXED, `content`, tokenize=`trigram`)",
+        "fields": [
+          {
+            "fieldPath": "postId",
+            "columnName": "postId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": []
+        },
+        "ftsVersion": "FTS5",
+        "ftsOptions": {
+          "tokenizer": "trigram",
+          "tokenizerArgs": [],
+          "contentTable": "",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [
+            "postId"
+          ],
+          "prefixSizes": [],
+          "preferredOrder": "ASC",
+          "contentRowId": "",
+          "columnSize": true,
+          "detail": "FULL"
+        },
+        "contentSyncTriggers": []
+      },
+      {
         "tableName": "LocalRssFeedSyncMetadata",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`feedId` TEXT NOT NULL, `checkIntervalHours` INTEGER NOT NULL, `consecutiveEmptyFetches` INTEGER NOT NULL, `consecutiveFailures` INTEGER NOT NULL, `lastFetchedAt` INTEGER NOT NULL, `lastNewArticleAt` INTEGER, `nextEligibleFetchAt` INTEGER NOT NULL, `etag` TEXT, `lastModified` TEXT, PRIMARY KEY(`feedId`), FOREIGN KEY(`feedId`) REFERENCES `LocalRssFeed`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
@@ -882,7 +967,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '176ad87f92a2c5f2a4087f415e0f4e57')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f96865f0e7553e981143b2a3cef77880')"
     ]
   }
 }
