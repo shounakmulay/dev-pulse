@@ -1,11 +1,17 @@
 package dev.shounakmulay.devpulse.feature.feed.interactor.post
 
 import androidx.paging.PagingData
+import androidx.paging.map
+import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
+import dev.shounakmulay.devpulse.core.common.extensions.ifNullOrBlank
+import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.GetPaginatedFeedPostsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentityAndSearch
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
@@ -19,12 +25,18 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
+import kotlin.time.Instant
 
 @Factory
 class PostInteractor(
     private val feedInteractor: FeedInteractor,
-    private val getPaginatedFeedPostsUseCase: GetPaginatedFeedPostsUseCase
+    private val getRecentFeedItemsUseCase: GetRecentFeedItemsUseCase,
+    private val getPaginatedFeedPostsUseCase: GetPaginatedFeedPostsUseCase,
+    private val dispatcherProvider: DispatcherProvider,
+    private val dateTimeStringConverter: DateTimeStringConverter
 ) {
     companion object {
         fun getDefaultFiltersFor(screen: Screen): ImmutableList<RssPostFilter> {
@@ -67,19 +79,71 @@ class PostInteractor(
         }
     }
 
+    fun getRecentArticlesFlow(): Flow<ImmutableList<UIFeedPost>> {
+        return getRecentFeedItemsUseCase().map { feedItems ->
+            feedItems.map {
+                toUIFeedPost(it)
+            }.toImmutableList()
+        }.flowOn(dispatcherProvider.defaultDispatcher)
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getPostsWithFilterAndSort(
         filerAndSortFlow: Flow<Pair<RssPostSort?, List<RssPostFilter>>>
     ): Flow<PagingData<UIFeedPost>> {
         return filerAndSortFlow.flatMapLatest { (sort, filters) ->
-            feedInteractor.getUIFeedPostFlow(
-                getPaginatedFeedPostsUseCase(
-                    filters = buildList {
-                        addAll(filters)
-                    },
-                    sort = sort ?: RssPostSort.PublishedNewest
+            getPaginatedFeedPostsUseCase(
+                filters = filters.filterNot { it is RssPostFilter.SearchText },
+                sort = sort ?: RssPostSort.PublishedNewest
+            ).map { pagingData ->
+                pagingData.map {
+                    toUIFeedPost(it)
+                }
+            }.flowOn(dispatcherProvider.defaultDispatcher)
+        }
+    }
+
+    fun toUIFeedPost(postWithFeedIdentity: RssPostWithFeedIdentityAndSearch): UIFeedPost {
+        val (post, feedIdentity) = postWithFeedIdentity
+        val uiFeedIdentity = feedInteractor.toUIFeed(feedIdentity)
+        val title = post.title.ifNullOrBlank {
+            uiFeedIdentity.title
+        }
+        val imageUrl = listOf(
+            post.image,
+            post.rawMediaContent?.url,
+            post.rawEnclosure?.url
+        ).firstOrNull { !it.isNullOrBlank() }
+
+        val summary = listOf(
+            post.description,
+            post.content
+        ).firstOrNull { !it.isNullOrBlank() }
+
+        val publishedText = post.publishedAtMillis?.let {
+            dateTimeStringConverter.getTimeElapsedOrDateString(
+                Instant.fromEpochMilliseconds(
+                    it
                 )
             )
         }
+        val createAt = dateTimeStringConverter.getTimeElapsedOrDateString(
+            Instant.fromEpochMilliseconds(
+                post.createdAtMillis
+            )
+        )
+        return UIFeedPost(
+            id = post.id,
+            title = title,
+            sourceName = uiFeedIdentity.title,
+            sourceUrl = post.sourceUrl,
+            articleUrl = post.link,
+            publishedText = publishedText,
+            imageUrl = imageUrl,
+            summary = summary,
+            bookmarked = post.bookmarked,
+            createdAt = createAt,
+            feed = feedInteractor.toUIFeed(feedIdentity),
+        )
     }
 }

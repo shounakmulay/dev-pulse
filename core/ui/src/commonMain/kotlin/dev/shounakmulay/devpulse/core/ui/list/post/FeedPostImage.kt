@@ -1,25 +1,27 @@
-package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post
+package dev.shounakmulay.devpulse.core.ui.list.post
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
-import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
+import dev.shounakmulay.devpulse.core.ui.text.TextResource
+import dev.shounakmulay.devpulse.core.ui.text.asString
 import devpulse.core.resources.generated.resources.feed_article_image_content_description
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun FeedPostImage(
-    article: UIFeedPost,
+    imageUrl: String?,
+    title: TextResource,
     modifier: Modifier,
 ) {
-    if (article.imageUrl.isNullOrBlank()) return
+    if (imageUrl.isNullOrBlank()) return
     DPImage(
-        url = article.imageUrl.orEmpty(),
+        url = imageUrl,
         contentDescription = stringResource(
             stringRes.feed_article_image_content_description,
-            article.title
+            title.asString()
         ),
         modifier = modifier,
         contentScale = ContentScale.Crop,

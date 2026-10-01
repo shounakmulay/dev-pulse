@@ -26,7 +26,7 @@ import dev.shounakmulay.devpulse.core.ui.content.ContentTextContainer
 import dev.shounakmulay.devpulse.core.ui.content.ContentTextSettingControls
 import dev.shounakmulay.devpulse.core.ui.content.LocalContentTextSettings
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
-import devpulse.core.resources.generated.resources.article_settings
+import devpulse.core.resources.generated.resources.article_reader
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -38,7 +38,7 @@ fun ArticleSettingsScreen(
         viewModel = viewModel,
         topAppBar = {
             DPTopAppBar(
-                title = stringResource(stringRes.article_settings),
+                title = stringResource(stringRes.article_reader),
                 navigationIcon = {
                     DPBackNavigationIconButton {
                         navigator.navigateBack()
@@ -61,7 +61,7 @@ fun ArticleSettingsScreen(
             onLineHeightScaleChanged = {
                 viewModel.onEvent(ArticleSettingsEvent.SetContentLineHeightScale(it))
             },
-            header = {
+            footer = {
                 ContentTextContainer {
                     Surface(
                         modifier = Modifier.padding(bottom = LocalDPSpacing.current.xl).animateContentSize(

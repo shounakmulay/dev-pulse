@@ -23,6 +23,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
+import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterState
@@ -32,7 +33,6 @@ import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
-import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedsPostListItemVariant
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -46,7 +46,8 @@ internal fun FeedPostList(
     onPostClick: (UIFeedPost) -> Unit,
     onFilterUpdated: (RssPostFilter) -> Unit,
     onSortUpdated: (UIPostSort) -> Unit,
-    clearFilters: () -> Unit
+    clearFilters: () -> Unit,
+    postListItemVariant: FeedsPostListItemVariant
 ) {
     LazyVerticalGrid(
         modifier = Modifier.fillMaxWidth(),
@@ -100,7 +101,7 @@ internal fun FeedPostList(
                     showImage = true,
                     onPostClick = onPostClick,
                     onBookmarkChanged = onBookmarkChanged,
-                    variant = FeedsPostListItemVariant.M
+                    variant = postListItemVariant
                 )
             }
         }

@@ -11,7 +11,7 @@ import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSett
 import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingLineHeightScaleUseCase
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
-import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
+import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.PostDetailScreenSection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
@@ -21,7 +21,7 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 class PostDetailViewModel(
     private val postId: UUID,
-    private val feedInteractor: FeedInteractor,
+    private val postInteractor: PostInteractor,
     private val getPostDetailUseCase: GetPostDetailUseCase,
     private val getPostContentUseCase: GetPostContentUseCase,
     private val getRssEncodedContentUseCase: GetRssEncodedContentUseCase,
@@ -58,7 +58,7 @@ class PostDetailViewModel(
                 setState {
                     copy(
                         isLoading = false,
-                        post = feedInteractor.toUIFeedArticle(postWithFeedIdentity)
+                        post = postInteractor.toUIFeedPost(postWithFeedIdentity)
                     )
                 }
             }

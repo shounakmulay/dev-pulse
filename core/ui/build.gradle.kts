@@ -22,6 +22,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(Modules.Core.DESIGN_SYSTEM))
+            api(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Data.PREFERENCES))
             implementation(libs.compose.components.resources)
             implementation(libs.coil.compose)

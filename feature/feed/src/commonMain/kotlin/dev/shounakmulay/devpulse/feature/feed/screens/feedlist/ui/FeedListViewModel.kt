@@ -10,6 +10,7 @@ import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
+import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedSearchInteractor
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.UISelectedTab
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -25,6 +26,7 @@ class FeedListViewModel(
     private val setFeedPinnedUseCase: SetFeedPinnedUseCase,
     private val searchFeedsUseCase: SearchFeedsUseCase,
     private val feedInteractor: FeedInteractor,
+    private val feedSearchInteractor: FeedSearchInteractor
 ) : MviViewModel<FeedListScreenState, FeedListScreenEffect>(FeedListScreenState()),
     EventHandler<FeedListScreenEvent> {
 
@@ -54,7 +56,7 @@ class FeedListViewModel(
     private fun onSearch(query: String) = intent {
         setState { copy(searchLoading = true) }
         val result = searchFeedsUseCase(query)
-        val uiResults = feedInteractor.getUIFeedSearchResults(result.getOrNull())
+        val uiResults = feedSearchInteractor.getUIFeedSearchResults(result.getOrNull())
         setState { copy(searchLoading = false, searchResults = uiResults) }
     }
 

@@ -2,8 +2,11 @@ package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui
 
 import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
+import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeSettings
+import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveFeedPostListItemVariantUseCase
+import dev.shounakmulay.devpulse.core.domain.settings.feed.SetFeedPostListItemVariantUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.theme.ObserveThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.theme.SetThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.logging.DPLogger
@@ -17,6 +20,8 @@ import org.koin.core.annotation.KoinViewModel
 class SettingsViewModel(
     private val observeThemeSettingsUseCase: ObserveThemeSettingsUseCase,
     private val setThemeSettingsUseCase: SetThemeSettingsUseCase,
+    private val observeFeedPostListItemVariantUseCase: ObserveFeedPostListItemVariantUseCase,
+    private val setFeedPostListItemVariantUseCase: SetFeedPostListItemVariantUseCase,
     logger: DPLogger
 ) : MviViewModel<SettingsScreenState, SettingsScreenEffect>(SettingsScreenState()),
     EventHandler<SettingsScreenEvent> {
@@ -24,6 +29,14 @@ class SettingsViewModel(
 
     init {
         logger.d { "SettingsViewModel created" }
+        observeFeedPostListItemVariantUseCase()
+            .onEachSuccess { variant ->
+                if (variant != null) {
+                    setState { copy(feedPostListItemVariant = variant) }
+                }
+            }
+            .launchIn(viewModelScope)
+
         observeThemeSettingsUseCase()
             .onEachSuccess { themeSettings ->
                 if (themeSettings != null) {
@@ -42,11 +55,23 @@ class SettingsViewModel(
 
     override fun onEvent(event: SettingsScreenEvent) {
         when (event) {
+            is SettingsScreenEvent.OnFeedPostListItemVariantSelected -> updateFeedPostListItemVariant(
+                event.variant
+            )
+
             is SettingsScreenEvent.OnThemeModeSelected -> updateThemeMode(event.themeMode)
             is SettingsScreenEvent.OnBlackModeToggled -> toggleBlackMode(event.value)
             SettingsScreenEvent.OnDesignSystemBoardClicked -> navigateToDesignSystemBoard()
             SettingsScreenEvent.OnLicensesClicked -> navigateToLicenses()
             SettingsScreenEvent.OnArticleSettingsClicked -> navigateToArticleSettings()
+        }
+    }
+
+    private fun updateFeedPostListItemVariant(variant: FeedsPostListItemVariant) {
+        intent {
+            setFeedPostListItemVariantUseCase(variant).onFailure {
+                logger.e(it) { "Feed post list item variant change failed value=$variant" }
+            }
         }
     }
 
