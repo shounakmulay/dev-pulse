@@ -7,6 +7,7 @@ import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
+import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onEach
@@ -17,6 +18,7 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 class FeedViewModel(
     private val feedInteractor: FeedInteractor,
+    private val postInteractor: PostInteractor,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val setFeedPinnedUseCase: SetFeedPinnedUseCase
 ) : MviViewModel<FeedScreenState, FeedScreenEffect>(FeedScreenState()),
@@ -38,7 +40,7 @@ class FeedViewModel(
             initialValue = persistentListOf()
         )
 
-    val recentArticles = feedInteractor
+    val recentArticles = postInteractor
         .getRecentArticlesFlow()
         .onEach {
             setState {

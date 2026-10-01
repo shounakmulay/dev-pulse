@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.db.paging
 
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
-import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedAndSearch
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursorValue
@@ -170,7 +170,7 @@ object FeedPostPagingFixtures {
     )
 
     fun postIds(
-        rows: List<LocalRssPostWithFeedMetadataProjection>
+        rows: List<LocalRssPostWithFeedAndSearch>
     ): List<String> {
         return rows.map { it.post.id }
     }
@@ -186,8 +186,8 @@ object FeedPostPagingFixtures {
         updatedAt: Long,
         bookmarked: Boolean = false,
         pinned: Boolean = false
-    ): LocalRssPostWithFeedMetadataProjection {
-        return LocalRssPostWithFeedMetadataProjection(
+    ): LocalRssPostWithFeedAndSearch {
+        return LocalRssPostWithFeedAndSearch(
             post = LocalRssContentFeedPost(
                 id = id,
                 feedId = feedId,
@@ -231,11 +231,11 @@ object FeedPostPagingFixtures {
 data class FeedPostPagingDataset(
     val query: LocalFeedPostQuery,
     val pageSize: Int,
-    val insertedRows: List<LocalRssPostWithFeedMetadataProjection>,
+    val insertedRows: List<LocalRssPostWithFeedAndSearch>,
     val expectedIds: List<String>
 ) {
 
-    val expectedRows: List<LocalRssPostWithFeedMetadataProjection> = expectedIds.map { row(it) }
+    val expectedRows: List<LocalRssPostWithFeedAndSearch> = expectedIds.map { row(it) }
 
     val expectedPageIds: List<List<String>> = expectedIds.chunked(pageSize)
 
@@ -243,7 +243,7 @@ data class FeedPostPagingDataset(
         return cursorFor(row(expectedPageIds[pageIndex].last()))
     }
 
-    fun cursorFor(row: LocalRssPostWithFeedMetadataProjection): FeedPostCursor {
+    fun cursorFor(row: LocalRssPostWithFeedAndSearch): FeedPostCursor {
         val spec = query.sort.spec
         val values = spec.terms.map { term ->
             when (term.expression) {
@@ -261,7 +261,7 @@ data class FeedPostPagingDataset(
         return FeedPostCursor(sort = query.sort, values = values)
     }
 
-    fun row(id: String): LocalRssPostWithFeedMetadataProjection {
+    fun row(id: String): LocalRssPostWithFeedAndSearch {
         return insertedRows.first { it.post.id == id }
     }
 }

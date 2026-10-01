@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.feed.di
 
+import com.fleeksoft.ksoup.Ksoup
 import com.prof18.rssparser.RssParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.KtXmlRssFeedParser
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.Prof18RssFeedParser
@@ -30,4 +31,7 @@ class FeedDataModule {
             logger = logger
         )
     }
+
+    @Factory
+    fun provideKsoup(): Ksoup = Ksoup
 }

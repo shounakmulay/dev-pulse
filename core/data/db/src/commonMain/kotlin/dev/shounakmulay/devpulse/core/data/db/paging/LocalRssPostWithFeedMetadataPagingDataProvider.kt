@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.db.paging
 
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
-import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedAndSearch
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostSort
@@ -14,7 +14,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
     private val query: LocalFeedPostQuery
 ) : LocalCursorPagingSourceDataProvider<
         FeedPostCursor,
-        LocalRssPostWithFeedMetadataProjection
+        LocalRssPostWithFeedAndSearch
         > {
 
     private val queryBuilder = LocalFeedPostSqlQueryBuilder(query)
@@ -32,7 +32,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
         return tables
     }
 
-    override suspend fun getInitialPage(loadSize: Int): List<LocalRssPostWithFeedMetadataProjection> {
+    override suspend fun getInitialPage(loadSize: Int): List<LocalRssPostWithFeedAndSearch> {
         logger.d {
             "[FEED-PAGING] initial:start loadSize=$loadSize sort=${query.sort} " +
                     "filters=${query.filters}"
@@ -45,7 +45,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
     override suspend fun getPageAfter(
         cursor: FeedPostCursor,
         loadSize: Int
-    ): List<LocalRssPostWithFeedMetadataProjection> {
+    ): List<LocalRssPostWithFeedAndSearch> {
         logger.d {
             "[FEED-PAGING] append:start loadSize=$loadSize cursor=${cursor.summary()}"
         }
@@ -62,7 +62,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
     override suspend fun getPageBefore(
         cursor: FeedPostCursor,
         loadSize: Int
-    ): List<LocalRssPostWithFeedMetadataProjection> {
+    ): List<LocalRssPostWithFeedAndSearch> {
         logger.d {
             "[FEED-PAGING] prepend:start loadSize=$loadSize cursor=${cursor.summary()}"
         }
@@ -79,7 +79,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
     override suspend fun getRefreshPageAround(
         anchorCursor: FeedPostCursor,
         loadSize: Int
-    ): List<LocalRssPostWithFeedMetadataProjection> {
+    ): List<LocalRssPostWithFeedAndSearch> {
         val beforeLimit = loadSize / 2
         val afterLimit = loadSize - beforeLimit
 
@@ -102,7 +102,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
         return items
     }
 
-    override fun getId(item: LocalRssPostWithFeedMetadataProjection): FeedPostCursor {
+    override fun getId(item: LocalRssPostWithFeedAndSearch): FeedPostCursor {
         val cursor = FeedPostCursor(
             id = item.post.id,
             sort = query.sort,
@@ -113,7 +113,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
     }
 
     private fun LocalFeedPostSort.extractCursorValue(
-        item: LocalRssPostWithFeedMetadataProjection
+        item: LocalRssPostWithFeedAndSearch
     ): SqlBinding {
         return when (this) {
             LocalFeedPostSort.PublishedNewest,
@@ -128,7 +128,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
         return "{id=$id sort=$sort sortValue=$sortValue}"
     }
 
-    private fun List<LocalRssPostWithFeedMetadataProjection>.summary(): String {
+    private fun List<LocalRssPostWithFeedAndSearch>.summary(): String {
         return "count=$size firstId=${firstOrNull()?.post?.id} lastId=${lastOrNull()?.post?.id} " +
                 "ids=${joinToString(prefix = "[", postfix = "]") { it.post.id.value }}"
     }

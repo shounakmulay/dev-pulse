@@ -5,7 +5,7 @@ import androidx.room3.RoomRawQuery
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
-import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedAndSearch
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
@@ -42,7 +42,7 @@ class FeedPostKeysetPagingTest {
         )
 
         val page =
-            assertIs<PagingSource.LoadResult.Page<FeedPostCursor, LocalRssPostWithFeedMetadataProjection>>(result)
+            assertIs<PagingSource.LoadResult.Page<FeedPostCursor, LocalRssPostWithFeedAndSearch>>(result)
         assertEquals(listOf("post-c", "post-b"), page.data.postIds())
         assertNull(page.prevKey)
         assertEquals(cursor("post-b"), page.nextKey)
@@ -65,7 +65,7 @@ class FeedPostKeysetPagingTest {
         )
 
         val page =
-            assertIs<PagingSource.LoadResult.Page<FeedPostCursor, LocalRssPostWithFeedMetadataProjection>>(result)
+            assertIs<PagingSource.LoadResult.Page<FeedPostCursor, LocalRssPostWithFeedAndSearch>>(result)
         assertEquals(listOf("post-a"), page.data.postIds())
         assertNull(page.nextKey)
     }
@@ -88,15 +88,15 @@ class FeedPostKeysetPagingTest {
         )
 
         val page =
-            assertIs<PagingSource.LoadResult.Page<FeedPostCursor, LocalRssPostWithFeedMetadataProjection>>(result)
+            assertIs<PagingSource.LoadResult.Page<FeedPostCursor, LocalRssPostWithFeedAndSearch>>(result)
         assertEquals(listOf("post-b", "post-a"), page.data.postIds())
         assertEquals(cursor("post-a"), page.nextKey)
     }
 
     private fun createPagingSource(
-        pages: List<List<LocalRssPostWithFeedMetadataProjection>>
-    ): LocalCursorPagingSource<FeedPostCursor, LocalRssPostWithFeedMetadataProjection> {
-        val dataProvider: LocalCursorPagingSourceDataProvider<FeedPostCursor, LocalRssPostWithFeedMetadataProjection> =
+        pages: List<List<LocalRssPostWithFeedAndSearch>>
+    ): LocalCursorPagingSource<FeedPostCursor, LocalRssPostWithFeedAndSearch> {
+        val dataProvider: LocalCursorPagingSourceDataProvider<FeedPostCursor, LocalRssPostWithFeedAndSearch> =
             LocalRssPostWithFeedMetadataPagingDataProvider(
                 feedPostDao = FakeFeedPostDao(pages),
                 query = LocalFeedPostQuery(sort = LocalFeedPostSort.PublishedNewest)
@@ -119,8 +119,8 @@ class FeedPostKeysetPagingTest {
         )
     }
 
-    private fun row(id: String): LocalRssPostWithFeedMetadataProjection {
-        return LocalRssPostWithFeedMetadataProjection(
+    private fun row(id: String): LocalRssPostWithFeedAndSearch {
+        return LocalRssPostWithFeedAndSearch(
             post = LocalRssContentFeedPost(
                 id = id,
                 feedId = FeedId,
@@ -160,17 +160,17 @@ class FeedPostKeysetPagingTest {
         )
     }
 
-    private fun List<LocalRssPostWithFeedMetadataProjection>.postIds(): List<String> {
+    private fun List<LocalRssPostWithFeedAndSearch>.postIds(): List<String> {
         return map { it.post.id }
     }
 
     private class FakeFeedPostDao(
-        pages: List<List<LocalRssPostWithFeedMetadataProjection>>
+        pages: List<List<LocalRssPostWithFeedAndSearch>>
     ) : FeedPostDao {
 
         private val remainingPages = pages.toMutableList()
 
-        override suspend fun getPostPage(query: RoomRawQuery): List<LocalRssPostWithFeedMetadataProjection> {
+        override suspend fun getPostPage(query: RoomRawQuery): List<LocalRssPostWithFeedAndSearch> {
             return remainingPages.removeAt(0)
         }
 
@@ -196,7 +196,7 @@ class FeedPostKeysetPagingTest {
 
         override suspend fun getPostsForFeed(feedId: String): List<LocalRssContentFeedPost> = unsupported()
 
-        override fun observeRecentPosts(limit: Int): Flow<List<LocalRssPostWithFeedMetadataProjection>> {
+        override fun observeRecentPosts(limit: Int): Flow<List<LocalRssPostWithFeedAndSearch>> {
             return emptyFlow()
         }
 

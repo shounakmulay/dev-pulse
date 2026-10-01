@@ -72,6 +72,7 @@ fun FeedDetailScreen(
             uiFeed = state.uiFeed,
             feed = state.feed,
             posts = posts,
+            postListItemVariant = state.feedPostListItemVariant,
             onBookmarkChanged = { selectedPost, bookmarked ->
                 viewModel.onEvent(
                     FeedDetailScreenEvent.OnPostBookmarkChanged(

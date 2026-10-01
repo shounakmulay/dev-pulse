@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
@@ -33,6 +34,19 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.dpSecondaryVariantColor
 import dev.shounakmulay.devpulse.core.designsystem.theme.dpTertiaryVariantColors
 
 enum class DPSegmentedVariant { Primary, Secondary, Tertiary }
+
+@Composable
+fun DPSingleChoiceSegmentedButtonRow(
+    modifier: Modifier = Modifier,
+    space: Dp = SegmentedButtonDefaults.BorderWidth,
+    content: @Composable SingleChoiceSegmentedButtonRowScope.() -> Unit,
+) {
+    SingleChoiceSegmentedButtonRow(
+        modifier = modifier,
+        space = space,
+        content = content,
+    )
+}
 
 // --- Slot-based scope extensions (original API) ---
 

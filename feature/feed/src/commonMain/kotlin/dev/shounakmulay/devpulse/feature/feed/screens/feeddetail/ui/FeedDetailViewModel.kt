@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetFeedDetailUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
@@ -9,6 +10,7 @@ import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
+import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveFeedPostListItemVariantUseCase
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
@@ -30,13 +32,24 @@ class FeedDetailViewModel(
     private val postInteractor: PostInteractor,
     private val getFeedDetailUseCase: GetFeedDetailUseCase,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
-    private val setFeedPinnedUseCase: SetFeedPinnedUseCase
+    private val setFeedPinnedUseCase: SetFeedPinnedUseCase,
+    private val observeFeedPostListItemVariantUseCase: ObserveFeedPostListItemVariantUseCase
 ) : MviViewModel<FeedDetailScreenState, FeedDetailScreenEffect>(
     initialState = FeedDetailScreenState()
 ),
     EventHandler<FeedDetailScreenEvent> {
 
     override fun createStateSerializer() = FeedDetailScreenState.serializer()
+
+    init {
+        observeFeedPostListItemVariantUseCase()
+            .onEachSuccess { variant ->
+                if (variant != null) {
+                    setState { copy(feedPostListItemVariant = variant) }
+                }
+            }
+            .launchIn(viewModelScope)
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val posts = postInteractor

@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.core.data.db
 
-import androidx.room3.AutoMigration
 import androidx.room3.ColumnTypeConverters
 import androidx.room3.ConstructedBy
 import androidx.room3.DaoReturnTypeConverters
@@ -21,12 +20,14 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedQueueDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedSyncMetadataDao
 import dev.shounakmulay.devpulse.core.data.db.dao.PostContentDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPostFts
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedFts
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedQueue
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedSyncMetadata
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostContent
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostContentFts
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostTag
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostToTagMapping
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
@@ -37,7 +38,6 @@ import dev.shounakmulay.devpulse.core.data.db.transaction.RoomTransactionScopeWr
 
 private object SchemaVersions {
     const val BASE = 1
-    const val FEED_FTS = 2
 }
 
 @Database(
@@ -45,17 +45,18 @@ private object SchemaVersions {
         LocalRssFeed::class,
         LocalRssFeedFts::class,
         LocalRssContentFeedPost::class,
+        LocalRssContentFeedPostFts::class,
         LocalRssFeedQueue::class,
         LocalRssPostTag::class,
         LocalRssPostToTagMapping::class,
         LocalRssPostCategory::class,
         LocalRssPostContent::class,
+        LocalRssPostContentFts::class,
         LocalRssFeedSyncMetadata::class
     ],
     autoMigrations = [
-        AutoMigration(SchemaVersions.BASE, SchemaVersions.FEED_FTS)
     ],
-    version = SchemaVersions.FEED_FTS
+    version = SchemaVersions.BASE
 )
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @ColumnTypeConverters(LocalCompressedTextTypeConverter::class)

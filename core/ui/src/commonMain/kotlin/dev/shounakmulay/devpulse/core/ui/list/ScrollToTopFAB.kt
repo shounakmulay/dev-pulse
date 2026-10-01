@@ -16,9 +16,15 @@ import kotlinx.coroutines.launch
 fun ScrollToTopFAB(
     lazyGridState: LazyGridState,
     scrollBehavior: TopAppBarScrollBehavior
+) = ScrollToTopFAB(lazyGridState = lazyGridState, collapsedFraction = scrollBehavior.state.collapsedFraction)
+
+@Composable
+fun ScrollToTopFAB(
+    lazyGridState: LazyGridState,
+    collapsedFraction: Float,
 ) {
-    val visible by remember {
-        derivedStateOf { lazyGridState.firstVisibleItemIndex > 0 && scrollBehavior.state.collapsedFraction in 0f..0.5f }
+    val visible by remember(lazyGridState, collapsedFraction) {
+        derivedStateOf { lazyGridState.firstVisibleItemIndex > 0 && collapsedFraction in 0f..0.5f }
     }
     val coroutineScope = rememberCoroutineScope()
     DPFAB(

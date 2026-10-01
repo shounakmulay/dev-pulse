@@ -8,20 +8,27 @@ import dev.shounakmulay.devpulse.bridge.markdownconverter.HtmlToMarkdownConverte
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.dao.PostContentDao
-import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedAndSearch
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
+import dev.shounakmulay.devpulse.core.data.db.query.FtsQuerySanitizer
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostFilter
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostSqlQueryBuilder
+import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostContentMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostQueryMapper
+import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostWithFeedAndSearchMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.UuidMapper
+import dev.shounakmulay.devpulse.core.data.feed.parser.html.ArticleFtsContentParser
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPost
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContent
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
 import dev.shounakmulay.devpulse.core.domain.models.post.RssParsedPostContent
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostQuery
-import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSearchHighlights
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentityAndSearch
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.DevPulseUrlHelper
 import dev.shounakmulay.devpulse.core.network.bodyAsText
@@ -34,6 +41,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class PostRepositoryImpl(
     private val articleExtractor: ArticleExtractor,
+    private val articleFtsContentParser: ArticleFtsContentParser,
     private val feedPostDao: FeedPostDao,
     private val postContentDao: PostContentDao,
     private val feedPostPagingSourceProvider: FeedPostPagingSourceProvider,
@@ -41,13 +49,53 @@ class PostRepositoryImpl(
     private val rssPostMapper: RssPostMapper,
     private val rssFeedMapper: RssFeedMapper,
     private val rssPostContentMapper: RssPostContentMapper,
+    private val rssPostWithFeedAndSearchMapper: RssPostWithFeedAndSearchMapper,
     private val uuidMapper: UuidMapper,
     private val dispatcherProvider: DispatcherProvider,
     private val devPulseNetworkClient: DevPulseNetworkClient,
     private val devPulseUrlHelper: DevPulseUrlHelper,
     private val markdownConverter: HtmlToMarkdownConverter,
+    private val transactionAccessor: DevPulseDatabaseTransactionAccessor,
+    private val ftsQuerySanitizer: FtsQuerySanitizer
 ) : PostRepository {
-    override fun getPost(id: UUID): Flow<RssPostWithFeedIdentity> {
+    override suspend fun searchPostQuery(query: RssPostQuery): List<RssPostWithFeedIdentityAndSearch> {
+        val localQuery = rssPostQueryMapper.fromPostQueryMapper(query)
+        val search = localQuery.filters.filterIsInstance<LocalFeedPostFilter.SearchText>().single()
+        if (ftsQuerySanitizer.sanitize(search.value).isBlank()) return emptyList()
+        return feedPostDao.getSearchResults(
+            LocalFeedPostSqlQueryBuilder(localQuery).buildSearchResults()
+        ).map { it.toRssPostWithFeedIdentity() }
+    }
+
+    override suspend fun searchPosts(
+        query: String,
+        snippetLength: Int,
+        limit: Int
+    ): List<RssPostWithFeedIdentityAndSearch> {
+        val sanitizedQuery = ftsQuerySanitizer.sanitize(query)
+        if (sanitizedQuery.isBlank()) return emptyList()
+        return feedPostDao.searchPosts(query = sanitizedQuery, snippetLength = snippetLength).map {
+            rssPostWithFeedAndSearchMapper.toRssPostWithFeedAndSearch(it)
+        }
+    }
+
+    override suspend fun searchPostContent(
+        query: String,
+        snippetLength: Int,
+        limit: Int
+    ): List<RssPostWithFeedIdentityAndSearch> {
+        val sanitizedQuery = ftsQuerySanitizer.sanitize(query)
+        if (sanitizedQuery.isBlank()) return emptyList()
+        return postContentDao.searchPostContent(
+            query = sanitizedQuery,
+            snippetLength = snippetLength,
+            limit = limit
+        ).map {
+            rssPostWithFeedAndSearchMapper.toRssPostWithFeedAndSearch(it)
+        }
+    }
+
+    override fun getPost(id: UUID): Flow<RssPostWithFeedIdentityAndSearch> {
         return feedPostDao.observePost(uuidMapper.fromUuid(id)).map { post ->
             post.toRssPostWithFeedIdentity()
         }
@@ -60,7 +108,8 @@ class PostRepositoryImpl(
     override fun observePosts(
         query: RssPostQuery,
         pagingConfig: PagingConfig
-    ): Flow<PagingData<RssPostWithFeedIdentity>> {
+    ): Flow<PagingData<RssPostWithFeedIdentityAndSearch>> {
+        require(query.filters.none { it is dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter.SearchText })
         val query = rssPostQueryMapper.fromPostQueryMapper(query)
         return Pager(
             config = pagingConfig,
@@ -76,7 +125,7 @@ class PostRepositoryImpl(
             }
     }
 
-    override fun observeRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentity>> {
+    override fun observeRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentityAndSearch>> {
         return feedPostDao.observeRecentPosts(maxCount).map {
             it.map { post ->
                 post.toRssPostWithFeedIdentity()
@@ -130,9 +179,30 @@ class PostRepositoryImpl(
     override suspend fun savePostContent(
         content: RssFeedPostContent,
     ) {
-        postContentDao.upsertPostContent(
-            rssPostContentMapper.fromRssPostContent(content)
-        )
+        // HTML is the source; we convert it to Markdown directly from the HTML,
+        // so we store only the FTS content when we store HTML.
+        val ftsContent = when (content.type) {
+            RssFeedPostContentType.HTML -> articleFtsContentParser.parse(content.content)
+                .getOrNull()
+
+            else -> null
+        }
+        transactionAccessor.writeTransaction {
+            postContentDao.upsertPostContent(
+                rssPostContentMapper.fromRssPostContent(content)
+            )
+            if (content.type == RssFeedPostContentType.HTML) {
+                postContentDao.deletePostContentFts(uuidMapper.fromUuid(content.postId))
+            }
+            if (!ftsContent.isNullOrBlank()) {
+                postContentDao.upsertPostContentFts(
+                    rssPostContentMapper.fromRssPostContentToFts(
+                        postId = content.postId,
+                        ftsContent = ftsContent,
+                    )
+                )
+            }
+        }
     }
 
     override suspend fun getPostRssEncodedContent(
@@ -197,10 +267,18 @@ class PostRepositoryImpl(
         return markdown
     }
 
-    private fun LocalRssPostWithFeedMetadataProjection.toRssPostWithFeedIdentity(): RssPostWithFeedIdentity {
+    private fun LocalRssPostWithFeedAndSearch.toRssPostWithFeedIdentity(): RssPostWithFeedIdentityAndSearch {
         return rssPostMapper.toRssPostWithFeedIdentity(
             post = rssPostMapper.toRssFeedPost(post),
             identity = rssFeedMapper.toRssIdentity(feed)
+        ).copy(
+            search = search?.let {
+                RssPostSearchHighlights(
+                    highlightedTitle = it.highlightedTitle,
+                    highlightedDescription = it.highlightedDescription,
+                    highlightedContent = it.highlightedContent
+                )
+            }
         )
     }
 

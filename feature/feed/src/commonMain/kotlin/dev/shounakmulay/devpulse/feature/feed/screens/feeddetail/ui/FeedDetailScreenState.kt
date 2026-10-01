@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui
 
 import androidx.compose.runtime.Immutable
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
+import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import kotlinx.serialization.Serializable
@@ -14,4 +15,5 @@ data class FeedDetailScreenState(
     @Transient
     val feed: RssFeed? = null,
     val uiFeed: UIFeed? = null,
+    val feedPostListItemVariant: FeedsPostListItemVariant = FeedsPostListItemVariant.DEFAULT
 ) : ScreenState

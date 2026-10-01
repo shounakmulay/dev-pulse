@@ -11,6 +11,6 @@ class FtsQuerySanitizer {
 
         if (tokens.isEmpty()) return ""
 
-        return tokens.joinToString(" ")
+        return tokens.joinToString(" ") { "\"$it\"" }
     }
 }
