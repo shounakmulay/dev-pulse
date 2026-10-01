@@ -19,7 +19,7 @@ import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostRawEnclosure
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostWithExistingIdentity
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostYoutubeData
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostCategory
-import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentityAndSearch
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItem
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItemMediaContent
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItemRawEnclosure
@@ -35,8 +35,8 @@ class RssPostMapper(
     fun toRssPostWithFeedIdentity(
         post: RssFeedPost,
         identity: RssFeedIdentity
-    ): RssPostWithFeedIdentity {
-        return RssPostWithFeedIdentity(
+    ): RssPostWithFeedIdentityAndSearch {
+        return RssPostWithFeedIdentityAndSearch(
             post = post,
             feedIdentity = identity
         )

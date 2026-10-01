@@ -4,6 +4,8 @@ import androidx.room3.ColumnInfo
 import androidx.room3.Embedded
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
+import androidx.room3.Fts5
+import androidx.room3.FtsOptions.TOKENIZER_TRIGRAM
 import androidx.room3.Index
 import androidx.room3.PrimaryKey
 import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
@@ -66,4 +68,12 @@ data class LocalRssContentFeedPost(
     val rawMedia: LocalRssFeedItemMediaContent? = null,
     val createdAt: Long,
     val updatedAt: Long
+)
+
+@Entity
+@Fts5(tokenizer = TOKENIZER_TRIGRAM, contentEntity = LocalRssContentFeedPost::class)
+data class LocalRssContentFeedPostFts(
+    val title: String,
+    val description: String?,
+    val content: String?
 )

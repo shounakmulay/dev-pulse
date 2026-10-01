@@ -53,12 +53,122 @@ class LocalFeedPostSqlQueryBuilder(
         )
     }
 
+    fun buildSearchResults(): RoomRawQuery {
+        val search = query.filters.filterIsInstance<LocalFeedPostFilter.SearchText>().single()
+        val text = FtsQuerySanitizer().sanitize(search.value)
+        require(text.isNotBlank())
+        require(search.snippetLength > 0)
+        require(search.highlightStart.isNotEmpty() && search.highlightEnd.isNotEmpty())
+        require(search.highlightStart != search.highlightEnd)
+
+        val bindings = mutableListOf<SqlBinding>()
+        fun bind(value: String) { bindings += SqlBinding.Text(value) }
+        fun bind(value: Int) { bindings += SqlBinding.LongValue(value.toLong()) }
+
+        bind(search.highlightStart)
+        bind(search.highlightEnd)
+        bind(search.highlightStart)
+        bind(search.highlightEnd)
+        bind(search.snippetLength)
+        bind(search.highlightStart)
+        bind(search.highlightEnd)
+        bind(search.highlightStart)
+        bind(search.highlightEnd)
+        bind(search.snippetLength)
+        bind(search.highlightStart)
+        bind(search.highlightEnd)
+        bind(text)
+        bind(search.highlightStart)
+        bind(search.highlightEnd)
+        bind(search.snippetLength)
+        bind(text)
+        bindings += filterClauses.first
+        bindings += SqlBinding.LongValue(MAX_SEARCH_RESULTS.toLong())
+
+        val sql = buildString {
+            appendLine(
+                """
+                WITH post_matches AS (
+                    SELECT rowid AS postRowId,
+                           bm25(LocalRssContentFeedPostFts, 10.0, 3.0, 1.0) AS score,
+                           title, description, content,
+                           highlight(LocalRssContentFeedPostFts, 0, ?, ?) AS rawTitle,
+                           snippet(LocalRssContentFeedPostFts, 1, ?, ?, '...', ?) AS rawDescription,
+                           highlight(LocalRssContentFeedPostFts, 1, ?, ?) AS markedDescription,
+                           snippet(LocalRssContentFeedPostFts, 2, ?, ?, '...', ?) AS rawContent,
+                           highlight(LocalRssContentFeedPostFts, 2, ?, ?) AS markedContent
+                    FROM LocalRssContentFeedPostFts
+                    WHERE LocalRssContentFeedPostFts MATCH ?
+                    LIMIT -1
+                ),
+                post_hits AS (
+                    SELECT postRowId, score,
+                           CASE WHEN rawTitle != title THEN rawTitle END AS highlightedTitle,
+                           CASE WHEN markedDescription != description THEN rawDescription END AS highlightedDescription,
+                           CASE WHEN markedContent != content THEN rawContent END AS highlightedContent
+                    FROM post_matches
+                ),
+                article_matches AS (
+                    SELECT postId,
+                           rowid AS ftsRowId,
+                           bm25(LocalRssPostContentFts) AS score,
+                           snippet(LocalRssPostContentFts, 1, ?, ?, '...', ?) AS rawContent
+                    FROM LocalRssPostContentFts
+                    WHERE LocalRssPostContentFts MATCH ?
+                    LIMIT -1
+                ),
+                ranked_articles AS (
+                    SELECT postId, rawContent, score,
+                           ROW_NUMBER() OVER (PARTITION BY postId ORDER BY score, ftsRowId) AS rowNumber
+                    FROM article_matches
+                ),
+                article_hits AS (
+                    SELECT postId, rawContent, score FROM ranked_articles WHERE rowNumber = 1
+                ),
+                candidate_ids AS (
+                    SELECT p.id FROM post_hits ph
+                    JOIN LocalRssContentFeedPost p ON p.rowid = ph.postRowId
+                    UNION
+                    SELECT postId AS id FROM article_hits
+                )
+                SELECT p.*,
+                       f.id AS feed_id,
+                       f.title AS feed_title,
+                       f.name AS feed_name,
+                       f.pinned AS feed_pinned,
+                       f.sourceUrl AS feed_sourceUrl,
+                       f.link AS feed_link,
+                       f.createdAt AS feed_createdAt,
+                       f.updatedAt AS feed_updatedAt,
+                       ph.highlightedTitle AS search_highlightedTitle,
+                       ph.highlightedDescription AS search_highlightedDescription,
+                       COALESCE(ah.rawContent, ph.highlightedContent) AS search_highlightedContent
+                FROM candidate_ids candidates
+                JOIN LocalRssContentFeedPost p ON p.id = candidates.id
+                INNER JOIN LocalRssFeed f ON p.feedId = f.id
+                LEFT JOIN post_hits ph ON ph.postRowId = p.rowid
+                LEFT JOIN article_hits ah ON ah.postId = p.id
+                """.trimIndent()
+            )
+            if (filterClauses.second.isNotEmpty()) {
+                appendLine("WHERE ${filterClauses.second.joinToString(separator = " AND ")}")
+            }
+            appendLine("ORDER BY CASE WHEN ph.postRowId IS NULL THEN 1 ELSE 0 END,")
+            appendLine("         COALESCE(ph.score, ah.score), ${buildOrderBy(query.sort)}")
+            append("LIMIT ?")
+        }
+        return RoomRawQuery(sql = sql) { statement ->
+            bindings.forEachIndexed { index, binding -> binding.bind(statement, index + 1) }
+        }
+    }
+
     private fun buildPage(
         cursor: FeedPostCursor?,
         includeCursor: Boolean,
         reversed: Boolean = false,
         limit: Int
     ): RoomRawQuery {
+        require(query.filters.none { it is LocalFeedPostFilter.SearchText && FtsQuerySanitizer().sanitize(it.value).isNotBlank() })
         val filterBindings = filterClauses.first.toMutableList()
         val filterClauses = filterClauses.second.toMutableList()
         cursor?.let {
@@ -140,7 +250,10 @@ class LocalFeedPostSqlQueryBuilder(
                 ${FeedColumnsSelector.FEED_SOURCE_URL} AS ${FeedColumnsSelector.FEED_SOURCE_URL_ALIAS},
                 ${FeedColumnsSelector.FEED_LINK} AS ${FeedColumnsSelector.FEED_LINK_ALIAS},
                 ${FeedColumnsSelector.FEED_CREATED_AT} AS ${FeedColumnsSelector.FEED_CREATED_AT_ALIAS},
-                ${FeedColumnsSelector.FEED_UPDATED_AT} AS ${FeedColumnsSelector.FEED_UPDATED_AT_ALIAS}
+                ${FeedColumnsSelector.FEED_UPDATED_AT} AS ${FeedColumnsSelector.FEED_UPDATED_AT_ALIAS},
+                NULL AS search_highlightedTitle,
+                NULL AS search_highlightedDescription,
+                NULL AS search_highlightedContent
             FROM LocalRssContentFeedPost p
             INNER JOIN LocalRssFeed f ON ${FeedColumnsSelector.POST_FEED_ID} = ${FeedColumnsSelector.FEED_ID}
             """.trimIndent()
@@ -235,14 +348,7 @@ class LocalFeedPostSqlQueryBuilder(
                 }
 
                 is LocalFeedPostFilter.SearchText -> {
-                    val trimmed = filter.value.trim()
-                    if (trimmed.isNotEmpty()) {
-                        val escaped = escapeLikePattern(trimmed)
-                        val pattern = "%$escaped%"
-                        clauses += "(LOWER(${FeedColumnsSelector.TITLE}) LIKE ? ESCAPE '\\' OR LOWER(${FeedColumnsSelector.DESCRIPTION}) LIKE ? ESCAPE '\\')"
-                        bindings += SqlBinding.Text(pattern.lowercase())
-                        bindings += SqlBinding.Text(pattern.lowercase())
-                    }
+                    continue
                 }
 
                 is LocalFeedPostFilter.SourceFeed -> {
@@ -390,9 +496,7 @@ class LocalFeedPostSqlQueryBuilder(
         return List(count) { "?" }.joinToString()
     }
 
-    private fun escapeLikePattern(raw: String): String {
-        return raw.replace("\\", "\\\\")
-            .replace("%", "\\%")
-            .replace("_", "\\_")
+    companion object {
+        const val MAX_SEARCH_RESULTS = 1000
     }
 }

@@ -3,6 +3,8 @@ package dev.shounakmulay.devpulse.core.data.feed.mapper
 import dev.shounakmulay.devpulse.core.data.db.model.core.LocalCompressedText
 import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssPostContentType
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostContent
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostContentFts
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContent
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
 import org.koin.core.annotation.Factory
@@ -25,6 +27,13 @@ class RssPostContentMapper(
             postId = uuidMapper.fromUuid(content.postId),
             type = fromPostContentType(content.type),
             content = LocalCompressedText(content.content)
+        )
+    }
+
+    fun fromRssPostContentToFts(postId: UUID, ftsContent: String): LocalRssPostContentFts {
+        return LocalRssPostContentFts(
+            postId = uuidMapper.fromUuid(postId),
+            content = ftsContent
         )
     }
 

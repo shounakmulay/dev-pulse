@@ -1,5 +1,8 @@
 package dev.shounakmulay.devpulse.core.data.db.query
 
+import dev.shounakmulay.devpulse.core.common.text.HL_END
+import dev.shounakmulay.devpulse.core.common.text.HL_START
+
 sealed interface LocalFeedPostFilter {
     data class FeedIds(val values: Set<String>) : LocalFeedPostFilter
     data class TagIdsAny(val values: Set<Int>) : LocalFeedPostFilter
@@ -16,5 +19,10 @@ sealed interface LocalFeedPostFilter {
     data class Author(val values: Set<String>) : LocalFeedPostFilter
     data class SourceFeed(val values: Set<String>) : LocalFeedPostFilter
     data class Category(val values: Set<String>) : LocalFeedPostFilter
-    data class SearchText(val value: String) : LocalFeedPostFilter
+    data class SearchText(
+        val value: String,
+        val snippetLength: Int = 30,
+        val highlightStart: String = HL_START,
+        val highlightEnd: String = HL_END
+    ) : LocalFeedPostFilter
 }

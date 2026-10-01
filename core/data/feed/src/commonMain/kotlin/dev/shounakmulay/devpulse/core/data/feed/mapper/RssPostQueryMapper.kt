@@ -34,7 +34,12 @@ class RssPostQueryMapper {
                     FeedPostLongRange(it.min?.toUTCMillis(), it.max?.toUTCMillis())
                 )
 
-                is RssPostFilter.SearchText -> LocalFeedPostFilter.SearchText(it.value)
+                is RssPostFilter.SearchText -> LocalFeedPostFilter.SearchText(
+                    value = it.value,
+                    snippetLength = it.snippetLength,
+                    highlightStart = it.highlightStart,
+                    highlightEnd = it.highlightEnd
+                )
                 is RssPostFilter.TagIdsAny -> LocalFeedPostFilter.TagIdsAny(it.values)
             }
         }.toSet()

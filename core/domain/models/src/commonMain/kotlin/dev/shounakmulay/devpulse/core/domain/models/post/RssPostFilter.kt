@@ -44,5 +44,10 @@ sealed interface RssPostFilter {
     data class HasVideo(val value: Boolean?) : RssPostFilter
     data class Author(val values: Set<String>) : RssPostFilter
     data class Category(val values: Set<String>) : RssPostFilter
-    data class SearchText(val value: String) : RssPostFilter
+    data class SearchText(
+        val value: String,
+        val snippetLength: Int = 30,
+        val highlightStart: String = "\uE000",
+        val highlightEnd: String = "\uE001"
+    ) : RssPostFilter
 }

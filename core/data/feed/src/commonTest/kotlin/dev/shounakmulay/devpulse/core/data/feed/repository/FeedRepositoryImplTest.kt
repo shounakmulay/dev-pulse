@@ -9,7 +9,7 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
-import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedMetadataProjection
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedAndSearch
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
@@ -165,15 +165,15 @@ class FeedRepositoryImplTest {
 
         override suspend fun getPostsForFeed(feedId: String): List<LocalRssContentFeedPost> = emptyList()
 
-        override fun observeRecentPosts(limit: Int): Flow<List<LocalRssPostWithFeedMetadataProjection>> {
+        override fun observeRecentPosts(limit: Int): Flow<List<LocalRssPostWithFeedAndSearch>> {
             return emptyFlow()
         }
 
-        override fun observePost(id: String): Flow<LocalRssPostWithFeedMetadataProjection> {
+        override fun observePost(id: String): Flow<LocalRssPostWithFeedAndSearch> {
             return emptyFlow()
         }
 
-        override suspend fun getPostPage(query: RoomRawQuery): List<LocalRssPostWithFeedMetadataProjection> {
+        override suspend fun getPostPage(query: RoomRawQuery): List<LocalRssPostWithFeedAndSearch> {
             return emptyList()
         }
 
@@ -198,15 +198,15 @@ class FeedRepositoryImplTest {
     private class FakeFeedPostPagingSourceProvider : FeedPostPagingSourceProvider {
         override fun getFeedPostPagingSource(
             query: LocalFeedPostQuery
-        ): PagingSource<FeedPostCursor, LocalRssPostWithFeedMetadataProjection> {
-            return object : PagingSource<FeedPostCursor, LocalRssPostWithFeedMetadataProjection>() {
+        ): PagingSource<FeedPostCursor, LocalRssPostWithFeedAndSearch> {
+            return object : PagingSource<FeedPostCursor, LocalRssPostWithFeedAndSearch>() {
                 override fun getRefreshKey(
-                    state: PagingState<FeedPostCursor, LocalRssPostWithFeedMetadataProjection>
+                    state: PagingState<FeedPostCursor, LocalRssPostWithFeedAndSearch>
                 ): FeedPostCursor? = null
 
                 override suspend fun load(
                     params: LoadParams<FeedPostCursor>
-                ): LoadResult<FeedPostCursor, LocalRssPostWithFeedMetadataProjection> {
+                ): LoadResult<FeedPostCursor, LocalRssPostWithFeedAndSearch> {
                     return LoadResult.Page(
                         data = emptyList(),
                         prevKey = null,
