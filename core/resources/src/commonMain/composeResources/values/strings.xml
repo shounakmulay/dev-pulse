@@ -43,6 +43,7 @@
     <string name="enter_feed_url">Enter feed URL</string>
     <string name="enter_valid_url">Please enter a valid URL.</string>
     <string name="feed_search">Search</string>
+    <string name="feed_search_clear">Clear search</string>
     <string name="feed_search_result">Search Item %1$d</string>
     <string name="feed_search_back">Close search</string>
     <string name="feed_empty_imported">No feeds imported yet.</string>
@@ -104,4 +105,7 @@
     <string name="quick_brown_fox3">The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.</string>
     <string name="article_reader">Reader</string>
     <string name="appearance">Appearance</string>
+    <string name="post_search">Search posts</string>
+    <string name="post_search_minimum_length">Enter at least 3 characters</string>
+    <string name="post_search_error">Unable to search posts. Try again.</string>
 </resources>
