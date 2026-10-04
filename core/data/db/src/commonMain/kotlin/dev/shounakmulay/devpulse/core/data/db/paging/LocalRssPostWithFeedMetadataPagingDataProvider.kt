@@ -3,6 +3,8 @@ package dev.shounakmulay.devpulse.core.data.db.paging
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedAndSearch
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
+import dev.shounakmulay.devpulse.core.data.db.query.FtsQuerySanitizer
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostFilter
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostSort
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostSqlQueryBuilder
@@ -21,14 +23,24 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
     private val logger = DPLog.tag(Tag)
 
     override fun getTablesToTrack(): List<String> {
-        val tables = listOf(
-            ContentFeedPostTableName,
-            FeedTableName,
-            PostCategoryTableName,
-            PostTagMappingTableName,
-            PostTagTableName
-        )
-        logger.v { "[FEED-PAGING] tablesToTrack=${tables.joinToString()}" }
+        val tables = buildList {
+            addAll(
+                listOf(
+                    ContentFeedPostTableName,
+                    FeedTableName,
+                    PostCategoryTableName,
+                    PostTagMappingTableName,
+                    PostTagTableName
+                )
+            )
+            val hasSearch = query.filters.any {
+                it is LocalFeedPostFilter.SearchText && FtsQuerySanitizer().sanitize(it.value).isNotBlank()
+            }
+            if (hasSearch) {
+                add("LocalRssContentFeedPostFts")
+                add("LocalRssPostContentFts")
+            }
+        }
         return tables
     }
 

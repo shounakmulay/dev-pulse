@@ -25,7 +25,6 @@ import org.jetbrains.compose.resources.stringResource
 
 internal fun LazyGridScope.postsListEmptyMessage(clearFilters: () -> Unit) {
     item(span = { GridItemSpan(maxLineSpan) }) {
-
         EmptyContentPlaceholder(
             modifier = Modifier.padding(top = 32.dp).animateItem(),
             icon = DPIcons.EmptyList,

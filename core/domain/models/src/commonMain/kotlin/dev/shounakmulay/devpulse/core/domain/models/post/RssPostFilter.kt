@@ -2,7 +2,10 @@ package dev.shounakmulay.devpulse.core.domain.models.post
 
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.serializers.LocalDateTimeIso8601Serializer
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface RssPostFilter {
 
     fun order(): Int = when (this) {
@@ -31,19 +34,37 @@ sealed interface RssPostFilter {
         is SearchText -> value.isEmpty()
     }
 
+    @Serializable
     data class FeedIds(val values: Set<UUID>) : RssPostFilter
+
+    @Serializable
     data class TagIdsAny(val values: Set<Int>) : RssPostFilter
+
+    @Serializable
     data class Bookmarked(val value: Boolean?) : RssPostFilter
+
+    @Serializable
     data class PinnedFeed(val value: Boolean?) : RssPostFilter
+
+    @Serializable
     data class PublishedRange(
-        val min: LocalDateTime? = null,
-        val max: LocalDateTime? = null
+        val min: @Serializable(with = LocalDateTimeIso8601Serializer::class) LocalDateTime? = null,
+        val max: @Serializable(with = LocalDateTimeIso8601Serializer::class) LocalDateTime? = null
     ) : RssPostFilter
 
+    @Serializable
     data class HasAudio(val value: Boolean?) : RssPostFilter
+
+    @Serializable
     data class HasVideo(val value: Boolean?) : RssPostFilter
+
+    @Serializable
     data class Author(val values: Set<String>) : RssPostFilter
+
+    @Serializable
     data class Category(val values: Set<String>) : RssPostFilter
+
+    @Serializable
     data class SearchText(
         val value: String,
         val snippetLength: Int = 30,

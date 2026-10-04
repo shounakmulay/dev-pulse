@@ -2,38 +2,12 @@ package dev.shounakmulay.devpulse.feature.feed.components.postFilterSort
 
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.navigation.Screen
-import dev.shounakmulay.devpulse.core.ui.effect.Effect
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
-import dev.shounakmulay.devpulse.core.ui.event.ScreenEvent
-import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
-import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
 import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import org.koin.core.annotation.KoinViewModel
-
-@Serializable
-data class PostSortAndFilterState(
-    val screen: Screen,
-    @Transient
-    val filters: ImmutableList<RssPostFilter> = PostInteractor.getDefaultFiltersFor(screen),
-    @Transient
-    val sortValues: ImmutableList<UIPostSort> = PostInteractor.DEFAULT_SORT_OPTIONS
-) : ScreenState
-
-sealed interface PostSortAndFilterEffect : Effect {
-
-}
-
-sealed interface PostSortAndFilterEvent : ScreenEvent {
-    data class OnFilterUpdated(val filter: RssPostFilter) : PostSortAndFilterEvent
-    data class OnSortUpdated(val sort: UIPostSort) : PostSortAndFilterEvent
-    data object OnClearFilters : PostSortAndFilterEvent
-}
 
 @KoinViewModel
 class PostSortAndFilterViewModel(
@@ -63,11 +37,7 @@ class PostSortAndFilterViewModel(
                             filter
                         } else it
                     }
-                    .sortedWith(compareBy<RssPostFilter> {
-                        it.isEmpty()
-                    }.thenBy {
-                        it.order()
-                    })
+                    .sortedBy { it.order() }
                     .toPersistentList()
             )
         }

@@ -12,19 +12,6 @@ import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentity
 import kotlinx.coroutines.flow.Flow
 
 interface PostRepository {
-    suspend fun searchPostQuery(query: RssPostQuery): List<RssPostWithFeedIdentityAndSearch>
-    suspend fun searchPosts(
-        query: String,
-        snippetLength: Int,
-        limit: Int,
-    ): List<RssPostWithFeedIdentityAndSearch>
-
-    suspend fun searchPostContent(
-        query: String,
-        snippetLength: Int,
-        limit: Int
-    ): List<RssPostWithFeedIdentityAndSearch>
-
     fun getPost(id: UUID): Flow<RssPostWithFeedIdentityAndSearch>
     suspend fun upsertPosts(posts: List<RssFeedPost>)
     fun observePosts(
