@@ -1,40 +1,49 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.window.core.layout.WindowSizeClass
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPLinearProgressIndicator
+import dev.shounakmulay.devpulse.core.designsystem.components.DPSearchTopAppBar
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
 import dev.shounakmulay.devpulse.core.resources.stringRes
-import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
-import dev.shounakmulay.devpulse.core.ui.screen.SearchScreen
-import dev.shounakmulay.devpulse.core.ui.text.asAnnotatedString
-import dev.shounakmulay.devpulse.core.ui.text.asString
+import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
+import dev.shounakmulay.devpulse.core.ui.grid.adaptiveColumnsCount
+import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
+import dev.shounakmulay.devpulse.core.ui.transition.sharedBounds
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.AppendErrorRow
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.AppendLoadingRow
@@ -43,110 +52,140 @@ import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.Fee
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedListPlaceholderRow
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedListRow
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FilterTabs
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.UISelectedTab
 import devpulse.core.resources.generated.resources.feed_list_load_error
+import devpulse.core.resources.generated.resources.feed_search
 import org.jetbrains.compose.resources.stringResource
+import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FeedListScreen(
     viewModel: FeedListViewModel,
     navigator: Navigator,
     modifier: Modifier = Modifier,
 ) {
+    val lazyGridState = rememberLazyGridState()
+    val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val feeds = viewModel.uiFeedsFlow.collectAsLazyPagingItems()
-    val refreshState = feeds.loadState.refresh
-    val fallbackLoadError = stringResource(stringRes.feed_list_load_error)
-    SearchScreen(
-        modifier = modifier,
+
+    OnTabReselect(navigator = navigator, tab = Screen.Tabs.Feed) {
+        lazyGridState.animateScrollToItem(0)
+    }
+
+    MviScreen(
+        modifier = modifier.nestedScroll(appBarScrollBehavior.nestedScrollConnection),
         viewModel = viewModel,
-        onQueryChange = { viewModel.onEvent(FeedListScreenEvent.Search(query = it)) },
-        onNavigateBack = navigator::navigateBack,
-        onEffect = { viewModel.unhandledEffect(it) },
-        searchContent = { state ->
-            LazyColumn {
-                items(state.searchResults) { searchResult ->
-                    Row(
-                        modifier = Modifier.padding(LocalDPSpacing.current.md),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        DPFeedImage(
-                            modifier = Modifier.size(24.dp).clip(CircleShape),
-                            url = searchResult.websiteImageUrl,
-                            initials = searchResult.initials,
-                            feedTitle = searchResult.title.asString(),
-                        )
-                        Spacer(Modifier.width(LocalDPSpacing.current.md))
-                        Column(
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            DPTextView(
-                                text = searchResult.title.asAnnotatedString(color = MaterialTheme.colorScheme.primary),
-                                variant = DPTextViewVariant.TitleMedium
-                            )
-                            val description =
-                                searchResult.description.asAnnotatedString(color = MaterialTheme.colorScheme.primary)
-                            if (description.isNotBlank()) {
-                                DPTextView(
-                                    text = description,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    variant = DPTextViewVariant.BodySmall
-                                )
-                            }
+        topAppBar = {
+            val placeholder = stringResource(stringRes.feed_search)
+            val openSearch: () -> Unit = {
+                navigator.navigate(Screen.Tabs.Feed.FeedSearch, onRootStack = true)
+            }
+            DPSearchTopAppBar(
+                scrollBehavior = appBarScrollBehavior,
+                navigationIcon = {
+                    DPBackNavigationIconButton(modifier = it, onNavigateBack = navigator::navigateBack)
+                },
+                textValue = "",
+                onTextValueChange = {},
+                placeholder = placeholder,
+                enabled = false,
+                colors = TextFieldDefaults.colors(
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledIndicatorColor = Color.Transparent,
+                ),
+                inputModifier = Modifier
+                    .sharedBounds(key = "feed-search-bar", clipShape = CircleShape)
+                    .clip(MaterialTheme.shapes.extraExtraLarge)
+                    .clickable(role = Role.Button, onClick = openSearch)
+                    .clearAndSetSemantics {
+                        role = Role.Button
+                        contentDescription = placeholder
+                        onClick {
+                            openSearch()
+                            true
                         }
-                    }
-                }
+                    },
+            )
+        },
+        floatingActionButton = {
+            ScrollToTopFAB(lazyGridState = lazyGridState, collapsedFraction = 0f) {
+                appBarScrollBehavior.state.heightOffset = 0f
             }
         },
+        onEffect = { viewModel.unhandledEffect(it) },
     ) { state ->
-        Column(Modifier.padding(top = LocalDPSpacing.current.sm)) {
-            FilterTabs(state.selectedTab) {
-                viewModel.onEvent(FeedListScreenEvent.SelectTab(it))
-            }
-
-            when (refreshState) {
-                is LoadState.Error -> FeedListError(
-                    message = refreshState.error.message ?: fallbackLoadError,
-                    onRetry = feeds::retry,
-                )
-
-                is LoadState.NotLoading if feeds.itemCount == 0 -> EmptyFeedList()
-                else -> FeedsList(
-                    feeds = feeds,
-                    onTogglePinned = { feed, pinned ->
-                        viewModel.onEvent(
-                            FeedListScreenEvent.TogglePinned(
-                                id = feed.id,
-                                pinned = pinned,
-                            )
-                        )
-                    },
-                    onFeedItemClick = {
-                        navigator.replaceOfSameType(
-                            Screen.Tabs.Feed.FeedDetail(
-                                it.id
-                            )
-                        )
-                    }
-                )
-            }
-        }
+        FeedsList(
+            feeds = feeds,
+            lazyGridState = lazyGridState,
+            selectedTab = state.selectedTab,
+            onTabSelected = { tab ->
+                if (tab != state.selectedTab) {
+                    lazyGridState.requestScrollToItem(0)
+                    viewModel.onEvent(FeedListScreenEvent.SelectTab(tab))
+                }
+            },
+            onTogglePinned = { feed, pinned ->
+                viewModel.onEvent(FeedListScreenEvent.TogglePinned(id = feed.id, pinned = pinned))
+            },
+            onFeedItemClick = {
+                navigator.replaceOfSameType(Screen.Tabs.Feed.FeedDetail(it.id))
+            },
+        )
     }
 }
 
 @Composable
 internal fun FeedsList(
     feeds: LazyPagingItems<UIFeed>,
+    lazyGridState: LazyGridState,
+    selectedTab: UISelectedTab,
+    onTabSelected: (UISelectedTab) -> Unit,
     onTogglePinned: (UIFeed, Boolean) -> Unit,
     onFeedItemClick: (UIFeed) -> Unit
 ) {
+    val fallbackLoadError = stringResource(stringRes.feed_list_load_error)
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
-        columns = GridCells.Adaptive((WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND / 2).dp),
-        contentPadding = PaddingValues(LocalDPSpacing.current.md),
+        state = lazyGridState,
+        columns = adaptiveColumnsCount(),
+        contentPadding = PaddingValues(bottom = LocalDPSpacing.current.listItemHeight),
+        horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
+        verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
     ) {
+        stickyHeader(key = "feed-filters") {
+            Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
+                if (feeds.loadState.refresh is LoadState.Loading) {
+                    DPLinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                } else {
+                    Spacer(Modifier.fillMaxWidth().height(4.dp))
+                }
+                FilterTabs(selectedTab = selectedTab, onClick = onTabSelected)
+            }
+        }
+
+        when (val refreshState = feeds.loadState.refresh) {
+            is LoadState.Error -> item(key = "refresh-error", span = { GridItemSpan(maxLineSpan) }) {
+                FeedListError(
+                    message = refreshState.error.message ?: fallbackLoadError,
+                    onRetry = feeds::retry,
+                )
+            }
+
+            is LoadState.NotLoading if feeds.itemCount == 0 ->
+                item(key = "empty-feeds", span = { GridItemSpan(maxLineSpan) }) {
+                    EmptyFeedList()
+                }
+
+            else -> Unit
+        }
+
         items(
             count = feeds.itemCount,
-            key = { index -> feeds[index]?.id?.value ?: "feed-placeholder-$index" },
+            key = { index -> feeds.peek(index)?.id?.value ?: "feed-placeholder-$index" },
         ) { index ->
             val feed = feeds[index]
             if (feed == null) {
@@ -165,11 +204,11 @@ internal fun FeedsList(
         }
 
         when (feeds.loadState.append) {
-            is LoadState.Loading -> item(key = "append-loading") {
+            is LoadState.Loading -> item(key = "append-loading", span = { GridItemSpan(maxLineSpan) }) {
                 AppendLoadingRow()
             }
 
-            is LoadState.Error -> item(key = "append-error") {
+            is LoadState.Error -> item(key = "append-error", span = { GridItemSpan(maxLineSpan) }) {
                 AppendErrorRow(onRetry = feeds::retry)
             }
 

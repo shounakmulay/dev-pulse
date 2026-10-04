@@ -22,6 +22,7 @@ import org.orbitmvi.orbit.compose.collectAsState
 internal fun PostSortAndFilters(
     viewModel: PostSortAndFilterViewModel,
     modifier: Modifier = Modifier,
+    sortEnabled: Boolean = true,
     onSortAndFilterDataChanged: () -> Unit,
 ) {
     val state by viewModel.collectAsState()
@@ -29,9 +30,12 @@ internal fun PostSortAndFilters(
     PostSortAndFilters(
         modifier = modifier,
         state = state,
+        sortEnabled = sortEnabled,
         onSortUpdated = {
-            viewModel.onEvent(PostSortAndFilterEvent.OnSortUpdated(it))
-            onSortAndFilterDataChanged()
+            if (sortEnabled) {
+                viewModel.onEvent(PostSortAndFilterEvent.OnSortUpdated(it))
+                onSortAndFilterDataChanged()
+            }
         },
         onFilterUpdated = {
             viewModel.onEvent(PostSortAndFilterEvent.OnFilterUpdated(it))
@@ -48,6 +52,7 @@ internal fun PostSortAndFilters(
 internal fun PostSortAndFilters(
     modifier: Modifier = Modifier,
     state: PostSortAndFilterState,
+    sortEnabled: Boolean = true,
     onSortUpdated: (UIPostSort) -> Unit,
     onFilterUpdated: (RssPostFilter) -> Unit,
     clearFilters: () -> Unit
@@ -71,7 +76,7 @@ internal fun PostSortAndFilters(
         horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        sortItem(state.sortValues, onSortUpdated)
+        sortItem(sortValues = state.sortValues, onSortUpdated = onSortUpdated, enabled = sortEnabled)
         filterItems(
             filters = state.filters,
             onFilterUpdated = {

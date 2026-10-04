@@ -41,6 +41,8 @@ fun DPTextField(
     shape: Shape = MaterialTheme.shapes.extraExtraLarge,
     colors: TextFieldColors? = null,
     textStyle: TextStyle? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     val baseTextStyle = textVariant.textStyle()
     val resolvedTextStyle = textStyle?.let { baseTextStyle.merge(it) } ?: baseTextStyle
@@ -77,6 +79,8 @@ fun DPTextField(
             maxLines = maxLines,
             shape = shape,
             colors = colors ?: OutlinedTextFieldDefaults.colors(),
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
         )
         DPTextFieldVariant.Filled -> TextField(
             value = value,
@@ -102,6 +106,8 @@ fun DPTextField(
                 disabledIndicatorColor = Color.Transparent,
                 errorIndicatorColor = Color.Transparent,
             ),
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
         )
     }
 }

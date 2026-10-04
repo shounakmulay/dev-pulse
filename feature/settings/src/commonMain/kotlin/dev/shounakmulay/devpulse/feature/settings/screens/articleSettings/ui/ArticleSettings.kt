@@ -62,11 +62,13 @@ fun ArticleSettingsScreen(
                 viewModel.onEvent(ArticleSettingsEvent.SetContentLineHeightScale(it))
             },
             footer = {
+                Spacer(Modifier.height(LocalDPSpacing.current.lg))
                 ContentTextContainer {
                     Surface(
-                        modifier = Modifier.padding(bottom = LocalDPSpacing.current.xl).animateContentSize(
-                            spring(Spring.DampingRatioLowBouncy)
-                        ),
+                        modifier = Modifier.padding(bottom = LocalDPSpacing.current.xl)
+                            .animateContentSize(
+                                spring(Spring.DampingRatioLowBouncy)
+                            ),
                         shape = MaterialTheme.shapes.large,
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {

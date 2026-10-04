@@ -10,15 +10,11 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.dao.PostContentDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedAndSearch
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
-import dev.shounakmulay.devpulse.core.data.db.query.FtsQuerySanitizer
-import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostFilter
-import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostSqlQueryBuilder
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostContentMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostQueryMapper
-import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostWithFeedAndSearchMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.UuidMapper
 import dev.shounakmulay.devpulse.core.data.feed.parser.html.ArticleFtsContentParser
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
@@ -49,52 +45,13 @@ class PostRepositoryImpl(
     private val rssPostMapper: RssPostMapper,
     private val rssFeedMapper: RssFeedMapper,
     private val rssPostContentMapper: RssPostContentMapper,
-    private val rssPostWithFeedAndSearchMapper: RssPostWithFeedAndSearchMapper,
     private val uuidMapper: UuidMapper,
     private val dispatcherProvider: DispatcherProvider,
     private val devPulseNetworkClient: DevPulseNetworkClient,
     private val devPulseUrlHelper: DevPulseUrlHelper,
     private val markdownConverter: HtmlToMarkdownConverter,
-    private val transactionAccessor: DevPulseDatabaseTransactionAccessor,
-    private val ftsQuerySanitizer: FtsQuerySanitizer
+    private val transactionAccessor: DevPulseDatabaseTransactionAccessor
 ) : PostRepository {
-    override suspend fun searchPostQuery(query: RssPostQuery): List<RssPostWithFeedIdentityAndSearch> {
-        val localQuery = rssPostQueryMapper.fromPostQueryMapper(query)
-        val search = localQuery.filters.filterIsInstance<LocalFeedPostFilter.SearchText>().single()
-        if (ftsQuerySanitizer.sanitize(search.value).isBlank()) return emptyList()
-        return feedPostDao.getSearchResults(
-            LocalFeedPostSqlQueryBuilder(localQuery).buildSearchResults()
-        ).map { it.toRssPostWithFeedIdentity() }
-    }
-
-    override suspend fun searchPosts(
-        query: String,
-        snippetLength: Int,
-        limit: Int
-    ): List<RssPostWithFeedIdentityAndSearch> {
-        val sanitizedQuery = ftsQuerySanitizer.sanitize(query)
-        if (sanitizedQuery.isBlank()) return emptyList()
-        return feedPostDao.searchPosts(query = sanitizedQuery, snippetLength = snippetLength).map {
-            rssPostWithFeedAndSearchMapper.toRssPostWithFeedAndSearch(it)
-        }
-    }
-
-    override suspend fun searchPostContent(
-        query: String,
-        snippetLength: Int,
-        limit: Int
-    ): List<RssPostWithFeedIdentityAndSearch> {
-        val sanitizedQuery = ftsQuerySanitizer.sanitize(query)
-        if (sanitizedQuery.isBlank()) return emptyList()
-        return postContentDao.searchPostContent(
-            query = sanitizedQuery,
-            snippetLength = snippetLength,
-            limit = limit
-        ).map {
-            rssPostWithFeedAndSearchMapper.toRssPostWithFeedAndSearch(it)
-        }
-    }
-
     override fun getPost(id: UUID): Flow<RssPostWithFeedIdentityAndSearch> {
         return feedPostDao.observePost(uuidMapper.fromUuid(id)).map { post ->
             post.toRssPostWithFeedIdentity()
@@ -109,7 +66,6 @@ class PostRepositoryImpl(
         query: RssPostQuery,
         pagingConfig: PagingConfig
     ): Flow<PagingData<RssPostWithFeedIdentityAndSearch>> {
-        require(query.filters.none { it is dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter.SearchText })
         val query = rssPostQueryMapper.fromPostQueryMapper(query)
         return Pager(
             config = pagingConfig,
@@ -195,7 +151,7 @@ class PostRepositoryImpl(
                 postContentDao.deletePostContentFts(uuidMapper.fromUuid(content.postId))
             }
             if (!ftsContent.isNullOrBlank()) {
-                postContentDao.upsertPostContentFts(
+                postContentDao.insertPostContentFts(
                     rssPostContentMapper.fromRssPostContentToFts(
                         postId = content.postId,
                         ftsContent = ftsContent,

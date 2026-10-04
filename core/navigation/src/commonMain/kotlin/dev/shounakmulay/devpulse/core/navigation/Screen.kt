@@ -34,6 +34,10 @@ sealed interface Screen : NavKey {
 
             @Serializable
             @Immutable
+            data object FeedSearch : Screen
+
+            @Serializable
+            @Immutable
             data class PostList(val launchFor: PostListLaunchData) : Screen {
                 @Serializable
                 sealed interface PostListLaunchData {

@@ -53,10 +53,14 @@ class LocalFeedPostSqlQueryBuilder(
         )
     }
 
-    fun buildSearchResults(): RoomRawQuery {
-        val search = query.filters.filterIsInstance<LocalFeedPostFilter.SearchText>().single()
+    private val searchSql by lazy { buildSearchSql() }
+
+    private fun buildSearchSql(): SearchSql? {
+        val searches = query.filters.filterIsInstance<LocalFeedPostFilter.SearchText>()
+        require(searches.size <= 1)
+        val search = searches.singleOrNull() ?: return null
         val text = FtsQuerySanitizer().sanitize(search.value)
-        require(text.isNotBlank())
+        if (text.isBlank()) return null
         require(search.snippetLength > 0)
         require(search.highlightStart.isNotEmpty() && search.highlightEnd.isNotEmpty())
         require(search.highlightStart != search.highlightEnd)
@@ -82,15 +86,13 @@ class LocalFeedPostSqlQueryBuilder(
         bind(search.highlightEnd)
         bind(search.snippetLength)
         bind(text)
-        bindings += filterClauses.first
-        bindings += SqlBinding.LongValue(MAX_SEARCH_RESULTS.toLong())
 
-        val sql = buildString {
-            appendLine(
+        return SearchSql(
+            bindings = bindings,
+            ctes =
                 """
                 WITH post_matches AS (
                     SELECT rowid AS postRowId,
-                           bm25(LocalRssContentFeedPostFts, 10.0, 3.0, 1.0) AS score,
                            title, description, content,
                            highlight(LocalRssContentFeedPostFts, 0, ?, ?) AS rawTitle,
                            snippet(LocalRssContentFeedPostFts, 1, ?, ?, '...', ?) AS rawDescription,
@@ -101,65 +103,15 @@ class LocalFeedPostSqlQueryBuilder(
                     WHERE LocalRssContentFeedPostFts MATCH ?
                     LIMIT -1
                 ),
-                post_hits AS (
-                    SELECT postRowId, score,
-                           CASE WHEN rawTitle != title THEN rawTitle END AS highlightedTitle,
-                           CASE WHEN markedDescription != description THEN rawDescription END AS highlightedDescription,
-                           CASE WHEN markedContent != content THEN rawContent END AS highlightedContent
-                    FROM post_matches
-                ),
                 article_matches AS (
                     SELECT postId,
-                           rowid AS ftsRowId,
-                           bm25(LocalRssPostContentFts) AS score,
                            snippet(LocalRssPostContentFts, 1, ?, ?, '...', ?) AS rawContent
                     FROM LocalRssPostContentFts
                     WHERE LocalRssPostContentFts MATCH ?
                     LIMIT -1
-                ),
-                ranked_articles AS (
-                    SELECT postId, rawContent, score,
-                           ROW_NUMBER() OVER (PARTITION BY postId ORDER BY score, ftsRowId) AS rowNumber
-                    FROM article_matches
-                ),
-                article_hits AS (
-                    SELECT postId, rawContent, score FROM ranked_articles WHERE rowNumber = 1
-                ),
-                candidate_ids AS (
-                    SELECT p.id FROM post_hits ph
-                    JOIN LocalRssContentFeedPost p ON p.rowid = ph.postRowId
-                    UNION
-                    SELECT postId AS id FROM article_hits
                 )
-                SELECT p.*,
-                       f.id AS feed_id,
-                       f.title AS feed_title,
-                       f.name AS feed_name,
-                       f.pinned AS feed_pinned,
-                       f.sourceUrl AS feed_sourceUrl,
-                       f.link AS feed_link,
-                       f.createdAt AS feed_createdAt,
-                       f.updatedAt AS feed_updatedAt,
-                       ph.highlightedTitle AS search_highlightedTitle,
-                       ph.highlightedDescription AS search_highlightedDescription,
-                       COALESCE(ah.rawContent, ph.highlightedContent) AS search_highlightedContent
-                FROM candidate_ids candidates
-                JOIN LocalRssContentFeedPost p ON p.id = candidates.id
-                INNER JOIN LocalRssFeed f ON p.feedId = f.id
-                LEFT JOIN post_hits ph ON ph.postRowId = p.rowid
-                LEFT JOIN article_hits ah ON ah.postId = p.id
                 """.trimIndent()
-            )
-            if (filterClauses.second.isNotEmpty()) {
-                appendLine("WHERE ${filterClauses.second.joinToString(separator = " AND ")}")
-            }
-            appendLine("ORDER BY CASE WHEN ph.postRowId IS NULL THEN 1 ELSE 0 END,")
-            appendLine("         COALESCE(ph.score, ah.score), ${buildOrderBy(query.sort)}")
-            append("LIMIT ?")
-        }
-        return RoomRawQuery(sql = sql) { statement ->
-            bindings.forEachIndexed { index, binding -> binding.bind(statement, index + 1) }
-        }
+        )
     }
 
     private fun buildPage(
@@ -168,36 +120,60 @@ class LocalFeedPostSqlQueryBuilder(
         reversed: Boolean = false,
         limit: Int
     ): RoomRawQuery {
-        require(query.filters.none { it is LocalFeedPostFilter.SearchText && FtsQuerySanitizer().sanitize(it.value).isNotBlank() })
-        val filterBindings = filterClauses.first.toMutableList()
-        val filterClauses = filterClauses.second.toMutableList()
+        return buildQuery(
+            cursor = cursor,
+            includeCursor = includeCursor,
+            reversed = reversed,
+            limit = limit,
+            search = searchSql,
+        )
+    }
+
+    private fun buildQuery(
+        limit: Int,
+        cursor: FeedPostCursor? = null,
+        includeCursor: Boolean = false,
+        reversed: Boolean = false,
+        search: SearchSql? = null,
+    ): RoomRawQuery {
+        val bindings = search?.bindings.orEmpty().toMutableList()
+        bindings += filterClauses.first
+        val clauses = filterClauses.second.toMutableList()
+        if (search != null) {
+            clauses += "(ph.postRowId IS NOT NULL OR ah.postId IS NOT NULL)"
+        }
         cursor?.let {
-            filterClauses += buildCursorClause(
+            clauses += buildCursorClause(
                 cursor = it,
                 includeCursor = includeCursor,
                 reversed = reversed,
-                bindings = filterBindings
+                bindings = bindings,
             )
         }
-
-        val orderBySql = buildOrderBy(sort = if (reversed) query.sort.reversed() else query.sort)
-
+        val sort = if (reversed) query.sort.reversed() else query.sort
         val sql = buildString {
-            appendProjection()
-            if (filterClauses.isNotEmpty()) {
-                appendLine("WHERE ${filterClauses.joinToString(separator = " AND ")}")
+            search?.let { appendLine(it.ctes) }
+            appendProjection(search = search != null)
+            if (search != null) {
+                appendLine("LEFT JOIN post_matches ph ON ph.postRowId = p.rowid")
+                appendLine("LEFT JOIN article_matches ah ON ah.postId = p.id")
             }
-            appendLine("ORDER BY $orderBySql")
+            if (clauses.isNotEmpty()) {
+                appendLine("WHERE ${clauses.joinToString(separator = " AND ")}")
+            }
+            appendLine("ORDER BY ${buildOrderBy(sort)}")
             append("LIMIT ?")
         }
-        logger().d { "[FEED-PAGING] sql: $sql" }
-        filterBindings += SqlBinding.LongValue(limit.toLong())
+        bindings += SqlBinding.LongValue(limit.toLong())
         return RoomRawQuery(sql = sql) { statement ->
-            filterBindings.forEachIndexed { index, binding ->
-                binding.bind(statement, index + 1)
-            }
+            bindings.forEachIndexed { index, binding -> binding.bind(statement, index + 1) }
         }
     }
+
+    private data class SearchSql(
+        val ctes: String,
+        val bindings: List<SqlBinding>,
+    )
 
     private fun buildOrderBy(sort: LocalFeedPostSort): String {
         val sortTerms = when (sort) {
@@ -238,7 +214,14 @@ class LocalFeedPostSqlQueryBuilder(
         return "${FeedColumnsSelector.ID} ${direction.sql}"
     }
 
-    private fun StringBuilder.appendProjection() {
+    private fun StringBuilder.appendProjection(search: Boolean = false) {
+        val highlightedTitle = if (search) "CASE WHEN ph.rawTitle != ph.title THEN ph.rawTitle END" else "NULL"
+        val highlightedDescription = if (search) {
+            "CASE WHEN ph.markedDescription != ph.description THEN ph.rawDescription END"
+        } else "NULL"
+        val highlightedContent = if (search) {
+            "COALESCE(ah.rawContent, CASE WHEN ph.markedContent != ph.content THEN ph.rawContent END)"
+        } else "NULL"
         appendLine(
             """
             SELECT 
@@ -251,9 +234,9 @@ class LocalFeedPostSqlQueryBuilder(
                 ${FeedColumnsSelector.FEED_LINK} AS ${FeedColumnsSelector.FEED_LINK_ALIAS},
                 ${FeedColumnsSelector.FEED_CREATED_AT} AS ${FeedColumnsSelector.FEED_CREATED_AT_ALIAS},
                 ${FeedColumnsSelector.FEED_UPDATED_AT} AS ${FeedColumnsSelector.FEED_UPDATED_AT_ALIAS},
-                NULL AS search_highlightedTitle,
-                NULL AS search_highlightedDescription,
-                NULL AS search_highlightedContent
+                $highlightedTitle AS search_highlightedTitle,
+                $highlightedDescription AS search_highlightedDescription,
+                $highlightedContent AS search_highlightedContent
             FROM LocalRssContentFeedPost p
             INNER JOIN LocalRssFeed f ON ${FeedColumnsSelector.POST_FEED_ID} = ${FeedColumnsSelector.FEED_ID}
             """.trimIndent()
@@ -443,7 +426,7 @@ class LocalFeedPostSqlQueryBuilder(
     ): String {
         val effectiveSort = if (reversed) cursor.sort.reversed() else cursor.sort
         val (primaryDirection, idDirection) = effectiveSort.getDirections()
-        val primaryOp = primaryDirection.toOperator(includeCursor)
+        val primaryOp = primaryDirection.toOperator(includeCursor = false)
         val idOp = idDirection.toOperator(includeCursor)
         val sortColumnName = cursor.sort.asColumnName()
         val clauses = """
@@ -496,7 +479,4 @@ class LocalFeedPostSqlQueryBuilder(
         return List(count) { "?" }.joinToString()
     }
 
-    companion object {
-        const val MAX_SEARCH_RESULTS = 1000
-    }
 }

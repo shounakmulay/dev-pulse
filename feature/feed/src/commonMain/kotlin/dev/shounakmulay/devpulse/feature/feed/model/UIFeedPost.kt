@@ -17,5 +17,6 @@ data class UIFeedPost(
     val summary: String?,
     val bookmarked: Boolean,
     val createdAt: String,
-    val feed: UIFeed
+    val feed: UIFeed,
+    val search: UIFeedPostSearchHighlights? = null
 )

@@ -11,25 +11,23 @@ import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveFeedPostListIt
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
-import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostSearchInteractor
-import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPostSearchResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @KoinViewModel
 class PostListViewModel(
     postSortAndFiltersFlow: Flow<Pair<RssPostSort?, List<RssPostFilter>>>,
     private val postInteractor: PostInteractor,
-    private val postSearchInteractor: PostSearchInteractor,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val observeFeedPostListItemVariantUseCase: ObserveFeedPostListItemVariantUseCase
 ) : MviViewModel<PostListScreenState, PostListScreenEffect>(
@@ -50,14 +48,22 @@ class PostListViewModel(
     }
 
     val posts = postInteractor.getPostsWithFilterAndSort(
-        postSortAndFiltersFlow
+        filerAndSortFlow = combine(
+            postSortAndFiltersFlow.distinctUntilChanged(),
+            state.map {
+                it.searchQuery
+                    .trim()
+                    .takeIf { query -> query.length >= 3 }
+            }
+                .distinctUntilChanged()
+                .debounce(300.milliseconds)
+        ) { (sort, filters), searchQuery ->
+            sort to buildList {
+                addAll(filters.filterNot { it is RssPostFilter.SearchText })
+                searchQuery?.let { add(RssPostFilter.SearchText(it)) }
+            }
+        }
     ).cachedIn(viewModelScope)
-
-    val postSearchResults = state.map { it.searchQuery }
-        .distinctUntilChanged()
-        .mapLatest(::search)
-        .shareIn(viewModelScope, started = SharingStarted.WhileSubscribed(5_000), replay = 1)
-
 
     override fun onEvent(event: PostListScreenEvent) {
         when (event) {
@@ -82,18 +88,4 @@ class PostListViewModel(
         }
     }
 
-    private suspend fun search(query: String): List<UIFeedPostSearchResult> {
-        if (query.trim().length < 3) {
-            setState {
-                copy(searchLoading = false)
-            }
-            return emptyList()
-        }
-
-        setState { copy(searchLoading = true, searchError = null) }
-
-        val results = postSearchInteractor.searchPosts(query)
-        setState { copy(searchLoading = false) }
-        return results
-    }
 }

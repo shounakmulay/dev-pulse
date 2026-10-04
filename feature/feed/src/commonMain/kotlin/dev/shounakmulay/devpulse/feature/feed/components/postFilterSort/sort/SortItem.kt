@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 internal fun LazyListScope.sortItem(
     sortValues: ImmutableList<UIPostSort>,
     onSortUpdated: (UIPostSort) -> Unit,
+    enabled: Boolean = true,
 ) {
     item(key = "sort_icon") {
         Icon(
@@ -52,6 +53,7 @@ internal fun LazyListScope.sortItem(
             modifier = Modifier.animateItem(),
             colors = FilterChipDefaults.elevatedFilterChipColors(),
             selected = selected != null,
+            enabled = enabled,
             shape = MaterialTheme.shapes.large,
             trailingIcon = {
                 Icon(Icons.Default.KeyboardArrowDown, contentDescription = "")
@@ -83,6 +85,7 @@ internal fun LazyListScope.sortItem(
                         trailingIcon = if (it.selected) DPIcons.Check else null,
                         trailingIconTint = MaterialTheme.colorScheme.primary,
                         title = it.name.asString(),
+                        enabled = enabled,
                         onClick = {
                             onSortUpdated(it)
                             coroutineScope.launch { optionsBottomSheetController.hide() }

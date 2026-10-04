@@ -4,13 +4,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedFeedSourcesUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedPinnedFeedSourcesUseCase
-import dev.shounakmulay.devpulse.core.domain.feed.feed.SearchFeedsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
-import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedSearchInteractor
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.UISelectedTab
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -24,9 +22,7 @@ class FeedListViewModel(
     private val getPaginatedFeedSourcesUseCase: GetPaginatedFeedSourcesUseCase,
     private val getPaginatedPinnedFeedSourcesUseCase: GetPaginatedPinnedFeedSourcesUseCase,
     private val setFeedPinnedUseCase: SetFeedPinnedUseCase,
-    private val searchFeedsUseCase: SearchFeedsUseCase,
     private val feedInteractor: FeedInteractor,
-    private val feedSearchInteractor: FeedSearchInteractor
 ) : MviViewModel<FeedListScreenState, FeedListScreenEffect>(FeedListScreenState()),
     EventHandler<FeedListScreenEvent> {
 
@@ -49,15 +45,7 @@ class FeedListViewModel(
         when (event) {
             is FeedListScreenEvent.TogglePinned -> onTogglePinned(event.id, event.pinned)
             is FeedListScreenEvent.SelectTab -> onTabSelected(event.tab)
-            is FeedListScreenEvent.Search -> onSearch(event.query)
         }
-    }
-
-    private fun onSearch(query: String) = intent {
-        setState { copy(searchLoading = true) }
-        val result = searchFeedsUseCase(query)
-        val uiResults = feedSearchInteractor.getUIFeedSearchResults(result.getOrNull())
-        setState { copy(searchLoading = false, searchResults = uiResults) }
     }
 
     private fun onTabSelected(tab: UISelectedTab) {

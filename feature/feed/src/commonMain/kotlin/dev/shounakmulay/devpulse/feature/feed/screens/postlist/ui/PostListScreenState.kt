@@ -10,7 +10,5 @@ import kotlinx.serialization.Serializable
 data class PostListScreenState(
     val isLoading: Boolean = true,
     val searchQuery: String = "",
-    val searchLoading: Boolean = false,
-    val searchError: String? = null,
     val feedPostListItemVariant: FeedsPostListItemVariant = FeedsPostListItemVariant.DEFAULT
 ) : ScreenState

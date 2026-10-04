@@ -15,7 +15,9 @@ import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPostSearchHighlights
 import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
+import dev.shounakmulay.devpulse.feature.feed.text.parseFtsHighlightedText
 import devpulse.core.resources.generated.resources.newest
 import devpulse.core.resources.generated.resources.oldest
 import devpulse.core.resources.generated.resources.title_a_z
@@ -93,7 +95,7 @@ class PostInteractor(
     ): Flow<PagingData<UIFeedPost>> {
         return filerAndSortFlow.flatMapLatest { (sort, filters) ->
             getPaginatedFeedPostsUseCase(
-                filters = filters.filterNot { it is RssPostFilter.SearchText },
+                filters = filters,
                 sort = sort ?: RssPostSort.PublishedNewest
             ).map { pagingData ->
                 pagingData.map {
@@ -144,6 +146,13 @@ class PostInteractor(
             bookmarked = post.bookmarked,
             createdAt = createAt,
             feed = feedInteractor.toUIFeed(feedIdentity),
+            search = postWithFeedIdentity.search?.let { search ->
+                UIFeedPostSearchHighlights(
+                    highlightedTitle = search.highlightedTitle?.let(::parseFtsHighlightedText),
+                    highlightedDescription = search.highlightedDescription?.let(::parseFtsHighlightedText),
+                    highlightedContent = search.highlightedContent?.let(::parseFtsHighlightedText)
+                )
+            },
         )
     }
 }
