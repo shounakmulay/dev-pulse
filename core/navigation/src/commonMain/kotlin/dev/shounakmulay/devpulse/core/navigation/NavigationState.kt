@@ -54,6 +54,10 @@ fun rememberNavigationState(
                     Screen.Tabs.Feed.FeedList.serializer(),
                 )
                 subclass(
+                    Screen.Tabs.Feed.FeedSearch::class,
+                    Screen.Tabs.Feed.FeedSearch.serializer(),
+                )
+                subclass(
                     Screen.Tabs.Feed.PostList::class,
                     Screen.Tabs.Feed.PostList.serializer(),
                 )

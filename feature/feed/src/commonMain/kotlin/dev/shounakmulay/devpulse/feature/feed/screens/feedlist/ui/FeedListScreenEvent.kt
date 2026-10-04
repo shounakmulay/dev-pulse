@@ -7,5 +7,4 @@ import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.UISelect
 sealed interface FeedListScreenEvent : ScreenEvent {
     data class SelectTab(val tab: UISelectedTab): FeedListScreenEvent
     data class TogglePinned(val id: UUID, val pinned: Boolean) : FeedListScreenEvent
-    data class Search(val query: String) : FeedListScreenEvent
 }
