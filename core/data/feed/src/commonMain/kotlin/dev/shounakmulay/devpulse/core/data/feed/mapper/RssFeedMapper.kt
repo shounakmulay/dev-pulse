@@ -3,7 +3,7 @@ package dev.shounakmulay.devpulse.core.data.feed.mapper
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedImage
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedYoutubeChannel
-import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedSearchResult
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedWithSearch
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
@@ -11,7 +11,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedImage
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedSearchResult
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithSearch
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedYoutubeChannel
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedImage
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedMetadata
@@ -24,13 +24,9 @@ class RssFeedMapper(
     private val dateTimeProvider: DateTimeProvider,
     private val uuidMapper: UuidMapper
 ) {
-    fun toRssFeedSearchResult(from: LocalRssFeedSearchResult): RssFeedSearchResult {
-        return RssFeedSearchResult(
-            id = uuidMapper.toUuid(from.id),
-            sourceUrl = from.sourceUrl,
-            link = from.link,
-            image = from.image?.toRssFeedImage(),
-            pinned = from.pinned,
+    fun toRssFeedWithSearch(from: LocalRssFeedWithSearch): RssFeedWithSearch {
+        return RssFeedWithSearch(
+            feed = toRssFeed(from.feed),
             highlightedTitle = from.highlightedTitle,
             highlightedName = from.highlightedName,
             highlightedDescription = from.highlightedDescription,

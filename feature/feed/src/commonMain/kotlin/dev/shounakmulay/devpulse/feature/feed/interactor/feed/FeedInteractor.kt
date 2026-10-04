@@ -10,16 +10,18 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithSearch
 import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
 import dev.shounakmulay.devpulse.feature.feed.interactor.getWebsiteImageUrl
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.text.parseFtsHighlightedText
+import kotlin.jvm.JvmName
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
-import kotlin.jvm.JvmName
 
 @Factory
 class FeedInteractor(
@@ -38,7 +40,7 @@ class FeedInteractor(
     }
 
     @JvmName("getUIFeedPagingDataFlow")
-    fun getUIFeedFlow(from: Flow<PagingData<RssFeed>>): Flow<PagingData<UIFeed>> {
+    fun getUIFeedFlow(from: Flow<PagingData<RssFeedWithSearch>>): Flow<PagingData<UIFeed>> {
         return from.map { pagingData ->
             pagingData.map {
                 toUIFeed(it)
@@ -47,6 +49,16 @@ class FeedInteractor(
     }
 
 
+
+    fun toUIFeed(result: RssFeedWithSearch): UIFeed {
+        return toUIFeed(result.feed).copy(
+            highlightedTitle = result.highlightedName
+                ?.takeIf { it.isNotBlank() }
+                .let { highlightedName -> highlightedName ?: result.highlightedTitle }
+                ?.let(::parseFtsHighlightedText),
+            highlightedDescription = result.highlightedDescription?.let(::parseFtsHighlightedText),
+        )
+    }
 
     fun toUIFeed(feed: RssFeed): UIFeed {
         return createUIFeed(

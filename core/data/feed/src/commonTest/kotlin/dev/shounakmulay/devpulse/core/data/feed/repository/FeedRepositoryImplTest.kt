@@ -4,14 +4,15 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.room3.RoomRawQuery
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
-import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedWithSearch
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedAndSearch
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
@@ -25,14 +26,14 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.logging.DPLog
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkResponse
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration
 import kotlin.time.Instant
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 
 class FeedRepositoryImplTest {
     @Test
@@ -123,9 +124,15 @@ class FeedRepositoryImplTest {
     }
 
     private class FakeFeedDao : FeedDao {
-        override fun getFeedPagingSource(): PagingSource<Int, LocalRssFeed> = error("Unused")
+        override fun getFeedPagingSource(pinnedOnly: Boolean): PagingSource<Int, LocalRssFeedWithSearch> = error("Unused")
 
-        override fun getPinnedFeedPagingSource(): PagingSource<Int, LocalRssFeed> = error("Unused")
+        override fun searchFeeds(
+            query: String,
+            pinnedOnly: Boolean,
+            snippetLength: Int,
+            hlStart: String,
+            hlEnd: String,
+        ): PagingSource<Int, LocalRssFeedWithSearch> = error("Unused")
 
         override fun getPinnedAndRecentFeeds(count: Int): Flow<List<LocalRssFeed>> = emptyFlow()
 

@@ -8,13 +8,14 @@ import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithSearch
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertSame
 
 class ExtractOpmlFeedsUseCaseTest {
     @Test
@@ -34,7 +35,11 @@ class ExtractOpmlFeedsUseCaseTest {
     private class FakeFeedRepository(
         private val failure: Exception
     ) : FeedRepository {
-        override fun getFeedsListFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> = error("Unused")
+        override fun getFeedsListFlow(
+            pagingConfig: PagingConfig,
+            searchQuery: String?,
+            pinnedOnly: Boolean,
+        ): Flow<PagingData<RssFeedWithSearch>> = error("Unused")
 
         override fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeed>> = error("Unused")
 
@@ -52,7 +57,6 @@ class ExtractOpmlFeedsUseCaseTest {
 
         override suspend fun setFeedPinned(id: UUID, pinned: Boolean): Result<Unit> = error("Unused")
 
-        override fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> = error("Unused")
     }
 
     private object TestDispatcherProvider : DispatcherProvider {

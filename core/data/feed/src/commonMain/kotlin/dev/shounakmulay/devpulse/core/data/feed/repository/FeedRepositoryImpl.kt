@@ -15,7 +15,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedSearchResult
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithSearch
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.bodyAsText
@@ -37,39 +37,23 @@ internal class FeedRepositoryImpl(
         feedDao.upsertFeed(rssFeedMapper.toLocalRssFeed(feed))
     }
 
-    override fun getFeedsListFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {
+    override fun getFeedsListFlow(
+        pagingConfig: PagingConfig,
+        searchQuery: String?,
+        pinnedOnly: Boolean,
+    ): Flow<PagingData<RssFeedWithSearch>> {
+        val query = searchQuery?.let(ftsQuerySanitizer::sanitize).orEmpty()
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = {
-                feedDao.getFeedPagingSource()
-            })
-            .flow
-            .map { pagingData ->
-                pagingData.map { localRssFeed ->
-                    rssFeedMapper.toRssFeed(localRssFeed)
+                when {
+                    query.isBlank() -> feedDao.getFeedPagingSource(pinnedOnly = pinnedOnly)
+                    else -> feedDao.searchFeeds(query = query, pinnedOnly = pinnedOnly)
                 }
-            }
-    }
-
-    override suspend fun searchFeeds(query: String, snippetLength: Int): List<RssFeedSearchResult> {
-        return feedDao.searchFeeds(
-            query = ftsQuerySanitizer.sanitize(query),
-            snippetLength = snippetLength
-        ).map(rssFeedMapper::toRssFeedSearchResult)
-    }
-
-    override fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {
-        return Pager(
-            config = pagingConfig,
-            pagingSourceFactory = {
-                feedDao.getPinnedFeedPagingSource()
-            })
-            .flow
-            .map { pagingData ->
-                pagingData.map { localRssFeed ->
-                    rssFeedMapper.toRssFeed(localRssFeed)
-                }
-            }
+            },
+        ).flow.map { pagingData ->
+            pagingData.map(rssFeedMapper::toRssFeedWithSearch)
+        }
     }
 
     override fun getFeed(id: UUID): Flow<RssFeed> {

@@ -8,5 +8,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Immutable
 data class FeedListScreenState(
+    val searchQuery: String = "",
     val selectedTab: UISelectedTab = UISelectedTab.ALL,
 ) : ScreenState

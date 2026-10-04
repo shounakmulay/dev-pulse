@@ -7,17 +7,19 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedSearchResult
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithSearch
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
 import kotlinx.coroutines.flow.Flow
 
 interface FeedRepository {
     suspend fun upsertFeed(feed: RssFeed)
-    fun getFeedsListFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>>
-    suspend fun searchFeeds(query: String, snippetLength: Int): List<RssFeedSearchResult>
+    fun getFeedsListFlow(
+        pagingConfig: PagingConfig,
+        searchQuery: String? = null,
+        pinnedOnly: Boolean = false,
+    ): Flow<PagingData<RssFeedWithSearch>>
     fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeed>>
     fun getFeed(id: UUID): Flow<RssFeed>
-    fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>>
     suspend fun extractOpmlFeeds(opml: String): List<OpmlFeedImportData>
     suspend fun extractOpmlFeedsFromUrl(url: String): List<OpmlFeedImportData>
     suspend fun fetchRssFeed(entry: RssFeedQueueEntry): ParsedFeed
