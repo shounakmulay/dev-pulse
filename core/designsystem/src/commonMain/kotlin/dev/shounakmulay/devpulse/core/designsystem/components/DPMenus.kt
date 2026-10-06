@@ -3,7 +3,10 @@ package dev.shounakmulay.devpulse.core.designsystem.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -13,10 +16,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.MenuItemShapes
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -24,8 +27,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,7 +37,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.designsystem.theme.*
+import dev.shounakmulay.devpulse.core.designsystem.theme.DPElevationLevel
+import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
+import dev.shounakmulay.devpulse.core.designsystem.theme.value
 
 @Composable
 fun DPDropdownMenu(
@@ -77,6 +82,7 @@ fun DPDropdownMenu(
 fun DPDropdownMenuItem(
     text: String,
     onClick: () -> Unit,
+    shape: Shape? = null,
     modifier: Modifier = Modifier,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
@@ -92,43 +98,57 @@ fun DPDropdownMenuItem(
         when {
             isDestructive && colors == null ->
                 MenuDefaults.itemColors(
-                    textColor = error,
                     leadingIconColor = error,
+                    trailingIconColor = error
                 )
+
             else -> colors ?: MenuDefaults.itemColors()
         }
 
-    val leading: (@Composable () -> Unit)? = leadingIcon?.let { v -> { Icon(v, null, Modifier.size(DPTheme.iconSize.md)) } }
-    val trailing: (@Composable () -> Unit)? = trailingIcon?.let { v -> { Icon(v, null, Modifier.size(DPTheme.iconSize.md)) } }
+    val leading: (@Composable () -> Unit)? =
+        leadingIcon?.let { imageVector ->
+            {
+                Icon(
+                    imageVector,
+                    null,
+                    Modifier.size(DPTheme.iconSize.md)
+                )
+            }
+        }
+    val trailing: (@Composable () -> Unit)? = trailingIcon?.let { imageVector ->
+        {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                Icon(
+                    imageVector,
+                    null,
+                    Modifier.size(DPTheme.iconSize.md),
+                )
+            }
+        }
+    }
     val supporting: (@Composable () -> Unit)? = supportingText?.let { st -> { Text(st) } }
 
-    if (supporting == null) {
-        DropdownMenuItem(
-            text = { Text(text) },
-            onClick = onClick,
-            modifier = modifier,
-            leadingIcon = leading,
-            trailingIcon = trailing,
-            enabled = enabled,
-            colors = effectiveColors,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-        )
-    } else {
-        DropdownMenuItem(
-            onClick = onClick,
-            text = { Text(text) },
-            shape = MenuDefaults.middleItemShape,
-            modifier = modifier,
-            leadingIcon = leading,
-            trailingIcon = trailing,
-            enabled = enabled,
-            colors = effectiveColors,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-            supportingText = supporting,
-        )
-    }
+    DropdownMenuItem(
+        onClick = onClick,
+        text = {
+            DPTextView(
+                text = text,
+                variant = DPTextViewVariant.LabelMedium,
+            )
+        },
+        shape = shape ?: MenuDefaults.standaloneItemShape,
+        modifier = modifier,
+        leadingIcon = leading,
+        trailingIcon = trailing,
+        enabled = enabled,
+        colors = effectiveColors,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+        supportingText = supporting,
+    )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

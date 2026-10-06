@@ -11,9 +11,9 @@ import platform.UIKit.UIApplication
 @Factory
 class AppleSharingService : SharingService {
     @OptIn(BetaInteropApi::class)
-    override fun share(text: String, link: String) {
+    override fun share(text: String) {
         val activityItems = listOf(
-            NSString.create(string = "$text\n$link")
+            NSString.create(string = text)
         )
         val activityViewController = UIActivityViewController(
             activityItems = activityItems,
@@ -26,6 +26,10 @@ class AppleSharingService : SharingService {
             animated = true,
             completion = null
         )
+    }
+
+    override fun share(text: String, link: String) {
+        share(text = "$text\n$link")
     }
 
 }

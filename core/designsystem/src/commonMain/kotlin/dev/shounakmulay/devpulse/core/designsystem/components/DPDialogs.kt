@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -30,7 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.designsystem.theme.*
+import dev.shounakmulay.devpulse.core.designsystem.theme.DPElevationLevel
+import dev.shounakmulay.devpulse.core.designsystem.theme.value
 
 enum class DPDialogVariant { Standard, Destructive, Informational }
 
@@ -53,7 +55,7 @@ fun DPAlertDialog(
     val colorScheme = MaterialTheme.colorScheme
     val resolvedIconTint = when (variant) {
         DPDialogVariant.Standard -> colorScheme.primary
-        DPDialogVariant.Destructive -> colorScheme.error
+        DPDialogVariant.Destructive -> colorScheme.errorContainer
         DPDialogVariant.Informational -> colorScheme.tertiary
     }
     val resolvedConfirmColor = when (variant) {
@@ -65,6 +67,7 @@ fun DPAlertDialog(
         if (icon != null) {
             {
                 Icon(
+                    modifier = Modifier.size(32.dp),
                     imageVector = icon,
                     contentDescription = null,
                     tint = resolvedIconTint,
@@ -78,7 +81,13 @@ fun DPAlertDialog(
         if (dismissText != null) {
             val dText = dismissText
             {
-                TextButton(onClick = dismissOnClick) { DPTextView(dText, variant = DPTextViewVariant.LabelMedium) }
+                TextButton(onClick = dismissOnClick) {
+                    DPTextView(
+                        dText,
+                        variant = DPTextViewVariant.LabelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         } else {
             null
@@ -87,7 +96,11 @@ fun DPAlertDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                DPTextView(confirmText, variant = DPTextViewVariant.LabelMedium, color = resolvedConfirmColor)
+                DPTextView(
+                    confirmText,
+                    variant = DPTextViewVariant.LabelLarge,
+                    color = resolvedConfirmColor
+                )
             }
         },
         modifier = modifier,
@@ -150,7 +163,11 @@ private fun DPAlertDialogTextFirstPreview() {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            data class Sample(val variant: DPDialogVariant, val label: String, val icon: ImageVector)
+            data class Sample(
+                val variant: DPDialogVariant,
+                val label: String,
+                val icon: ImageVector
+            )
 
             listOf(
                 Sample(DPDialogVariant.Standard, "Standard", Icons.Filled.Add),
@@ -184,13 +201,27 @@ private fun DPAlertDialogTextFirstPreview() {
                             tint = resolvedIconTint,
                         )
                         DPTextView(text = label, variant = DPTextViewVariant.TitleLarge)
-                        DPTextView(text = "Sample message for this variant.", variant = DPTextViewVariant.BodyMedium)
+                        DPTextView(
+                            text = "Sample message for this variant.",
+                            variant = DPTextViewVariant.BodyMedium
+                        )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End,
                         ) {
-                            TextButton(onClick = {}) { DPTextView("Cancel", variant = DPTextViewVariant.LabelMedium) }
-                            TextButton(onClick = {}) { DPTextView("OK", variant = DPTextViewVariant.LabelMedium, color = resolvedConfirmColor) }
+                            TextButton(onClick = {}) {
+                                DPTextView(
+                                    "Cancel",
+                                    variant = DPTextViewVariant.LabelMedium
+                                )
+                            }
+                            TextButton(onClick = {}) {
+                                DPTextView(
+                                    "OK",
+                                    variant = DPTextViewVariant.LabelMedium,
+                                    color = resolvedConfirmColor
+                                )
+                            }
                         }
                     }
                 }
@@ -198,4 +229,3 @@ private fun DPAlertDialogTextFirstPreview() {
         }
     }
 }
-

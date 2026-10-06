@@ -5,18 +5,19 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddToQueue
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.AutoMode
 import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FilterAlt
@@ -72,6 +73,7 @@ object DPIcons {
     val Article = Icons.AutoMirrored.Default.Article
     val OpenInBrowser = Icons.Default.OpenInBrowser
     val Delete = Icons.Default.Delete
+    val DeleteForever = Icons.Default.DeleteForever
     val Close = Icons.Default.Close
     val Add = Icons.Default.Add
     val Queued = Icons.Default.AddToQueue
@@ -99,6 +101,7 @@ object DPIcons {
     val RemoveSelection = Icons.Default.Remove
     val EmptyList = EmptyListIcon
     val Share = Icons.Default.Share
+    val ExternalLink = Icons.AutoMirrored.Default.OpenInNew
     val MoreOptionsVert = Icons.Default.MoreVert
     val FormatText = Icons.Default.FormatSize
     val FormatLineSpacing = Icons.Default.FormatLineSpacing

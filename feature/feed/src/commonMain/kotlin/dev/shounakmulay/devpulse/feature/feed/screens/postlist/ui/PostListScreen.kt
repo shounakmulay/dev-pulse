@@ -5,8 +5,11 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -16,8 +19,10 @@ import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
 import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.core.ui.appbar.expand
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
+import dev.shounakmulay.devpulse.core.ui.list.isAtTop
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterEvent
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
@@ -39,10 +44,16 @@ fun PostListScreen(
 ) {
     val lazyGridState = rememberLazyGridState()
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val searchFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     OnTabReselect(navigator = navigator, tab = Screen.Tabs.Feed) {
-        lazyGridState.animateScrollToItem(0)
+        if (lazyGridState.isAtTop()) {
+            searchFocusRequester.requestFocus()
+        } else {
+            lazyGridState.animateScrollToItem(0)
+            appBarScrollBehavior.expand()
+        }
     }
 
     LaunchedEffect(lazyGridState) {
@@ -59,6 +70,7 @@ fun PostListScreen(
         viewModel = viewModel,
         topAppBar = {
             DPSearchTopAppBar(
+                modifier = Modifier.focusRequester(searchFocusRequester),
                 scrollBehavior = appBarScrollBehavior,
                 placeholder = stringResource(stringRes.post_search),
                 textValue = searchQuery,
@@ -74,7 +86,7 @@ fun PostListScreen(
         },
         floatingActionButton = {
             ScrollToTopFAB(lazyGridState = lazyGridState, collapsedFraction = 0f) {
-                appBarScrollBehavior.state.heightOffset = 0f
+                appBarScrollBehavior.expand()
             }
         },
         onEffect = {},
