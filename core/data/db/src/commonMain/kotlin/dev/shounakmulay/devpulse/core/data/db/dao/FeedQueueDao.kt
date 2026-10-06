@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.db.dao
 
+import androidx.paging.PagingSource
 import androidx.room3.Dao
 import androidx.room3.Delete
 import androidx.room3.Insert
@@ -74,4 +75,26 @@ interface FeedQueueDao {
         """
     )
     fun observeEntriesForUrls(urls: List<String>): Flow<List<LocalRssFeedQueue>>
+
+    @Query(
+        """
+            SELECT * FROM LocalRssFeedQueue
+            WHERE status IN (:status)
+            ORDER BY id DESC
+        """
+    )
+    fun observeQueuePagingSource(status: Set<LocalRssFeedQueueStatus>): PagingSource<Int, LocalRssFeedQueue>
+
+    @Query(
+        """
+            SELECT * FROM LocalRssFeedQueue
+            WHERE status IN (:status)
+            ORDER BY id DESC
+        """
+    )
+    fun observeQueue(status: Set<LocalRssFeedQueueStatus>): Flow<List<LocalRssFeedQueue>>
+
+    @Query("DELETE FROM LocalRssFeedQueue WHERE feedId = :feedId")
+    suspend fun deleteByFeedId(feedId: Int)
+
 }

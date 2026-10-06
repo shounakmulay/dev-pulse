@@ -4,16 +4,16 @@ import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.coroutines.flowCachingOnDefault
 import dev.shounakmulay.devpulse.core.common.extensions.mapToSuccessNotNull
 import dev.shounakmulay.devpulse.core.data.feed.repository.RssFeedQueueRepository
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import org.koin.core.annotation.Factory
 
 @Factory
-class ObserveFeedQueueForUrlsUseCase(
+class ObserveFeedQueueUseCase(
     private val feedQueueRepository: RssFeedQueueRepository,
     private val dispatcherProvider: DispatcherProvider
 ) {
-
-    operator fun invoke(urls: List<String>) = feedQueueRepository
-        .observeQueueForUrls(urls)
+    operator fun invoke(status: Set<RssFeedQueueStatus>) = feedQueueRepository
+        .observeQueue(status)
         .flowCachingOnDefault(dispatcherProvider)
         .mapToSuccessNotNull()
 }

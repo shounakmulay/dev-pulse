@@ -35,10 +35,8 @@ import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionScope
 import dev.shounakmulay.devpulse.core.data.db.transaction.RoomTransactionScopeWrapper
+import dev.shounakmulay.devpulse.core.data.db.triggers.createPostContentFtsDeleteTrigger
 
-private object SchemaVersions {
-    const val BASE = 1
-}
 
 @Database(
     entities = [
@@ -53,8 +51,6 @@ private object SchemaVersions {
         LocalRssPostContent::class,
         LocalRssPostContentFts::class,
         LocalRssFeedSyncMetadata::class
-    ],
-    autoMigrations = [
     ],
     version = SchemaVersions.BASE
 )
@@ -110,15 +106,16 @@ fun getDevPulseDatabase(
     return builder
         .setDriver(driver)
         .setQueryCoroutineContext(dispatcherProvider.ioDispatcher)
-        .fallbackToDestructiveMigration()
         .addColumnTypeConverter(compressedTextTypeConverter)
         .addCallback(object : RoomDatabase.Callback() {
             override suspend fun onCreate(connection: SQLiteConnection) {
+                createPostContentFtsDeleteTrigger(connection)
                 // TODO: Call vector init
                 // TODO: Call vector quantize on data change not here.
             }
 
             override suspend fun onOpen(connection: SQLiteConnection) {
+
                 // TODO: Call vector quantize preload
             }
         })

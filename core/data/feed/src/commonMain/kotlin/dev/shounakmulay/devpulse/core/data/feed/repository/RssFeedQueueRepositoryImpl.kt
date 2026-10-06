@@ -1,8 +1,13 @@
 package dev.shounakmulay.devpulse.core.data.feed.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedQueueDao
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedQueueMapper
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
@@ -40,6 +45,35 @@ internal class RssFeedQueueRepositoryImpl(
             .map {
                 it.map(feedQueueMapper::fromLocalRssFeedQueue)
             }
+    }
+
+    override fun observeQueuePagingData(status: Set<RssFeedQueueStatus>): Flow<PagingData<RssFeedQueueEntry>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+            ),
+            pagingSourceFactory = {
+                feedQueueDao.observeQueuePagingSource(status.map {
+                    feedQueueMapper.toLocalRssFeedQueueStatus(it)
+                }.toSet())
+            }
+        ).flow.map {
+            it.map { localRssFeedQueue ->
+                feedQueueMapper.fromLocalRssFeedQueue(localRssFeedQueue)
+            }
+        }
+    }
+
+    override fun observeQueue(status: Set<RssFeedQueueStatus>): Flow<List<RssFeedQueueEntry>> {
+        return feedQueueDao.observeQueue(
+            status.map {
+                feedQueueMapper.toLocalRssFeedQueueStatus(it)
+            }.toSet()
+        ).map {
+            it.map { localRssFeedQueue ->
+                feedQueueMapper.fromLocalRssFeedQueue(localRssFeedQueue)
+            }
+        }
     }
 
     override suspend fun removeStaleEntries(entry: RssFeedQueueEntry) {
