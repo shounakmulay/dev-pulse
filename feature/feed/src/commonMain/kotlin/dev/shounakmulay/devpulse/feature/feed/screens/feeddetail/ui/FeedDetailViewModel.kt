@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
+import dev.shounakmulay.devpulse.core.domain.feed.feed.DeleteFeedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetFeedDetailUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
@@ -11,10 +12,14 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
 import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveFeedPostListItemVariantUseCase
+import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
+import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
+import devpulse.core.resources.generated.resources.failed_to_delete_feed
+import devpulse.core.resources.generated.resources.feed_deleted
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +38,8 @@ class FeedDetailViewModel(
     private val getFeedDetailUseCase: GetFeedDetailUseCase,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val setFeedPinnedUseCase: SetFeedPinnedUseCase,
-    private val observeFeedPostListItemVariantUseCase: ObserveFeedPostListItemVariantUseCase
+    private val observeFeedPostListItemVariantUseCase: ObserveFeedPostListItemVariantUseCase,
+    private val deleteFeedUseCase: DeleteFeedUseCase,
 ) : MviViewModel<FeedDetailScreenState, FeedDetailScreenEffect>(
     initialState = FeedDetailScreenState()
 ),
@@ -78,6 +84,41 @@ class FeedDetailViewModel(
 
             FeedDetailScreenEvent.Retry -> Unit
             FeedDetailScreenEvent.PinToggled -> onPinToggled()
+            FeedDetailScreenEvent.DeleteFeed -> onDeleteFeed()
+            FeedDetailScreenEvent.Share -> onShare()
+        }
+    }
+
+    private fun onShare() {
+        intent {
+            val feed = state.uiFeed ?: return@intent
+            postEffect(
+                FeedDetailScreenEffect.Share(text = "${feed.title}: ${feed.sourceUrl}")
+            )
+        }
+    }
+
+    private fun onDeleteFeed() {
+        intent {
+            val result = deleteFeedUseCase(feedId)
+
+            result.fold(
+                onSuccess = {
+                    postEffect(
+                        FeedDetailScreenEffect.ShowToast(
+                            TextResource.fromStringRes(stringRes.feed_deleted)
+                        )
+                    )
+                    postEffect(FeedDetailScreenEffect.NavigateBack)
+                },
+                onFailure = {
+                    postEffect(
+                        FeedDetailScreenEffect.ShowToast(
+                            TextResource.fromStringRes(stringRes.failed_to_delete_feed)
+                        )
+                    )
+                }
+            )
         }
     }
 

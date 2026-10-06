@@ -30,7 +30,7 @@ import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.components.feed
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.components.importFeedItems
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.components.statusHeader
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.components.statusList
-import devpulse.core.resources.generated.resources.add_feed_title
+import devpulse.core.resources.generated.resources.import_feeds
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -46,7 +46,7 @@ fun AddFeedScreen(
         viewModel = viewModel,
         topAppBar = {
             DPTopAppBar(
-                title = stringResource(stringRes.add_feed_title),
+                title = stringResource(stringRes.import_feeds),
                 navigationIcon = {
                     DPBackNavigationIconButton {
                         navigator.navigateBack()
@@ -129,5 +129,3 @@ fun AddFeedScreen(
         }
     }
 }
-
-

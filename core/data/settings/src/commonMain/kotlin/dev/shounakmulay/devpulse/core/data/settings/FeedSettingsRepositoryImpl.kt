@@ -24,4 +24,14 @@ class FeedSettingsRepositoryImpl(
     override suspend fun setFeedPostListItemVariant(variant: FeedsPostListItemVariant) {
         preferences.set(DevPulsePreferenceKeys.feedPostListItemVariant, variant.name)
     }
+
+    override fun observeSyncInBackground(defaultValue: Boolean): Flow<Boolean> {
+        return preferences.observe(DevPulsePreferenceKeys.syncInBackground)
+            .map { it ?: defaultValue }
+            .distinctUntilChanged()
+    }
+
+    override suspend fun setSyncInBackground(enabled: Boolean) {
+        preferences.set(DevPulsePreferenceKeys.syncInBackground, enabled)
+    }
 }

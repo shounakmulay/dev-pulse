@@ -24,11 +24,11 @@ import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.text.asString
 import devpulse.core.resources.generated.resources.add_feed_action_paste_opml
-import devpulse.core.resources.generated.resources.add_feed_opml_cancel
 import devpulse.core.resources.generated.resources.add_feed_opml_placeholder
 import devpulse.core.resources.generated.resources.add_feed_opml_process
 import devpulse.core.resources.generated.resources.add_feed_opml_text
 import devpulse.core.resources.generated.resources.add_feed_opml_title
+import devpulse.core.resources.generated.resources.cancel
 import org.jetbrains.compose.resources.stringResource
 
 fun LazyGridScope.opmlImportPanel(
@@ -80,7 +80,7 @@ fun LazyGridScope.opmlImportPanel(
                             horizontalArrangement = Arrangement.End
                         ) {
                             DPButton(
-                                text = stringResource(stringRes.add_feed_opml_cancel),
+                                text = stringResource(stringRes.cancel),
                                 style = DPButtonStyle.Text,
                                 variant = DPButtonVariant.Secondary,
                                 onClick = onCancel

@@ -9,6 +9,10 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class AndroidSharingService(private val context: Context) : SharingService {
+    override fun share(text: String) {
+        share(text = text, link = text)
+    }
+
     override fun share(text: String, link: String) {
         val shareIntent = Intent.createChooser(
             Intent(Intent.ACTION_SEND).apply {

@@ -4,7 +4,6 @@ import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.coroutines.runCatchingOnDefault
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.feed.repository.RssFeedQueueRepository
-import dev.shounakmulay.devpulse.core.domain.feed.queue.RssFeedQueueExecutor
 import dev.shounakmulay.devpulse.core.domain.models.feed.AddFeedData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionRequestor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
@@ -19,7 +18,6 @@ class EnqueueFeedImportsUseCase(
     private val rssFeedQueueRepository: RssFeedQueueRepository,
     private val dispatcherProvider: DispatcherProvider,
     private val dateTimeProvider: DateTimeProvider,
-    private val queueExecutor: RssFeedQueueExecutor,
     logger: DPLogger
 ) {
     private val logger = logger.withTag(Tag)
@@ -45,7 +43,6 @@ class EnqueueFeedImportsUseCase(
                 queueEntry
             }
             rssFeedQueueRepository.enqueue(entries)
-            queueExecutor.processQueue()
         }
 
     private fun RssFeedQueueEntry.importLogMessage(): String {

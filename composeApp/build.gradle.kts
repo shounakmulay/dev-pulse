@@ -1,4 +1,3 @@
-
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule
 import dev.shounakmulay.devpulse.buildsrc.constants.Modules
@@ -13,7 +12,8 @@ plugins {
 
 aboutLibraries {
     export {
-        outputFile = file("${rootDir}/core/resources/src/commonMain/composeResources/files/aboutlibraries.json")
+        outputFile =
+            file("${rootDir}/core/resources/src/commonMain/composeResources/files/aboutlibraries.json")
     }
     library {
         duplicationMode = DuplicateMode.MERGE
@@ -44,6 +44,8 @@ kotlin {
             implementation(project(Modules.Core.Data.SETTINGS))
             implementation(project(Modules.Core.Data.DB))
             implementation(project(Modules.Core.Data.FEED))
+            implementation(project(Modules.Core.NOTIFICATIONS))
+            implementation(project(Modules.Core.PERMISSIONS))
 
             implementation(project(Modules.Feature.HOME))
             implementation(project(Modules.Feature.FEED))

@@ -26,6 +26,7 @@ object Modules {
         const val LOGGING = ":core:logging"
         const val NETWORK = ":core:network"
         const val NOTIFICATIONS = ":core:notifications"
+        const val PERMISSIONS = ":core:permissions"
         const val COMMON = ":core:common"
         const val SYNC = ":core:sync"
 

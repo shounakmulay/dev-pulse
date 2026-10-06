@@ -6,6 +6,7 @@ import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 class BuildConfig(private val project: Project) {
+    val versionName: String get() = version("app-versionName")
     val android = Android()
     val jvm = Jvm()
     val desktop = Desktop()
@@ -16,7 +17,7 @@ class BuildConfig(private val project: Project) {
         val minSdk: Int get() = version("android-minSdk").toInt()
         val targetSdk: Int get() = version("android-targetSdk").toInt()
         val versionCode: Int get() = version("app-versionCode").toInt()
-        val versionName: String get() = version("app-versionName")
+        val versionName: String get() = this@BuildConfig.versionName
     }
 
     inner class Jvm {

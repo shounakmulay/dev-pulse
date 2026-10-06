@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.buildsrc.plugins
 
 import com.android.build.api.dsl.ApplicationExtension
+import dev.shounakmulay.devpulse.buildsrc.constants.Modules
 import dev.shounakmulay.devpulse.buildsrc.constants.buildConfig
 import dev.shounakmulay.devpulse.buildsrc.extensions.libs
 import dev.shounakmulay.devpulse.buildsrc.plugins.PluginExtensions.applyPlugin
@@ -26,6 +27,7 @@ class KmpAndroidApplicationPlugin : Plugin<Project> {
             }
 
             plugins.withId("com.android.application") {
+                dependencies.add("implementation", project(Modules.Core.COMMON))
                 extensions.configure<ApplicationExtension> {
                     compileSdk = buildConfig.android.compileSdk
 

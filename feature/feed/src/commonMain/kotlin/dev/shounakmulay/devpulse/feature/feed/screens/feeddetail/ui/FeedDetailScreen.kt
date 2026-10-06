@@ -18,6 +18,7 @@ import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.FeedDetail
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
 import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
+import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterEvent
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
 import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components.FeedDetailTopAppBar
@@ -34,6 +35,7 @@ fun FeedDetailScreen(
     val posts = viewModel.posts.collectAsLazyPagingItems()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val lazyGridState = rememberLazyGridState()
+    val sharingService = rememberSharingService(onCopiedToClipboard = {})
 
     OnTabReselect(navigator = navigator, tab = Screen.Tabs.Feed) {
         lazyGridState.animateScrollToItem(0)
@@ -51,13 +53,32 @@ fun FeedDetailScreen(
                     viewModel.onEvent(
                         FeedDetailScreenEvent.PinToggled
                     )
+                },
+                onDelete = {
+                    viewModel.onEvent(
+                        FeedDetailScreenEvent.DeleteFeed
+                    )
+                },
+                onShare = {
+                    viewModel.onEvent(
+                        FeedDetailScreenEvent.Share
+                    )
                 }
             )
         },
         floatingActionButton = {
             ScrollToTopFAB(lazyGridState, scrollBehavior)
         },
-        onEffect = {},
+        onEffect = {
+            when (it) {
+                is FeedDetailScreenEffect.NavigateBack -> navigator.navigateBack()
+                is FeedDetailScreenEffect.ShowToast -> {
+
+                }
+                is FeedDetailScreenEffect.Share -> sharingService.share(text = it.text)
+                else -> viewModel.unhandledEffect(it)
+            }
+        },
     ) { state ->
         if (state.isLoading || state.feed == null || state.uiFeed == null)
             return@Screen DPLoadingIndicator(
@@ -100,5 +121,3 @@ fun FeedDetailScreen(
         )
     }
 }
-
-

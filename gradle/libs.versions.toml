@@ -4,8 +4,9 @@ android-compileSdk = "37"
 android-minSdk = "26"
 android-targetSdk = "37"
 app-versionCode = "1"
-app-versionName = "1.0"
+app-versionName = "1.0.0"
 app-desktopPackageVersion = "1.0.0"
+buildConfig = "6.0.10"
 calfUi = "0.14.0"
 coilCompose = "3.6.3"
 composeMultiplatformVersion = "2.10.1"
@@ -73,6 +74,7 @@ androidx-paging-common = { module = "androidx.paging:paging-common", version.ref
 androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "pagingRuntime" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingRuntime" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+calf-permissions-notifications = { module = "com.mohamedrejeb.calf:calf-permissions-notifications", version.ref = "calfUi" }
 calf-ui = { module = "com.mohamedrejeb.calf:calf-ui", version.ref = "calfUi" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
@@ -185,6 +187,7 @@ sqlite-vector = { module = "ai.sqlite:vector", version.ref = "sqlite-vector" }
 zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 [plugins]
+buildConfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildConfig" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
