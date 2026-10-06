@@ -37,7 +37,10 @@ class KmpLibraryPlugin : Plugin<Project> {
                             implementation(project.dependencies.platform(libs.findLibrary("koin-bom").get()))
                             implementation(libs.findLibrary("koin-core").get())
                             implementation(libs.findLibrary("koin-annotations").get())
-                            if (path != Modules.Core.LOGGING) {
+                            if (path != Modules.Core.COMMON) {
+                                implementation(project(Modules.Core.COMMON))
+                            }
+                            if (path != Modules.Core.LOGGING && path != Modules.Core.COMMON) {
                                 implementation(project(Modules.Core.LOGGING))
                             }
                         }
