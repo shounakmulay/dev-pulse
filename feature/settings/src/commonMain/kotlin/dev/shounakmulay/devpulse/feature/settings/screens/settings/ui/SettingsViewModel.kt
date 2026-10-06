@@ -6,7 +6,9 @@ import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVarian
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeSettings
 import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveFeedPostListItemVariantUseCase
+import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveSyncInBackgroundUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.feed.SetFeedPostListItemVariantUseCase
+import dev.shounakmulay.devpulse.core.domain.settings.feed.SetSyncInBackgroundUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.theme.ObserveThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.theme.SetThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.logging.DPLogger
@@ -22,6 +24,8 @@ class SettingsViewModel(
     private val setThemeSettingsUseCase: SetThemeSettingsUseCase,
     private val observeFeedPostListItemVariantUseCase: ObserveFeedPostListItemVariantUseCase,
     private val setFeedPostListItemVariantUseCase: SetFeedPostListItemVariantUseCase,
+    private val observeSyncInBackgroundUseCase: ObserveSyncInBackgroundUseCase,
+    private val setSyncInBackgroundUseCase: SetSyncInBackgroundUseCase,
     logger: DPLogger
 ) : MviViewModel<SettingsScreenState, SettingsScreenEffect>(SettingsScreenState()),
     EventHandler<SettingsScreenEvent> {
@@ -49,6 +53,14 @@ class SettingsViewModel(
                 }
             }
             .launchIn(viewModelScope)
+
+        observeSyncInBackgroundUseCase()
+            .onEachSuccess { syncInBackground ->
+                if (syncInBackground != null) {
+                    setState { copy(syncInBackground = syncInBackground) }
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     override fun createStateSerializer() = SettingsScreenState.serializer()
@@ -64,6 +76,13 @@ class SettingsViewModel(
             SettingsScreenEvent.OnDesignSystemBoardClicked -> navigateToDesignSystemBoard()
             SettingsScreenEvent.OnLicensesClicked -> navigateToLicenses()
             SettingsScreenEvent.OnArticleSettingsClicked -> navigateToArticleSettings()
+            is SettingsScreenEvent.OnSyncInBackgroundToggled -> toggleSyncInBackground(event.enabled)
+        }
+    }
+
+    private fun toggleSyncInBackground(enabled: Boolean) {
+        intent {
+            setSyncInBackgroundUseCase(enabled)
         }
     }
 

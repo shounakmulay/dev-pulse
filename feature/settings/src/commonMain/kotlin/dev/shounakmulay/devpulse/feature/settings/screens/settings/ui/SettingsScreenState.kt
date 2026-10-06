@@ -12,6 +12,7 @@ data class SettingsScreenState(
     val feedPostListItemVariant: FeedsPostListItemVariant = FeedsPostListItemVariant.DEFAULT,
     val isBlackMode: Boolean = false,
     val themeMode: ThemeMode = ThemeMode.DEFAULT,
+    val syncInBackground: Boolean = true,
 ) : ScreenState {
     fun canToggleBlackMode(isDarkTheme: Boolean): Boolean =
         when (themeMode) {
