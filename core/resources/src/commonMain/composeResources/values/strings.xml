@@ -113,7 +113,6 @@
     <string name="data_and_sync">Data and Sync</string>
     <string name="sync_in_background">Sync in background</string>
     <string name="update_feeds_in_background">Update feeds periodically in the background</string>"
-    <string name="app_version">App Version: v%1$s</string>"
     <string name="view_on_github">View on GitHub</string>
     <string name="source_code">Source code</string>
     <string name="feed_data_sync_group_name">Feeds</string>
