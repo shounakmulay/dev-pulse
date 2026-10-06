@@ -53,6 +53,8 @@
     <string name="feed_list_load_error">Unable to load feeds</string>
     <string name="feed_action_retry">Retry</string>
     <string name="pin_feed">Pin feed</string>
+    <string name="pin">Pin</string>
+    <string name="unpin">Unpin</string>
     <string name="feed_action_unpin">Unpin feed</string>
     <string name="feed_image_content_description">Image for %1$s</string>
     <string name="feed_pinned_content_description">Pinned feed</string>
@@ -128,4 +130,5 @@
     <string name="confirm_delete_feed_title">Delete feed?</string>
     <string name="confirm_delete_feed_message">Remove "%1$s" from your feeds? You will stop receiving new posts from this feed.</string>
     <string name="feed_lowercase">feed</string>
+    <string name="failed_to_update_feed">Failed to update feed</string>
 </resources>

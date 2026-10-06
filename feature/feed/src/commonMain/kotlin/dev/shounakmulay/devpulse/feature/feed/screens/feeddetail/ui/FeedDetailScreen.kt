@@ -17,8 +17,12 @@ import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.FeedDetail
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
 import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
+import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
+import dev.shounakmulay.devpulse.core.ui.text.resolve
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedDeleteConfirmation
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsState
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterEvent
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
 import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components.FeedDetailTopAppBar
@@ -32,6 +36,7 @@ fun FeedDetailScreen(
     postSortAndFiltersViewModel: PostSortAndFilterViewModel,
     viewModel: FeedDetailViewModel,
 ) {
+    val snackbarController = LocalSnackbarController.current
     val posts = viewModel.posts.collectAsLazyPagingItems()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val lazyGridState = rememberLazyGridState()
@@ -50,20 +55,15 @@ fun FeedDetailScreen(
                 lazyGridState = lazyGridState,
                 navigator = navigator,
                 onPinToggled = {
-                    viewModel.onEvent(
-                        FeedDetailScreenEvent.PinToggled
-                    )
+                    viewModel.onEvent(FeedDetailScreenEvent.OnPinToggled)
                 },
-                onDelete = {
-                    viewModel.onEvent(
-                        FeedDetailScreenEvent.DeleteFeed
-                    )
+                onShowOptions = {
+                    uiFeed?.let { viewModel.onEvent(FeedDetailScreenEvent.OnShowFeedOptions(it)) }
                 },
-                onShare = {
-                    viewModel.onEvent(
-                        FeedDetailScreenEvent.Share
-                    )
-                }
+                onDismissOptions = { viewModel.onEvent(FeedDetailScreenEvent.HideFeedOptions(route.id)) },
+                onMenuItemSelected = {
+                    viewModel.onEvent(FeedDetailScreenEvent.OnFeedOptionSelected(it))
+                },
             )
         },
         floatingActionButton = {
@@ -73,13 +73,19 @@ fun FeedDetailScreen(
             when (it) {
                 is FeedDetailScreenEffect.NavigateBack -> navigator.navigateBack()
                 is FeedDetailScreenEffect.ShowToast -> {
-
+                    snackbarController.showSnackbar(it.message.resolve())
                 }
-                is FeedDetailScreenEffect.Share -> sharingService.share(text = it.text)
+
+                is FeedDetailScreenEffect.Share -> sharingService.share(text = it.text.resolve())
                 else -> viewModel.unhandledEffect(it)
             }
         },
     ) { state ->
+        FeedDeleteConfirmation(
+            confirmation = state.feedOptions as? FeedOptionsState.ConfirmingDelete,
+            onConfirm = { viewModel.onEvent(FeedDetailScreenEvent.ConfirmDelete) },
+            onDismissRequest = { viewModel.onEvent(FeedDetailScreenEvent.DismissDelete) },
+        )
         if (state.isLoading || state.feed == null || state.uiFeed == null)
             return@Screen DPLoadingIndicator(
                 modifier = Modifier.align(

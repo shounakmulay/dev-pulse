@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Icon
@@ -39,7 +38,7 @@ import devpulse.core.resources.generated.resources.feed_pinned_content_descripti
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun LazyGridItemScope.FeedsGridItem(
+fun FeedsGridItem(
     feedId: UUID,
     imageUrl: String?,
     title: String,
@@ -57,8 +56,7 @@ fun LazyGridItemScope.FeedsGridItem(
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick,
-            )
-            .animateItem(),
+            ),
         shape = MaterialTheme.shapes.large
     ) {
         Column(
