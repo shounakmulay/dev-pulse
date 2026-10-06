@@ -9,7 +9,7 @@
     <string name="text_resource_title">TextResource DSL Examples</string>
     <string name="text_resource_greeting">Hello from string resource</string>
     <string name="text_resource_greeting_with_name">Hello, %1$s!</string>
-    <string name="add_feed_title">Import Feeds</string>
+    <string name="import_feeds">Import Feeds</string>
     <string name="add_feed_status">Status</string>
     <string name="add_feed_feeds">Feeds</string>
     <string name="add_feed_action_import">Import</string>
@@ -26,7 +26,7 @@
     <string name="add_feed_opml_process_error">Unable to process OPML.</string>
     <string name="add_feed_opml_url">OPML URL</string>
     <string name="add_feed_opml_url_placeholder">https://example.com/subscriptions.opml</string>
-    <string name="add_feed_opml_cancel">Cancel</string>
+    <string name="cancel">Cancel</string>
     <string name="add_feed_opml_process">Import OPML</string>
     <string name="add_feed_opml_text">OPML URL</string>
     <string name="add_feed_opml_placeholder">https://example.com/subscriptions.opml</string>
@@ -52,7 +52,7 @@
     <string name="feed_list_empty">No feeds yet</string>
     <string name="feed_list_load_error">Unable to load feeds</string>
     <string name="feed_action_retry">Retry</string>
-    <string name="feed_action_pin">Pin feed</string>
+    <string name="pin_feed">Pin feed</string>
     <string name="feed_action_unpin">Unpin feed</string>
     <string name="feed_image_content_description">Image for %1$s</string>
     <string name="feed_pinned_content_description">Pinned feed</string>
@@ -108,4 +108,24 @@
     <string name="post_search">Search posts</string>
     <string name="post_search_minimum_length">Enter at least 3 characters</string>
     <string name="post_search_error">Unable to search posts. Try again.</string>
+    <string name="data_and_sync">Data and Sync</string>
+    <string name="sync_in_background">Sync in background</string>
+    <string name="update_feeds_in_background">Update feeds periodically in the background</string>"
+    <string name="app_version">App Version: v%1$s</string>"
+    <string name="view_on_github">View on GitHub</string>
+    <string name="source_code">Source code</string>
+    <string name="feed_data_sync_group_name">Feeds</string>
+    <string name="feed_data_sync_channel_name">Data synchronization</string>
+    <string name="feed_import_channel_name">Import progress</string>
+    <string name="feed_import_notification_title">Importing feeds</string>
+    <string name="feed_import_notification_text">%1$d feeds queued</string>
+    <string name="feed_import_notification_initial_text">Queueing feeds</string>
+    <string name="more_options">More options</string>"
+    <string name="delete">Delete</string>
+    <string name="share">Share</string>
+    <string name="failed_to_delete_feed">Failed to delete feed</string>
+    <string name="feed_deleted">Feed deleted successfully</string>
+    <string name="confirm_delete_feed_title">Delete feed?</string>
+    <string name="confirm_delete_feed_message">Remove "%1$s" from your feeds? You will stop receiving new posts from this feed.</string>
+    <string name="feed_lowercase">feed</string>
 </resources>

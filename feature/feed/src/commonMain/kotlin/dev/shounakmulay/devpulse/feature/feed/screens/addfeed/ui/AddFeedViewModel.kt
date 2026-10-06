@@ -15,6 +15,7 @@ import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIAddFeedData
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIFeedQueueData
+import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.service.FeedImportBackgroundProcessLauncher
 import devpulse.core.resources.generated.resources.add_feed_opml_empty_error
 import devpulse.core.resources.generated.resources.add_feed_opml_no_feeds_error
 import devpulse.core.resources.generated.resources.add_feed_opml_process_error
@@ -36,8 +37,10 @@ class AddFeedViewModel(
     private val extractOpmlFeedsUseCase: ExtractOpmlFeedsUseCase,
     private val observeFeedQueueForUrlsUseCase: ObserveFeedQueueForUrlsUseCase,
     private val normalizeUrlUseCase: NormalizeUrlUseCase,
-    private val validateUrlUseCase: ValidateUrlUseCase
-) : MviViewModel<AddFeedScreenState, AddFeedScreenEffect>(AddFeedScreenState()), EventHandler<AddFeedScreenEvent> {
+    private val validateUrlUseCase: ValidateUrlUseCase,
+    private val feedImportBackgroundProcessLauncher: FeedImportBackgroundProcessLauncher
+) : MviViewModel<AddFeedScreenState, AddFeedScreenEffect>(AddFeedScreenState()),
+    EventHandler<AddFeedScreenEvent> {
     override fun createStateSerializer() = AddFeedScreenState.serializer()
 
     init {
@@ -173,7 +176,7 @@ class AddFeedViewModel(
         if (failedData.isEmpty()) return@launch
 
         intent {
-            importFeedUseCase(failedData)
+            importFeeds(failedData)
         }
     }
 
@@ -315,8 +318,13 @@ class AddFeedViewModel(
         }
 
         intent {
-            importFeedUseCase(validData.map { it.toAddFeedData() })
+            importFeeds(validData.map { it.toAddFeedData() })
         }
+    }
+
+    private suspend fun importFeeds(feeds: List<AddFeedData>) {
+        importFeedUseCase(feeds)
+        feedImportBackgroundProcessLauncher.launch()
     }
 
     private fun UIAddFeedData.toAddFeedData(): AddFeedData {

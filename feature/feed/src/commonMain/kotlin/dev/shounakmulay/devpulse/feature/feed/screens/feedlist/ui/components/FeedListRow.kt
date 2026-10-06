@@ -26,7 +26,7 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
-import devpulse.core.resources.generated.resources.feed_action_pin
+import devpulse.core.resources.generated.resources.pin_feed
 import devpulse.core.resources.generated.resources.feed_action_unpin
 import org.jetbrains.compose.resources.stringResource
 
@@ -84,7 +84,7 @@ fun LazyGridItemScope.FeedListRow(
             contentDescription = if (feed.pinned) {
                 stringResource(stringRes.feed_action_unpin)
             } else {
-                stringResource(stringRes.feed_action_pin)
+                stringResource(stringRes.pin_feed)
             },
             checked = feed.pinned,
             onCheckedChange = onTogglePinned,
