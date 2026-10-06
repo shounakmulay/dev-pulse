@@ -26,8 +26,6 @@ import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
-import dev.shounakmulay.devpulse.core.ui.text.TextResource
-import dev.shounakmulay.devpulse.core.ui.text.asString
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.AppearanceSettingsSection
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.DeveloperSettingsSection
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.OthersSection
@@ -35,7 +33,6 @@ import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.SettingsSubPageLink
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.SettingsToggle
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.ThemeSettingsSection
-import devpulse.core.resources.generated.resources.app_version
 import devpulse.core.resources.generated.resources.data_and_sync
 import devpulse.core.resources.generated.resources.import_feeds
 import devpulse.core.resources.generated.resources.settings
@@ -137,23 +134,15 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.sm),
                 ) {
-                    DPTextView(
-                        text = TextResource.fromStringResWithArgs(
-                            stringRes.app_version,
-                            BuildConfig.APP_VERSION
-                        ).asString(),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        variant = DPTextViewVariant.LabelMedium
-                    )
                     Icon(
                         imageVector = DPIcons.devPulseIconLarge(),
                         contentDescription = "Dev Pulse",
-                        modifier = Modifier
-                            .padding(
-                                top = LocalDPSpacing.current.md,
-                                bottom = LocalDPSpacing.current.xl
-                            )
-                            .alpha(0.75f),
+                        modifier = Modifier.alpha(0.75f),
+                    )
+                    DPTextView(
+                        text = "v${BuildConfig.APP_VERSION}",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        variant = DPTextViewVariant.LabelMedium
                     )
                 }
             }

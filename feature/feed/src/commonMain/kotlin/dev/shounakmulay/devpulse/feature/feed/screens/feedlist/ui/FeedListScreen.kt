@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -36,6 +38,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.shounakmulay.devpulse.core.designsystem.components.DPLinearProgressIndicator
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSearchTopAppBar
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
@@ -43,7 +46,16 @@ import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.grid.adaptiveColumnsCount
 import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
+import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
+import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
+import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
+import dev.shounakmulay.devpulse.core.ui.text.resolve
 import dev.shounakmulay.devpulse.core.ui.transition.sharedBounds
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedDeleteConfirmation
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenu
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenuItem
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsState
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsTarget
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.AppendErrorRow
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.AppendLoadingRow
@@ -56,7 +68,6 @@ import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.UISelect
 import devpulse.core.resources.generated.resources.feed_list_load_error
 import devpulse.core.resources.generated.resources.feed_search
 import org.jetbrains.compose.resources.stringResource
-import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -65,6 +76,8 @@ fun FeedListScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
 ) {
+    val snackbarController = LocalSnackbarController.current
+    val sharingService = rememberSharingService(onCopiedToClipboard = {})
     val lazyGridState = rememberLazyGridState()
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val feeds = viewModel.uiFeedsFlow.collectAsLazyPagingItems()
@@ -116,12 +129,31 @@ fun FeedListScreen(
                 appBarScrollBehavior.state.heightOffset = 0f
             }
         },
-        onEffect = { viewModel.unhandledEffect(it) },
+        onEffect = {
+            when (it) {
+                is FeedListScreenEffect.Share -> sharingService.share(text = it.text.resolve())
+                is FeedListScreenEffect.ShowToast -> {
+                    snackbarController.showSnackbar(it.message.resolve())
+                }
+                else -> viewModel.unhandledEffect(it)
+            }
+        },
     ) { state ->
+        FeedDeleteConfirmation(
+            confirmation = state.feedOptions as? FeedOptionsState.ConfirmingDelete,
+            onConfirm = { viewModel.onEvent(FeedListScreenEvent.ConfirmDelete) },
+            onDismissRequest = { viewModel.onEvent(FeedListScreenEvent.DismissDelete) },
+        )
         FeedsList(
             feeds = feeds,
             lazyGridState = lazyGridState,
             selectedTab = state.selectedTab,
+            selectedOptions = (state.feedOptions as? FeedOptionsState.Open)?.target,
+            onShowOptions = { viewModel.onEvent(FeedListScreenEvent.OnShowFeedOptions(it)) },
+            onDismissOptions = { viewModel.onEvent(FeedListScreenEvent.HideFeedOptions(it)) },
+            onOptionSelected = { feedId, option ->
+                viewModel.onEvent(FeedListScreenEvent.OnFeedOptionSelected(feedId, option))
+            },
             onTabSelected = { tab ->
                 if (tab != state.selectedTab) {
                     lazyGridState.requestScrollToItem(0)
@@ -145,6 +177,10 @@ internal fun FeedsList(
     selectedTab: UISelectedTab,
     onTabSelected: (UISelectedTab) -> Unit,
     onTogglePinned: (UIFeed, Boolean) -> Unit,
+    selectedOptions: FeedOptionsTarget?,
+    onShowOptions: (UIFeed) -> Unit,
+    onDismissOptions: (UUID) -> Unit,
+    onOptionSelected: (UUID, FeedOptionsMenuItem) -> Unit,
     onFeedItemClick: (UIFeed) -> Unit
 ) {
     val fallbackLoadError = stringResource(stringRes.feed_list_load_error)
@@ -191,15 +227,25 @@ internal fun FeedsList(
             if (feed == null) {
                 FeedListPlaceholderRow()
             } else {
-                FeedListRow(
-                    feed = feed,
-                    onTogglePinned = {
-                        onTogglePinned(feed, it)
-                    },
-                    onClick = {
-                        onFeedItemClick(feed)
+                Box(Modifier.fillMaxWidth().animateItem()) {
+                    FeedListRow(
+                        feed = feed,
+                        onTogglePinned = { onTogglePinned(feed, it) },
+                        onLongClick = { onShowOptions(feed) },
+                        onClick = { onFeedItemClick(feed) },
+                    )
+                    if (selectedOptions?.feedId == feed.id) {
+                        DisposableEffect(feed.id) {
+                            onDispose { onDismissOptions(feed.id) }
+                        }
+                        FeedOptionsMenu(
+                            expanded = true,
+                            menuItems = selectedOptions.items,
+                            onMenuItemSelected = { onOptionSelected(feed.id, it) },
+                            onDismissRequest = { onDismissOptions(feed.id) },
+                        )
                     }
-                )
+                }
             }
         }
 

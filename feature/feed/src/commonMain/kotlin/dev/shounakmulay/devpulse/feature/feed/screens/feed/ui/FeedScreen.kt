@@ -24,7 +24,12 @@ import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.PostList
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
 import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
+import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
+import dev.shounakmulay.devpulse.core.ui.text.resolve
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedDeleteConfirmation
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsState
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds.feedsSection
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.postsSection
 import devpulse.core.resources.generated.resources.feed_view_all
@@ -40,14 +45,25 @@ fun FeedScreen(
     navigator: Navigator,
     viewModel: FeedViewModel,
 ) {
+    val snackbarController = LocalSnackbarController.current
+    val sharingService = rememberSharingService(onCopiedToClipboard = {})
     Screen(
         viewModel = viewModel,
         onEffect = {
             when (it) {
+                is FeedScreenEffect.Share -> sharingService.share(text = it.text.resolve())
+                is FeedScreenEffect.ShowToast -> {
+                    snackbarController.showSnackbar(it.message.resolve())
+                }
                 else -> viewModel.unhandledEffect(it)
             }
         },
     ) { state ->
+        FeedDeleteConfirmation(
+            confirmation = state.feedOptions as? FeedOptionsState.ConfirmingDelete,
+            onConfirm = { viewModel.onEvent(FeedScreenEvent.ConfirmDelete) },
+            onDismissRequest = { viewModel.onEvent(FeedScreenEvent.DismissDelete) },
+        )
         val pinnedAndRecentFeeds by viewModel.pinnedAndRecentFeeds.collectAsStateWithLifecycle()
         val recentArticles by viewModel.recentArticles.collectAsStateWithLifecycle()
         val listState = rememberLazyListState()
@@ -67,13 +83,19 @@ fun FeedScreen(
             feedsSection(
                 pinnedAndRecentFeeds = pinnedAndRecentFeeds,
                 isFeedLoading = state.isFeedLoading,
+                selectedOptions = (state.feedOptions as? FeedOptionsState.Open)?.target,
+                onDismissOptions = { viewModel.onEvent(FeedScreenEvent.HideFeedOptions(it)) },
+                onOptionSelected = { feedId, option ->
+                    viewModel.onEvent(FeedScreenEvent.OnFeedOptionSelected(feedId, option))
+                },
                 onNavigateToAddFeed = { navigator.navigate(Tabs.Feed.AddFeed) },
                 onNavigateToFeedList = { navigator.navigate(Tabs.Feed.FeedList) },
                 onFeedClick = { navigator.replaceOfSameType(Tabs.Feed.FeedDetail(it.id)) },
                 onFeedLongClick = {
-
+                    viewModel.onEvent(FeedScreenEvent.OnShowFeedOptions(it))
                 },
             )
+
             postsSection(
                 articles = recentArticles,
                 isLoading = state.isArticlesLoading,

@@ -341,6 +341,12 @@ internal class RssFeedQueueExecutorImpl(
         return queueProcessingMutex.isLocked
     }
 
+    override suspend fun awaitProcessing() {
+        if (isProcessing()) {
+           queueProcessingMutex.withLock {  }
+        }
+    }
+
     private fun String.sourceSummary(): String {
         val withoutScheme = substringAfter("://", this)
         val host =

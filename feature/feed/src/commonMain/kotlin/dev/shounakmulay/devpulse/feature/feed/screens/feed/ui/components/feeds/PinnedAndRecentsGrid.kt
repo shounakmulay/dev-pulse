@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -22,7 +24,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenu
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenuItem
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsTarget
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import devpulse.core.resources.generated.resources.feed_grid_loading_content_description
 import kotlinx.collections.immutable.ImmutableList
@@ -33,6 +39,9 @@ fun PinnedAndRecentsGrid(
     pinnedAndRecentFeeds: ImmutableList<UIFeed>,
     onFeedClick: (UIFeed) -> Unit,
     onFeedLongClick: (UIFeed) -> Unit,
+    selectedOptions: FeedOptionsTarget?,
+    onDismissOptions: (UUID) -> Unit,
+    onOptionSelected: (UUID, FeedOptionsMenuItem) -> Unit,
 ) {
     val rowsCount = pinnedAndRecentsGridRowsCount(pinnedAndRecentFeeds.size)
     val spacing = LocalDPSpacing.current
@@ -44,16 +53,29 @@ fun PinnedAndRecentsGrid(
         verticalArrangement = Arrangement.spacedBy(spacing.sm)
     ) {
         items(pinnedAndRecentFeeds, key = { it.id.value }) { item ->
-            FeedsGridItem(
-                feedId = item.id,
-                imageUrl = item.websiteImageUrl,
-                title = item.title,
-                initials = item.initials,
-                pinned = item.pinned,
-                sourceUrl = item.sourceUrl,
-                onClick = { onFeedClick(item) },
-                onLongClick = { onFeedLongClick(item) },
-            )
+            Box(Modifier.width(90.dp).animateItem()) {
+                FeedsGridItem(
+                    feedId = item.id,
+                    imageUrl = item.websiteImageUrl,
+                    title = item.title,
+                    initials = item.initials,
+                    pinned = item.pinned,
+                    sourceUrl = item.sourceUrl,
+                    onClick = { onFeedClick(item) },
+                    onLongClick = { onFeedLongClick(item) },
+                )
+                if (selectedOptions?.feedId == item.id) {
+                    DisposableEffect(item.id) {
+                        onDispose { onDismissOptions(item.id) }
+                    }
+                    FeedOptionsMenu(
+                        expanded = true,
+                        onDismissRequest = { onDismissOptions(item.id) },
+                        menuItems = selectedOptions.items,
+                        onMenuItemSelected = { onOptionSelected(item.id, it) },
+                    )
+                }
+            }
         }
     }
 }

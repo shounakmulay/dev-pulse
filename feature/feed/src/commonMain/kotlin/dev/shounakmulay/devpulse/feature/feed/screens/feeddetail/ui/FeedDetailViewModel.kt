@@ -3,7 +3,6 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
-import dev.shounakmulay.devpulse.core.domain.feed.feed.DeleteFeedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetFeedDetailUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
@@ -12,14 +11,16 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
 import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveFeedPostListItemVariantUseCase
-import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
-import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenuItem
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenuProcessor
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsState
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.dismissMenu
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.toFeedOptionsTarget
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
-import devpulse.core.resources.generated.resources.failed_to_delete_feed
-import devpulse.core.resources.generated.resources.feed_deleted
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import org.koin.core.annotation.KoinViewModel
+import org.orbitmvi.orbit.syntax.Syntax
 
 
 @KoinViewModel
@@ -39,7 +41,7 @@ class FeedDetailViewModel(
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val setFeedPinnedUseCase: SetFeedPinnedUseCase,
     private val observeFeedPostListItemVariantUseCase: ObserveFeedPostListItemVariantUseCase,
-    private val deleteFeedUseCase: DeleteFeedUseCase,
+    private val feedOptionsMenuProcessor: FeedOptionsMenuProcessor,
 ) : MviViewModel<FeedDetailScreenState, FeedDetailScreenEffect>(
     initialState = FeedDetailScreenState()
 ),
@@ -77,48 +79,22 @@ class FeedDetailViewModel(
 
     override fun onEvent(event: FeedDetailScreenEvent) {
         when (event) {
+            FeedDetailScreenEvent.ConfirmDelete -> confirmDelete()
+            FeedDetailScreenEvent.DismissDelete -> intent {
+                if (state.feedOptions is FeedOptionsState.ConfirmingDelete) {
+                    setState { copy(feedOptions = null) }
+                }
+            }
+            is FeedDetailScreenEvent.OnShowFeedOptions -> showFeedOptions(event.feed)
+            is FeedDetailScreenEvent.HideFeedOptions -> dismissFeedOptions(event.feedId)
             is FeedDetailScreenEvent.OnPostBookmarkChanged -> onPostBookmarkChanged(
                 postId = event.postId,
                 bookmarked = event.bookmarked
             )
 
             FeedDetailScreenEvent.Retry -> Unit
-            FeedDetailScreenEvent.PinToggled -> onPinToggled()
-            FeedDetailScreenEvent.DeleteFeed -> onDeleteFeed()
-            FeedDetailScreenEvent.Share -> onShare()
-        }
-    }
-
-    private fun onShare() {
-        intent {
-            val feed = state.uiFeed ?: return@intent
-            postEffect(
-                FeedDetailScreenEffect.Share(text = "${feed.title}: ${feed.sourceUrl}")
-            )
-        }
-    }
-
-    private fun onDeleteFeed() {
-        intent {
-            val result = deleteFeedUseCase(feedId)
-
-            result.fold(
-                onSuccess = {
-                    postEffect(
-                        FeedDetailScreenEffect.ShowToast(
-                            TextResource.fromStringRes(stringRes.feed_deleted)
-                        )
-                    )
-                    postEffect(FeedDetailScreenEffect.NavigateBack)
-                },
-                onFailure = {
-                    postEffect(
-                        FeedDetailScreenEffect.ShowToast(
-                            TextResource.fromStringRes(stringRes.failed_to_delete_feed)
-                        )
-                    )
-                }
-            )
+            is FeedDetailScreenEvent.OnFeedOptionSelected -> selectFeedOption(feedId, event.option)
+            FeedDetailScreenEvent.OnPinToggled -> onPinToggled()
         }
     }
 
@@ -148,5 +124,42 @@ class FeedDetailViewModel(
         }.onFailure { error ->
             setState { copy(isLoading = false) }
         }
+    }
+
+    private fun showFeedOptions(feed: UIFeed) = intent {
+        setState { copy(feedOptions = FeedOptionsState.Open(feed.toFeedOptionsTarget(includePin = false))) }
+    }
+
+    private fun dismissFeedOptions(feedId: UUID) = intent {
+        setState { copy(feedOptions = feedOptions.dismissMenu(feedId)) }
+    }
+
+    private fun selectFeedOption(feedId: UUID, option: FeedOptionsMenuItem) = intent {
+        val open = state.feedOptions as? FeedOptionsState.Open ?: return@intent
+        if (open.target.feedId != feedId || option !in open.target.items) return@intent
+        if (option is FeedOptionsMenuItem.Delete) {
+            setState { copy(feedOptions = FeedOptionsState.ConfirmingDelete(feedId, option)) }
+        } else {
+            processFeedOption(feedId = feedId, option = option)
+        }
+    }
+
+    private fun confirmDelete() = intent {
+        val confirmation = state.feedOptions as? FeedOptionsState.ConfirmingDelete ?: return@intent
+        processFeedOption(feedId = confirmation.feedId, option = confirmation.option)
+    }
+
+    private suspend fun Syntax<FeedDetailScreenState, FeedDetailScreenEffect>.processFeedOption(
+        feedId: UUID,
+        option: FeedOptionsMenuItem,
+    ) {
+        setState { copy(feedOptions = null) }
+        feedOptionsMenuProcessor.processFeedOption(
+            feedId = feedId,
+            option = option,
+            onShare = { postEffect(FeedDetailScreenEffect.Share(it)) },
+            onShowToast = { postEffect(FeedDetailScreenEffect.ShowToast(it)) },
+            onNavigateBack = { postEffect(FeedDetailScreenEffect.NavigateBack) },
+        )
     }
 }

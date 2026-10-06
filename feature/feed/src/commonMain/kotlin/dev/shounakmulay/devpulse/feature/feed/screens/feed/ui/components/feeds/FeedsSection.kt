@@ -13,7 +13,10 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenuItem
+import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsTarget
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import devpulse.core.resources.generated.resources.add_feed_action_import
 import devpulse.core.resources.generated.resources.feed_empty_imported
@@ -27,6 +30,9 @@ fun LazyListScope.feedsSection(
     onNavigateToFeedList: () -> Unit,
     onFeedClick: (UIFeed) -> Unit,
     onFeedLongClick: (UIFeed) -> Unit,
+    selectedOptions: FeedOptionsTarget?,
+    onDismissOptions: (UUID) -> Unit,
+    onOptionSelected: (UUID, FeedOptionsMenuItem) -> Unit,
 ) {
     stickyHeader(key = "FeedsSectionHeader") {
         FeedsSectionHeader(
@@ -62,6 +68,9 @@ fun LazyListScope.feedsSection(
                 pinnedAndRecentFeeds = pinnedAndRecentFeeds,
                 onFeedClick = onFeedClick,
                 onFeedLongClick = onFeedLongClick,
+                selectedOptions = selectedOptions,
+                onDismissOptions = onDismissOptions,
+                onOptionSelected = onOptionSelected,
             )
         }
     }
