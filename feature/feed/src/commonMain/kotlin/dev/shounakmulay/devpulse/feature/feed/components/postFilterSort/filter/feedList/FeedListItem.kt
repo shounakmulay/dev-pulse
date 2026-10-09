@@ -15,6 +15,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
+import dev.shounakmulay.devpulse.core.ui.text.TextResource
+import dev.shounakmulay.devpulse.core.ui.text.asAnnotatedString
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 
 @Composable
@@ -52,11 +54,14 @@ internal fun FeedListItem(
             initials = feed.initials,
             feedTitle = feed.title
         )
+        val title = feed.searchHighlights?.highlightedName
+            ?: feed.searchHighlights?.highlightedTitle
+            ?: TextResource.fromText(feed.title)
         DPTextView(
             modifier = Modifier.weight(1f),
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            text = feed.title,
+            text = title.asAnnotatedString(color = MaterialTheme.colorScheme.primary),
             variant = DPTextViewVariant.BodyMedium
         )
     }

@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 interface FeedRepository {
     suspend fun upsertFeed(feed: RssFeed)
     fun getFeedsListFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>>
-    suspend fun searchFeeds(query: String, snippetLength: Int): List<RssFeedSearchResult>
+    fun searchFeeds(query: String, snippetLength: Int): Flow<PagingData<RssFeedSearchResult>>
     fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeed>>
     fun getFeed(id: UUID): Flow<RssFeed>
     fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>>
