@@ -91,7 +91,7 @@ class FeedImportForegroundService : CoroutineService() {
                 }
                 .launchIn(serviceScope)
 
-            queueExecutor.processQueue()
+            queueExecutor.triggerQueueProcessing()
         }
 
         return START_STICKY

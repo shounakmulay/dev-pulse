@@ -72,7 +72,7 @@ internal class RssFeedQueueExecutorImpl(
             .launchIn(coroutineScope)
     }
 
-    override fun processQueue() {
+    override fun triggerQueueProcessing() {
         val result = trigger.trySend(Unit)
         if (result.isSuccess) {
             logger.d { "Queue trigger accepted" }
@@ -81,8 +81,13 @@ internal class RssFeedQueueExecutorImpl(
         }
     }
 
-    private suspend fun drain() = queueProcessingMutex.withLock {
+    override suspend fun process(): Set<UUID> {
+        return drain()
+    }
+
+    private suspend fun drain(): Set<UUID> = queueProcessingMutex.withLock {
         logger.d { "Queue drain started" }
+        val syncedFeeds = mutableSetOf<UUID>()
         while (true) {
             val next = feedQueueRepository.getNextToProcess()
             if (next == null) {
@@ -101,19 +106,23 @@ internal class RssFeedQueueExecutorImpl(
                 break
             }
 
-            processEntry(next)
+            val savedFeedId = processEntry(next)
+            if (savedFeedId != null) {
+                syncedFeeds.add(savedFeedId)
+            }
         }
         logger.d { "Queue drain finished" }
+        syncedFeeds
     }
 
-    private suspend fun processEntry(entry: RssFeedQueueEntry) {
+    private suspend fun processEntry(entry: RssFeedQueueEntry): UUID? {
         val existingFeedIdentity = feedRepository.getFeedIdentityBySourceUrl(entry.url)
         val existingSyncMetadata = existingFeedIdentity?.id?.let {
             feedSyncMetadataRepository.getSyncMetadata(it)
         }
 
         try {
-            processEntrySync(
+            return processEntrySync(
                 entry = entry,
                 existingFeedIdentity = existingFeedIdentity,
                 existingSyncMetadata = existingSyncMetadata
@@ -125,6 +134,7 @@ internal class RssFeedQueueExecutorImpl(
                 entry = entry,
                 exception = e
             )
+            return null
         }
     }
 
@@ -154,7 +164,7 @@ internal class RssFeedQueueExecutorImpl(
         entry: RssFeedQueueEntry,
         existingFeedIdentity: RssFeedIdentity?,
         existingSyncMetadata: RssFeedSyncMetadata?
-    ) {
+    ): UUID? {
         logger.d {
             "Queue entry claimed id=${entry.id} action=${entry.actionType} status=${entry.status} source=${entry.url.sourceSummary()}"
         }
@@ -187,6 +197,7 @@ internal class RssFeedQueueExecutorImpl(
         logger.d {
             "Queue entry completed id=${entry.id} action=${entry.actionType} source=${entry.url.sourceSummary()}"
         }
+        return feed.id
     }
 
     private suspend fun createSyncSuccessMetadata(
@@ -339,12 +350,6 @@ internal class RssFeedQueueExecutorImpl(
 
     override fun isProcessing(): Boolean {
         return queueProcessingMutex.isLocked
-    }
-
-    override suspend fun awaitProcessing() {
-        if (isProcessing()) {
-           queueProcessingMutex.withLock {  }
-        }
     }
 
     private fun String.sourceSummary(): String {

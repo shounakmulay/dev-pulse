@@ -1,8 +1,9 @@
 package dev.shounakmulay.devpulse.core.domain.feed.queue
 
-interface RssFeedQueueExecutor {
-    fun processQueue()
-    fun isProcessing(): Boolean
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 
-    suspend fun awaitProcessing()
+interface RssFeedQueueExecutor {
+    fun triggerQueueProcessing()
+    suspend fun process(): Set<UUID>
+    fun isProcessing(): Boolean
 }

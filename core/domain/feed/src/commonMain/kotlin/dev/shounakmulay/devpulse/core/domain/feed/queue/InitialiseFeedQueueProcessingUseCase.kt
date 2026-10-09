@@ -12,7 +12,7 @@ class InitialiseFeedQueueProcessingUseCase(
 
     operator fun invoke() {
         logger.i { "Initialising feed queue processing" }
-        queueExecutor.processQueue()
+        queueExecutor.triggerQueueProcessing()
     }
 
     private companion object {
