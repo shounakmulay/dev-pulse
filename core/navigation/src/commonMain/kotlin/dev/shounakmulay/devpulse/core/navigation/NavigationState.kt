@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -119,11 +120,14 @@ class NavigationState(
     var selectedTab: Screen by selectedTab
 
     @Composable
-    fun toEntries(entryProvider: (Screen) -> NavEntry<Screen>): ImmutableList<NavEntry<Screen>> {
+    fun toEntries(
+        sceneStateHolder: SaveableStateHolder,
+        entryProvider: (Screen) -> NavEntry<Screen>
+    ): ImmutableList<NavEntry<Screen>> {
         val tabStacksEntries = tabsBackStacks.mapValues { (_, stack) ->
             rememberDecoratedNavEntries(
                 backStack = stack,
-                entryDecorators = rememberNavEntryDecorators(),
+                entryDecorators = rememberNavEntryDecorators(sceneStateHolder),
                 entryProvider = entryProvider
             )
         }
@@ -132,7 +136,7 @@ class NavigationState(
         val rootStackEntries = rootScreens.zip(
             rememberDecoratedNavEntries(
                 backStack = rootScreens,
-                entryDecorators = rememberNavEntryDecorators(),
+                entryDecorators = rememberNavEntryDecorators(sceneStateHolder),
                 entryProvider = entryProvider
             )
         ).toMap()
@@ -152,10 +156,23 @@ class NavigationState(
     }
 
     @Composable
-    private fun rememberNavEntryDecorators(): List<NavEntryDecorator<Screen>> {
+    private fun rememberNavEntryDecorators(
+        sceneStateHolder: SaveableStateHolder
+    ): List<NavEntryDecorator<Screen>> {
+        val sceneCleanupDecorator = remember(sceneStateHolder) {
+            NavEntryDecorator<Screen>(
+                onPop = { contentKey ->
+                    sceneStateHolder.removeState(contentKey)
+                }
+            ) { entry ->
+                entry.Content()
+            }
+        }
+
         return listOf(
             rememberSaveableStateHolderNavEntryDecorator<Screen>(),
-            rememberViewModelStoreNavEntryDecorator()
+            rememberViewModelStoreNavEntryDecorator(),
+            sceneCleanupDecorator
         )
     }
 

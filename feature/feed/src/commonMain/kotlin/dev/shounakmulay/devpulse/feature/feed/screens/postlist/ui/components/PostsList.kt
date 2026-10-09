@@ -2,12 +2,14 @@ package dev.shounakmulay.devpulse.feature.feed.screens.postlist.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.plus
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
@@ -41,55 +43,60 @@ internal fun PostsList(
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UUID) -> Unit,
 ) {
-    LazyVerticalGrid(
-        modifier = modifier.fillMaxWidth(),
-        state = lazyGridState,
-        columns = adaptiveColumnsCount(),
-        contentPadding = PaddingValues(bottom = LocalDPSpacing.current.listItemHeight),
-        horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
-        verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
-    ) {
-        if (posts.loadState.refresh is LoadState.NotLoading && posts.itemCount == 0) {
-            postsListEmptyMessage {
-                onClearFilters()
-            }
-        }
+    BoxWithConstraints {
+        val columns = adaptiveColumnsCount()
+        LazyVerticalGrid(
+            modifier = modifier.fillMaxWidth(),
+            state = lazyGridState,
+            columns = GridCells.Fixed(columns),
+            contentPadding = PaddingValues(bottom = LocalDPSpacing.current.listItemHeight) + PaddingValues(horizontal = LocalDPSpacing.current.md),
+            horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
+            verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
+        ) {
+            stickyHeader {
+                Column {
+                    if (posts.loadState.refresh is LoadState.Loading) {
+                        DPLinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    } else {
+                        Spacer(
+                            Modifier.fillMaxWidth().height(4.dp)
+                                .background(MaterialTheme.colorScheme.background)
+                        )
+                    }
+                    PostSortAndFilters(
+                        viewModel = postSortAndFilterViewModel,
+                        onSortAndFilterDataChanged = {
+                            lazyGridState.requestScrollToItem(0)
+                        },
+                    )
 
-        stickyHeader {
-            Column {
-                if (posts.loadState.refresh is LoadState.Loading) {
-                    DPLinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                } else {
-                    Spacer(Modifier.fillMaxWidth().height(4.dp).background(MaterialTheme.colorScheme.background))
                 }
-                PostSortAndFilters(
-                    viewModel = postSortAndFilterViewModel,
-                    onSortAndFilterDataChanged = {
-                        lazyGridState.requestScrollToItem(0)
-                    },
-                )
-
             }
-        }
 
-        items(count = posts.itemCount, key = posts.itemKey { it.id.value }) { index ->
-            val post = posts[index]
-            if (post != null) {
-                FeedPostListItem(
-                    modifier = Modifier
-                        .padding(horizontal = LocalDPSpacing.current.lg)
-                        .animateItem(),
-                    post = post,
-                    showImage = post.search == null,
-                    variant = when {
-                        post.search == null -> state.feedPostListItemVariant
-                        post.search.highlightedContent.isNotNullOrEmpty() -> FeedsPostListItemVariant.M
-                        post.search.highlightedDescription.isNotNullOrEmpty() -> FeedsPostListItemVariant.S
-                        else -> FeedsPostListItemVariant.XS
-                    },
-                    onBookmarkChanged = onBookmarkChanged,
-                    onPostClick = { onPostClick(it.id) }
-                )
+            if (posts.loadState.refresh is LoadState.NotLoading && posts.itemCount == 0) {
+                postsListEmptyMessage {
+                    onClearFilters()
+                }
+            }
+
+            items(count = posts.itemCount, key = posts.itemKey { it.id.value }) { index ->
+                val post = posts[index]
+                if (post != null) {
+                    FeedPostListItem(
+                        modifier = Modifier
+                            .animateItem(),
+                        post = post,
+                        showImage = post.search == null,
+                        variant = when {
+                            post.search == null -> state.feedPostListItemVariant
+                            post.search.highlightedContent.isNotNullOrEmpty() -> FeedsPostListItemVariant.M
+                            post.search.highlightedDescription.isNotNullOrEmpty() -> FeedsPostListItemVariant.S
+                            else -> FeedsPostListItemVariant.XS
+                        },
+                        onBookmarkChanged = onBookmarkChanged,
+                        onPostClick = { onPostClick(it.id) }
+                    )
+                }
             }
         }
     }

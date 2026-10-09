@@ -130,4 +130,6 @@
     <string name="confirm_delete_feed_message">Remove "%1$s" from your feeds? You will stop receiving new posts from this feed.</string>
     <string name="feed_lowercase">feed</string>
     <string name="failed_to_update_feed">Failed to update feed</string>
+    <string name="feeds_sync_title">Feeds updated</string>
+    <string name="feeds_sync_message">%1$d feeds synced successfully</string>"
 </resources>

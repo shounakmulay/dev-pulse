@@ -15,6 +15,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun FeedsSectionHeader(
+    viewAllEnabled: Boolean,
     onNavigateToAddFeed: () -> Unit,
     onNavigateToFeedList: () -> Unit
 ) {
@@ -30,6 +31,7 @@ internal fun FeedsSectionHeader(
             onClick = onNavigateToAddFeed
         )
         DPButton(
+            enabled = viewAllEnabled,
             text = stringResource(stringRes.feed_view_all),
             variant = DPButtonVariant.Secondary,
             style = DPButtonStyle.Text,

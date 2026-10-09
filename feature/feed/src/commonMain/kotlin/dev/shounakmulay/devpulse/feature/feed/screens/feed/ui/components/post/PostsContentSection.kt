@@ -39,6 +39,7 @@ fun LazyListScope.postsSection(
             title = stringResource(stringRes.feed_articles)
         ) {
             DPButton(
+                enabled = articles.isNotEmpty(),
                 text = stringResource(stringRes.feed_view_all),
                 onClick = onViewAll,
                 variant = DPButtonVariant.Secondary,

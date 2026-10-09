@@ -23,7 +23,6 @@ fun DevPulseNavApp() {
             persistentSetOf(
                 Screen.Tabs.Home,
                 Screen.Tabs.Feed,
-                Screen.Tabs.Time
             )
         )
     }

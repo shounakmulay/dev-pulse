@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -53,7 +52,7 @@ internal fun FeedPostList(
         modifier = Modifier.fillMaxWidth(),
         state = lazyGridState,
         columns = GridCells.Adaptive(300.dp),
-        contentPadding = PaddingValues(vertical = LocalDPSpacing.current.md),
+        contentPadding = PaddingValues(LocalDPSpacing.current.md),
         horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
         verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
     ) {
@@ -95,8 +94,7 @@ internal fun FeedPostList(
             val post = posts[index]
             if (post != null) {
                 FeedPostListItem(
-                    modifier = Modifier.padding(horizontal = LocalDPSpacing.current.md)
-                        .animateItem(),
+                    modifier = Modifier.animateItem(),
                     post = post,
                     showImage = true,
                     onPostClick = onPostClick,

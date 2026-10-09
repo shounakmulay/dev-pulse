@@ -96,7 +96,7 @@ fun PostListScreen(
                 viewModel.onEvent(PostListScreenEvent.OnPostBookmarkChanged(post.id, bookmarked))
             }
             val onPostClick: (UUID) -> Unit = {
-                navigator.navigate(Screen.Tabs.Feed.PostDetail(it), onRootStack = true)
+                navigator.replaceOfSameType(Screen.Tabs.Feed.PostDetail(it), onRootStack = true)
             }
 
             val posts = viewModel.posts.collectAsLazyPagingItems()

@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +34,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.navigation.scene.listDetail.LocalExpandableDetailPaneContext
 import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
 import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
@@ -48,7 +52,8 @@ internal fun PostDetailContent(
     onBookmarkChanged: (Boolean) -> Unit,
     onOpenInWebView: (String) -> Unit,
     onOpenContentTextSettings: () -> Unit,
-    onImageClick: (link: String) -> Unit
+    onImageClick: (link: String) -> Unit,
+    onNavigateToFeed: (UUID) -> Unit
 ) {
     DPMarkdown(
         markdown = when (state.selectedSection) {
@@ -57,7 +62,11 @@ internal fun PostDetailContent(
         }.orEmpty(),
         listState = listState,
         header = {
-            postDetailContentHeader(state.post, onImageClick)
+            postDetailContentHeader(
+                post = state.post,
+                onImageClick = onImageClick,
+                onFeedClick = onNavigateToFeed
+            )
             postDetailContentHeaderActions(
                 post = state.post,
                 onBookmarkChanged = onBookmarkChanged,
@@ -78,6 +87,8 @@ private fun LazyListScope.postDetailContentHeaderActions(
 ) {
     if (post == null) return
     stickyHeader {
+        val expandablePaneContext = LocalExpandableDetailPaneContext.current
+
         DPSectionDivider(shape = RectangleShape) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(
@@ -92,6 +103,14 @@ private fun LazyListScope.postDetailContentHeaderActions(
                         end = LocalDPSpacing.current.sm
                     )
                 ) {
+                    if (expandablePaneContext != null) {
+                        DPIconButton(
+                            icon = if (expandablePaneContext.isExpanded) DPIcons.CollapseContent else DPIcons.ExpandContent,
+                            contentDescription = "",
+                            size = DPSize.Small,
+                            onClick = expandablePaneContext.onToggleExpanded
+                        )
+                    }
                     DPIconButton(
                         icon = DPIcons.FormatText,
                         variant = DPIconButtonVariant.Tertiary,
@@ -144,7 +163,8 @@ private fun LazyListScope.postDetailContentHeaderActions(
 
 private fun LazyListScope.postDetailContentHeader(
     post: UIFeedPost?,
-    onImageClick: (String) -> Unit
+    onImageClick: (String) -> Unit,
+    onFeedClick: (UUID) -> Unit
 ) {
     if (post == null) return
     item("ArticleHeader") {
@@ -179,7 +199,17 @@ private fun LazyListScope.postDetailContentHeader(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            onFeedClick(post.feed.id)
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     DPFeedImage(
                         url = post.feed.websiteImageUrl,
                         initials = post.feed.initials,

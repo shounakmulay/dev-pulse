@@ -13,17 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
-import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
-import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
-import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.PostList
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
-import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
@@ -32,9 +26,6 @@ import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedDeleteC
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsState
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds.feedsSection
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.postsSection
-import devpulse.core.resources.generated.resources.feed_view_all
-import devpulse.core.resources.generated.resources.folders
-import org.jetbrains.compose.resources.stringResource
 
 @OptIn(
     ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class,
@@ -90,7 +81,7 @@ fun FeedScreen(
                 },
                 onNavigateToAddFeed = { navigator.navigate(Tabs.Feed.AddFeed) },
                 onNavigateToFeedList = { navigator.navigate(Tabs.Feed.FeedList) },
-                onFeedClick = { navigator.replaceOfSameType(Tabs.Feed.FeedDetail(it.id)) },
+                onFeedClick = { navigator.navigate(Tabs.Feed.FeedDetail(it.id)) },
                 onFeedLongClick = {
                     viewModel.onEvent(FeedScreenEvent.OnShowFeedOptions(it))
                 },
@@ -114,19 +105,19 @@ fun FeedScreen(
                     navigator.navigate(PostList(PostList.PostListLaunchData.All))
                 }
             )
-            stickyHeader {
-                DPSectionDivider(
-                    title = stringResource(stringRes.folders)
-                ) {
-                    DPButton(
-                        text = stringResource(stringRes.feed_view_all),
-                        onClick = {},
-                        variant = DPButtonVariant.Secondary,
-                        style = DPButtonStyle.Text,
-                        size = DPSize.Small
-                    )
-                }
-            }
+//            stickyHeader {
+//                DPSectionDivider(
+//                    title = stringResource(stringRes.folders)
+//                ) {
+//                    DPButton(
+//                        text = stringResource(stringRes.feed_view_all),
+//                        onClick = {},
+//                        variant = DPButtonVariant.Secondary,
+//                        style = DPButtonStyle.Text,
+//                        size = DPSize.Small
+//                    )
+//                }
+//            }
         }
     }
 }

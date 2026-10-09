@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.core.ui.list.post.FeedPostListItem
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
@@ -14,7 +15,7 @@ fun FeedPostListItem(
     modifier: Modifier = Modifier,
     showImage: Boolean = true,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
-    onPostClick: (UIFeedPost) -> Unit
+    onPostClick: (UIFeedPost) -> Unit,
 ) {
     FeedPostListItem(
         modifier = modifier,
@@ -32,6 +33,6 @@ fun FeedPostListItem(
         createdAt = post.createdAt,
         bookmarked = post.bookmarked,
         onBookmarkChanged = { onBookmarkChanged(post, it) },
-        onPostClick = { onPostClick(post) }
+        onPostClick = { onPostClick(post) },
     )
 }

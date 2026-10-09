@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.navigation.scene.listDetail
 
+import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavMetadataKey
 import androidx.navigation3.runtime.metadata
@@ -7,11 +8,13 @@ import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
 import androidx.window.core.layout.WindowSizeClass
+import dev.shounakmulay.devpulse.core.navigation.getScreenString
 
 
 class ExpandableListDetailSceneStrategy<T : Any>(
     val windowSizeClass: WindowSizeClass,
-    val config: ListDetailScreenStrategyConfig = ExpandableListDetailSceneStrategyDefaults.defaultConfig
+    val config: ListDetailScreenStrategyConfig = ExpandableListDetailSceneStrategyDefaults.defaultConfig,
+    private val stateHolder: SaveableStateHolder
 ) : SceneStrategy<T> {
 
     override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {
@@ -19,7 +22,6 @@ class ExpandableListDetailSceneStrategy<T : Any>(
         if (!windowSizeClass.isWidthAtLeastBreakpoint(config.widthBreakpoint)) {
             return null
         }
-
 
         val detailEntry = entries
             .lastOrNull()
@@ -33,10 +35,11 @@ class ExpandableListDetailSceneStrategy<T : Any>(
         // We use the list's contentKey to uniquely identify the scene.
         // This allows the detail panes to be displayed instantly through recomposition, rather than
         // having NavDisplay animate the whole scene out when the selected detail item changes.
-        val sceneKey = listEntry.contentKey
+        val sceneKey = listEntry.getScreenString()
 
         return ExpandableListDetailScene(
             key = sceneKey,
+            stateHolder = stateHolder,
             previousEntries = entries.dropLast(1),
             listEntry = listEntry,
             detailEntry = detailEntry,

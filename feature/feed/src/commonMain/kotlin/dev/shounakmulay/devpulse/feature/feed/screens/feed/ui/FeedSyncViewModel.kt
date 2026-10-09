@@ -2,20 +2,26 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.shounakmulay.devpulse.core.domain.feed.feed.EnqueueFeedSyncUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.queue.InitialiseFeedQueueProcessingUseCase
+import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveSyncInBackgroundUseCase
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.sync.BackgroundSyncScheduler
 import dev.shounakmulay.devpulse.core.sync.DevPulsePeriodicWorkerExitingWorkPolicy
 import dev.shounakmulay.devpulse.core.sync.DevPulseWorkRequest
 import dev.shounakmulay.devpulse.core.sync.DevPulseWorkRequestConstraints
 import dev.shounakmulay.devpulse.core.sync.DevPulseWorkerType
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.hours
 
 @KoinViewModel
+@Deprecated("Move this out of comp")
 class FeedSyncViewModel(
+    private val enqueueFeedSyncUseCase: EnqueueFeedSyncUseCase,
     private val initialiseFeedQueueProcessingUseCase: InitialiseFeedQueueProcessingUseCase,
+    private val observeSyncInBackgroundUseCase: ObserveSyncInBackgroundUseCase,
     private val backgroundSyncScheduler: BackgroundSyncScheduler,
     logger: DPLogger
 ) : ViewModel() {
@@ -27,7 +33,14 @@ class FeedSyncViewModel(
 
     fun init() {
         logger.d { "Feed queue initialisation requested" }
-        initialiseFeedQueueProcessingUseCase()
+        viewModelScope.launch {
+            observeSyncInBackgroundUseCase().first().onSuccess { enabled ->
+                if (!enabled) {
+                    enqueueFeedSyncUseCase()
+                    initialiseFeedQueueProcessingUseCase()
+                }
+            }
+        }
         scheduleFeedSync()
     }
 

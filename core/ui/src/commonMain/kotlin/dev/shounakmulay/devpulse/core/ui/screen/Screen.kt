@@ -29,8 +29,6 @@ inline fun <STATE : ScreenState, EFFECT : Effect, reified VM : MviViewModel<STAT
         onEffect(it)
     }
 
-
-
     Scaffold(
         modifier = modifier,
         topBar = {
