@@ -1,27 +1,20 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowSizeClass
-import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
-import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.feature.feed.components.feed.EmptyFeedsImportCTA
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenuItem
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsTarget
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
-import devpulse.core.resources.generated.resources.add_feed_action_import
-import devpulse.core.resources.generated.resources.feed_empty_imported
 import kotlinx.collections.immutable.ImmutableList
-import org.jetbrains.compose.resources.stringResource
 
 fun LazyListScope.feedsSection(
     pinnedAndRecentFeeds: ImmutableList<UIFeed>,
@@ -36,42 +29,42 @@ fun LazyListScope.feedsSection(
 ) {
     stickyHeader(key = "FeedsSectionHeader") {
         FeedsSectionHeader(
+            viewAllEnabled = pinnedAndRecentFeeds.isNotEmpty(),
             onNavigateToAddFeed = onNavigateToAddFeed,
             onNavigateToFeedList = onNavigateToFeedList
         )
     }
     item(key = "FeedsSection") {
-        AnimatedVisibility(visible = isFeedLoading) {
-            PinnedAndRecentsGridLoading()
-        }
-        AnimatedVisibility(visible = !isFeedLoading && pinnedAndRecentFeeds.isEmpty()) {
-            Column(
-                Modifier.widthIn(max = WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(
-                    LocalDPSpacing.current.sm,
-                    Alignment.CenterVertically
-                )
+        val enter = fadeIn()
+        val exit = fadeOut()
+        Box {
+            AnimatedVisibility(visible = isFeedLoading, enter = enter, exit = exit) {
+                PinnedAndRecentsGridLoading()
+            }
+            AnimatedVisibility(
+                visible = !isFeedLoading && pinnedAndRecentFeeds.isEmpty(),
+                enter = enter,
+                exit = exit
             ) {
-                DPTextView(
-                    text = stringResource(stringRes.feed_empty_imported),
-                    variant = DPTextViewVariant.TitleMedium
-                )
-                DPButton(
-                    text = stringResource(stringRes.add_feed_action_import),
-                    onClick = onNavigateToAddFeed
+                EmptyFeedsImportCTA(
+                    modifier = Modifier.fillMaxWidth().padding(LocalDPSpacing.current.xl),
+                    onNavigateToAddFeed = onNavigateToAddFeed
                 )
             }
-        }
-        AnimatedVisibility(visible = !isFeedLoading && pinnedAndRecentFeeds.isNotEmpty()) {
-            PinnedAndRecentsGrid(
-                pinnedAndRecentFeeds = pinnedAndRecentFeeds,
-                onFeedClick = onFeedClick,
-                onFeedLongClick = onFeedLongClick,
-                selectedOptions = selectedOptions,
-                onDismissOptions = onDismissOptions,
-                onOptionSelected = onOptionSelected,
-            )
+            AnimatedVisibility(
+                visible = !isFeedLoading && pinnedAndRecentFeeds.isNotEmpty(),
+                enter = enter,
+                exit = exit
+            ) {
+                PinnedAndRecentsGrid(
+                    pinnedAndRecentFeeds = pinnedAndRecentFeeds,
+                    onFeedClick = onFeedClick,
+                    onFeedLongClick = onFeedLongClick,
+                    selectedOptions = selectedOptions,
+                    onDismissOptions = onDismissOptions,
+                    onOptionSelected = onOptionSelected,
+                )
+            }
         }
     }
 }

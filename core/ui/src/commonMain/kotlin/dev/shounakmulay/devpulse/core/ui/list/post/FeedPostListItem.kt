@@ -34,7 +34,6 @@ import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.text.asAnnotatedString
 
 
-
 @Composable
 fun FeedPostListItem(
     modifier: Modifier = Modifier,

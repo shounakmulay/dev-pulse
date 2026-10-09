@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
-import dev.shounakmulay.devpulse.core.ui.list.post.FeedPostListItem
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 
 @Composable

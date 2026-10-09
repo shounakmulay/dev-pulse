@@ -21,7 +21,7 @@ interface FeedDao {
     @Query("SELECT * FROM LocalRssFeed WHERE pinned = '1' ORDER BY name, title, updatedAt DESC")
     fun getPinnedFeedPagingSource(): PagingSource<Int, LocalRssFeed>
 
-    @Query("SELECT * FROM LocalRssFeed ORDER BY pinned DESC, updatedAt DESC LIMIT :count")
+    @Query("SELECT * FROM LocalRssFeed ORDER BY pinned DESC, name, title LIMIT :count")
     fun getPinnedAndRecentFeeds(count: Int): Flow<List<LocalRssFeed>>
 
     @Query("SELECT * FROM LocalRssFeed WHERE id = :id")
