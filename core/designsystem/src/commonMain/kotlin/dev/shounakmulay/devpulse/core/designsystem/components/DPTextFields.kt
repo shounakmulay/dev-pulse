@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 
 enum class DPTextFieldVariant { Outlined, Filled }
 
@@ -48,11 +49,19 @@ fun DPTextField(
     val resolvedTextStyle = textStyle?.let { baseTextStyle.merge(it) } ?: baseTextStyle
     val labelContent: (@Composable () -> Unit)? =
         label?.let { labelText ->
-            { DPTextView(text = labelText, variant = DPTextViewVariant.LabelMedium) }
+            { DPTextView(text = labelText, variant = DPTextViewVariant.LabelMedium, maxLines = 1) }
         }
     val placeholderContent: (@Composable () -> Unit)? =
         placeholder?.let { placeholderText ->
-            { DPTextView(text = placeholderText, variant = textVariant) }
+            {
+                DPTextView(
+                    text = placeholderText,
+                    variant = textVariant,
+                    maxLines = maxLines,
+                    minLines = minLines,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     val supportingTextContent: (@Composable () -> Unit)? =
         supportingText?.let { supportingText ->
@@ -82,6 +91,7 @@ fun DPTextField(
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
         )
+
         DPTextFieldVariant.Filled -> TextField(
             value = value,
             onValueChange = onValueChange,
