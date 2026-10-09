@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.entryProvider
@@ -26,10 +27,12 @@ fun NavDisplay(
     navigationSuiteType: NavigationSuiteType,
     entryProvider: EntryProviderScope<Screen>.() -> Unit
 ) {
+    val sceneStateHolder = rememberSaveableStateHolder()
     val sceneStrategies by remember(windowAdaptiveInfo) {
         derivedStateOf {
             listOf(
                 ExpandableListDetailSceneStrategy(
+                    stateHolder = sceneStateHolder,
                     windowSizeClass = windowAdaptiveInfo.windowSizeClass,
                 ),
                 SinglePaneSceneStrategy<Screen>(),
@@ -63,9 +66,12 @@ fun NavDisplay(
             )
         },
         sceneStrategies = sceneStrategies,
-        entries = navigationState.toEntries(entryProvider = entryProvider {
-            entryProvider()
-        }),
+        entries = navigationState.toEntries(
+            sceneStateHolder = sceneStateHolder,
+            entryProvider = entryProvider {
+                entryProvider()
+            }
+        ),
         onBack = {
             navigator.navigateBack()
         }

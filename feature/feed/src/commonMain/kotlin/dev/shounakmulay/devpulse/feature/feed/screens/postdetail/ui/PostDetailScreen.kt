@@ -78,6 +78,9 @@ fun PostDetailScreen(
             },
             onImageClick = {
                 navigator.navigate(Screen.Tabs.Feed.ImageScreen(it))
+            },
+            onNavigateToFeed = {
+                navigator.navigate(Screen.Tabs.Feed.FeedDetail(it))
             }
         )
 

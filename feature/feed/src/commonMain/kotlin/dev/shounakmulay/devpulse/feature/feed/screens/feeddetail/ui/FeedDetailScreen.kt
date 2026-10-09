@@ -16,8 +16,8 @@ import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.FeedDetail
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
-import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
 import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
+import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
 import dev.shounakmulay.devpulse.core.ui.text.resolve
@@ -109,7 +109,7 @@ fun FeedDetailScreen(
                 )
             },
             onPostClick = {
-                navigator.navigate(Screen.Tabs.Feed.PostDetail(it.id), onRootStack = true)
+                navigator.replaceOfSameType(Screen.Tabs.Feed.PostDetail(it.id), onRootStack = true)
             },
             postSortAndFilterState = postSortAndFilterState,
             onFilterUpdated = {

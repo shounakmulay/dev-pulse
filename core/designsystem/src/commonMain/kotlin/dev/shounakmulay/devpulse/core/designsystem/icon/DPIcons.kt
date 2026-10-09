@@ -112,4 +112,6 @@ object DPIcons {
     val DarkTheme = Icons.Default.DarkMode
     val SystemTheme = MobileIcon
     val Search = Icons.Default.Search
+    val ExpandContent = ExpandContentIcon
+    val CollapseContent = CollapseContentIcon
 }

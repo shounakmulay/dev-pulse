@@ -11,7 +11,7 @@ import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<Screen>.feedDetailScreen(navigator: Navigator) {
     entry<Screen.Tabs.Feed.FeedDetail>(
-        metadata = ExpandableListDetailSceneStrategy.detailPane(draggable = true)
+        metadata = ExpandableListDetailSceneStrategy.listPane()
     ) {
         val postSortAndFiltersViewModel: PostSortAndFilterViewModel = koinViewModel {
             parametersOf(it)
