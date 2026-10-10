@@ -17,12 +17,8 @@ data class FeedListScreenState(
     val searchQuery: String = "",
 ) : ScreenState {
     internal val feedListSource: FeedListSource
-        get() {
-            val query = searchQuery.trim()
-            return when {
-                query.isNotBlank() -> FeedListSource.Search(query)
-                selectedTab == UISelectedTab.PINNED -> FeedListSource.Pinned
-                else -> FeedListSource.All
-            }
+        get() = when (selectedTab) {
+            UISelectedTab.ALL -> FeedListSource.All
+            UISelectedTab.PINNED -> FeedListSource.Pinned
         }
 }

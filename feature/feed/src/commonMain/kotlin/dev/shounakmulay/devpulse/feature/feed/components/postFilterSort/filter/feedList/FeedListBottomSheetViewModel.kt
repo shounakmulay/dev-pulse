@@ -14,6 +14,7 @@ import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedListInteractor
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedListSource
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -24,12 +25,7 @@ import org.koin.core.annotation.KoinViewModel
 data class FeedListBottomSheetState(
     val searchTerm: String = "",
     val selectedFeedIds: Set<UUID>
-) : ScreenState {
-    internal val feedListSource: FeedListSource
-        get() = searchTerm.trim().let { query ->
-            if (query.isBlank()) FeedListSource.All else FeedListSource.Search(query)
-        }
-}
+) : ScreenState
 
 sealed interface FeedListBottomSheetEffect : Effect
 
@@ -51,7 +47,10 @@ class FeedListBottomSheetViewModel(
 
     val feeds = combine(
         state.map { it.selectedFeedIds }.distinctUntilChanged(),
-        feedListInteractor.getUIFeedsFlow(state.map { it.feedListSource }).cachedIn(viewModelScope)
+        feedListInteractor.getUIFeedsFlow(
+            sources = flowOf(FeedListSource.All),
+            searchQueries = state.map { it.searchTerm },
+        ).cachedIn(viewModelScope)
     ) { selectedFeedIds, pagingData ->
         pagingData.map { feed ->
             val selected = feed.id in selectedFeedIds

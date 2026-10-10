@@ -7,19 +7,18 @@ import kotlin.test.assertEquals
 
 class FeedListScreenStateTest {
     @Test
-    fun `Given pinned tab When searching and clearing Then pinned feeds resume`() {
+    fun `Given pinned tab When query changes Then pinned remains the underlying source`() {
         val state = FeedListScreenState(selectedTab = UISelectedTab.PINNED)
-        val searching = state.copy(searchQuery = "  Kotlin  ")
 
-        assertEquals(FeedListSource.Search("Kotlin"), searching.feedListSource)
-        assertEquals(FeedListSource.Pinned, searching.copy(searchQuery = " ").feedListSource)
+        assertEquals(FeedListSource.Pinned, state.copy(searchQuery = "Kotlin").feedListSource)
+        assertEquals(FeedListSource.Pinned, state.copy(searchQuery = "").feedListSource)
     }
 
     @Test
-    fun `Given all tab When replacing and clearing query Then latest search and all feeds are selected`() {
-        val searching = FeedListScreenState(searchQuery = "Kotlin")
+    fun `Given active query When selecting all or pinned Then source follows the selected tab`() {
+        val state = FeedListScreenState(searchQuery = "Kotlin")
 
-        assertEquals(FeedListSource.Search("Compose"), searching.copy(searchQuery = "Compose").feedListSource)
-        assertEquals(FeedListSource.All, searching.copy(searchQuery = "").feedListSource)
+        assertEquals(FeedListSource.All, state.feedListSource)
+        assertEquals(FeedListSource.Pinned, state.copy(selectedTab = UISelectedTab.PINNED).feedListSource)
     }
 }
