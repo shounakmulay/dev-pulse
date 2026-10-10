@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +29,6 @@ internal fun <T : Any> RowScope.DetailView(
     maxWidth: Dp,
     isExpanded: Boolean,
     onToggleExpanded: () -> Unit,
-    onDispose: () -> Unit
 ) {
     CompositionLocalProvider(
         LocalExpandableDetailPaneContext provides ExpandableDetailPaneContext(
@@ -45,11 +43,6 @@ internal fun <T : Any> RowScope.DetailView(
             exit = shrinkHorizontally(shrinkTowards = Alignment.Start) +
                     slideOutHorizontally { -it },
         ) {
-            DisposableEffect(Unit) {
-                onDispose {
-                    onDispose()
-                }
-            }
             val shapes = MaterialTheme.shapes
             val clipShape = remember(isExpanded, shapes) {
                 if (isExpanded) {

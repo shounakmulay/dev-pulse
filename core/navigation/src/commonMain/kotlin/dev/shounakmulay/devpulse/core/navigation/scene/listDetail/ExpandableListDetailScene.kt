@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -55,6 +56,12 @@ class ExpandableListDetailScene<T : Any>(
                     else -> splitRatio.floatValue
                 }
             )
+
+            LaunchedEffect(detailEntry) {
+                if (detailEntry == null) {
+                    isDetailExpanded = false
+                }
+            }
 
             BoxWithConstraints(
                 modifier = Modifier
@@ -119,9 +126,6 @@ class ExpandableListDetailScene<T : Any>(
                 onToggleExpanded = {
                     onSetDetailExpanded(!expanded)
                 },
-                onDispose = {
-                    onSetDetailExpanded(false)
-                }
             )
         }
     }
