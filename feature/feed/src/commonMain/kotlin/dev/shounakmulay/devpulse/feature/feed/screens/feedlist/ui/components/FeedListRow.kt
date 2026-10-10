@@ -24,6 +24,8 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
+import dev.shounakmulay.devpulse.core.ui.text.TextResource
+import dev.shounakmulay.devpulse.core.ui.text.asAnnotatedString
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import devpulse.core.resources.generated.resources.feed_action_unpin
 import devpulse.core.resources.generated.resources.pin_feed
@@ -62,12 +64,26 @@ fun FeedListRow(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.xs),
         ) {
+            val title = feed.searchHighlights?.highlightedName
+                ?: feed.searchHighlights?.highlightedTitle
+                ?: TextResource.fromText(feed.title)
             DPTextView(
-                text = feed.title,
+                text = title.asAnnotatedString(color = MaterialTheme.colorScheme.primary),
                 variant = DPTextViewVariant.TitleMedium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
+            val description = feed.searchHighlights?.highlightedDescription
+                ?.asAnnotatedString(color = MaterialTheme.colorScheme.primary)
+            if (!description.isNullOrBlank()) {
+                DPTextView(
+                    text = description,
+                    variant = DPTextViewVariant.BodySmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             DPTextView(
                 text = feed.sourceUrl,
                 variant = DPTextViewVariant.BodySmall,

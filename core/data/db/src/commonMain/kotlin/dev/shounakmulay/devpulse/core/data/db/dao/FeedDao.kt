@@ -58,6 +58,8 @@ interface FeedDao {
         """
         SELECT
             feed.id,
+            feed.title,
+            feed.name,
             feed.pinned,
             feed.link,
             feed.sourceUrl,
@@ -71,13 +73,13 @@ interface FeedDao {
         FROM LocalRssFeedFts AS feedFts
         JOIN LocalRssFeed AS feed ON feed.rowId = feedFts.rowId
         WHERE LocalRssFeedFts MATCH :query
-        ORDER BY rank
+        ORDER BY rank, feed.id
     """
     )
-    suspend fun searchFeeds(
+    fun searchFeeds(
         query: String,
         snippetLength: Int = 30,
         hlStart: String = HL_START,
         hlEnd: String = HL_END
-    ): List<LocalRssFeedSearchResult>
+    ): PagingSource<Int, LocalRssFeedSearchResult>
 }

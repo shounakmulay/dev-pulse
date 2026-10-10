@@ -20,6 +20,7 @@ import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.bodyAsText
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
 
@@ -51,11 +52,22 @@ internal class FeedRepositoryImpl(
             }
     }
 
-    override suspend fun searchFeeds(query: String, snippetLength: Int): List<RssFeedSearchResult> {
-        return feedDao.searchFeeds(
-            query = ftsQuerySanitizer.sanitize(query),
-            snippetLength = snippetLength
-        ).map(rssFeedMapper::toRssFeedSearchResult)
+    override fun searchFeeds(
+        query: String,
+        snippetLength: Int
+    ): Flow<PagingData<RssFeedSearchResult>> {
+        val sanitizedQuery = ftsQuerySanitizer.sanitize(query.trim())
+        if (query.trim().length < 3 || sanitizedQuery.isBlank()) {
+            return flowOf(PagingData.empty())
+        }
+        return Pager(
+            config = PagingConfig(pageSize = 20),
+            pagingSourceFactory = {
+                feedDao.searchFeeds(query = sanitizedQuery, snippetLength = snippetLength)
+            }
+        ).flow.map {
+            it.map(rssFeedMapper::toRssFeedSearchResult)
+        }
     }
 
     override fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {

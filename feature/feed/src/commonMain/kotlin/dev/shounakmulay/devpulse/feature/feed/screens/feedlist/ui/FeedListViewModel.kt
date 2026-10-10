@@ -2,8 +2,6 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedFeedSourcesUseCase
-import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedPinnedFeedSourcesUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
@@ -13,12 +11,9 @@ import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptions
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsState
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.dismissMenu
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.toFeedOptionsTarget
-import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
+import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedListInteractor
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.UISelectedTab
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
@@ -26,31 +21,25 @@ import org.orbitmvi.orbit.syntax.Syntax
 
 @KoinViewModel
 class FeedListViewModel(
-    private val getPaginatedFeedSourcesUseCase: GetPaginatedFeedSourcesUseCase,
-    private val getPaginatedPinnedFeedSourcesUseCase: GetPaginatedPinnedFeedSourcesUseCase,
+    feedListInteractor: FeedListInteractor,
     private val setFeedPinnedUseCase: SetFeedPinnedUseCase,
-    private val feedInteractor: FeedInteractor,
     private val feedOptionsMenuProcessor: FeedOptionsMenuProcessor,
 ) : MviViewModel<FeedListScreenState, FeedListScreenEffect>(FeedListScreenState()),
     EventHandler<FeedListScreenEvent> {
 
     override fun createStateSerializer() = FeedListScreenState.serializer()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val rssFeedFlow = state.map { it.selectedTab }
-        .distinctUntilChanged()
-        .flatMapLatest {
-            when (it) {
-                UISelectedTab.ALL -> getPaginatedFeedSourcesUseCase()
-                UISelectedTab.PINNED -> getPaginatedPinnedFeedSourcesUseCase()
-            }
-        }
-
-    val uiFeedsFlow = feedInteractor.getUIFeedFlow(rssFeedFlow)
+    val uiFeedsFlow = feedListInteractor.getUIFeedsFlow(
+        sources = state.map { it.feedListSource },
+        searchQueries = state.map { it.searchQuery },
+    )
         .cachedIn(viewModelScope)
 
     override fun onEvent(event: FeedListScreenEvent) {
         when (event) {
+            is FeedListScreenEvent.OnSearchQueryChanged -> setState {
+                copy(searchQuery = event.query, feedOptions = null)
+            }
             FeedListScreenEvent.ConfirmDelete -> confirmDelete()
             FeedListScreenEvent.DismissDelete -> intent {
                 if (state.feedOptions is FeedOptionsState.ConfirmingDelete) {

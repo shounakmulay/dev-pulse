@@ -27,6 +27,8 @@ class RssFeedMapper(
     fun toRssFeedSearchResult(from: LocalRssFeedSearchResult): RssFeedSearchResult {
         return RssFeedSearchResult(
             id = uuidMapper.toUuid(from.id),
+            title = from.title,
+            name = from.name,
             sourceUrl = from.sourceUrl,
             link = from.link,
             image = from.image?.toRssFeedImage(),

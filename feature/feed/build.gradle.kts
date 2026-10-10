@@ -20,6 +20,10 @@ kotlin {
     iosFrameworks(baseName = "core:feedKit")
 
     sourceSets {
+        commonTest.dependencies {
+            implementation(libs.kotlinx.coroutines.test)
+        }
+
         commonMain.dependencies {
             implementation(project(Modules.Core.NAVIGATION))
             implementation(project(Modules.Core.UI))

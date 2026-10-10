@@ -6,12 +6,14 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedIm
 
 data class LocalRssFeedSearchResult(
     val id: LocalUUID,
+    val title: String,
+    val name: String,
     val link: String?,
     val sourceUrl: String,
     @Embedded(prefix = "image_")
     val image: LocalRssFeedImage?,
     val pinned: Boolean,
-    val highlightedTitle: String,
-    val highlightedName: String,
-    val highlightedDescription: String,
+    val highlightedTitle: String?,
+    val highlightedName: String?,
+    val highlightedDescription: String?,
 )

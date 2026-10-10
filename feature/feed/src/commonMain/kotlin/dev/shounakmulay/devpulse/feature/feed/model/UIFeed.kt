@@ -13,5 +13,6 @@ data class UIFeed(
     val initials: String,
     val pinned: Boolean,
     val sourceUrl: String,
-    val websiteImageUrl: String?
+    val websiteImageUrl: String?,
+    val searchHighlights: UIFeedSearchHighlights? = null,
 )
