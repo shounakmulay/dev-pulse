@@ -68,4 +68,24 @@ class DatabaseModule {
     fun providePostCategoryDao(
         db: DevPulseDatabase
     ) = db.getPostCategoryDao()
+
+    @Factory
+    fun provideFeedDiscoveryMasterMetadataDao(
+        db: DevPulseDatabase
+    ) = db.getFeedDiscoveryMasterMetadataDao()
+
+    @Factory
+    fun provideFeedDiscoveryCollectionDao(
+        db: DevPulseDatabase
+    ) = db.getFeedDiscoveryCollectionDao()
+
+    @Factory
+    fun provideFeedDiscoveryFeedMetadataDao(
+        db: DevPulseDatabase
+    ) = db.getFeedDiscoveryFeedMetadataDao()
+
+    @Factory
+    fun provideFeedDiscoveryCollectionToFeedMappingDao(
+        db: DevPulseDatabase
+    ) = db.getFeedDiscoveryCollectionToFeedMappingDao()
 }

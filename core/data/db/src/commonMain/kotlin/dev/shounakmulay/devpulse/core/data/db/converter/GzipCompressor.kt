@@ -5,9 +5,9 @@ import okio.GzipSink
 import okio.GzipSource
 import okio.buffer
 import okio.use
-import org.koin.core.annotation.Single
+import org.koin.core.annotation.Factory
 
-@Single
+@Factory
 class GzipCompressor {
     
     /**

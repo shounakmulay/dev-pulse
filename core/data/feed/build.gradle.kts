@@ -1,9 +1,25 @@
+
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import dev.shounakmulay.devpulse.buildsrc.constants.Modules
 import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
 
 plugins {
     alias(libs.plugins.devpulse.kmp.library)
     alias(libs.plugins.mokkery)
+    alias(libs.plugins.buildKonfig)
+}
+
+buildkonfig {
+    packageName = "dev.shounakmulay.devpulse.core.data.feed"
+
+
+    defaultConfigs {
+        buildConfigField(STRING, "FEED_DISCOVERY_URL", "https://feeds.devpulse.shounakmulay.dev")
+    }
+
+    defaultConfigs("staging") {
+        buildConfigField(STRING, "FEED_DISCOVERY_URL", "https://feeds.devpulse.shounakmulay.dev")
+    }
 }
 
 kotlin {
@@ -19,6 +35,7 @@ kotlin {
             implementation(project(Modules.Core.Data.PREFERENCES))
             implementation(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Data.DB))
+            implementation(project(Modules.Core.RESOURCES))
 
             implementation(project(Modules.Bridge.MARKDOWN_CONVERTER))
             implementation(project(Modules.Bridge.READABILITY))
@@ -28,6 +45,7 @@ kotlin {
             implementation(libs.androidx.paging.common)
             implementation(libs.okio)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization.json)
             implementation(libs.ksoup)
         }
 

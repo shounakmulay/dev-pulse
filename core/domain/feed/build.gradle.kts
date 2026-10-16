@@ -15,6 +15,7 @@ kotlin {
         commonMain.dependencies {
             api(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.COMMON))
+            implementation(project(Modules.Core.RESOURCES))
             implementation(project(Modules.Core.Data.PREFERENCES))
             implementation(project(Modules.Core.Data.FEED))
 
