@@ -13,6 +13,7 @@ import kotlinx.serialization.Transient
 @Immutable
 data class FeedDetailScreenState(
     val isLoading: Boolean = true,
+    val searchQuery: String = "",
     @Transient
     val feed: RssFeed? = null,
     val uiFeed: UIFeed? = null,

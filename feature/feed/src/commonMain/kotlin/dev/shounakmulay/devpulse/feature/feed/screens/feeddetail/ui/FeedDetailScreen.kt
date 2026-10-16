@@ -52,7 +52,6 @@ fun FeedDetailScreen(
         topAppBar = {
             FeedDetailTopAppBar(
                 scrollBehavior = scrollBehavior,
-                lazyGridState = lazyGridState,
                 navigator = navigator,
                 onPinToggled = {
                     viewModel.onEvent(FeedDetailScreenEvent.OnPinToggled)
@@ -63,6 +62,10 @@ fun FeedDetailScreen(
                 onDismissOptions = { viewModel.onEvent(FeedDetailScreenEvent.HideFeedOptions(route.id)) },
                 onMenuItemSelected = {
                     viewModel.onEvent(FeedDetailScreenEvent.OnFeedOptionSelected(it))
+                },
+                searchText = searchQuery,
+                onSearchTextChange = {
+                    viewModel.onEvent(FeedDetailScreenEvent.OnSearchTextChange(it))
                 },
             )
         },
