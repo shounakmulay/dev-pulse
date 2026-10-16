@@ -76,7 +76,7 @@ class PostListViewModel(
     }
 
     private fun onSearchQueryChanged(event: PostListScreenEvent.OnSearchQueryChanged) {
-        setState {
+        blockingSetState {
             copy(searchQuery = event.query)
         }
     }

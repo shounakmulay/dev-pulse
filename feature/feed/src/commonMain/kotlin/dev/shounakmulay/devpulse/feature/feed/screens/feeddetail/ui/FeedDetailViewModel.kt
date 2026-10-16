@@ -115,7 +115,7 @@ class FeedDetailViewModel(
     }
 
     private fun onSearchTextChange(text: String) {
-        setState {
+        blockingSetState {
             copy(searchQuery = text)
         }
     }
