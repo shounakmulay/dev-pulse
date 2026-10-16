@@ -3,7 +3,7 @@ package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.component
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalUriHandler
-import dev.shounakmulay.devpulse.core.common.BuildConfig
+import dev.shounakmulay.devpulse.core.common.BuildKonfigCommon
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.licenses
 import devpulse.core.resources.generated.resources.others
@@ -24,7 +24,7 @@ internal fun OthersSection(onLicensesClick: () -> Unit) {
             headlineText = stringResource(stringRes.source_code),
             supportingText = stringResource(stringRes.view_on_github),
         ) {
-            uriHandler.openUri(BuildConfig.GITHUB_LINK)
+            uriHandler.openUri(BuildKonfigCommon.GITHUB_LINK)
         }
     }
 }

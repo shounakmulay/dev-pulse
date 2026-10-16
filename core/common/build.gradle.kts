@@ -1,16 +1,30 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import dev.shounakmulay.devpulse.buildsrc.constants.buildConfig
 import dev.shounakmulay.devpulse.buildsrc.extensions.iosFrameworks
 
 plugins {
     alias(libs.plugins.devpulse.kmp.library)
-    alias(libs.plugins.buildConfig)
+    alias(libs.plugins.buildKonfig)
 }
 
-buildConfig {
-    packageName("dev.shounakmulay.devpulse.core.common")
-    useKotlinOutput { internalVisibility = false }
-    buildConfigField("APP_VERSION", project.buildConfig.versionName)
-    buildConfigField("GITHUB_LINK", "https://github.com/shounakmulay/dev-pulse")
+buildkonfig {
+    packageName = "dev.shounakmulay.devpulse.core.common"
+    exposeObjectWithName = "BuildKonfigCommon"
+    objectName = "BuildKonfig"
+    defaultConfigs {
+        buildConfigField(
+            type = STRING,
+            name = "APP_VERSION",
+            value = project.buildConfig.versionName,
+            const = true
+        )
+        buildConfigField(
+            type = STRING,
+            name = "GITHUB_LINK",
+            value = "https://github.com/shounakmulay/dev-pulse",
+            const = true
+        )
+    }
 }
 
 kotlin {
