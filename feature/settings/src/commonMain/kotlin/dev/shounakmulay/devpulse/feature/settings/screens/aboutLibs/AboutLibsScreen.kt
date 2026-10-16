@@ -19,7 +19,8 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun AboutLibsScreen(navigator: Navigator) {
     val libraries by produceLibraries {
-        Res.readBytes(ResourceFilePath.ABOUT_LIBRARIES).decodeToString()
+        val file = Res.readBytes(ResourceFilePath.ABOUT_LIBRARIES)
+        file.decodeToString()
     }
     Scaffold(
         topBar = {
