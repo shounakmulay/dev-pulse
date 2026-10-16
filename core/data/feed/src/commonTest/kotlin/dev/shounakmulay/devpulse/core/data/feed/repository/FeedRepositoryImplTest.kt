@@ -29,6 +29,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration
@@ -118,7 +120,15 @@ class FeedRepositoryImplTest {
 
         override suspend fun get(url: String, headers: Map<String, String>): DevPulseNetworkResponse {
             requestedUrls += url
-            return DevPulseNetworkResponse { text }
+            return object : DevPulseNetworkResponse {
+                override val status: Int = 200
+
+                override fun header(name: String): String? = null
+
+                override suspend fun bodyAsText(): String = text
+
+                override suspend fun <T> body(type: KClass<*>, kotlinType: KType): T = error("Unused")
+            }
         }
     }
 

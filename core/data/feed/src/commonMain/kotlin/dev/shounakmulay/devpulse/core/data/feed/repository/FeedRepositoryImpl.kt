@@ -18,7 +18,6 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedSearchResult
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
-import dev.shounakmulay.devpulse.core.network.bodyAsText
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -132,17 +131,5 @@ internal class FeedRepositoryImpl(
         return feedDao.getFeedIdentityBySourceUrl(url)?.let {
             rssFeedMapper.toRssIdentity(it)
         }
-    }
-
-
-    private fun String.sourceSummary(): String {
-        val withoutScheme = substringAfter("://", this)
-        val host =
-            withoutScheme.substringBefore('/').substringBefore('?').takeIf { it.isNotBlank() }
-        return "host=${host ?: take(80)}"
-    }
-
-    private companion object {
-        const val Tag = "ContentFeedRepository"
     }
 }

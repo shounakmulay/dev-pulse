@@ -4,7 +4,6 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
-import dev.shounakmulay.devpulse.core.network.bodyAsText
 import org.koin.core.annotation.Factory
 
 @Factory

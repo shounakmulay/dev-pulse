@@ -3,7 +3,6 @@ package dev.shounakmulay.devpulse.core.network
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import io.ktor.client.statement.bodyAsText
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -16,6 +15,6 @@ internal class KtorDevPulseNetworkClient(
                 header(key, value)
             }
         }
-        return DevPulseNetworkResponse { response.bodyAsText() }
+        return KtorDevPulseNetworkResponse(response)
     }
 }
