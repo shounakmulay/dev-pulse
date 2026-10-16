@@ -5,6 +5,7 @@ import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.db.DevPulseDatabase
 import dev.shounakmulay.devpulse.core.data.db.converter.LocalCompressedTextTypeConverter
 import dev.shounakmulay.devpulse.core.data.db.getDevPulseDatabase
+import dev.shounakmulay.devpulse.core.data.db.paging.FeedDiscoveryPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
 import org.koin.core.annotation.ComponentScan
@@ -24,7 +25,8 @@ class DatabaseModule {
         binds = [
             DevPulseDatabase::class,
             DevPulseDatabaseTransactionAccessor::class,
-            FeedPostPagingSourceProvider::class
+            FeedPostPagingSourceProvider::class,
+            FeedDiscoveryPagingSourceProvider::class
         ]
     )
     fun provideDevPulseDatabase(

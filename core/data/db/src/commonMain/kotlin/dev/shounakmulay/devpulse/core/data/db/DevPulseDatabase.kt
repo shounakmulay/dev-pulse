@@ -24,9 +24,11 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedQueueDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedSyncMetadataDao
 import dev.shounakmulay.devpulse.core.data.db.dao.PostContentDao
+import dev.shounakmulay.devpulse.core.data.db.migration.FeedDiscoverySearchMigration
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryCollection
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryCollectionToFeedMapping
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryFeedMetadata
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryFeedMetadataFts
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryMasterMetadata
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPostFts
@@ -39,7 +41,9 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCont
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostContentFts
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostTag
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostToTagMapping
+import dev.shounakmulay.devpulse.core.data.db.paging.FeedDiscoveryPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedDiscoveryQuery
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionScope
@@ -63,12 +67,18 @@ import dev.shounakmulay.devpulse.core.data.db.triggers.createPostContentFtsDelet
         LocalFeedDiscoveryMasterMetadata::class,
         LocalFeedDiscoveryCollection::class,
         LocalFeedDiscoveryFeedMetadata::class,
+        LocalFeedDiscoveryFeedMetadataFts::class,
         LocalFeedDiscoveryCollectionToFeedMapping::class
     ],
     autoMigrations = [
-        AutoMigration(from = SchemaVersions.BASE, to = SchemaVersions.FEED_DISCOVERY)
+        AutoMigration(from = SchemaVersions.BASE, to = SchemaVersions.FEED_DISCOVERY),
+        AutoMigration(
+            from = SchemaVersions.FEED_DISCOVERY,
+            to = SchemaVersions.FEED_DISCOVERY_SEARCH,
+            spec = FeedDiscoverySearchMigration::class,
+        )
     ],
-    version = SchemaVersions.FEED_DISCOVERY
+    version = SchemaVersions.FEED_DISCOVERY_SEARCH
 )
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @ColumnTypeConverters(LocalCompressedTextTypeConverter::class)
@@ -76,7 +86,8 @@ import dev.shounakmulay.devpulse.core.data.db.triggers.createPostContentFtsDelet
 abstract class DevPulseDatabase :
     RoomDatabase(),
     DevPulseDatabaseTransactionAccessor,
-    FeedPostPagingSourceProvider {
+    FeedPostPagingSourceProvider,
+    FeedDiscoveryPagingSourceProvider {
 
     abstract fun getFeedContentDao(): FeedPostDao
     abstract fun getFeedDao(): FeedDao
@@ -95,6 +106,9 @@ abstract class DevPulseDatabase :
 
     override fun getFeedPostPagingSource(query: LocalFeedPostQuery) =
         getFeedContentDao().getFeedPostPagingSource(this, query)
+
+    override fun getFeedDiscoveryPagingSource(query: LocalFeedDiscoveryQuery) =
+        getFeedDiscoveryFeedMetadataDao().getFeedDiscoveryPagingSource(this, query)
 
     override suspend fun <T> readTransaction(block: suspend DevPulseDatabaseTransactionScope<T>.() -> T): T {
         return withReadTransaction {
