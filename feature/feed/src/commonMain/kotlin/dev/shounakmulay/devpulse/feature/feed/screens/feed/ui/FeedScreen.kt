@@ -79,7 +79,7 @@ fun FeedScreen(
                 onOptionSelected = { feedId, option ->
                     viewModel.onEvent(FeedScreenEvent.OnFeedOptionSelected(feedId, option))
                 },
-                onNavigateToAddFeed = { navigator.navigate(Tabs.Feed.AddFeed) },
+                onNavigateToAddFeed = { navigator.navigate(Tabs.Feed.BrowseFeeds) },
                 onNavigateToFeedList = { navigator.navigate(Tabs.Feed.FeedList) },
                 onFeedClick = { navigator.navigate(Tabs.Feed.FeedDetail(it.id)) },
                 onFeedLongClick = {

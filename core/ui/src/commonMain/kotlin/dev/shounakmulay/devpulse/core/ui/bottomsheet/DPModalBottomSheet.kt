@@ -94,13 +94,17 @@ fun rememberDPModalBottomSheetController(
 fun DPModalBottomSheet(
     modifier: Modifier = Modifier,
     controller: DPModalBottomSheetController = rememberDPModalBottomSheetController(),
+    onDismissRequest: () -> Unit = {},
     content: @Composable ColumnScope.(DPModalBottomSheetController) -> Unit
 ) {
     if (controller.presentInComposition.value) {
         ModalBottomSheet(
             modifier = modifier,
             sheetState = controller.sheetState,
-            onDismissRequest = controller::hideOnDismiss
+            onDismissRequest = {
+                controller.hideOnDismiss()
+                onDismissRequest()
+            }
         ) {
             content(controller)
         }

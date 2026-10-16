@@ -10,7 +10,7 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.add_feed_action_import
 import devpulse.core.resources.generated.resources.add_feed_feeds
-import devpulse.core.resources.generated.resources.feed_view_all
+import devpulse.core.resources.generated.resources.view_all
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -32,7 +32,7 @@ internal fun FeedsSectionHeader(
         )
         DPButton(
             enabled = viewAllEnabled,
-            text = stringResource(stringRes.feed_view_all),
+            text = stringResource(stringRes.view_all),
             variant = DPButtonVariant.Secondary,
             style = DPButtonStyle.Text,
             size = DPSize.Small,

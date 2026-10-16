@@ -63,29 +63,3 @@ fun DPImage(
         placeholder(modifier)
     }
 }
-
-@Composable
-fun DPFeedImage(
-    url: String?,
-    initials: String,
-    feedTitle: String,
-    modifier: Modifier = Modifier
-) {
-    DPImage(
-        modifier = modifier.fillMaxSize(),
-        url = url.orEmpty(),
-        contentDescription = stringResource(stringRes.feed_image_content_description, feedTitle),
-        fallbackContent = { fallbackModifier ->
-            Box(
-                modifier = fallbackModifier,
-                contentAlignment = Alignment.Center,
-            ) {
-                DPTextView(
-                    text = initials,
-                    fontWeight = FontWeight.Bold,
-                    variant = DPTextViewVariant.LabelLarge,
-                )
-            }
-        },
-    )
-}

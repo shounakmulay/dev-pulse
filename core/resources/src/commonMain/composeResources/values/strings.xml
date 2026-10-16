@@ -10,6 +10,7 @@
     <string name="text_resource_greeting">Hello from string resource</string>
     <string name="text_resource_greeting_with_name">Hello, %1$s!</string>
     <string name="import_feeds">Import Feeds</string>
+    <string name="browse_feeds">Browse Feeds</string>
     <string name="add_feed_status">Status</string>
     <string name="add_feed_feeds">Feeds</string>
     <string name="add_feed_action_import">Import</string>
@@ -42,12 +43,12 @@
     <string name="custom_name">Enter custom name</string>
     <string name="enter_feed_url">Enter feed URL</string>
     <string name="enter_valid_url">Please enter a valid URL.</string>
-    <string name="feed_search">Search</string>
+    <string name="search">Search</string>
     <string name="feed_search_clear">Clear search</string>
     <string name="feed_search_result">Search Item %1$d</string>
     <string name="feed_search_back">Close search</string>
     <string name="feed_empty_imported">No feeds imported yet.</string>
-    <string name="feed_view_all">View All</string>
+    <string name="view_all">View All</string>
     <string name="feed_detail_title">Detail %1$d</string>
     <string name="feed_list_empty">No feeds yet</string>
     <string name="feed_list_load_error">Unable to load feeds</string>
@@ -132,4 +133,16 @@
     <string name="failed_to_update_feed">Failed to update feed</string>
     <string name="feeds_sync_title">Feeds updated</string>
     <string name="feeds_sync_message">%1$d feeds synced successfully</string>"
+    <string name="discovery_add">Add</string>
+    <string name="discovery_added">Added</string>
+    <string name="discovery_adding">Adding…</string>
+    <string name="discovery_queued">Queued</string>
+    <string name="discovery_search_all">Search all feeds</string>
+    <string name="discovery_search_collection">Search this collection</string>
+    <string name="discovery_feed_count">%1$d feeds</string>
+    <string name="discovery_no_results">No matching feeds</string>
+    <string name="discovery_collection_empty">No feeds in this collection</string>
+    <string name="discovery_collection_removed">This collection is no longer available</string>
+    <string name="discovery_load_failed">Could not load discovery feeds</string>
+    <string name="discovery_import_failed">Could not add this feed</string>
 </resources>

@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.designsystem.components
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
@@ -9,6 +10,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -32,12 +35,16 @@ fun DPSearchTopAppBar(
     keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
     inputModifier: Modifier = Modifier,
     enabled: Boolean = true,
-    colors: TextFieldColors? = null,
+    textFieldColors: TextFieldColors? = null,
+    appBarColors: TopAppBarColors? = null,
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
         modifier = modifier,
+        colors = appBarColors ?: TopAppBarDefaults.topAppBarColors(),
         scrollBehavior = scrollBehavior,
         navigationIcon = { navigationIcon(Modifier.padding(bottom = 6.dp)) },
+        actions = actions,
         title = {
             DPTextField(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp).then(inputModifier),
@@ -46,7 +53,7 @@ fun DPSearchTopAppBar(
                 variant = DPTextFieldVariant.Filled,
                 placeholder = placeholder,
                 enabled = enabled,
-                colors = colors,
+                colors = textFieldColors,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Search
