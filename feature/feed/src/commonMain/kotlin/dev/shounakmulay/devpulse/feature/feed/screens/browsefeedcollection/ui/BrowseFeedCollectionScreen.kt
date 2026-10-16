@@ -23,6 +23,7 @@ import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
+import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 import dev.shounakmulay.devpulse.core.ui.text.resolve
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryFeedDetailsBottomSheet
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryFeedPagingList
@@ -31,8 +32,8 @@ import devpulse.core.resources.generated.resources.discovery_collection_empty
 import devpulse.core.resources.generated.resources.discovery_collection_removed
 import devpulse.core.resources.generated.resources.discovery_no_results
 import devpulse.core.resources.generated.resources.discovery_search_collection
+import devpulse.core.resources.generated.resources.post_search_minimum_length
 import org.jetbrains.compose.resources.stringResource
-import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -41,10 +42,8 @@ fun BrowseFeedCollectionScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier
 ) {
-    val feeds = viewModel.feedsFlow.collectAsLazyPagingItems()
-    val results = viewModel.searchResultsFlow.collectAsLazyPagingItems()
-    val normalListState = rememberLazyListState()
-    val searchListState = rememberLazyListState()
+    val feeds = viewModel.feeds.collectAsLazyPagingItems()
+    val listState = rememberLazyListState()
     val snackbarController = LocalSnackbarController.current
     val onAddFeed: (UUID) -> Unit =
         { viewModel.onEvent(BrowseFeedCollectionScreenEvent.OnAddFeed(it)) }
@@ -81,25 +80,20 @@ fun BrowseFeedCollectionScreen(
                 BrowseFeedCollectionContent.Loading -> DPLinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 BrowseFeedCollectionContent.Missing -> DiscoveryMessage(stringResource(stringRes.discovery_collection_removed))
                 is BrowseFeedCollectionContent.Ready -> {
-                    if (state.searchQuery.isNotBlank()) {
-                        DiscoveryFeedPagingList(
-                            feeds = results,
-                            listState = searchListState,
-                            pendingImportIds = state.pendingImportIds,
-                            emptyText = stringResource(stringRes.discovery_no_results),
-                            onAddFeed = onAddFeed,
-                            onFeedClick = { viewModel.onEvent(BrowseFeedCollectionScreenEvent.OnFeedClick(it)) },
-                        )
-                    } else {
-                        val collection = content.collection
-                        DiscoveryFeedPagingList(
-                            feeds = feeds,
-                            listState = normalListState,
-                            pendingImportIds = state.pendingImportIds,
-                            emptyText = stringResource(stringRes.discovery_collection_empty),
-                            onAddFeed = onAddFeed,
-                            onFeedClick = { viewModel.onEvent(BrowseFeedCollectionScreenEvent.OnFeedClick(it)) },
-                            header = {
+                    val collection = content.collection
+                    val searching = state.searchQuery.trim().length >= 3
+                    DiscoveryFeedPagingList(
+                        feeds = feeds,
+                        listState = listState,
+                        pendingImportIds = state.pendingImportIds,
+                        emptyText = stringResource(
+                            if (searching) stringRes.discovery_no_results
+                            else stringRes.discovery_collection_empty
+                        ),
+                        onAddFeed = onAddFeed,
+                        onFeedClick = { viewModel.onEvent(BrowseFeedCollectionScreenEvent.OnFeedClick(it)) },
+                        header = {
+                            if (!searching) {
                                 stickyHeader {
                                     DPSectionDivider {
                                         DPTextView(
@@ -115,10 +109,13 @@ fun BrowseFeedCollectionScreen(
                                 item(collection.id.value) {
                                     collection.description?.takeIf(String::isNotBlank)
                                         ?.let { DiscoveryMessage(it) }
+                                    if (state.searchQuery.isNotBlank()) {
+                                        DiscoveryMessage(stringResource(stringRes.post_search_minimum_length))
+                                    }
                                 }
-                            },
-                        )
-                    }
+                            }
+                        },
+                    )
                 }
             }
         }

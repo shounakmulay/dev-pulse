@@ -24,6 +24,7 @@ import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
+import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 import dev.shounakmulay.devpulse.core.ui.text.resolve
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryCollectionShelf
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryFeedDetailsBottomSheet
@@ -31,8 +32,8 @@ import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryFeed
 import devpulse.core.resources.generated.resources.discovery_no_results
 import devpulse.core.resources.generated.resources.discovery_search_all
 import devpulse.core.resources.generated.resources.import_feeds
+import devpulse.core.resources.generated.resources.post_search_minimum_length
 import org.jetbrains.compose.resources.stringResource
-import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -41,7 +42,7 @@ fun BrowseFeedsScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier
 ) {
-    val results = viewModel.searchResultsFlow.collectAsLazyPagingItems()
+    val results = viewModel.feeds.collectAsLazyPagingItems()
     val normalListState = rememberLazyListState()
     val searchListState = rememberLazyListState()
     val snackbarController = LocalSnackbarController.current
@@ -91,7 +92,10 @@ fun BrowseFeedsScreen(
                 feeds = results,
                 listState = searchListState,
                 pendingImportIds = state.pendingImportIds,
-                emptyText = stringResource(stringRes.discovery_no_results),
+                emptyText = stringResource(
+                    if (state.searchQuery.trim().length < 3) stringRes.post_search_minimum_length
+                    else stringRes.discovery_no_results
+                ),
                 onAddFeed = { viewModel.onEvent(BrowseFeedsScreenEvent.OnAddFeed(it)) },
                 onFeedClick = { viewModel.onEvent(BrowseFeedsScreenEvent.OnFeedClick(it)) },
             )

@@ -118,6 +118,16 @@ private fun ColumnScope.DiscoveryFeedText(feed: UIDiscoveryFeed, descriptionLine
         maxLines = descriptionLines,
         overflow = TextOverflow.Ellipsis,
     )
+    val urlMatch = feed.searchHighlights?.feedUrl ?: feed.searchHighlights?.websiteUrl
+    urlMatch?.let {
+        DPTextView(
+            text = it.asAnnotatedString(color = highlightColor),
+            variant = DPTextViewVariant.BodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+
 }
 
 @Composable
@@ -144,6 +154,7 @@ fun DiscoveryFeedImportButton(
         size = DPSize.Small,
         enabled = !pending && state in setOf(
             UIDiscoveryFeedImportState.NotAdded,
+            UIDiscoveryFeedImportState.Queued,
             UIDiscoveryFeedImportState.Failed
         ),
         leadingIcon = when (state) {

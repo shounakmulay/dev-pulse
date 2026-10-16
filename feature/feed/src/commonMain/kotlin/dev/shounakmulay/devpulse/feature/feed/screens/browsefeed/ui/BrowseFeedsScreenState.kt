@@ -13,10 +13,10 @@ import kotlinx.serialization.Transient
 data class BrowseFeedsScreenState(
     val collectionShelves: List<UIDiscoveryCollectionShelf> = emptyList(),
     val searchQuery: String = "",
+    @Transient val isLoading: Boolean = true,
     @Transient val pendingImportIds: Set<UUID> = emptySet(),
     val selectedFeedId: UUID? = null,
     @Transient val selectedFeed: UIDiscoveryFeed? = null,
 ) : ScreenState {
     val selectedFeedDetails: UIDiscoveryFeed? get() = selectedFeed?.takeIf { it.id == selectedFeedId }
-    val isLoading: Boolean = false
 }

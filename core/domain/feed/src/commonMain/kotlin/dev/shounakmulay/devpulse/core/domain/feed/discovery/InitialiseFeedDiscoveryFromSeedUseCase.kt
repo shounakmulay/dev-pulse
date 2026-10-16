@@ -20,6 +20,7 @@ class InitialiseFeedDiscoveryFromSeedUseCase(
     private val log = logger.withTag(TAG)
 
     suspend operator fun invoke() = dispatcherProvider.runCatchingOnDefault {
+        log.d { "Checking discovery initialisation" }
         val isInitialised = feedDiscoveryRepository.isFeedDiscoveryInitialised()
 
         if (isInitialised) {
@@ -27,8 +28,11 @@ class InitialiseFeedDiscoveryFromSeedUseCase(
             return@runCatchingOnDefault
         }
 
+        log.i { "Initialising discovery from bundled seed" }
         val seed = feedDiscoveryRepository.getDiscoverySeed(ResourceFilePath.DISCOVERY_SEED)
         feedDiscoveryRepository.initialiseWithSeed(seed)
         log.d { "Feed discovery initialised." }
+    }.onFailure {
+        log.e(it) { "Failed to initialise feed discovery." }
     }
 }
