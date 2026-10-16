@@ -23,7 +23,7 @@ internal fun DevPulseNavDisplay(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     navigationSuiteType: NavigationSuiteType,
 ) {
-    AppLevelInitialisers()
+    AppLevelUiInitialisers()
 
     NavDisplay(
         modifier = Modifier,

@@ -21,8 +21,9 @@ import org.jetbrains.compose.resources.getString
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Named
 
+
 @Factory
-@Named("FEED_SYNC")
+@Named(DevPulseWorkerType.FEED_SYNC)
 class FeedSyncWorker(
     private val enqueueFeedSyncUseCase: EnqueueFeedSyncUseCase,
     private val queueExecutor: RssFeedQueueExecutor,
@@ -30,7 +31,7 @@ class FeedSyncWorker(
     private val notificationProvider: NotificationProvider,
     private val dispatcherProvider: DispatcherProvider
 ) : DevPulseWorker {
-    override val identifier: DevPulseWorkerType = DevPulseWorkerType.FEED_SYNC
+    override val identifier: String = DevPulseWorkerType.FEED_SYNC
 
     override suspend fun doWork(input: Map<String, Any?>): Result<Map<String, Any?>?> {
         val syncInBackground = observeSyncInBackgroundUseCase().first().getOrElse {

@@ -1,16 +1,8 @@
 package dev.shounakmulay.devpulse.core.sync
 
-enum class DevPulseWorkerType {
-    FEED_SYNC;
+object DevPulseWorkerType {
+    const val FEED_SYNC = "FEED_SYNC"
+    const val FEED_DISCOVERY_SYNC = "FEED_DISCOVERY_SYNC"
 
-    companion object {
-        const val WORK_DATA_KEY = "devpulse_worker_type"
-
-        fun fromString(value: String): DevPulseWorkerType {
-            return when (value) {
-                FEED_SYNC.name -> FEED_SYNC
-                else -> throw IllegalArgumentException("Unknown worker type: $value")
-            }
-        }
-    }
+    const val WORK_DATA_KEY = "devpulse_worker_type"
 }

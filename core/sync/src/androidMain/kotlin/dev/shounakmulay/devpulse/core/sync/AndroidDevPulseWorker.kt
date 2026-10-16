@@ -20,16 +20,11 @@ class AndroidDevPulseWorker(
         val workerTypeName = requireNotNull(inputData.getString(DevPulseWorkerType.WORK_DATA_KEY)) {
             "Worker type not specified"
         }
-        val workerType = DevPulseWorkerType.fromString(
-            value = workerTypeName
-        )
 
-        val worker = when (workerType) {
-            DevPulseWorkerType.FEED_SYNC -> getKoin().get<DevPulseWorker>(named(workerType.name))
-        }
+        val worker = getKoin().get<DevPulseWorker>(named(workerTypeName))
 
-        require(worker.identifier == workerType) {
-            "Worker registered with type ${worker.identifier} but called with type $workerType"
+        require(worker.identifier == workerTypeName) {
+            "Worker registered with type ${worker.identifier} but called with type $workerTypeName"
         }
 
         val result = worker.doWork(inputData.keyValueMap)
