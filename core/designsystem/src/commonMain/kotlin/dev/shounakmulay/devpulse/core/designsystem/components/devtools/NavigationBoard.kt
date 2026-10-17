@@ -26,10 +26,12 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPNavigationBarIte
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTab
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTabRow
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTabRowVariant
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBar
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBarVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBar
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBarVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -168,5 +170,13 @@ fun NavigationBoard(modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun NavigationBoardPreview() {
+    Preview {
+        NavigationBoard()
     }
 }

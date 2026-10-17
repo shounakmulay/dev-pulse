@@ -16,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 private data class ElevationEntry(val label: String, val elevation: Dp)
 
@@ -52,5 +54,13 @@ fun ElevationBoard(modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun ElevationBoardPreview() {
+    Preview {
+        ElevationBoard()
     }
 }

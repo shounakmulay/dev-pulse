@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import dev.shounakmulay.devpulse.core.designsystem.components.DPListItem
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 
 @Composable
@@ -22,5 +24,13 @@ internal fun SettingsSubPageLink(
                 )
             }
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun SettingsSubPageLinkPreview() {
+    Preview {
+        SettingsSubPageLink(headlineText = "Article reader", onClick = {})
     }
 }

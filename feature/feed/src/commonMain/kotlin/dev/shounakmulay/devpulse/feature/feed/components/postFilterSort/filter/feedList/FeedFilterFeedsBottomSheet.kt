@@ -33,7 +33,7 @@ import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.DPModalBottomSheet
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.DPModalBottomSheetController
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
-import devpulse.core.resources.generated.resources.feed_search
+import devpulse.core.resources.generated.resources.search
 import devpulse.core.resources.generated.resources.feed_search_clear
 import devpulse.core.resources.generated.resources.select_feeds
 import org.jetbrains.compose.resources.stringResource
@@ -75,7 +75,7 @@ internal fun FeedFilterFeedsBottomSheet(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = LocalDPSpacing.current.xl),
                         value = state.searchTerm,
                         onValueChange = onSearchTermChanged,
-                        placeholder = stringResource(stringRes.feed_search),
+                        placeholder = stringResource(stringRes.search),
                         variant = DPTextFieldVariant.Filled,
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),

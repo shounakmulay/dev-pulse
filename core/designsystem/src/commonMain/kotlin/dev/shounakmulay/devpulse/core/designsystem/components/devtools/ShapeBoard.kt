@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 private data class ShapeEntry(val name: String, val shape: Shape)
 
@@ -44,5 +46,13 @@ fun ShapeBoard(modifier: Modifier = Modifier) {
                 tonalElevation = 2.dp,
             ) {}
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun ShapeBoardPreview() {
+    Preview {
+        ShapeBoard()
     }
 }

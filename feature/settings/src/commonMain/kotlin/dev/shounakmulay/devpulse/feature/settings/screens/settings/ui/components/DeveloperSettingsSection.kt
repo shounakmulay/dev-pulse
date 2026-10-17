@@ -2,6 +2,8 @@ package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.design_system_board
 import devpulse.core.resources.generated.resources.developer_tools
@@ -17,5 +19,13 @@ internal fun DeveloperSettingsSection(
             headlineText = stringResource(stringRes.design_system_board),
             onClick = onDesignSystemBoardClick
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun DeveloperSettingsSectionPreview() {
+    Preview {
+        DeveloperSettingsSection(onDesignSystemBoardClick = {})
     }
 }

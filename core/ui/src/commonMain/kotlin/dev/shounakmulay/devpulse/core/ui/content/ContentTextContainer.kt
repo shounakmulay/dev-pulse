@@ -9,6 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @Composable
 fun ContentTextContainer(content: @Composable () -> Unit) {
@@ -68,5 +72,18 @@ private fun rememberTransformedTypography(
             labelMediumEmphasized = typography.labelMediumEmphasized.copy(lineHeight = typography.labelMediumEmphasized.lineHeight * contentTextSettings.lineHeightScale),
             labelSmallEmphasized = typography.labelSmallEmphasized.copy(lineHeight = typography.labelSmallEmphasized.lineHeight * contentTextSettings.lineHeightScale)
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun ContentTextContainerPreview() {
+    Preview {
+        ContentTextContainer {
+            DPTextView(
+                text = "Readable articles on every screen. Adjust the text size and spacing to make reading comfortable.",
+                variant = DPTextViewVariant.BodyLarge,
+            )
+        }
     }
 }

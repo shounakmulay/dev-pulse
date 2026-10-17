@@ -1,11 +1,14 @@
 package dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.filter.feedList
 
 import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.rememberDPModalBottomSheetController
@@ -44,9 +47,12 @@ internal fun LazyItemScope.FeedIdFilter(
     )
 }
 
-
-
-
-
-
-
+@DPComponentPreview
+@Composable
+private fun FeedIdFilterPreview() {
+    Preview {
+        LazyRow {
+            item { FeedIdFilter(filter = RssPostFilter.FeedIds(emptySet()), onFilterUpdated = {}) }
+        }
+    }
+}

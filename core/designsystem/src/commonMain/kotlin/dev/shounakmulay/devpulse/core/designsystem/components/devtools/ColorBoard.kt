@@ -24,8 +24,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.devpulse.core.designsystem.theme.categoryAndroid
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.categoryAI
+import dev.shounakmulay.devpulse.core.designsystem.theme.categoryAndroid
 import dev.shounakmulay.devpulse.core.designsystem.theme.categoryDevOps
 import dev.shounakmulay.devpulse.core.designsystem.theme.categoryFlutter
 import dev.shounakmulay.devpulse.core.designsystem.theme.categoryGeneral
@@ -146,3 +148,11 @@ private fun categoryColorEntries(): List<ColorEntry> = listOf(
     ColorEntry("AI", categoryAI),
     ColorEntry("General", categoryGeneral),
 )
+
+@DPScreenPreview
+@Composable
+private fun ColorBoardPreview() {
+    Preview {
+        ColorBoard()
+    }
+}

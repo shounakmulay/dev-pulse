@@ -6,6 +6,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @Composable
 internal fun SettingsSectionHeading(title: String) {
@@ -14,4 +16,12 @@ internal fun SettingsSectionHeading(title: String) {
         text = title,
         variant = DPTextViewVariant.TitleMediumEmphasized
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun SettingsSectionHeadingPreview() {
+    Preview {
+        SettingsSectionHeading(title = "Appearance")
+    }
 }

@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSegmentedButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -114,5 +116,13 @@ fun SegmentedAndToolbarsBoard(modifier: Modifier = Modifier) {
                 Text("3")
             }
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun SegmentedAndToolbarsBoardPreview() {
+    Preview {
+        SegmentedAndToolbarsBoard()
     }
 }

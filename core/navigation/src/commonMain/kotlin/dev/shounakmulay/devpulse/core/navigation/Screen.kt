@@ -30,6 +30,14 @@ sealed interface Screen : NavKey {
 
             @Serializable
             @Immutable
+            data object BrowseFeeds : Screen
+
+            @Serializable
+            @Immutable
+            data class BrowseFeedCollection(val collectionId: UUID) : Screen
+
+            @Serializable
+            @Immutable
             data object FeedList : Screen
 
             @Serializable

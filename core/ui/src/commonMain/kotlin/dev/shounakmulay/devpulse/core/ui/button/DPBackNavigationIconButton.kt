@@ -3,6 +3,8 @@ package dev.shounakmulay.devpulse.core.ui.button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.navigate_back
@@ -16,4 +18,12 @@ fun DPBackNavigationIconButton(modifier: Modifier = Modifier, onNavigateBack: ()
         contentDescription = stringResource(stringRes.navigate_back),
         onClick = onNavigateBack
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun DPBackNavigationIconButtonPreview() {
+    Preview {
+        DPBackNavigationIconButton(onNavigateBack = {})
+    }
 }

@@ -9,7 +9,9 @@ kotlin {
     android {
         namespace = "dev.shounakmulay.devpulse.feature.feed"
 
-        withHostTestBuilder {}
+        withHostTestBuilder {}.configure {
+            isIncludeAndroidResources = true
+        }
 
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
@@ -20,6 +22,13 @@ kotlin {
     iosFrameworks(baseName = "core:feedKit")
 
     sourceSets {
+        getByName("androidHostTest").dependencies {
+            implementation(project(Modules.Core.Data.FEED))
+            implementation(project(Modules.Core.LOGGING))
+            implementation(libs.turbine)
+            implementation(libs.robolectric)
+        }
+
         commonTest.dependencies {
             implementation(libs.kotlinx.coroutines.test)
         }

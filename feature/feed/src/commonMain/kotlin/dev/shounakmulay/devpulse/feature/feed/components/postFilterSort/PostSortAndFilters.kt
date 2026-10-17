@@ -11,8 +11,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
+import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.filter.filterItems
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.sort.sortItem
 import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
@@ -83,6 +86,19 @@ internal fun PostSortAndFilters(
                 onFilterUpdated(it)
             },
             clearFilters = clearFilters
+        )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun PostSortAndFiltersPreview() {
+    Preview {
+        PostSortAndFilters(
+            state = PostSortAndFilterState(screen = Screen.Tabs.Feed),
+            onSortUpdated = {},
+            onFilterUpdated = {},
+            clearFilters = {},
         )
     }
 }

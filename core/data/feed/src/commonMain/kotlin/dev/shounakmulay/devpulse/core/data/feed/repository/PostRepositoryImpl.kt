@@ -27,7 +27,8 @@ import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSearchHighlights
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentityAndSearch
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.DevPulseUrlHelper
-import dev.shounakmulay.devpulse.core.network.bodyAsText
+import dev.shounakmulay.devpulse.core.network.HttpHeaders
+import dev.shounakmulay.devpulse.core.network.HttpUserAgent
 import dev.shounakmulay.devpulse.readability.ArticleExtractor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -102,7 +103,7 @@ class PostRepositoryImpl(
         val html = devPulseNetworkClient.get(
             url = link,
             headers = mapOf(
-                DevPulseNetworkClient.Companion.HttpHeaders.USER_AGENT to DevPulseNetworkClient.Companion.HttpUserAgent.BROWSER
+                HttpHeaders.USER_AGENT to HttpUserAgent.BROWSER
             )
         ).bodyAsText()
         val baseUrl = devPulseUrlHelper.getBaseUrl(link)
@@ -197,8 +198,6 @@ class PostRepositoryImpl(
 
             else -> null
         }
-
-
     }
 
     override suspend fun getPostDescription(postId: UUID): String? {
@@ -236,70 +235,5 @@ class PostRepositoryImpl(
                 )
             }
         )
-    }
-
-    private val IMAGE_REGEX = Regex("""!\[[^\]]*]\([^)]*\)""")
-    private val CODE_FENCE_REGEX = Regex("""^\s*(```|~~~)""")
-
-    /**
-     * Ensures every Markdown image element (`![alt](src)`) sits on its own line
-     * with a blank line above and below it.
-     *
-     * Rules:
-     * - Lines inside fenced code blocks (``` or ~~~) are left untouched, even if
-     *   they happen to contain image-like syntax.
-     * - If an "image line" is preceded/followed by an existing blank line, no
-     *   extra blank line is added (avoids double blank lines).
-     * - If an image line is adjacent to another image line, they stay separated
-     *   by exactly one blank line, not stacked.
-     * - Leading/trailing blank lines are not force-added at doc boundaries.
-     *
-     * Note: if a line mixes an image with other prose (e.g. `Text ![a](b) more`),
-     * the whole line is treated as an "image line" and isolated as-is — this
-     * function does not split inline text away from the image. If you need that,
-     * pre-process to hoist images onto their own line first.
-     */
-    fun addBlankLinesAroundImages(markdown: String): String {
-        val lines = markdown.split("\n")
-
-        // Precompute fenced-code-block state per line so we don't touch content inside ``` blocks.
-        val inCodeBlock = BooleanArray(lines.size)
-        var toggled = false
-        for (i in lines.indices) {
-            if (CODE_FENCE_REGEX.containsMatchIn(lines[i])) {
-                inCodeBlock[i] = toggled // the fence line itself isn't "inside"
-                toggled = !toggled
-            } else {
-                inCodeBlock[i] = toggled
-            }
-        }
-
-        fun isImageLine(index: Int): Boolean =
-            !inCodeBlock[index] &&
-                    lines[index].isNotBlank() &&
-                    IMAGE_REGEX.containsMatchIn(lines[index])
-
-        val result = StringBuilder()
-        for (i in lines.indices) {
-            val line = lines[i]
-            val currentIsImage = isImageLine(i)
-            val prevIsImage = i > 0 && isImageLine(i - 1)
-
-            // Insert blank line above, if this is an image line following non-blank, non-image content
-            if (currentIsImage && i > 0 && lines[i - 1].isNotBlank() && result.isNotEmpty()) {
-                result.append('\n')
-            }
-
-            result.append(line)
-            if (i != lines.lastIndex) result.append('\n')
-
-            // Insert blank line below, if this is (or was) an image line and the next line is non-blank
-            val nextExists = i + 1 <= lines.lastIndex
-            if (currentIsImage && nextExists && lines[i + 1].isNotBlank()) {
-                result.append('\n')
-            }
-        }
-
-        return result.toString()
     }
 }

@@ -19,6 +19,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPSegmentedButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSingleChoiceSegmentedButtonRow
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 
@@ -95,3 +97,11 @@ private fun ThemeMode.label(): String =
         ThemeMode.DARK -> "Dark"
         ThemeMode.SYSTEM -> "System"
     }
+
+@DPComponentPreview
+@Composable
+private fun ThemeModeSelectorPreview() {
+    Preview {
+        ThemeModeSelector(selectedThemeMode = ThemeMode.SYSTEM, onValueSelected = {})
+    }
+}

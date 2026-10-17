@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +23,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPCardVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -137,6 +141,28 @@ private fun CardHeader(
                 contentDescription = stringResource(stringRes.add_feed_action_delete_feed),
                 onClick = onDelete
             )
+        }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun AddFeedInputCardPreview() {
+    Preview {
+        LazyVerticalGrid(columns = GridCells.Fixed(1)) {
+            item {
+                AddFeedInputCard(
+                    index = 1,
+                    data = UIAddFeedData.empty(),
+                    onUrlChanged = {},
+                    onTitleChanged = {},
+                    showDelete = true,
+                    onDelete = {},
+                    canToggleExpanded = true,
+                    onToggleExpanded = {},
+                    onSourceInputFocusLost = {},
+                )
+            }
         }
     }
 }

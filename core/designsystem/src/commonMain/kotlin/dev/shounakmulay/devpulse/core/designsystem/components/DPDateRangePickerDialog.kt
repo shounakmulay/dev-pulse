@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.apply_filter
@@ -108,6 +110,18 @@ fun DPDateRangePickerDialog(
                     )
                 )
             ),
+        )
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun DPDateRangePickerDialogPreview() {
+    Preview {
+        DPDateRangePickerDialog(
+            onDismissRequest = {},
+            onDateRangeSelected = { _, _ -> },
+            onDateRangeCleared = {},
         )
     }
 }

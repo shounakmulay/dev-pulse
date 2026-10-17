@@ -10,6 +10,7 @@ import kotlinx.serialization.KSerializer
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.OrbitContainerHost
+import org.orbitmvi.orbit.blockingIntent
 import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.orbitContainer
 
@@ -29,6 +30,12 @@ abstract class MviViewModel<STATE : ScreenState, EFFECT : Effect>(initialState: 
     val state: StateFlow<STATE> = container.stateFlow
 
     protected fun setState(block: STATE.() -> STATE) = intent {
+        reduce {
+            state.block()
+        }
+    }
+
+    protected fun blockingSetState(block: STATE.() -> STATE) = blockingIntent {
         reduce {
             state.block()
         }

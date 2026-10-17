@@ -4,12 +4,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -31,5 +35,15 @@ fun LazyGridItemScope.AddNewCardButton(
             contentDescription = stringResource(stringRes.add_feed_action_add_feed),
             onClick = onClick
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun AddNewCardButtonPreview() {
+    Preview {
+        LazyVerticalGrid(columns = GridCells.Fixed(1)) {
+            item { AddNewCardButton(onClick = {}) }
+        }
     }
 }

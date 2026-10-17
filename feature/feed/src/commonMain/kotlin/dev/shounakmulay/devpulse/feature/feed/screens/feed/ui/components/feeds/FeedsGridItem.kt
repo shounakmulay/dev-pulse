@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,14 +27,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
 import dev.shounakmulay.devpulse.core.ui.transition.sharedElement
+import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
 import devpulse.core.resources.generated.resources.feed_image_content_description
 import devpulse.core.resources.generated.resources.feed_pinned_content_description
 import org.jetbrains.compose.resources.stringResource
@@ -163,4 +169,25 @@ private fun ListItemLabel(title: String?, sourceUrl: String) {
         overflow = TextOverflow.Ellipsis,
         variant = DPTextViewVariant.LabelSmall
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun FeedsGridItemPreview() {
+    Preview {
+        AnimatedContent(targetState = Unit, label = "Feed preview") {
+            CompositionLocalProvider(LocalNavAnimatedContentScope provides this) {
+                FeedsGridItem(
+                    feedId = FeedPreviewData.feed.id,
+                    imageUrl = null,
+                    title = FeedPreviewData.feed.title,
+                    initials = FeedPreviewData.feed.initials,
+                    pinned = true,
+                    sourceUrl = FeedPreviewData.feed.sourceUrl,
+                    onClick = {},
+                    onLongClick = {},
+                )
+            }
+        }
+    }
 }

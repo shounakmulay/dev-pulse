@@ -9,6 +9,7 @@ import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.produceLibraries
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBar
 import dev.shounakmulay.devpulse.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.resources.ResourceFilePath
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import devpulse.core.resources.generated.resources.Res
@@ -18,7 +19,8 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun AboutLibsScreen(navigator: Navigator) {
     val libraries by produceLibraries {
-        Res.readBytes("files/aboutlibraries.json").decodeToString()
+        val file = Res.readBytes(ResourceFilePath.ABOUT_LIBRARIES)
+        file.decodeToString()
     }
     Scaffold(
         topBar = {

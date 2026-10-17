@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @Composable
 fun TypographyBoard(modifier: Modifier = Modifier) {
@@ -30,5 +32,13 @@ fun TypographyBoard(modifier: Modifier = Modifier) {
                 HorizontalDivider()
             }
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun TypographyBoardPreview() {
+    Preview {
+        TypographyBoard()
     }
 }

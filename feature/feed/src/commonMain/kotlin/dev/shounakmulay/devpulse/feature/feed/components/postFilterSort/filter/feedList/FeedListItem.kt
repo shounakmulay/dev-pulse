@@ -13,11 +13,14 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPCheckbox
 import dev.shounakmulay.devpulse.core.designsystem.components.DPClickableRow
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.text.asAnnotatedString
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
 
 @Composable
 internal fun FeedListItem(
@@ -64,5 +67,13 @@ internal fun FeedListItem(
             text = title.asAnnotatedString(color = MaterialTheme.colorScheme.primary),
             variant = DPTextViewVariant.BodyMedium
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun FeedListItemPreview() {
+    Preview {
+        FeedListItem(onEvent = {}, feed = FeedPreviewData.feed, selected = true)
     }
 }

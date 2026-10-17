@@ -5,6 +5,11 @@
 *.tmp
 *.swp
 .env*
+*.jks
+*.keystore
+*.p12
+*.pfx
+signing.properties
 .kotlin
 .gradle
 **/build/

@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.no_results_found
@@ -68,5 +70,13 @@ fun EmptyContentPlaceholder(
         }
         Spacer(Modifier.size(LocalDPSpacing.current.xxl))
         content()
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun EmptyContentPlaceholderPreview() {
+    Preview {
+        EmptyContentPlaceholder(text = "No articles found")
     }
 }

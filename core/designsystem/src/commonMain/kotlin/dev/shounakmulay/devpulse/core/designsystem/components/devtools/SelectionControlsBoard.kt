@@ -19,9 +19,11 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPRadioButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPRangeSlider
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSlider
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSwitch
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTriStateCheckbox
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTriStateCheckbox
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @Composable
 fun SelectionControlsBoard(modifier: Modifier = Modifier) {
@@ -113,5 +115,13 @@ fun SelectionControlsBoard(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun SelectionControlsBoardPreview() {
+    Preview {
+        SelectionControlsBoard()
     }
 }

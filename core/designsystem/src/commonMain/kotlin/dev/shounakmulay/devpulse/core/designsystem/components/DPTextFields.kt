@@ -1,5 +1,7 @@
 package dev.shounakmulay.devpulse.core.designsystem.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -10,12 +12,18 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 enum class DPTextFieldVariant { Outlined, Filled }
 
@@ -119,5 +127,37 @@ fun DPTextField(
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun DPTextFieldVariantsPreview() {
+    Preview {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            DPTextFieldVariant.entries.forEach { variant ->
+                DPTextField(
+                    value = "DevPulse",
+                    onValueChange = {},
+                    variant = variant,
+                    label = "Feed name",
+                )
+                DPTextField(
+                    value = "invalid-url",
+                    onValueChange = {},
+                    variant = variant,
+                    label = "Feed URL",
+                    supportingText = "Enter a valid feed URL",
+                    isError = true,
+                )
+                DPTextField(
+                    value = "",
+                    onValueChange = {},
+                    variant = variant,
+                    placeholder = "Feed URL",
+                    enabled = false,
+                )
+            }
+        }
     }
 }

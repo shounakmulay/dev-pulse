@@ -8,7 +8,7 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedIt
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
-import dev.shounakmulay.devpulse.core.data.feed.hook.model.LocalPostWithIdentity
+import dev.shounakmulay.devpulse.core.data.feed.model.hook.LocalPostWithIdentity
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity

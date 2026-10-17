@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.filter
 
 import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FilterChip
@@ -11,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @Composable
 internal fun LazyItemScope.OptionChip(
@@ -38,4 +41,14 @@ internal fun LazyItemScope.OptionChip(
             )
         },
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun OptionChipPreview() {
+    Preview {
+        LazyRow {
+            item { OptionChip(selected = true, onClick = {}, label = "Newest first") }
+        }
+    }
 }

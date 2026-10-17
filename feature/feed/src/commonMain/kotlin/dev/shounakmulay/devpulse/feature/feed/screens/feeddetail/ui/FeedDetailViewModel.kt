@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
+import dev.shounakmulay.devpulse.core.common.flow.debounceSearch
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetFeedDetailUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
@@ -23,7 +24,10 @@ import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -59,16 +63,26 @@ class FeedDetailViewModel(
             .launchIn(viewModelScope)
     }
 
+    @OptIn(FlowPreview::class)
+    private val searchFlow = state.map {
+        it.searchQuery
+            .trim()
+            .takeIf { query -> query.length >= 3 }
+    }.distinctUntilChanged()
+        .debounceSearch()
+
+    private val filterAndSortFlow =
+        combine(postSortAndFiltersFlow, searchFlow) { (sort, filters), searchQuery ->
+            sort to buildList {
+                add(RssPostFilter.FeedIds(setOf(feedId)))
+                addAll(filters.filterNot { it is RssPostFilter.SearchText })
+                searchQuery?.let { add(RssPostFilter.SearchText(searchQuery)) }
+            }
+        }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val posts = postInteractor
-        .getPostsWithFilterAndSort(filerAndSortFlow = postSortAndFiltersFlow.map {
-            it.copy(
-                second = buildList {
-                    add(RssPostFilter.FeedIds(setOf(feedId)))
-                    addAll(it.second)
-                }
-            )
-        })
+        .getPostsWithFilterAndSort(filerAndSortFlow = filterAndSortFlow)
         .cachedIn(viewModelScope)
 
     override fun bindStateSources(stateSubscriptionScope: CoroutineScope) {
@@ -85,6 +99,7 @@ class FeedDetailViewModel(
                     setState { copy(feedOptions = null) }
                 }
             }
+
             is FeedDetailScreenEvent.OnShowFeedOptions -> showFeedOptions(event.feed)
             is FeedDetailScreenEvent.HideFeedOptions -> dismissFeedOptions(event.feedId)
             is FeedDetailScreenEvent.OnPostBookmarkChanged -> onPostBookmarkChanged(
@@ -95,6 +110,13 @@ class FeedDetailViewModel(
             FeedDetailScreenEvent.Retry -> Unit
             is FeedDetailScreenEvent.OnFeedOptionSelected -> selectFeedOption(feedId, event.option)
             FeedDetailScreenEvent.OnPinToggled -> onPinToggled()
+            is FeedDetailScreenEvent.OnSearchTextChange -> onSearchTextChange(event.text)
+        }
+    }
+
+    private fun onSearchTextChange(text: String) {
+        blockingSetState {
+            copy(searchQuery = text)
         }
     }
 

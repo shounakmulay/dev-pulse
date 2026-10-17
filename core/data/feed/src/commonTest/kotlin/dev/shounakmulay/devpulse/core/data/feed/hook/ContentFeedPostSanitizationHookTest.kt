@@ -4,7 +4,7 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentF
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemMediaContent
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemRawEnclosure
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemYoutubeData
-import dev.shounakmulay.devpulse.core.data.feed.hook.model.LocalPostWithIdentity
+import dev.shounakmulay.devpulse.core.data.feed.model.hook.LocalPostWithIdentity
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

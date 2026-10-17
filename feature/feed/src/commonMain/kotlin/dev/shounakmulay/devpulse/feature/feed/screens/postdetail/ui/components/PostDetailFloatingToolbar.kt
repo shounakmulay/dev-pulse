@@ -8,9 +8,11 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonGroupScope
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -31,6 +33,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconToggleButton
 import dev.shounakmulay.devpulse.core.designsystem.components.dpIconToggleButtonShapes
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.PostDetailScreenSection
@@ -171,4 +175,14 @@ private fun ButtonGroupScope.toggleButtonGroupContent(
         interactionSource = interactionSources[index],
         modifier = Modifier.animateWidth(interactionSource = interactionSources[index]),
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun PostDetailFloatingToolbarPreview() {
+    Preview {
+        Box(Modifier.size(360.dp, 120.dp)) {
+            PostDetailFloatingToolbar(visible = true, selectedSection = PostDetailScreenSection.RSS, onSectionSelected = {})
+        }
+    }
 }

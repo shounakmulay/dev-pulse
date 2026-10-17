@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -29,8 +30,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import dev.shounakmulay.devpulse.core.designsystem.components.DPLinearProgressIndicator
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -40,8 +45,10 @@ import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptions
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenuItem
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsTarget
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.UISelectedTab
 import devpulse.core.resources.generated.resources.feed_list_load_error
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -156,5 +163,28 @@ internal fun FeedsList(
 
             is LoadState.NotLoading -> Unit
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun FeedsListPreview() {
+    Preview {
+        val feeds = remember {
+            MutableStateFlow(PagingData.from(listOf(FeedPreviewData.feed)))
+        }.collectAsLazyPagingItems()
+        FeedsList(
+            feeds = feeds,
+            lazyGridState = rememberLazyGridState(),
+            selectedTab = UISelectedTab.entries.first(),
+            onTabSelected = {},
+            onTogglePinned = { _, _ -> },
+            selectedOptions = null,
+            onShowOptions = {},
+            onDismissOptions = {},
+            onOptionSelected = { _, _ -> },
+            onFeedItemClick = {},
+            onNavigationToImportFeeds = {},
+        )
     }
 }

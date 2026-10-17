@@ -191,6 +191,34 @@ fun DPIconButton(
     border: BorderStroke? = null,
     onClick: () -> Unit,
 ) {
+    DPIconButton(
+        modifier = modifier,
+        style = style,
+        variant = variant,
+        size = size,
+        enabled = enabled,
+        colors = colors,
+        shape = shape,
+        border = border,
+        onClick = onClick,
+    ) {
+        IconImage(icon, contentDescription, size)
+    }
+}
+
+@Composable
+fun DPIconButton(
+    modifier: Modifier = Modifier,
+    style: DPIconButtonStyle = DPIconButtonStyle.Standard,
+    variant: DPIconButtonVariant = DPIconButtonVariant.Primary,
+    size: DPSize = DPSize.Medium,
+    enabled: Boolean = true,
+    colors: IconButtonColors? = null,
+    shape: Shape? = null,
+    border: BorderStroke? = null,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
     val resolvedColors = colors ?: dpIconButtonColors(style, variant)
     val resolvedShape = shape ?: dpIconButtonDefaultShape(style)
     val borderResolved = dpIconButtonBorder(style, variant, border)
@@ -203,8 +231,9 @@ fun DPIconButton(
                 enabled = enabled,
                 colors = resolvedColors,
                 shape = resolvedShape,
-                content = { IconImage(icon, contentDescription, size) },
+                content = content,
             )
+
         DPIconButtonStyle.Filled ->
             FilledIconButton(
                 onClick = onClick,
@@ -212,8 +241,9 @@ fun DPIconButton(
                 enabled = enabled,
                 colors = resolvedColors,
                 shape = resolvedShape,
-                content = { IconImage(icon, contentDescription, size) },
+                content = content,
             )
+
         DPIconButtonStyle.Tonal ->
             FilledTonalIconButton(
                 onClick = onClick,
@@ -221,8 +251,9 @@ fun DPIconButton(
                 enabled = enabled,
                 colors = resolvedColors,
                 shape = resolvedShape,
-                content = { IconImage(icon, contentDescription, size) },
+                content = content,
             )
+
         DPIconButtonStyle.Outlined ->
             OutlinedIconButton(
                 onClick = onClick,
@@ -231,7 +262,7 @@ fun DPIconButton(
                 colors = resolvedColors,
                 shape = resolvedShape,
                 border = borderResolved,
-                content = { IconImage(icon, contentDescription, size) },
+                content = content,
             )
     }
 }
@@ -354,7 +385,7 @@ fun dpIconToggleButtonShapes(index: Int, lastIndex: Int): IconToggleButtonShapes
 @Composable
 fun DPIconToggleButton(
     icon: ImageVector,
-    shapes: IconToggleButtonShapes ,
+    shapes: IconToggleButtonShapes,
     interactionSource: MutableInteractionSource,
     checkedIcon: ImageVector = icon,
     contentDescription: String?,

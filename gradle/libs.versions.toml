@@ -6,12 +6,13 @@ android-targetSdk = "37"
 app-versionCode = "1"
 app-versionName = "1.0.0"
 app-desktopPackageVersion = "1.0.0"
-buildConfig = "6.0.10"
+buildKonfig = "0.22.0"
 calfUi = "0.14.0"
 coilCompose = "3.6.3"
 composeMultiplatformVersion = "2.10.1"
 composeWebviewMultiplatform = "2.0.3"
 coreSplashscreen = "1.2.0"
+startup = "1.2.0"
 datastore = "1.2.1"
 htmlToMarkdown = "3.15.0"
 jvm-target = "11"
@@ -60,6 +61,7 @@ rssparser = "6.1.8"
 sqlite = "2.7.1"
 ksp = "2.3.7"
 turbine = "1.2.1"
+robolectric = "4.14.1"
 mokkery = "3.5.0"
 aboutLibraries = "15.2.0"
 sqlite-vector = "1.1.2"
@@ -67,6 +69,7 @@ workRuntimeKtx = "2.12.0"
 zoomable = "2.15.0"
 
 [libraries]
+androidx-startup-runtime = { module = "androidx.startup:startup-runtime", version.ref = "startup" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
@@ -133,6 +136,7 @@ multiplatform-markdown-renderer-coil3 = { module = "com.mikepenz:multiplatform-m
 navigationevent-compose = { module = "org.jetbrains.androidx.navigationevent:navigationevent-compose", version.ref = "navigationeventCompose" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
@@ -187,7 +191,7 @@ sqlite-vector = { module = "ai.sqlite:vector", version.ref = "sqlite-vector" }
 zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 [plugins]
-buildConfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildConfig" }
+buildKonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }

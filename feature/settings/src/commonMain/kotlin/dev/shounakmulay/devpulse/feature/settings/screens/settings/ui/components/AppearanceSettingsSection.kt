@@ -15,6 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonGroup
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -82,6 +84,18 @@ internal fun AppearanceSettingsSection(
             bookmarked = bookmarked,
             onBookmarkChanged = { bookmarked = it },
             onPostClick = {}
+        )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun AppearanceSettingsSectionPreview() {
+    Preview {
+        AppearanceSettingsSection(
+            selectedVariant = FeedsPostListItemVariant.DEFAULT,
+            onVariantSelected = {},
+            onArticleSettingsClick = {},
         )
     }
 }

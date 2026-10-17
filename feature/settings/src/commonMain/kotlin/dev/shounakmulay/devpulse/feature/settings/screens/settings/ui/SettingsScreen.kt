@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalUriHandler
-import dev.shounakmulay.devpulse.core.common.BuildConfig
+import dev.shounakmulay.devpulse.core.common.BuildKonfigCommon
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBar
@@ -140,7 +140,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                         modifier = Modifier.alpha(0.75f),
                     )
                     DPTextView(
-                        text = "v${BuildConfig.APP_VERSION}",
+                        text = "v${BuildKonfigCommon.APP_VERSION}",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         variant = DPTextViewVariant.LabelMedium
                     )

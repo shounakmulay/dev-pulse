@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.filter
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -11,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 
 @Composable
@@ -37,4 +40,14 @@ internal fun LazyItemScope.ToggleChip(name: String, selected: Boolean?, onToggle
             )
         },
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun ToggleChipPreview() {
+    Preview {
+        LazyRow {
+            item { ToggleChip(name = "Bookmarked", selected = true, onToggled = {}) }
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
@@ -14,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -22,7 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.window.core.layout.WindowSizeClass
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -30,8 +36,10 @@ import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptions
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenuItem
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsTarget
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
 import devpulse.core.resources.generated.resources.feed_grid_loading_content_description
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -138,5 +146,32 @@ private fun FeedGridPlaceholderItem() {
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             content = {},
         )
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun PinnedAndRecentsGridPreview() {
+    Preview {
+        AnimatedContent(targetState = Unit, label = "Feed preview") {
+            CompositionLocalProvider(LocalNavAnimatedContentScope provides this) {
+                PinnedAndRecentsGrid(
+                    pinnedAndRecentFeeds = persistentListOf(FeedPreviewData.feed, FeedPreviewData.feed.copy(id = UUID("00000000-0000-0000-0000-000000000003"), title = "Android Developers", initials = "AD", pinned = false)),
+                    onFeedClick = {},
+                    onFeedLongClick = {},
+                    selectedOptions = null,
+                    onDismissOptions = {},
+                    onOptionSelected = { _, _ -> },
+                )
+            }
+        }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun PinnedAndRecentsGridLoadingPreview() {
+    Preview {
+        PinnedAndRecentsGridLoading()
     }
 }

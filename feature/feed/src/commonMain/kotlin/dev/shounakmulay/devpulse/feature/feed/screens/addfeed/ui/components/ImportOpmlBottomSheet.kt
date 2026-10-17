@@ -22,6 +22,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextField
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
@@ -94,5 +96,20 @@ fun ImportOpmlBottomSheet(
                 )
             }
         }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun ImportOpmlBottomSheetPreview() {
+    Preview {
+        ImportOpmlBottomSheet(
+            opmlUrl = "",
+            opmlImportError = null,
+            isOpmlLoading = false,
+            onExtractOpml = {},
+            onUrlChanged = {},
+            onDismissRequest = {},
+        )
     }
 }

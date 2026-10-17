@@ -1,9 +1,13 @@
 package dev.shounakmulay.devpulse.core.ui.content
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.DPModalBottomSheet
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.DPModalBottomSheetController
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.rememberDPModalBottomSheetController
@@ -23,6 +27,22 @@ fun ContentTextSettingsBottomSheet(
             contentTextSettings = contentTextSettings,
             onTextScaleChanged = onTextScaleChanged,
             onLineHeightScaleChanged = onLineHeightScaleChanged
+        )
+    }
+}
+
+@DPScreenPreview
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun ContentTextSettingsBottomSheetPreview() {
+    Preview {
+        ContentTextSettingsBottomSheet(
+            controller = DPModalBottomSheetController(
+                sheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Expanded, skipHiddenState = false),
+                initialPresentState = true,
+            ),
+            onTextScaleChanged = {},
+            onLineHeightScaleChanged = {},
         )
     }
 }

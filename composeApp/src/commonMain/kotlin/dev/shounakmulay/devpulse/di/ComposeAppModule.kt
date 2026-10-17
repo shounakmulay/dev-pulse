@@ -4,5 +4,8 @@ import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 
 @Module
-@ComponentScan("dev.shounakmulay.devpulse.theme")
+@ComponentScan(
+    "dev.shounakmulay.devpulse.theme",
+    "dev.shounakmulay.devpulse.startup"
+)
 class ComposeAppModule

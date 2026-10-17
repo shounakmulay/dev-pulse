@@ -30,7 +30,7 @@ actual class DevPulseBackgroundSyncScheduler(
     }
 
     private fun enqueueOneTimeWorkRequest(workRequest: DevPulseWorkRequest.OneTimeWorkRequest) {
-        val identifier = workRequest.identifier.name
+        val identifier = workRequest.identifier
         val oneTimeWorkRequest = OneTimeWorkRequestBuilder<AndroidDevPulseWorker>()
             .addTag(identifier)
             .setConstraints(getConstraints(workRequest))
@@ -67,10 +67,11 @@ actual class DevPulseBackgroundSyncScheduler(
     }
 
     private fun enqueuePeriodicWorkRequest(workRequest: DevPulseWorkRequest.PeriodicWorkRequest) {
-        val identifier = workRequest.identifier.name
+        val identifier = workRequest.identifier
         val periodicWorkRequest = PeriodicWorkRequestBuilder<AndroidDevPulseWorker>(
             repeatInterval = workRequest.interval.toJavaDuration()
         )
+            .setInitialDelay(workRequest.initialDelay.toJavaDuration())
             .addTag(identifier)
             .setConstraints(getConstraints(workRequest))
             .apply {

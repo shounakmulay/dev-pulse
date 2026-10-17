@@ -7,6 +7,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.feed_list_empty
 import org.jetbrains.compose.resources.stringResource
@@ -21,5 +23,13 @@ fun EmptyFeedList() {
             text = stringResource(stringRes.feed_list_empty),
             variant = DPTextViewVariant.BodyMedium,
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun EmptyFeedListPreview() {
+    Preview {
+        EmptyFeedList()
     }
 }

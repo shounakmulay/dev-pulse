@@ -9,6 +9,8 @@ import dev.shounakmulay.devpulse.core.logging.DPLog
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkResponse
 import kotlinx.coroutines.test.runTest
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -120,10 +122,18 @@ class FeedImportFallbackParserTest {
     ) : DevPulseNetworkClient {
         val requestedUrls = mutableListOf<String>()
 
-        override suspend fun get(url: String): DevPulseNetworkResponse {
+        override suspend fun get(url: String, headers: Map<String, String>): DevPulseNetworkResponse {
             requestedUrls += url
             failure?.let { throw it }
-            return DevPulseNetworkResponse { xml }
+            return object : DevPulseNetworkResponse {
+                override val status: Int = 200
+
+                override fun header(name: String): String? = null
+
+                override suspend fun bodyAsText(): String = xml
+
+                override suspend fun <T> body(type: KClass<*>, kotlinType: KType): T = error("Unused")
+            }
         }
     }
 

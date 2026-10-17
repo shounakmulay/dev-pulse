@@ -69,7 +69,7 @@ class FeedListBottomSheetViewModel(
     }
 
     private fun onSearchTermChanged(event: FeedListBottomSheetEvent.OnSearchTermChanged) {
-        setState {
+        blockingSetState {
             copy(
                 searchTerm = event.searchTerm
             )

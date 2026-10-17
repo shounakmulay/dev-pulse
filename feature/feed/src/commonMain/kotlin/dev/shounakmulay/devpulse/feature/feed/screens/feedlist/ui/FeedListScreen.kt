@@ -21,7 +21,7 @@ import dev.shounakmulay.devpulse.core.ui.text.resolve
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedDeleteConfirmation
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsState
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedsList
-import devpulse.core.resources.generated.resources.feed_search
+import devpulse.core.resources.generated.resources.search
 import org.jetbrains.compose.resources.stringResource
 import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 
@@ -46,7 +46,7 @@ fun FeedListScreen(
         modifier = modifier.nestedScroll(appBarScrollBehavior.nestedScrollConnection),
         viewModel = viewModel,
         topAppBar = {
-            val placeholder = stringResource(stringRes.feed_search)
+            val placeholder = stringResource(stringRes.search)
             DPSearchTopAppBar(
                 scrollBehavior = appBarScrollBehavior,
                 navigationIcon = {

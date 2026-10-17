@@ -14,6 +14,12 @@ kotlin {
     iosFrameworks(baseName = "core:data:DbKit")
 
     sourceSets {
+        jvmTest {
+            resources.srcDir("schemas")
+            dependencies {
+                implementation(libs.kotlinx.serialization.json)
+            }
+        }
         commonMain.dependencies {
             implementation(project(Modules.Core.COMMON))
 

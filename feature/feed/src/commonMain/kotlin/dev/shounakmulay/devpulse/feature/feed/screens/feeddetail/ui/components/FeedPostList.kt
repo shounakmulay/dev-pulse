@@ -9,8 +9,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.alpha
@@ -18,12 +20,17 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
+import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterState
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilters
@@ -31,7 +38,10 @@ import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.postsLis
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
+import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -106,4 +116,29 @@ internal fun FeedPostList(
     }
 }
 
-
+@DPScreenPreview
+@Composable
+private fun FeedPostListPreview() {
+    Preview {
+        val posts = remember {
+            MutableStateFlow(PagingData.from(listOf(FeedPreviewData.post)))
+        }.collectAsLazyPagingItems()
+        FeedPostList(
+            lazyGridState = rememberLazyGridState(),
+            uiFeed = FeedPreviewData.feed,
+            feed = FeedPreviewData.rssFeed,
+            posts = posts,
+            postSortAndFilterState = PostSortAndFilterState(
+                screen = Screen.Tabs.Feed,
+                filters = persistentListOf(),
+                sortValues = persistentListOf(),
+            ),
+            onBookmarkChanged = { _, _ -> },
+            onPostClick = {},
+            onFilterUpdated = {},
+            onSortUpdated = {},
+            clearFilters = {},
+            postListItemVariant = FeedsPostListItemVariant.DEFAULT,
+        )
+    }
+}

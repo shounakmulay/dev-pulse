@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 
 @Composable
@@ -48,5 +50,13 @@ fun FeedListPlaceholderRow() {
             )
         }
         Spacer(Modifier.height(LocalDPSpacing.current.listItemHeight))
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun FeedListPlaceholderRowPreview() {
+    Preview {
+        FeedListPlaceholderRow()
     }
 }

@@ -4,7 +4,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import dev.shounakmulay.devpulse.core.domain.feed.feed.ExtractInitialsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedSearchResult
-import dev.shounakmulay.devpulse.feature.feed.interactor.getWebsiteImageUrl
+import dev.shounakmulay.devpulse.core.ui.image.getWebsiteImageUrl
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedSearchHighlights
 import dev.shounakmulay.devpulse.feature.feed.text.parseFtsHighlightedText

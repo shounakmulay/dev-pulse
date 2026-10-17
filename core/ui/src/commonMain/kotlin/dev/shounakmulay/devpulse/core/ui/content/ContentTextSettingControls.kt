@@ -21,13 +21,15 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPSelectionVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSlider
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.text_size
 import devpulse.core.resources.generated.resources.text_spacing
-import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ContentTextSettingControls(
@@ -124,5 +126,17 @@ fun ContentTextSettingControls(
         )
         Spacer(Modifier.height(LocalDPSpacing.current.lg))
         footer()
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun ContentTextSettingControlsPreview() {
+    Preview {
+        ContentTextSettingControls(
+            contentTextSettings = UIContentTextSettings(),
+            onTextScaleChanged = {},
+            onLineHeightScaleChanged = {},
+        )
     }
 }

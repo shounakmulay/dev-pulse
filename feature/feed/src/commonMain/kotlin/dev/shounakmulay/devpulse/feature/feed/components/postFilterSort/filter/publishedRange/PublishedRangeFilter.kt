@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.filter.publishedRange
 
 import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
@@ -12,6 +13,8 @@ import androidx.compose.runtime.setValue
 import com.kizitonwose.calendar.core.now
 import dev.shounakmulay.devpulse.core.common.time.toLocalDateTime
 import dev.shounakmulay.devpulse.core.designsystem.components.DPDateRangePickerDialog
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.DPModalBottomSheetController
@@ -21,9 +24,9 @@ import dev.shounakmulay.devpulse.core.ui.text.asString
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.filter.OptionChip
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.filter.publishedRange.PublishedRangeFilterViewModel.Companion.publishedRangeTextResource
 import devpulse.core.resources.generated.resources.published_date
+import kotlin.time.Clock
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import kotlin.time.Clock
 
 @Composable
 fun LazyItemScope.PublishedRangeFilter(
@@ -108,5 +111,12 @@ private fun LazyItemScope.PublishedRangeFilter(
     )
 }
 
-
-
+@DPComponentPreview
+@Composable
+private fun PublishedRangeFilterPreview() {
+    Preview {
+        LazyRow {
+            item { PublishedRangeFilter(filter = RssPostFilter.PublishedRange(), onFilterUpdated = {}) }
+        }
+    }
+}

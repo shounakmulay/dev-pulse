@@ -12,6 +12,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @Composable
 fun ButtonsBoard(modifier: Modifier = Modifier) {
@@ -30,5 +32,13 @@ fun ButtonsBoard(modifier: Modifier = Modifier) {
         DPButtonVariant.entries.forEach { variant ->
             item { DPButton(text = variant.name, onClick = {}, variant = variant) }
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun ButtonsBoardPreview() {
+    Preview {
+        ButtonsBoard()
     }
 }

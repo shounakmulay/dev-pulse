@@ -17,8 +17,11 @@ sealed interface FeedDetailScreenEvent : ScreenEvent {
     data class OnFeedOptionSelected(
         val option: FeedOptionsMenuItem
     ) : FeedDetailScreenEvent
+
     data class OnShowFeedOptions(val feed: UIFeed) : FeedDetailScreenEvent
     data class HideFeedOptions(val feedId: UUID) : FeedDetailScreenEvent
+    data class OnSearchTextChange(val text: String) : FeedDetailScreenEvent
+
     data object ConfirmDelete : FeedDetailScreenEvent
     data object DismissDelete : FeedDetailScreenEvent
 }

@@ -6,27 +6,27 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconToggleButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
-import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.text.asAnnotatedString
+import dev.shounakmulay.devpulse.feature.feed.components.feed.DPFeedListItemImage
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
 import devpulse.core.resources.generated.resources.feed_action_unpin
 import devpulse.core.resources.generated.resources.pin_feed
 import org.jetbrains.compose.resources.stringResource
@@ -46,20 +46,11 @@ fun FeedListRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
     ) {
-        Surface(
-            modifier = Modifier
-                .size(LocalDPSpacing.current.listItemHeight)
-                .clip(MaterialTheme.shapes.large),
-            shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        ) {
-            DPFeedImage(
-                url = feed.websiteImageUrl.orEmpty(),
-                initials = feed.initials,
-                feedTitle = feed.title
-            )
-        }
-
+        DPFeedListItemImage(
+            url = feed.websiteImageUrl,
+            initials = feed.initials,
+            feedTitle = feed.title
+        )
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.xs),
@@ -107,5 +98,13 @@ fun FeedListRow(
             variant = DPIconButtonVariant.Tertiary,
             size = DPSize.Small,
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun FeedListRowPreview() {
+    Preview {
+        FeedListRow(feed = FeedPreviewData.feed, onTogglePinned = {}, onLongClick = {}, onClick = {})
     }
 }

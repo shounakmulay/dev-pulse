@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 
 @Composable
@@ -14,4 +16,12 @@ fun FormFieldTitle(text: String) {
         modifier = Modifier.padding(LocalDPSpacing.current.md),
         variant = DPTextViewVariant.TitleMediumEmphasized
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun FormFieldTitlePreview() {
+    Preview {
+        FormFieldTitle(text = "Feed URL")
+    }
 }

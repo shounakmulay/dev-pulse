@@ -37,20 +37,29 @@ class FeedListViewModel(
 
     override fun onEvent(event: FeedListScreenEvent) {
         when (event) {
-            is FeedListScreenEvent.OnSearchQueryChanged -> setState {
-                copy(searchQuery = event.query, feedOptions = null)
-            }
+            is FeedListScreenEvent.OnSearchQueryChanged -> onSearchQueryChanged(event)
             FeedListScreenEvent.ConfirmDelete -> confirmDelete()
             FeedListScreenEvent.DismissDelete -> intent {
                 if (state.feedOptions is FeedOptionsState.ConfirmingDelete) {
                     setState { copy(feedOptions = null) }
                 }
             }
-            is FeedListScreenEvent.OnFeedOptionSelected -> selectFeedOption(event.feedId, event.menuItem)
+
+            is FeedListScreenEvent.OnFeedOptionSelected -> selectFeedOption(
+                event.feedId,
+                event.menuItem
+            )
+
             is FeedListScreenEvent.OnShowFeedOptions -> showFeedOptions(event.feed)
             is FeedListScreenEvent.HideFeedOptions -> dismissFeedOptions(event.feedId)
             is FeedListScreenEvent.TogglePinned -> onTogglePinned(event.id, event.pinned)
             is FeedListScreenEvent.SelectTab -> onTabSelected(event.tab)
+        }
+    }
+
+    private fun onSearchQueryChanged(event: FeedListScreenEvent.OnSearchQueryChanged) {
+        blockingSetState {
+            copy(searchQuery = event.query, feedOptions = null)
         }
     }
 

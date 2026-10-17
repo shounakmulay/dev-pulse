@@ -11,7 +11,7 @@ import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
-import dev.shounakmulay.devpulse.feature.feed.interactor.getWebsiteImageUrl
+import dev.shounakmulay.devpulse.core.ui.image.getWebsiteImageUrl
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList

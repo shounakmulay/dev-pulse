@@ -28,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -85,5 +87,13 @@ private fun MotionRow(label: String, size: Dp) {
                 .background(MaterialTheme.colorScheme.tertiary),
         )
         Text(text = label, style = MaterialTheme.typography.labelMedium)
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun MotionBoardPreview() {
+    Preview {
+        MotionBoard()
     }
 }

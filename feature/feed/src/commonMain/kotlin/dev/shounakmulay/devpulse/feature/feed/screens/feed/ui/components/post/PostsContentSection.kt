@@ -24,7 +24,7 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import devpulse.core.resources.generated.resources.feed_articles
-import devpulse.core.resources.generated.resources.feed_view_all
+import devpulse.core.resources.generated.resources.view_all
 import org.jetbrains.compose.resources.stringResource
 
 fun LazyListScope.postsSection(
@@ -40,7 +40,7 @@ fun LazyListScope.postsSection(
         ) {
             DPButton(
                 enabled = articles.isNotEmpty(),
-                text = stringResource(stringRes.feed_view_all),
+                text = stringResource(stringRes.view_all),
                 onClick = onViewAll,
                 variant = DPButtonVariant.Secondary,
                 style = DPButtonStyle.Text,

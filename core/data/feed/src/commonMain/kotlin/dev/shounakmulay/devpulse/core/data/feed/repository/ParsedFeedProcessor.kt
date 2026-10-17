@@ -1,10 +1,8 @@
 package dev.shounakmulay.devpulse.core.data.feed.repository
 
-import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
-import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.UuidMapper
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
@@ -17,9 +15,7 @@ import org.koin.core.annotation.Factory
 class ParsedFeedProcessor(
     private val identityGenerator: IdentityGenerator,
     private val feedPostDao: FeedPostDao,
-    private val feedDao: FeedDao,
     private val rssPostMapper: RssPostMapper,
-    private val rssFeedMapper: RssFeedMapper,
     private val uuidMapper: UuidMapper,
     logger: DPLogger
 ) {

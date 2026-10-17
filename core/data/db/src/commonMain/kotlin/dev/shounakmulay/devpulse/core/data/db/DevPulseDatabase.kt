@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.db
 
+import androidx.room3.AutoMigration
 import androidx.room3.ColumnTypeConverters
 import androidx.room3.ConstructedBy
 import androidx.room3.DaoReturnTypeConverters
@@ -14,11 +15,21 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.db.converter.LocalCompressedTextTypeConverter
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedDiscoveryCollectionDao
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedDiscoveryCollectionToFeedMappingDao
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedDiscoveryFeedMetadataDao
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedDiscoveryMasterMetadataDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostCategoryDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedQueueDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedSyncMetadataDao
 import dev.shounakmulay.devpulse.core.data.db.dao.PostContentDao
+import dev.shounakmulay.devpulse.core.data.db.migration.FeedDiscoverySearchMigration
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryCollection
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryCollectionToFeedMapping
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryFeedMetadata
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryFeedMetadataFts
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryMasterMetadata
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPostFts
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
@@ -30,7 +41,9 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCont
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostContentFts
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostTag
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostToTagMapping
+import dev.shounakmulay.devpulse.core.data.db.paging.FeedDiscoveryPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
+import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedDiscoveryQuery
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionScope
@@ -50,9 +63,22 @@ import dev.shounakmulay.devpulse.core.data.db.triggers.createPostContentFtsDelet
         LocalRssPostCategory::class,
         LocalRssPostContent::class,
         LocalRssPostContentFts::class,
-        LocalRssFeedSyncMetadata::class
+        LocalRssFeedSyncMetadata::class,
+        LocalFeedDiscoveryMasterMetadata::class,
+        LocalFeedDiscoveryCollection::class,
+        LocalFeedDiscoveryFeedMetadata::class,
+        LocalFeedDiscoveryFeedMetadataFts::class,
+        LocalFeedDiscoveryCollectionToFeedMapping::class
     ],
-    version = SchemaVersions.BASE
+    autoMigrations = [
+        AutoMigration(from = SchemaVersions.BASE, to = SchemaVersions.FEED_DISCOVERY),
+        AutoMigration(
+            from = SchemaVersions.FEED_DISCOVERY,
+            to = SchemaVersions.FEED_DISCOVERY_SEARCH,
+            spec = FeedDiscoverySearchMigration::class,
+        )
+    ],
+    version = SchemaVersions.FEED_DISCOVERY_SEARCH
 )
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @ColumnTypeConverters(LocalCompressedTextTypeConverter::class)
@@ -60,7 +86,8 @@ import dev.shounakmulay.devpulse.core.data.db.triggers.createPostContentFtsDelet
 abstract class DevPulseDatabase :
     RoomDatabase(),
     DevPulseDatabaseTransactionAccessor,
-    FeedPostPagingSourceProvider {
+    FeedPostPagingSourceProvider,
+    FeedDiscoveryPagingSourceProvider {
 
     abstract fun getFeedContentDao(): FeedPostDao
     abstract fun getFeedDao(): FeedDao
@@ -68,12 +95,20 @@ abstract class DevPulseDatabase :
     abstract fun getPostContentDao(): PostContentDao
     abstract fun getPostCategoryDao(): FeedPostCategoryDao
     abstract fun getFeedSyncMetadataDao(): FeedSyncMetadataDao
+    abstract fun getFeedDiscoveryMasterMetadataDao(): FeedDiscoveryMasterMetadataDao
+    abstract fun getFeedDiscoveryCollectionDao(): FeedDiscoveryCollectionDao
+    abstract fun getFeedDiscoveryFeedMetadataDao(): FeedDiscoveryFeedMetadataDao
+    abstract fun getFeedDiscoveryCollectionToFeedMappingDao(): FeedDiscoveryCollectionToFeedMappingDao
+
 
     override suspend fun clearAllTables() {
     }
 
     override fun getFeedPostPagingSource(query: LocalFeedPostQuery) =
         getFeedContentDao().getFeedPostPagingSource(this, query)
+
+    override fun getFeedDiscoveryPagingSource(query: LocalFeedDiscoveryQuery) =
+        getFeedDiscoveryFeedMetadataDao().getFeedDiscoveryPagingSource(this, query)
 
     override suspend fun <T> readTransaction(block: suspend DevPulseDatabaseTransactionScope<T>.() -> T): T {
         return withReadTransaction {
