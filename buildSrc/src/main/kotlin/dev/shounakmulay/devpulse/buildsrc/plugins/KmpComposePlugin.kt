@@ -78,7 +78,7 @@ class KmpComposePlugin : Plugin<Project> {
 
             val project = this
             configurations.configureEach {
-                if (name == "debugImplementation") {
+                if (name == "debugImplementation" || name == "androidRuntimeClasspath") {
                     project.dependencies.add(name, libs.findLibrary("compose-uiTooling").get())
                 }
             }

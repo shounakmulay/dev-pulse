@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
 
 private data class IconSizeEntry(val name: String, val size: Dp)
@@ -54,5 +56,13 @@ fun IconSizeBoard(modifier: Modifier = Modifier) {
                 )
             }
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun IconSizeBoardPreview() {
+    Preview {
+        IconSizeBoard()
     }
 }

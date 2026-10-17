@@ -20,6 +20,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPChipKind
 import dev.shounakmulay.devpulse.core.designsystem.components.DPChipStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 private val allCategories = listOf(
     "Android",
@@ -128,5 +130,13 @@ fun ChipsBoard(modifier: Modifier = Modifier) {
                 )
             }
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun ChipsBoardPreview() {
+    Preview {
+        ChipsBoard()
     }
 }

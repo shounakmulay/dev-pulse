@@ -22,9 +22,11 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPCardStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPCardVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPHorizontalDivider
 import dev.shounakmulay.devpulse.core.designsystem.components.DPListItem
-import dev.shounakmulay.devpulse.core.designsystem.components.DPVerticalDivider
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.components.DPVerticalDivider
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPDensity
 
 @Composable
@@ -96,5 +98,13 @@ fun CardsAndListsBoard(modifier: Modifier = Modifier) {
                 Text("Right")
             }
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun CardsAndListsBoardPreview() {
+    Preview {
+        CardsAndListsBoard()
     }
 }

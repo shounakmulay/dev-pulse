@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.core.ui.list
 
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -9,6 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import dev.shounakmulay.devpulse.core.designsystem.components.DPFAB
 import dev.shounakmulay.devpulse.core.designsystem.components.DPFABStyle
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import kotlinx.coroutines.launch
 
@@ -48,4 +51,15 @@ fun ScrollToTopFAB(
             }
         }
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun ScrollToTopFABPreview() {
+    Preview {
+        ScrollToTopFAB(
+            lazyGridState = rememberLazyGridState(initialFirstVisibleItemIndex = 10),
+            collapsedFraction = 0f,
+        )
+    }
 }

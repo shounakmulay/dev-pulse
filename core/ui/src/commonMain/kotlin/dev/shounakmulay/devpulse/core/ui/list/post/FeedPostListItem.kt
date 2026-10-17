@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,6 +27,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPIconToggleButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextDot
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
@@ -392,4 +396,31 @@ private fun FeedPostListItemImage(
         imageUrl = imageUrl,
         title = title
     )
+}
+
+@DPScreenPreview
+@Composable
+private fun FeedPostListItemVariantsPreview() {
+    Preview {
+        LazyColumn {
+            items(FeedsPostListItemVariant.entries) { variant ->
+                FeedPostListItem(
+                    variant = variant,
+                    showImage = false,
+                    title = TextResource.fromText("Building better apps with Kotlin Multiplatform"),
+                    description = TextResource.fromText("Shared business logic and adaptive interfaces across platforms."),
+                    context = null,
+                    imageUrl = null,
+                    websiteImageUrl = null,
+                    feedInitials = "KB",
+                    feedTitle = "Kotlin Blog",
+                    publishedText = "2 hours ago",
+                    createdAt = "Today",
+                    bookmarked = true,
+                    onBookmarkChanged = {},
+                    onPostClick = {},
+                )
+            }
+        }
+    }
 }

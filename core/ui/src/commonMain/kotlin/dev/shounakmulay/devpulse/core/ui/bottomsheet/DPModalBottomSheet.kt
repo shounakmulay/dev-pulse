@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +14,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,6 +113,22 @@ fun DPModalBottomSheet(
             }
         ) {
             content(controller)
+        }
+    }
+}
+
+@DPScreenPreview
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun DPModalBottomSheetPreview() {
+    Preview {
+        DPModalBottomSheet(
+            controller = DPModalBottomSheetController(
+                sheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Expanded, skipHiddenState = false),
+                initialPresentState = true,
+            ),
+        ) {
+            DPTextView(text = "Reading preferences", variant = DPTextViewVariant.TitleLarge)
         }
     }
 }

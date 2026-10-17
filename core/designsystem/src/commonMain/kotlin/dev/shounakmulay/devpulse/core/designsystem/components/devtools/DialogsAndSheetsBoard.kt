@@ -25,6 +25,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPDialogVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -138,5 +140,13 @@ fun DialogsAndSheetsBoard(modifier: Modifier = Modifier) {
             )
             Spacer(Modifier.height(16.dp))
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun DialogsAndSheetsBoardPreview() {
+    Preview {
+        DialogsAndSheetsBoard()
     }
 }

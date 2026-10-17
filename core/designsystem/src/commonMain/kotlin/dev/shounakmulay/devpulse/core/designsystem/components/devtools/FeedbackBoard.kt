@@ -13,11 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPCircularProgressIndicator
 import dev.shounakmulay.devpulse.core.designsystem.components.DPLinearProgressIndicator
+import dev.shounakmulay.devpulse.core.designsystem.components.DPProgressVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSnackbar
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSnackbarVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
-import dev.shounakmulay.devpulse.core.designsystem.components.DPProgressVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @Composable
 fun FeedbackBoard(modifier: Modifier = Modifier) {
@@ -98,5 +100,13 @@ fun FeedbackBoard(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun FeedbackBoardPreview() {
+    Preview {
+        FeedbackBoard()
     }
 }

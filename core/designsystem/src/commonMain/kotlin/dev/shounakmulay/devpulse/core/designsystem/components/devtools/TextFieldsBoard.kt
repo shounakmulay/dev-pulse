@@ -15,6 +15,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextField
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextFieldVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @Composable
 fun TextFieldsBoard(modifier: Modifier = Modifier) {
@@ -84,5 +86,13 @@ fun TextFieldsBoard(modifier: Modifier = Modifier) {
                 isError = true,
             )
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun TextFieldsBoardPreview() {
+    Preview {
+        TextFieldsBoard()
     }
 }

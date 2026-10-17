@@ -11,13 +11,15 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.shounakmulay.devpulse.core.designsystem.components.DPExtendedFAB
 import dev.shounakmulay.devpulse.core.designsystem.components.DPFAB
 import dev.shounakmulay.devpulse.core.designsystem.components.DPFABStyle
-import dev.shounakmulay.devpulse.core.designsystem.components.DPExtendedFAB
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 
 @Composable
@@ -92,5 +94,13 @@ fun IconButtonsAndFabsBoard(modifier: Modifier = Modifier) {
         item {
             DPExtendedFAB(text = "Create", icon = Icons.Default.Add, onClick = {})
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun IconButtonsAndFabsBoardPreview() {
+    Preview {
+        IconButtonsAndFabsBoard()
     }
 }

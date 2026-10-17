@@ -19,6 +19,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.feed_search_clear
@@ -77,4 +79,16 @@ fun DPSearchTopAppBar(
             )
         }
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun DPSearchTopAppBarPreview() {
+    Preview {
+        DPSearchTopAppBar(
+            textValue = "Kotlin",
+            onTextValueChange = {},
+            placeholder = "Search feeds",
+        )
+    }
 }

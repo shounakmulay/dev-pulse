@@ -24,6 +24,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPDropdownMenu
 import dev.shounakmulay.devpulse.core.designsystem.components.DPDropdownMenuItem
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 
 @Composable
 fun MenusAndPickersBoard(modifier: Modifier = Modifier) {
@@ -55,5 +57,13 @@ fun MenusAndPickersBoard(modifier: Modifier = Modifier) {
             val dateState = rememberDatePickerState()
             DatePicker(state = dateState)
         }
+    }
+}
+
+@DPScreenPreview
+@Composable
+private fun MenusAndPickersBoardPreview() {
+    Preview {
+        MenusAndPickersBoard()
     }
 }
