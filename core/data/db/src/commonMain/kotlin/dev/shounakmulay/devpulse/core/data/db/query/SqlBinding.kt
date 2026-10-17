@@ -21,12 +21,6 @@ sealed interface SqlBinding {
         }
     }
 
-    data class DoubleValue(val value: Double) : SqlBinding {
-        override fun bind(statement: SQLiteStatement, index: Int) {
-            statement.bindDouble(index, value)
-        }
-    }
-
     data class BooleanValue(
         val value: Boolean
     ) : SqlBinding {

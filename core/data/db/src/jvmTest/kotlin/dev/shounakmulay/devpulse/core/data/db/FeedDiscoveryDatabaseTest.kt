@@ -8,6 +8,7 @@ import dev.shounakmulay.devpulse.core.common.text.HL_END
 import dev.shounakmulay.devpulse.core.common.text.HL_START
 import dev.shounakmulay.devpulse.core.data.db.converter.GzipCompressor
 import dev.shounakmulay.devpulse.core.data.db.converter.LocalCompressedTextTypeConverter
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalFeedDiscoveryFeedPage
 import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
 import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedQueueActionRequestor
 import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedQueueActionType
@@ -56,12 +57,12 @@ class FeedDiscoveryDatabaseTest {
                 withDatabase(file.absolutePath) { db ->
                     assertEquals("Preserved title", db.getFeedDao().getFeed("subscribed").title)
                     if (version == 1) seed(db)
-                    assertEquals(listOf("feed-1"), search(db, "\"Kotlin\"").getInitialPage(10).map { it.metadata.id.value })
+                    assertEquals(listOf("feed-1"), search(db, "\"Kotlin\"").getInitialPage(10).map { it.feed.metadata.id.value })
                     assertTrue(db.getFeedDiscoveryFeedMetadataDao().observeFeed(LocalUUID("feed-1")).first()!!.subscribed)
                 }
                 withDatabase(file.absolutePath) { db ->
                     assertEquals("Preserved title", db.getFeedDao().getFeed("subscribed").title)
-                    assertEquals(listOf("feed-1"), search(db, "\"Kotlin\"").getInitialPage(10).map { it.metadata.id.value })
+                    assertEquals(listOf("feed-1"), search(db, "\"Kotlin\"").getInitialPage(10).map { it.feed.metadata.id.value })
                 }
                 BundledSQLiteDriver().open(file.absolutePath).use { connection ->
                     connection.prepare("PRAGMA user_version").use { statement ->
@@ -85,29 +86,39 @@ class FeedDiscoveryDatabaseTest {
             })
             val collection = LocalFeedDiscoveryPagingDataProvider(db.getFeedDiscoveryFeedMetadataDao(), LocalFeedDiscoveryQuery.Collection(LocalUUID("collection")))
             val first = collection.getInitialPage(2)
-            assertEquals(listOf("feed-1", "feed-2"), first.map { it.metadata.id.value })
+            assertEquals(listOf("feed-1", "feed-2"), first.map { it.feed.metadata.id.value })
             val second = collection.getPageAfter(collection.getId(first.last()), 2)
-            assertEquals(listOf("feed-3", "feed-4"), second.map { it.metadata.id.value })
-            assertEquals(listOf("feed-1", "feed-2"), collection.getPageBefore(collection.getId(second.first()), 2).map { it.metadata.id.value })
-            assertEquals(listOf("feed-2", "feed-3", "feed-4", "feed-5"), collection.getRefreshPageAround(collection.getId(second.last()), 4).map { it.metadata.id.value })
+            assertEquals(listOf("feed-3", "feed-4"), second.map { it.feed.metadata.id.value })
+            assertEquals(listOf("feed-1", "feed-2"), collection.getPageBefore(collection.getId(second.first()), 2).map { it.feed.metadata.id.value })
+            assertEquals(listOf("feed-2", "feed-3", "feed-4", "feed-5"), collection.getRefreshPageAround(collection.getId(second.last()), 4).map { it.feed.metadata.id.value })
+            assertTrue(collection.getPageBefore(collection.getId(first.first()), 2).isEmpty())
+            val collectionEnd = collection.getPageAfter(collection.getId(second.last()), 2)
+            assertTrue(collection.getPageAfter(collection.getId(collectionEnd.last()), 2).isEmpty())
+            val collectionAnchor = collection.getId(second.last())
+            db.getFeedDiscoveryCollectionToFeedMappingDao().upsert(
+                LocalFeedDiscoveryCollectionToFeedMapping(LocalUUID("collection"), LocalUUID("feed-4"), 0)
+            )
+            assertEquals(listOf("feed-1", "feed-2", "feed-4", "feed-3"), collection.getRefreshPageAround(collectionAnchor, 4).map { it.feed.metadata.id.value })
             val search = search(db, "\"News\"")
             val all = search.getInitialPage(20)
-            assertEquals(listOf("feed-1", "feed-2", "feed-3", "feed-4", "feed-5", "feed-6"), all.map { it.metadata.id.value })
+            assertEquals(listOf("feed-1", "feed-2", "feed-3", "feed-4", "feed-5", "feed-6"), all.map { it.feed.metadata.id.value })
             val page = search.getInitialPage(2)
             val next = search.getPageAfter(search.getId(page.last()), 2)
-            assertEquals(listOf("feed-3", "feed-4"), next.map { it.metadata.id.value })
-            assertEquals(listOf("feed-1", "feed-2"), search.getPageBefore(search.getId(next.first()), 2).map { it.metadata.id.value })
-            assertEquals(listOf("feed-2", "feed-3", "feed-4", "feed-5"), search.getRefreshPageAround(search.getId(next.last()), 4).map { it.metadata.id.value })
-            assertEquals("${HL_START}News${HL_END}", page.first().search?.highlightedTitle)
-            assertNull(page.first().search?.highlightedUrl)
-            assertNull(page.first().search?.highlightedDescription)
+            assertEquals(listOf("feed-3", "feed-4"), next.map { it.feed.metadata.id.value })
+            assertEquals(listOf("feed-1", "feed-2"), search.getPageBefore(search.getId(next.first()), 2).map { it.feed.metadata.id.value })
+            assertEquals(listOf("feed-2", "feed-3", "feed-4", "feed-5"), search.getRefreshPageAround(search.getId(next.last()), 4).map { it.feed.metadata.id.value })
+            assertTrue(search.getPageBefore(search.getId(page.first()), 2).isEmpty())
+            assertTrue(search.getPageAfter(search.getId(all.last()), 2).isEmpty())
+            assertEquals("${HL_START}News${HL_END}", (page.first() as LocalFeedDiscoveryFeedPage.Search).search?.highlightedTitle)
+            assertNull((page.first() as LocalFeedDiscoveryFeedPage.Search).search?.highlightedUrl)
+            assertNull((page.first() as LocalFeedDiscoveryFeedPage.Search).search?.highlightedDescription)
             db.getFeedDiscoveryFeedMetadataDao().upsert(feed("feed-4", "News News News"))
             val reordered = search.getInitialPage(20)
-            assertEquals(listOf("feed-4", "feed-1", "feed-2", "feed-3", "feed-5", "feed-6"), reordered.map { it.metadata.id.value })
-            assertEquals(2, reordered.map { it.rank }.distinct().size)
+            assertEquals(listOf("feed-4", "feed-1", "feed-2", "feed-3", "feed-5", "feed-6"), reordered.map { it.feed.metadata.id.value })
+            assertEquals(2, reordered.map { (it as LocalFeedDiscoveryFeedPage.Search).rank }.distinct().size)
             val rankedFirst = search.getInitialPage(2)
-            assertEquals(listOf("feed-2", "feed-3"), search.getPageAfter(search.getId(rankedFirst.last()), 2).map { it.metadata.id.value })
-            assertEquals(listOf("feed-4", "feed-1", "feed-2", "feed-3"), search.getRefreshPageAround(search.getId(next.last()), 4).map { it.metadata.id.value })
+            assertEquals(listOf("feed-2", "feed-3"), search.getPageAfter(search.getId(rankedFirst.last()), 2).map { it.feed.metadata.id.value })
+            assertEquals(listOf("feed-4", "feed-1", "feed-2", "feed-3"), search.getRefreshPageAround(search.getId(next.last()), 4).map { it.feed.metadata.id.value })
         }
     }
 
@@ -119,15 +130,15 @@ class FeedDiscoveryDatabaseTest {
             db.getFeedDiscoveryCollectionDao().upsert(collection("empty", 2))
             db.getFeedDiscoveryCollectionToFeedMappingDao().upsert(LocalFeedDiscoveryCollectionToFeedMapping(LocalUUID("second"), LocalUUID("feed-1"), 0))
             db.getFeedDiscoveryFeedMetadataDao().upsert(feed("orphan", "News"))
-            assertEquals(listOf("feed-1", "feed-2", "feed-3"), search(db, "\"News\"").getInitialPage(10).map { it.metadata.id.value })
-            assertEquals(listOf("feed-1"), search(db, "\"News\"", "second").getInitialPage(10).map { it.metadata.id.value })
+            assertEquals(listOf("feed-1", "feed-2", "feed-3"), search(db, "\"News\"").getInitialPage(10).map { it.feed.metadata.id.value })
+            assertEquals(listOf("feed-1"), search(db, "\"News\"", "second").getInitialPage(10).map { it.feed.metadata.id.value })
             assertNull(db.getFeedDiscoveryFeedMetadataDao().observeFeed(LocalUUID("orphan")).first())
             val shelves = db.getFeedDiscoveryCollectionDao().observeCollectionShelves(1).first()
             assertEquals(listOf("collection", "second", "empty"), shelves.map { it.collection.id.value })
             assertEquals(listOf("feed-1", "feed-1", null), shelves.map { it.feed?.metadata?.id?.value })
             db.getFeedDiscoveryFeedMetadataDao().upsert(feed("feed-2", "Compose"))
-            assertEquals(listOf("feed-1", "feed-3"), search(db, "\"News\"").getInitialPage(10).map { it.metadata.id.value })
-            assertEquals(listOf("feed-2"), search(db, "\"Compose\"").getInitialPage(10).map { it.metadata.id.value })
+            assertEquals(listOf("feed-1", "feed-3"), search(db, "\"News\"").getInitialPage(10).map { it.feed.metadata.id.value })
+            assertEquals(listOf("feed-2"), search(db, "\"Compose\"").getInitialPage(10).map { it.feed.metadata.id.value })
         }
     }
 
@@ -139,7 +150,7 @@ class FeedDiscoveryDatabaseTest {
             val invalidated = CompletableDeferred<Unit>()
             source.registerInvalidatedCallback { invalidated.complete(Unit) }
             val initial = source.load(PagingSource.LoadParams.Refresh(null, 10, false))
-            assertEquals(listOf("feed-1"), (initial as PagingSource.LoadResult.Page).data.map { it.metadata.id.value })
+            assertEquals(listOf("feed-1"), (initial as PagingSource.LoadResult.Page).data.map { it.feed.metadata.id.value })
             db.getFeedQueueDao().upsert(queue(LocalRssFeedQueueActionType.IMPORT, LocalRssFeedQueueStatus.QUEUED))
             withTimeout(5_000) { invalidated.await() }
             db.getFeedQueueDao().upsert(queue(LocalRssFeedQueueActionType.SYNC, LocalRssFeedQueueStatus.FAILED, id = 2))

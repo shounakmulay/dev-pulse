@@ -38,13 +38,7 @@ interface FeedDiscoveryCollectionDao {
             feed.languageTag AS feed_languageTag,
             feed.websiteUrl AS feed_websiteUrl,
             CASE WHEN feed.id IS NOT NULL THEN EXISTS(SELECT 1 FROM LocalRssFeed subscribed WHERE subscribed.sourceUrl = feed.url) END AS feed_subscribed,
-            (SELECT queue.status FROM LocalRssFeedQueue queue WHERE queue.url = feed.url AND queue.actionType = 'IMPORT' ORDER BY queue.id DESC LIMIT 1) AS feed_importStatus,
-            NULL AS feed_search_highlightedTitle,
-            NULL AS feed_search_highlightedDescription,
-            NULL AS feed_search_highlightedUrl,
-            NULL AS feed_search_highlightedWebsiteUrl,
-            mapping.position AS feed_position,
-            CASE WHEN feed.id IS NOT NULL THEN 0.0 END AS feed_rank
+            (SELECT queue.status FROM LocalRssFeedQueue queue WHERE queue.url = feed.url AND queue.actionType = 'IMPORT' ORDER BY queue.id DESC LIMIT 1) AS feed_importStatus
         FROM LocalFeedDiscoveryCollection collection
         LEFT JOIN LocalFeedDiscoveryCollectionToFeedMapping mapping
             ON mapping.collectionId = collection.id AND mapping.position < :previewCount

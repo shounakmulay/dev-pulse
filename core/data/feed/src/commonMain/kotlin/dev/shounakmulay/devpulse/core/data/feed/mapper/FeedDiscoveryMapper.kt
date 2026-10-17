@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.core.data.feed.mapper
 
 import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalFeedDiscoveryFeed
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalFeedDiscoveryFeedPage
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryCollection
 import dev.shounakmulay.devpulse.core.data.db.query.FtsQuerySanitizer
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedDiscoveryQuery
@@ -53,13 +54,19 @@ class FeedDiscoveryMapper(
             LocalRssFeedQueueStatus.FAILED -> FeedDiscoveryImportState.Failed
             LocalRssFeedQueueStatus.COMPLETED, null -> FeedDiscoveryImportState.NotAdded
         },
-        search = from.search?.let { search ->
-            FeedDiscoverySearchHighlights(
-                highlightedTitle = search.highlightedTitle,
-                highlightedDescription = search.highlightedDescription,
-                highlightedUrl = search.highlightedUrl,
-                highlightedWebsiteUrl = search.highlightedWebsiteUrl,
-            )
-        },
     )
+
+    fun toFeedDiscoveryFeed(from: LocalFeedDiscoveryFeedPage): FeedDiscoveryFeed = when (from) {
+        is LocalFeedDiscoveryFeedPage.Collection -> toFeedDiscoveryFeed(from.feed)
+        is LocalFeedDiscoveryFeedPage.Search -> toFeedDiscoveryFeed(from.feed).copy(
+            search = from.search?.let { search ->
+                FeedDiscoverySearchHighlights(
+                    highlightedTitle = search.highlightedTitle,
+                    highlightedDescription = search.highlightedDescription,
+                    highlightedUrl = search.highlightedUrl,
+                    highlightedWebsiteUrl = search.highlightedWebsiteUrl,
+                )
+            },
+        )
+    }
 }

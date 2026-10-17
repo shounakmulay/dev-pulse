@@ -8,15 +8,4 @@ data class LocalFeedDiscoveryFeed(
     @Embedded val metadata: LocalFeedDiscoveryFeedMetadata,
     val subscribed: Boolean,
     val importStatus: LocalRssFeedQueueStatus?,
-    @Embedded(prefix = "search_")
-    val search: LocalFeedDiscoverySearchHighlights?,
-    val position: Int,
-    val rank: Double,
-)
-
-data class LocalFeedDiscoverySearchHighlights(
-    val highlightedTitle: String?,
-    val highlightedDescription: String?,
-    val highlightedUrl: String?,
-    val highlightedWebsiteUrl: String?,
 )
