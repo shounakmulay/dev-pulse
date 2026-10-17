@@ -13,6 +13,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPClickableRow
 import dev.shounakmulay.devpulse.core.designsystem.components.DPRadioButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -76,6 +78,24 @@ internal fun PublishedRangeOptionRow(
             overflow = TextOverflow.Ellipsis,
             text = title.asString(),
             variant = DPTextViewVariant.BodyMedium
+        )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun PublishedRangeOptionRowPreview() {
+    Preview {
+        val state = PublishedRangeFilterState(
+            selectedRange = UIPublishedRange.Last7Days,
+            rangeValues = listOf(UIPublishedRange.Today, UIPublishedRange.Last24Hours, UIPublishedRange.Last7Days, UIPublishedRange.Last30Days, UIPublishedRange.ThisMonth, UIPublishedRange.Custom(null, null)),
+        )
+        PublishedRangeOptionRow(
+            publishedRange = UIPublishedRange.Last7Days,
+            state = state,
+            onShowDatePicker = {},
+            onFilterUpdated = {},
+            filter = RssPostFilter.PublishedRange(),
         )
     }
 }

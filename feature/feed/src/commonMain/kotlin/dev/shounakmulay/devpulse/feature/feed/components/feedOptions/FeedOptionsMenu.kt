@@ -1,13 +1,18 @@
 package dev.shounakmulay.devpulse.feature.feed.components.feedOptions
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import dev.shounakmulay.devpulse.core.designsystem.components.DPAlertDialog
 import dev.shounakmulay.devpulse.core.designsystem.components.DPDialogVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPDropdownMenu
 import dev.shounakmulay.devpulse.core.designsystem.components.DPDropdownMenuItem
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.resources.stringRes
+import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
 import devpulse.core.resources.generated.resources.cancel
 import devpulse.core.resources.generated.resources.confirm_delete_feed_message
 import devpulse.core.resources.generated.resources.confirm_delete_feed_title
@@ -67,4 +72,34 @@ internal fun FeedDeleteConfirmation(
         onConfirm = onConfirm,
         onDismissRequest = onDismissRequest,
     )
+}
+
+@DPScreenPreview
+@Composable
+private fun FeedDeleteConfirmationPreview() {
+    Preview {
+        FeedDeleteConfirmation(
+            confirmation = FeedOptionsState.ConfirmingDelete(
+                feedId = FeedPreviewData.feed.id,
+                option = FeedOptionsMenuItem.Delete(FeedPreviewData.feed.title),
+            ),
+            onConfirm = {},
+            onDismissRequest = {},
+        )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun FeedOptionsMenuPreview() {
+    Preview {
+        Box {
+            FeedOptionsMenu(
+                expanded = true,
+                menuItems = FeedPreviewData.feed.toFeedOptionsTarget().items,
+                onMenuItemSelected = {},
+                onDismissRequest = {},
+            )
+        }
+    }
 }

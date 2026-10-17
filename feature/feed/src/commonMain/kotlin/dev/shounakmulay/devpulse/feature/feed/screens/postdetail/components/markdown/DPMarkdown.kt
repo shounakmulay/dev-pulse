@@ -39,6 +39,8 @@ import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.model.State
 import com.mikepenz.markdown.model.markdownPadding
 import dev.shounakmulay.devpulse.core.designsystem.components.DPLoadingIndicator
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPDarkTheme
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
@@ -49,11 +51,11 @@ import dev.shounakmulay.devpulse.core.ui.content.EmptyContentPlaceholder
 import dev.snipme.highlights.Highlights
 import dev.snipme.highlights.model.SyntaxThemes
 import devpulse.core.resources.generated.resources.no_content
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun DPMarkdown(
@@ -275,4 +277,18 @@ fun DPMarkdownContent(
     }
 }
 
+@DPScreenPreview
+@Composable
+private fun DPMarkdownLoadingPreview() {
+    Preview {
+        DPMarkdownLoading(listState = rememberLazyListState(), header = {}, footer = {})
+    }
+}
 
+@DPScreenPreview
+@Composable
+private fun DPMarkdownErrorPreview() {
+    Preview {
+        DPMarkdownError(listState = rememberLazyListState(), header = {}, footer = {})
+    }
+}

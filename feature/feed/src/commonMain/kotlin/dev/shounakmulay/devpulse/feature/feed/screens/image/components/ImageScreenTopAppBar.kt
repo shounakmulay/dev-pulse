@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.Color
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBar
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTopAppBarVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 
@@ -33,4 +35,12 @@ internal fun ImageScreenTopAppBar(
             )
         }
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun ImageScreenTopAppBarPreview() {
+    Preview {
+        ImageScreenTopAppBar(onBack = {}, isDarkTheme = false, onDarkThemeChanged = {})
+    }
 }

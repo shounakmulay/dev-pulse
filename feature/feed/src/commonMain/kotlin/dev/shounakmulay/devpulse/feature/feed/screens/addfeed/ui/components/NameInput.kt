@@ -9,6 +9,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextField
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.custom_name
 import devpulse.core.resources.generated.resources.name_optional
@@ -37,4 +39,12 @@ fun NameInput(
         value = title,
         onValueChange = onTitleChanged,
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun NameInputPreview() {
+    Preview {
+        NameInput(title = "Kotlin Blog", onTitleChanged = {})
+    }
 }

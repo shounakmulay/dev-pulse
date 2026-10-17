@@ -11,6 +11,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.feed_action_retry
@@ -38,5 +40,13 @@ fun FeedListError(
             style = DPButtonStyle.Text,
             size = DPSize.Small,
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun FeedListErrorPreview() {
+    Preview {
+        FeedListError(message = "Could not load feeds", onRetry = {})
     }
 }

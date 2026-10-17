@@ -27,10 +27,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
@@ -95,5 +98,13 @@ internal fun FeedHeader(
                 textAlign = TextAlign.Center
             )
         }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun FeedHeaderPreview() {
+    Preview {
+        FeedHeader(uiFeed = FeedPreviewData.feed, feed = FeedPreviewData.rssFeed)
     }
 }

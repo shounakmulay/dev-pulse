@@ -11,6 +11,8 @@ import androidx.window.core.layout.WindowSizeClass
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.add_feed_action_import
@@ -35,5 +37,13 @@ internal fun EmptyFeedsImportCTA(modifier: Modifier = Modifier, onNavigateToAddF
             text = stringResource(stringRes.add_feed_action_import),
             onClick = onNavigateToAddFeed
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun EmptyFeedsImportCTAPreview() {
+    Preview {
+        EmptyFeedsImportCTA(onNavigateToAddFeed = {})
     }
 }

@@ -8,6 +8,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -26,5 +28,13 @@ fun AppendErrorRow(onRetry: () -> Unit) {
             style = DPButtonStyle.Text,
             size = DPSize.Small,
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun AppendErrorRowPreview() {
+    Preview {
+        AppendErrorRow(onRetry = {})
     }
 }

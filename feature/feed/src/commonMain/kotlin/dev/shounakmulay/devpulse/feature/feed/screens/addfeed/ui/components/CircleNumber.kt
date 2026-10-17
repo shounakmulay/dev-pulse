@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ContainedLoadingIndicator
@@ -20,6 +21,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPContextColors
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
@@ -112,6 +115,29 @@ fun CircleStatus(
                 },
                 contentDescription = null
             )
+        }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun CircleNumberPreview() {
+    Preview {
+        Row {
+            CircleNumber(number = 1, error = false)
+            CircleNumber(number = 2, error = true)
+        }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun CircleStatusPreview() {
+    Preview {
+        Row {
+            RssFeedQueueStatus.entries.forEach { status ->
+                CircleStatus(status = status, contentDescription = status.name)
+            }
         }
     }
 }

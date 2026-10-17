@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
+import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
 
 @Composable
 fun FeedPostGridCard(
@@ -24,4 +27,17 @@ fun FeedPostGridCard(
         modifier = modifier
             .width(if (showImage) 340.dp else 280.dp)
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun FeedPostGridCardPreview() {
+    Preview {
+        FeedPostGridCard(
+            article = FeedPreviewData.post,
+            showImage = false,
+            onPostClick = {},
+            onBookmarkChanged = { _, _ -> },
+        )
+    }
 }

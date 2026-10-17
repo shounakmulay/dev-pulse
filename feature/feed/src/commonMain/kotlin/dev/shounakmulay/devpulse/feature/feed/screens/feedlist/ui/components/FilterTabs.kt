@@ -7,6 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSegmentedButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSegmentedVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.UISelectedTab
@@ -39,5 +41,13 @@ fun FilterTabs(
                 }
             )
         }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun FilterTabsPreview() {
+    Preview {
+        FilterTabs(selectedTab = UISelectedTab.entries.first(), onClick = {})
     }
 }

@@ -1,15 +1,20 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.components
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -33,4 +38,14 @@ fun BoxScope.ImportButton(
         elevation = ButtonDefaults.elevatedButtonElevation(),
         onClick = onClick
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun ImportButtonPreview() {
+    Preview {
+        Box(Modifier.size(320.dp, 120.dp)) {
+            ImportButton(onClick = {})
+        }
+    }
 }

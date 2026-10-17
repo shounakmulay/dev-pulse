@@ -14,6 +14,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextField
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIAddFeedData
 import devpulse.core.resources.generated.resources.enter_valid_url
@@ -67,4 +69,12 @@ fun SourceInput(
         value = url,
         onValueChange = onUrlChanged,
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun SourceInputPreview() {
+    Preview {
+        SourceInput(url = "https://blog.jetbrains.com/kotlin/feed/", onUrlChanged = {}, onFocusLost = {}, error = null)
+    }
 }

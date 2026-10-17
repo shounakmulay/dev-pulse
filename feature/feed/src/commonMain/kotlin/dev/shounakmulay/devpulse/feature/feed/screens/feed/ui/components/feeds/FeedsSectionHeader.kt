@@ -5,6 +5,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -38,5 +40,13 @@ internal fun FeedsSectionHeader(
             size = DPSize.Small,
             onClick = onNavigateToFeedList
         )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun FeedsSectionHeaderPreview() {
+    Preview {
+        FeedsSectionHeader(viewAllEnabled = true, onNavigateToAddFeed = {}, onNavigateToFeedList = {})
     }
 }

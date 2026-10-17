@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import dev.shounakmulay.devpulse.core.designsystem.components.DPCircularProgressIndicator
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.feed_loading_more_content_description
@@ -28,5 +30,13 @@ fun AppendLoadingRow() {
         contentAlignment = Alignment.Center,
     ) {
         DPCircularProgressIndicator()
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun AppendLoadingRowPreview() {
+    Preview {
+        AppendLoadingRow()
     }
 }

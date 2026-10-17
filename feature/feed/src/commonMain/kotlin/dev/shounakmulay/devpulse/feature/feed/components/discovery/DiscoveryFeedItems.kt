@@ -23,6 +23,8 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPCard
 import dev.shounakmulay.devpulse.core.designsystem.components.DPCardStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
@@ -33,6 +35,7 @@ import dev.shounakmulay.devpulse.core.ui.text.orEmpty
 import dev.shounakmulay.devpulse.feature.feed.components.feed.DPFeedListItemImage
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryFeed
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryFeedImportState
+import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
 import devpulse.core.resources.generated.resources.discovery_add
 import devpulse.core.resources.generated.resources.discovery_added
 import devpulse.core.resources.generated.resources.discovery_adding
@@ -163,4 +166,33 @@ fun DiscoveryFeedImportButton(
         },
         onClick = onAdd,
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun DiscoveryFeedCardPreview() {
+    Preview {
+        DiscoveryFeedCard(feed = FeedPreviewData.discoveryFeed, pending = false, onAdd = {}, onClick = {})
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun DiscoveryFeedRowPreview() {
+    Preview {
+        DiscoveryFeedRow(feed = FeedPreviewData.discoveryFeed, pending = false, onAdd = {}, onClick = {})
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun DiscoveryFeedImportStatesPreview() {
+    Preview {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            UIDiscoveryFeedImportState.entries.forEach { state ->
+                DiscoveryFeedImportButton(state = state, pending = false, onAdd = {})
+            }
+            DiscoveryFeedImportButton(state = UIDiscoveryFeedImportState.NotAdded, pending = true, onAdd = {})
+        }
+    }
 }
