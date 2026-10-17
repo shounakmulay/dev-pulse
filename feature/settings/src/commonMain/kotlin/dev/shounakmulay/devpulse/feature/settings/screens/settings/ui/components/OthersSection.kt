@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalUriHandler
 import dev.shounakmulay.devpulse.core.common.BuildKonfigCommon
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.licenses
 import devpulse.core.resources.generated.resources.others
@@ -26,5 +28,13 @@ internal fun OthersSection(onLicensesClick: () -> Unit) {
         ) {
             uriHandler.openUri(BuildKonfigCommon.GITHUB_LINK)
         }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun OthersSectionPreview() {
+    Preview {
+        OthersSection(onLicensesClick = {})
     }
 }

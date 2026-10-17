@@ -2,6 +2,8 @@ package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import devpulse.core.resources.generated.resources.black_mode
@@ -28,6 +30,20 @@ internal fun ThemeSettingsSection(
             supportingText = null,
             enabled = canToggleBlackMode,
             onClick = onBlackModeToggled
+        )
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun ThemeSettingsSectionPreview() {
+    Preview {
+        ThemeSettingsSection(
+            selectedThemeMode = ThemeMode.SYSTEM,
+            isBlackMode = false,
+            canToggleBlackMode = true,
+            onThemeModeSelected = {},
+            onBlackModeToggled = {},
         )
     }
 }

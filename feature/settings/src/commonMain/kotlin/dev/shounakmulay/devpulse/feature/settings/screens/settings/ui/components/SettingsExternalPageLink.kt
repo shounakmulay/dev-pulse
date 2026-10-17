@@ -3,6 +3,8 @@ package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.component
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import dev.shounakmulay.devpulse.core.designsystem.components.DPListItem
+import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
+import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 
 @Composable
@@ -22,4 +24,12 @@ fun SettingsExternalPageLink(
             )
         }
     )
+}
+
+@DPComponentPreview
+@Composable
+private fun SettingsExternalPageLinkPreview() {
+    Preview {
+        SettingsExternalPageLink(headlineText = "Source code", supportingText = "View on GitHub", onClick = {})
+    }
 }
