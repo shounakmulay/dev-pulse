@@ -10,10 +10,14 @@ import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostSort
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostSqlQueryBuilder
 import dev.shounakmulay.devpulse.core.data.db.query.SqlBinding
 import dev.shounakmulay.devpulse.core.logging.DPLog
+import dev.shounakmulay.devpulse.core.telemetry.api.*
+import kotlin.time.TimeSource
 
 class LocalRssPostWithFeedMetadataPagingDataProvider(
     private val feedPostDao: FeedPostDao,
-    private val query: LocalFeedPostQuery
+    private val query: LocalFeedPostQuery,
+    private val tracer: Tracer = NoOpTelemetry,
+    private val metrics: Metrics = NoOpTelemetry,
 ) : LocalCursorPagingSourceDataProvider<
         FeedPostCursor,
         LocalRssPostWithFeedAndSearch
@@ -44,20 +48,20 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
         return tables
     }
 
-    override suspend fun getInitialPage(loadSize: Int): List<LocalRssPostWithFeedAndSearch> {
+    override suspend fun getInitialPage(loadSize: Int): List<LocalRssPostWithFeedAndSearch> = measured("initial") {
         logger.d {
             "[FEED-PAGING] initial:start loadSize=$loadSize sort=${query.sort} " +
-                    "filters=${query.filters}"
+                    "filterCount=${query.filters.size}"
         }
         val items = feedPostDao.getPostPage(queryBuilder.buildInitialPage(loadSize))
         logger.d { "[FEED-PAGING] initial:end ${items.summary()}" }
-        return items
+        items
     }
 
     override suspend fun getPageAfter(
         cursor: FeedPostCursor,
         loadSize: Int
-    ): List<LocalRssPostWithFeedAndSearch> {
+    ): List<LocalRssPostWithFeedAndSearch> = measured("append") {
         logger.d {
             "[FEED-PAGING] append:start loadSize=$loadSize cursor=${cursor.summary()}"
         }
@@ -68,13 +72,13 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
             )
         )
         logger.d { "[FEED-PAGING] append:end ${items.summary()}" }
-        return items
+        items
     }
 
     override suspend fun getPageBefore(
         cursor: FeedPostCursor,
         loadSize: Int
-    ): List<LocalRssPostWithFeedAndSearch> {
+    ): List<LocalRssPostWithFeedAndSearch> = measured("prepend") {
         logger.d {
             "[FEED-PAGING] prepend:start loadSize=$loadSize cursor=${cursor.summary()}"
         }
@@ -85,13 +89,13 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
             )
         ).reversed()
         logger.d { "[FEED-PAGING] prepend:end ${items.summary()}" }
-        return items
+        items
     }
 
     override suspend fun getRefreshPageAround(
         anchorCursor: FeedPostCursor,
         loadSize: Int
-    ): List<LocalRssPostWithFeedAndSearch> {
+    ): List<LocalRssPostWithFeedAndSearch> = measured("refresh") {
         val beforeLimit = loadSize / 2
         val afterLimit = loadSize - beforeLimit
 
@@ -111,7 +115,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
             "[FEED-PAGING] refreshAround:end before=${beforeItems.summary()} " +
                     "after=${afterItems.summary()} combined=${items.summary()}"
         }
-        return items
+        items
     }
 
     override fun getId(item: LocalRssPostWithFeedAndSearch): FeedPostCursor {
@@ -120,7 +124,7 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
             sort = query.sort,
             sortValue = query.sort.extractCursorValue(item),
         )
-        logger.v { "[FEED-PAGING] cursorFromItem itemId=${item.post.id} cursor=${cursor.summary()}" }
+        logger.v { "[FEED-PAGING] cursorFromItem sort=${cursor.sort}" }
         return cursor
     }
 
@@ -137,15 +141,34 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
     }
 
     private fun FeedPostCursor.summary(): String {
-        return "{id=$id sort=$sort sortValue=$sortValue}"
+        return "{sort=$sort}"
     }
 
     private fun List<LocalRssPostWithFeedAndSearch>.summary(): String {
-        return "count=$size firstId=${firstOrNull()?.post?.id} lastId=${lastOrNull()?.post?.id} " +
-                "ids=${joinToString(prefix = "[", postfix = "]") { it.post.id.value }}"
+        return "count=$size"
+    }
+
+    private suspend fun measured(
+        kind: String,
+        block: suspend () -> List<LocalRssPostWithFeedAndSearch>,
+    ): List<LocalRssPostWithFeedAndSearch> {
+        val started = TimeSource.Monotonic.markNow()
+        val attributes = MetricAttributes.of("kind" to kind)
+        try {
+            return tracer.trace(LoadOperation, SafeAttributes.of("kind" to AttributeValue.Text(kind))) {
+                block()
+            }.also { metrics.record(RowCount, it.size.toDouble(), attributes) }
+        } finally {
+            metrics.record(LoadDuration, started.elapsedNow().inWholeNanoseconds / 1_000_000.0, attributes)
+        }
     }
 
     private companion object {
+        val Kinds = setOf("initial", "append", "prepend", "refresh")
+        val LoadOperation = OperationDefinition("db.feed_posts_load", AttributeSchema(mapOf("kind" to AttributeRule.Choice(Kinds))))
+        val Dimensions = MetricDimensions(mapOf("kind" to Kinds))
+        val LoadDuration = HistogramDefinition("db.feed_posts_duration", MetricUnit.Milliseconds, Dimensions)
+        val RowCount = HistogramDefinition("db.feed_posts_rows", MetricUnit.Count, Dimensions)
         const val Tag = "FeedPostPagingProvider"
         const val ContentFeedPostTableName = "LocalRssContentFeedPost"
         const val FeedTableName = "LocalRssFeed"

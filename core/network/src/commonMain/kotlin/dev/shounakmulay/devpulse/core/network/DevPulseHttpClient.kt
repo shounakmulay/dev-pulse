@@ -31,7 +31,7 @@ internal fun createHttpClient(dpLogger: DPLogger): HttpClient = HttpClient(creat
                 dpLogger.d { message }
             }
         }
-        level = LogLevel.ALL
+        level = LogLevel.NONE
         sanitizeHeader { header ->
             header == HttpHeaders.Authorization || header == HttpHeaders.Cookie
         }

@@ -10,7 +10,7 @@ internal object DevPulseLogging {
     fun configure() {
         if (configured) return
 
-        val config = DPLogConfigs.debug()
+        val config = DPLogConfigs.release()
         DPLog.configure(config)
         configured = true
         DPLog.i(Tag) { "Logging configured minLevel=${config.minLevel}" }

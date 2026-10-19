@@ -1,3 +1,4 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule
 import dev.shounakmulay.devpulse.buildsrc.constants.Modules
@@ -8,6 +9,20 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 plugins {
     alias(libs.plugins.devpulse.kmp.library.compose)
     alias(libs.plugins.aboutLibraries)
+    alias(libs.plugins.buildKonfig)
+}
+
+buildkonfig {
+    packageName = "dev.shounakmulay.devpulse"
+    exposeObjectWithName = "AppBuildConfiguration"
+    defaultConfigs {
+        buildConfigField(STRING, "ENVIRONMENT", providers.gradleProperty("devpulse.environment").orElse("staging").get(), const = true)
+        buildConfigField(STRING, "RELEASE_CHANNEL", providers.gradleProperty("devpulse.releaseChannel").orElse("internal").get(), const = true)
+        buildConfigField(STRING, "COMMIT_ID", providers.gradleProperty("devpulse.commitId").orElse("local").get(), const = true)
+        buildConfigField(STRING, "ANDROID_BUILD", project.buildConfig.android.versionCode.toString(), const = true)
+        buildConfigField(STRING, "IOS_BUILD", project.buildConfig.ios.currentProjectVersion, const = true)
+        buildConfigField(STRING, "DESKTOP_BUILD", providers.gradleProperty("devpulse.buildNumber").orElse(project.buildConfig.desktop.packageVersion).get(), const = true)
+    }
 }
 
 aboutLibraries {
@@ -30,6 +45,9 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
+            implementation(project(Modules.Core.Telemetry.RUNTIME))
+            implementation(project(Modules.Core.REMOTE_CONFIG))
+            implementation(project(Modules.Core.Telemetry.API))
             implementation(project(Modules.Core.UI))
             implementation(project(Modules.Core.WEBVIEW))
             implementation(project(Modules.Core.NAVIGATION))

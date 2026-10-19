@@ -29,6 +29,7 @@ import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.AppearanceSettingsSection
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.DeveloperSettingsSection
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.OthersSection
+import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.PrivacySettingsSection
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.SettingsSectionHeading
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.SettingsSubPageLink
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.SettingsToggle
@@ -109,6 +110,18 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                         )
                     }
                 }
+            }
+            item {
+                PrivacySettingsSection(
+                    state = state.privacy,
+                    onAnalyticsChanged = {
+                        viewModel.onEvent(SettingsScreenEvent.OnAnalyticsConsentToggled(it))
+                    },
+                    onDiagnosticsChanged = {
+                        viewModel.onEvent(SettingsScreenEvent.OnDiagnosticsConsentToggled(it))
+                    },
+                    onRetry = { viewModel.onEvent(SettingsScreenEvent.OnPrivacyRetryClicked) },
+                )
             }
             item {
                 OthersSection(

@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.preferences
 
 object DevPulsePreferenceKeys {
+    val telemetryConsent = DevPulsePreferenceKey.StringPreferenceKey("telemetryConsent.v1")
     val isAppInBlackMode = DevPulsePreferenceKey.BooleanPreferenceKey("isAppInBlackMode")
     val feedPostListItemVariant = DevPulsePreferenceKey.StringPreferenceKey("feedPostListItemVariant")
     val syncInBackground = DevPulsePreferenceKey.BooleanPreferenceKey("syncFeedsInBackground")

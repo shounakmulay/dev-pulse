@@ -21,6 +21,9 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
+import dev.shounakmulay.devpulse.core.navigation.LocalNavigationPaneVisibility
+import dev.shounakmulay.devpulse.core.navigation.NavigationPaneVisibility
+import dev.shounakmulay.devpulse.core.navigation.NavigationPaneRole
 
 @Composable
 internal fun <T : Any> RowScope.DetailView(
@@ -60,7 +63,14 @@ internal fun <T : Any> RowScope.DetailView(
                     .fillMaxHeight()
                     .clip(clipShape)
             ) {
-                detailEntry?.Content()
+                CompositionLocalProvider(
+                    LocalNavigationPaneVisibility provides NavigationPaneVisibility(
+                        visible = detailEntry != null,
+                        role = NavigationPaneRole.Detail,
+                    )
+                ) {
+                    detailEntry?.Content()
+                }
             }
         }
     }

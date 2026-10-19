@@ -21,6 +21,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(Modules.Core.Telemetry.API))
             implementation(project(Modules.Core.NAVIGATION))
             implementation(project(Modules.Core.UI))
             implementation(project(Modules.Core.Domain.SETTINGS))

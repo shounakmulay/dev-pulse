@@ -42,7 +42,6 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCont
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostTag
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostToTagMapping
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedDiscoveryPagingSourceProvider
-import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedDiscoveryQuery
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
@@ -86,7 +85,6 @@ import dev.shounakmulay.devpulse.core.data.db.triggers.createPostContentFtsDelet
 abstract class DevPulseDatabase :
     RoomDatabase(),
     DevPulseDatabaseTransactionAccessor,
-    FeedPostPagingSourceProvider,
     FeedDiscoveryPagingSourceProvider {
 
     abstract fun getFeedContentDao(): FeedPostDao
@@ -103,9 +101,6 @@ abstract class DevPulseDatabase :
 
     override suspend fun clearAllTables() {
     }
-
-    override fun getFeedPostPagingSource(query: LocalFeedPostQuery) =
-        getFeedContentDao().getFeedPostPagingSource(this, query)
 
     override fun getFeedDiscoveryPagingSource(query: LocalFeedDiscoveryQuery) =
         getFeedDiscoveryFeedMetadataDao().getFeedDiscoveryPagingSource(this, query)

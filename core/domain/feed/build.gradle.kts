@@ -13,6 +13,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(Modules.Core.Telemetry.API))
             api(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.COMMON))
             implementation(project(Modules.Core.RESOURCES))

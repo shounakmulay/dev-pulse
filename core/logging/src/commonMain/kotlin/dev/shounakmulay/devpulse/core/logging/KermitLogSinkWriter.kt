@@ -19,8 +19,12 @@ internal class KermitLogSinkWriter(
             throwable = throwable,
         )
 
-        sinks
-            .filter { sink -> sink.isLoggable(entry) }
-            .forEach { sink -> sink.log(entry) }
+        sinks.forEach { sink ->
+            try {
+                if (sink.isLoggable(entry)) sink.log(entry)
+            } catch (_: Exception) {
+                Unit
+            }
+        }
     }
 }

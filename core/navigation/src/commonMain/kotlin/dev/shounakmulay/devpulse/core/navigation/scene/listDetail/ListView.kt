@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import dev.shounakmulay.devpulse.core.navigation.LocalNavigationPaneVisibility
+import dev.shounakmulay.devpulse.core.navigation.NavigationPaneVisibility
+import dev.shounakmulay.devpulse.core.navigation.NavigationPaneRole
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,7 +57,14 @@ internal fun <T: Any> RowScope.ListView(
                 .fillMaxHeight()
                 .clip(clipShape)
         ) {
-            listEntry.Content()
+            CompositionLocalProvider(
+                LocalNavigationPaneVisibility provides NavigationPaneVisibility(
+                    visible = !isDetailExpanded,
+                    role = NavigationPaneRole.List,
+                )
+            ) {
+                listEntry.Content()
+            }
         }
     }
 }

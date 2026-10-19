@@ -13,6 +13,8 @@ import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.PostDetailScreenSection
+import dev.shounakmulay.devpulse.core.telemetry.api.*
+import dev.shounakmulay.devpulse.feature.feed.telemetry.BookmarkChanged
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
@@ -27,7 +29,9 @@ class PostDetailViewModel(
     private val getRssEncodedContentUseCase: GetRssEncodedContentUseCase,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val setContentTextSettingFontScaleUseCase: SetContentTextSettingFontScaleUseCase,
-    private val setContentTextSettingLineHeightScaleUseCase: SetContentTextSettingLineHeightScaleUseCase
+    private val setContentTextSettingLineHeightScaleUseCase: SetContentTextSettingLineHeightScaleUseCase,
+    private val analytics: Analytics = NoOpTelemetry,
+    private val tracer: Tracer = NoOpTelemetry,
 ) : EventHandler<PostDetailScreenEvent>,
     MviViewModel<PostDetailScreenState, PostDetailScreenEffect>(PostDetailScreenState()) {
     override fun createStateSerializer() = PostDetailScreenState.serializer()
@@ -35,7 +39,9 @@ class PostDetailViewModel(
     override fun bindStateSources(stateSubscriptionScope: CoroutineScope) {
         stateSubscriptionScope.launch {
             val content =
-                getPostContentUseCase(postId, type = RssFeedPostContentType.MARKDOWN).getOrNull()
+                tracer.traceResult(OperationDefinition("reader.load_content")) {
+                    getPostContentUseCase(postId, type = RssFeedPostContentType.MARKDOWN)
+                }.getOrNull()
             setState {
                 copy(
                     content = content
@@ -76,7 +82,9 @@ class PostDetailViewModel(
 
     private fun setPostBookmarked(event: PostDetailScreenEvent.SetPostBookmarked) {
         intent {
-            setPostBookmarkedUseCase(postId, event.bookmarked)
+            setPostBookmarkedUseCase(postId, event.bookmarked).onSuccess {
+                analytics.track(BookmarkChanged(event.bookmarked))
+            }
         }
     }
 

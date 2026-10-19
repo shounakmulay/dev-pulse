@@ -9,12 +9,17 @@ import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveFeedPostListIt
 import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveSyncInBackgroundUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.feed.SetFeedPostListItemVariantUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.feed.SetSyncInBackgroundUseCase
+import dev.shounakmulay.devpulse.core.domain.settings.privacy.ObserveTelemetryPrivacyUseCase
+import dev.shounakmulay.devpulse.core.domain.settings.privacy.SetTelemetryConsentUseCase
+import dev.shounakmulay.devpulse.core.domain.settings.privacy.RetryTelemetryPrivacyUseCase
+import dev.shounakmulay.devpulse.core.telemetry.api.TelemetryPurpose
 import dev.shounakmulay.devpulse.core.domain.settings.theme.ObserveThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.theme.SetThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
@@ -26,6 +31,9 @@ class SettingsViewModel(
     private val setFeedPostListItemVariantUseCase: SetFeedPostListItemVariantUseCase,
     private val observeSyncInBackgroundUseCase: ObserveSyncInBackgroundUseCase,
     private val setSyncInBackgroundUseCase: SetSyncInBackgroundUseCase,
+    observeTelemetryPrivacyUseCase: ObserveTelemetryPrivacyUseCase,
+    private val setTelemetryConsentUseCase: SetTelemetryConsentUseCase,
+    private val retryTelemetryPrivacyUseCase: RetryTelemetryPrivacyUseCase,
     logger: DPLogger
 ) : MviViewModel<SettingsScreenState, SettingsScreenEffect>(SettingsScreenState()),
     EventHandler<SettingsScreenEvent> {
@@ -33,6 +41,9 @@ class SettingsViewModel(
 
     init {
         logger.d { "SettingsViewModel created" }
+        observeTelemetryPrivacyUseCase()
+            .onEach { privacy -> setState { copy(privacy = privacy) } }
+            .launchIn(viewModelScope)
         observeFeedPostListItemVariantUseCase()
             .onEachSuccess { variant ->
                 if (variant != null) {
@@ -77,6 +88,23 @@ class SettingsViewModel(
             SettingsScreenEvent.OnLicensesClicked -> navigateToLicenses()
             SettingsScreenEvent.OnArticleSettingsClicked -> navigateToArticleSettings()
             is SettingsScreenEvent.OnSyncInBackgroundToggled -> toggleSyncInBackground(event.enabled)
+            is SettingsScreenEvent.OnAnalyticsConsentToggled -> updateTelemetryConsent(
+                purpose = TelemetryPurpose.Analytics,
+                enabled = event.enabled,
+            )
+            is SettingsScreenEvent.OnDiagnosticsConsentToggled -> updateTelemetryConsent(
+                purpose = TelemetryPurpose.Diagnostics,
+                enabled = event.enabled,
+            )
+            SettingsScreenEvent.OnPrivacyRetryClicked -> viewModelScope.launch {
+                retryTelemetryPrivacyUseCase()
+            }
+        }
+    }
+
+    private fun updateTelemetryConsent(purpose: TelemetryPurpose, enabled: Boolean) {
+        viewModelScope.launch {
+            setTelemetryConsentUseCase(purpose = purpose, enabled = enabled)
         }
     }
 

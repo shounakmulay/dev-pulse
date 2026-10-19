@@ -1,9 +1,12 @@
 package dev.shounakmulay.devpulse.core.data.feed.repository
 
+import dev.shounakmulay.devpulse.core.telemetry.api.*
+import kotlin.time.TimeSource
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
 import dev.shounakmulay.devpulse.core.logging.DPLogger
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
+import kotlinx.coroutines.CancellationException
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -12,6 +15,8 @@ internal class FeedImportFallbackParser(
     private val secondaryParser: FeedImportCandidate,
     private val networkClient: DevPulseNetworkClient,
     logger: DPLogger,
+    private val tracer: Tracer = NoOpTelemetry,
+    private val metrics: Metrics = NoOpTelemetry,
 ) {
     private val logger = logger.withTag(Tag)
 
@@ -19,12 +24,13 @@ internal class FeedImportFallbackParser(
         val xml = networkClient.get(entry.url).bodyAsText()
         var lastFailure: Throwable? = null
 
-        for (parser in listOf(primaryParser, secondaryParser)) {
+        for ((index, parser) in listOf(primaryParser, secondaryParser).withIndex()) {
             import(
                 entry = entry,
                 xml = xml,
                 candidate = parser
             ).onSuccess {
+                if (index > 0) metrics.increment(FallbackUsed)
                 return it
             }.onFailure {
                 lastFailure = it
@@ -38,12 +44,18 @@ internal class FeedImportFallbackParser(
         entry: RssFeedQueueEntry,
         xml: String,
         candidate: FeedImportCandidate
-    ): Result<ParsedFeed> = runCatching {
+    ): Result<ParsedFeed> = try {
         logger.d {
             "RSS import candidate started candidate=${candidate.id} queueId=${entry.id} " +
                     "source=${entry.url.sourceSummary()}"
         }
-        candidate.parse(entry = entry, xml = xml)
+        Result.success(tracer.trace(OperationDefinition("feed.parse_attempt")) {
+            candidate.parse(entry = entry, xml = xml)
+        })
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (failure: Exception) {
+        Result.failure(failure)
     }.logImportResult(entry = entry, candidate = candidate)
 
     private fun Result<ParsedFeed>.logImportResult(
@@ -71,6 +83,7 @@ internal class FeedImportFallbackParser(
     }
 
     private companion object {
+        val FallbackUsed = CounterDefinition("feed.parser_fallback_used")
         const val Tag = "FeedImportFallbackParser"
     }
 }

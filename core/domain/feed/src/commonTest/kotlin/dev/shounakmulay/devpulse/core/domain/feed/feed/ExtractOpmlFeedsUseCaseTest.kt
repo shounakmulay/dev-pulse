@@ -7,6 +7,8 @@ import dev.shounakmulay.devpulse.core.data.feed.repository.FeedRepository
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedSearchResult
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +36,12 @@ class ExtractOpmlFeedsUseCaseTest {
     private class FakeFeedRepository(
         private val failure: Exception
     ) : FeedRepository {
+        override suspend fun upsertFeed(feed: RssFeed): Unit = error("Unused")
+
+        override fun searchFeeds(query: String, snippetLength: Int): Flow<PagingData<RssFeedSearchResult>> = error("Unused")
+
+        override suspend fun getFeedIdentityBySourceUrl(url: String): RssFeedIdentity? = error("Unused")
+
         override fun getFeedsListFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> = error("Unused")
 
         override fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeed>> = error("Unused")

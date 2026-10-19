@@ -120,13 +120,20 @@ class NavigationState(
     @Composable
     fun toEntries(
         sceneStateHolder: SaveableStateHolder,
-        entryProvider: (Screen) -> NavEntry<Screen>
+        entryProvider: (Screen) -> NavEntry<Screen>,
+        visibilityObserver: NavigationVisibilityObserver = NoOpNavigationVisibilityObserver,
     ): ImmutableList<NavEntry<Screen>> {
+        val observedEntryProvider: (Screen) -> NavEntry<Screen> = { screen ->
+            val entry = entryProvider(screen)
+            NavEntry(key = screen, contentKey = entry.contentKey, metadata = entry.metadata) {
+                NavigationEntryVisibility(screen, visibilityObserver) { entry.Content() }
+            }
+        }
         val tabStacksEntries = tabsBackStacks.mapValues { (_, stack) ->
             rememberDecoratedNavEntries(
                 backStack = stack,
                 entryDecorators = rememberNavEntryDecorators(sceneStateHolder),
-                entryProvider = entryProvider
+                entryProvider = observedEntryProvider
             )
         }
 
@@ -135,7 +142,7 @@ class NavigationState(
             rememberDecoratedNavEntries(
                 backStack = rootScreens,
                 entryDecorators = rememberNavEntryDecorators(sceneStateHolder),
-                entryProvider = entryProvider
+                entryProvider = observedEntryProvider
             )
         ).toMap()
 
@@ -155,7 +162,7 @@ class NavigationState(
 
     @Composable
     private fun rememberNavEntryDecorators(
-        sceneStateHolder: SaveableStateHolder
+        sceneStateHolder: SaveableStateHolder,
     ): List<NavEntryDecorator<Screen>> {
         val sceneCleanupDecorator = remember(sceneStateHolder) {
             NavEntryDecorator<Screen>(
@@ -170,7 +177,7 @@ class NavigationState(
         return listOf(
             rememberSaveableStateHolderNavEntryDecorator<Screen>(),
             rememberViewModelStoreNavEntryDecorator(),
-            sceneCleanupDecorator
+            sceneCleanupDecorator,
         )
     }
 

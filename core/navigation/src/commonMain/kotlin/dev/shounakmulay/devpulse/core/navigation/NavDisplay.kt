@@ -25,6 +25,7 @@ fun NavDisplay(
     tabRoutes: PersistentSet<Screen>,
     windowAdaptiveInfo: WindowAdaptiveInfo,
     navigationSuiteType: NavigationSuiteType,
+    visibilityObserver: NavigationVisibilityObserver = NoOpNavigationVisibilityObserver,
     entryProvider: EntryProviderScope<Screen>.() -> Unit
 ) {
     val sceneStateHolder = rememberSaveableStateHolder()
@@ -68,6 +69,7 @@ fun NavDisplay(
         sceneStrategies = sceneStrategies,
         entries = navigationState.toEntries(
             sceneStateHolder = sceneStateHolder,
+            visibilityObserver = visibilityObserver,
             entryProvider = entryProvider {
                 entryProvider()
             }

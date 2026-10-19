@@ -30,6 +30,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(Modules.Core.Telemetry.API))
             implementation(project(Modules.Core.COMMON))
             implementation(project(Modules.Core.NETWORK))
             implementation(project(Modules.Core.Data.PREFERENCES))

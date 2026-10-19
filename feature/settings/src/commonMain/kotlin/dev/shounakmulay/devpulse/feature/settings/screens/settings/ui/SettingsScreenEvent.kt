@@ -11,6 +11,9 @@ sealed interface SettingsScreenEvent : ScreenEvent {
     data class OnThemeModeSelected(val themeMode: ThemeMode) : SettingsScreenEvent
     data class OnBlackModeToggled(val value: Boolean) : SettingsScreenEvent
     data class OnSyncInBackgroundToggled(val enabled: Boolean) : SettingsScreenEvent
+    data class OnAnalyticsConsentToggled(val enabled: Boolean) : SettingsScreenEvent
+    data class OnDiagnosticsConsentToggled(val enabled: Boolean) : SettingsScreenEvent
+    data object OnPrivacyRetryClicked : SettingsScreenEvent
     data object OnDesignSystemBoardClicked : SettingsScreenEvent
     data object OnLicensesClicked : SettingsScreenEvent
     data object OnArticleSettingsClicked : SettingsScreenEvent

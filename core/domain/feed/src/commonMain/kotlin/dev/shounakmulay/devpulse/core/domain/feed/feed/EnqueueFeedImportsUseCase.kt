@@ -10,6 +10,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.domain.feed.telemetry.FeedImportTelemetry
 import org.koin.core.annotation.Factory
 
 
@@ -18,7 +19,8 @@ class EnqueueFeedImportsUseCase(
     private val rssFeedQueueRepository: RssFeedQueueRepository,
     private val dispatcherProvider: DispatcherProvider,
     private val dateTimeProvider: DateTimeProvider,
-    logger: DPLogger
+    logger: DPLogger,
+    private val telemetry: FeedImportTelemetry = FeedImportTelemetry(),
 ) {
     private val logger = logger.withTag(Tag)
 
@@ -43,6 +45,7 @@ class EnqueueFeedImportsUseCase(
                 queueEntry
             }
             rssFeedQueueRepository.enqueue(entries)
+            telemetry.queued(entries.size)
         }
 
     private fun RssFeedQueueEntry.importLogMessage(): String {

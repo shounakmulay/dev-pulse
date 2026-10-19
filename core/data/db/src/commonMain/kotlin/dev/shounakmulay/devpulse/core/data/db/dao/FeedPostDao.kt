@@ -1,12 +1,10 @@
 package dev.shounakmulay.devpulse.core.data.db.dao
 
-import androidx.paging.PagingSource
 import androidx.room3.Dao
 import androidx.room3.Delete
 import androidx.room3.MapColumn
 import androidx.room3.Query
 import androidx.room3.RawQuery
-import androidx.room3.RoomDatabase
 import androidx.room3.RoomRawQuery
 import androidx.room3.Upsert
 import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
@@ -17,27 +15,10 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCate
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostTag
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostToTagMapping
-import dev.shounakmulay.devpulse.core.data.db.paging.LocalCursorPagingSource
-import dev.shounakmulay.devpulse.core.data.db.paging.LocalRssPostWithFeedMetadataPagingDataProvider
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
-import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FeedPostDao {
-
-    fun getFeedPostPagingSource(
-        database: RoomDatabase,
-        query: LocalFeedPostQuery
-    ): PagingSource<FeedPostCursor, LocalRssPostWithFeedAndSearch> {
-        return LocalCursorPagingSource(
-            database = database,
-            dataProvider = LocalRssPostWithFeedMetadataPagingDataProvider(
-                feedPostDao = this,
-                query = query
-            )
-        )
-    }
 
     @Upsert
     suspend fun upsertPost(post: LocalRssContentFeedPost)

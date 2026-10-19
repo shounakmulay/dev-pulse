@@ -20,6 +20,7 @@ import devpulse.core.resources.generated.resources.add_feed_opml_empty_error
 import devpulse.core.resources.generated.resources.add_feed_opml_no_feeds_error
 import devpulse.core.resources.generated.resources.add_feed_opml_process_error
 import devpulse.core.resources.generated.resources.enter_feed_url
+import dev.shounakmulay.devpulse.core.telemetry.api.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -38,7 +39,8 @@ class AddFeedViewModel(
     private val observeFeedQueueForUrlsUseCase: ObserveFeedQueueForUrlsUseCase,
     private val normalizeUrlUseCase: NormalizeUrlUseCase,
     private val validateUrlUseCase: ValidateUrlUseCase,
-    private val feedImportBackgroundProcessLauncher: FeedImportBackgroundProcessLauncher
+    private val feedImportBackgroundProcessLauncher: FeedImportBackgroundProcessLauncher,
+    private val tracer: Tracer = NoOpTelemetry,
 ) : MviViewModel<AddFeedScreenState, AddFeedScreenEffect>(AddFeedScreenState()),
     EventHandler<AddFeedScreenEvent> {
     override fun createStateSerializer() = AddFeedScreenState.serializer()
@@ -323,7 +325,8 @@ class AddFeedViewModel(
     }
 
     private suspend fun importFeeds(feeds: List<AddFeedData>) {
-        importFeedUseCase(feeds)
+        if (feeds.isEmpty()) return
+        tracer.traceResult(OperationDefinition("feed.enqueue_import")) { importFeedUseCase(feeds) }
         feedImportBackgroundProcessLauncher.launch()
     }
 

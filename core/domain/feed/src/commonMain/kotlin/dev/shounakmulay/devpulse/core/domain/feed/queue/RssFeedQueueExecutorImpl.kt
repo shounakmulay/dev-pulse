@@ -1,5 +1,7 @@
 package dev.shounakmulay.devpulse.core.domain.feed.queue
 
+import dev.shounakmulay.devpulse.core.telemetry.api.*
+import kotlin.time.TimeSource
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.coroutines.runCatchingOnDefault
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
@@ -32,6 +34,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import dev.shounakmulay.devpulse.core.domain.feed.telemetry.FeedImportTelemetry
 import org.koin.core.annotation.Single
 import org.koin.core.component.KoinComponent
 import kotlin.time.Duration.Companion.hours
@@ -46,7 +49,11 @@ internal class RssFeedQueueExecutorImpl(
     private val feedQueueRepository: RssFeedQueueRepository,
     private val dateTimeProvider: DateTimeProvider,
     private val parsedFeedProcessor: ParsedFeedProcessor,
-    logger: DPLogger
+    logger: DPLogger,
+    private val tracer: Tracer = NoOpTelemetry,
+    private val metrics: Metrics = NoOpTelemetry,
+    private val errors: ErrorReporter = NoOpTelemetry,
+    private val importTelemetry: FeedImportTelemetry = FeedImportTelemetry(),
 ) : RssFeedQueueExecutor, KoinComponent {
 
     private val coreBatchHooks by lazy {
@@ -81,38 +88,49 @@ internal class RssFeedQueueExecutorImpl(
         }
     }
 
-    override suspend fun process(): Set<UUID> {
-        return drain()
+    override suspend fun process(): Set<UUID> = drain()
+
+    private suspend fun drain(): Set<UUID> = tracer.trace(OperationDefinition("feed.queue_drain")) {
+        val started = TimeSource.Monotonic.markNow()
+        try {
+            drainQueue()
+        } finally {
+            metrics.record(QueueDuration, started.elapsedNow().inWholeNanoseconds / 1_000_000.0)
+        }
     }
 
-    private suspend fun drain(): Set<UUID> = queueProcessingMutex.withLock {
-        logger.d { "Queue drain started" }
-        val syncedFeeds = mutableSetOf<UUID>()
-        while (true) {
-            val next = feedQueueRepository.getNextToProcess()
-            if (next == null) {
-                logger.d { "Queue drain found no pending item" }
-                break
-            }
-
-            if (next.status !in listOf(
-                    RssFeedQueueStatus.QUEUED,
-                    RssFeedQueueStatus.PROCESSING
-                )
-            ) {
-                logger.w {
-                    "Queue entry skipped id=${next.id} action=${next.actionType} status=${next.status} source=${next.url.sourceSummary()}"
+    private suspend fun drainQueue(): Set<UUID> {
+        val wait = TimeSource.Monotonic.markNow()
+        return queueProcessingMutex.withLock {
+            metrics.record(QueueMutexWait, wait.elapsedNow().inWholeNanoseconds / 1_000_000.0)
+            logger.d { "Queue drain started" }
+            val syncedFeeds = mutableSetOf<UUID>()
+            while (true) {
+                val next = feedQueueRepository.getNextToProcess()
+                if (next == null) {
+                    logger.d { "Queue drain found no pending item" }
+                    break
                 }
-                break
-            }
 
-            val savedFeedId = processEntry(next)
-            if (savedFeedId != null) {
-                syncedFeeds.add(savedFeedId)
+                if (next.status !in listOf(
+                        RssFeedQueueStatus.QUEUED,
+                        RssFeedQueueStatus.PROCESSING
+                    )
+                ) {
+                    logger.w {
+                        "Queue entry skipped id=${next.id} action=${next.actionType} status=${next.status} source=${next.url.sourceSummary()}"
+                    }
+                    break
+                }
+
+                val savedFeedId = processEntry(next)
+                if (savedFeedId != null) {
+                    syncedFeeds.add(savedFeedId)
+                }
             }
+            logger.d { "Queue drain finished" }
+            syncedFeeds
         }
-        logger.d { "Queue drain finished" }
-        syncedFeeds
     }
 
     private suspend fun processEntry(entry: RssFeedQueueEntry): UUID? {
@@ -122,18 +140,28 @@ internal class RssFeedQueueExecutorImpl(
         }
 
         try {
-            return processEntrySync(
-                entry = entry,
-                existingFeedIdentity = existingFeedIdentity,
-                existingSyncMetadata = existingSyncMetadata
-            )
+            return tracer.trace(OperationDefinition("feed.sync_entry")) {
+                processEntrySync(
+                    entry = entry,
+                    existingFeedIdentity = existingFeedIdentity,
+                    existingSyncMetadata = existingSyncMetadata,
+                )
+            }.also {
+                metrics.increment(SyncCompleted)
+                importTelemetry.completed(entry)
+            }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (e: Exception) {
+            errors.capture(e, ErrorContext("feed_sync_failed"))
+            metrics.increment(SyncFailed)
             processEntrySyncError(
                 existingFeedIdentity = existingFeedIdentity,
                 existingSyncMetadata = existingSyncMetadata,
                 entry = entry,
                 exception = e
             )
+            importTelemetry.failed(entry)
             return null
         }
     }
@@ -154,9 +182,6 @@ internal class RssFeedQueueExecutorImpl(
         )
         logger.e(exception) {
             "Queue entry failed id=${entry.id} action=${entry.actionType} source=${entry.url.sourceSummary()}"
-        }
-        if (exception is CancellationException) {
-            throw exception
         }
     }
 
@@ -360,6 +385,10 @@ internal class RssFeedQueueExecutorImpl(
     }
 
     private companion object {
+        val QueueMutexWait = HistogramDefinition("feed.queue_mutex_wait", MetricUnit.Milliseconds)
+        val QueueDuration = HistogramDefinition("feed.queue_duration", MetricUnit.Milliseconds)
+        val SyncCompleted = CounterDefinition("feed.sync_completed")
+        val SyncFailed = CounterDefinition("feed.sync_failed")
         const val Tag = "RssFeedQueueExecutor"
     }
 }

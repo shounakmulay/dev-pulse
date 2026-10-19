@@ -5,6 +5,9 @@ import androidx.paging.PagingState
 import androidx.room3.RoomDatabase
 import dev.shounakmulay.devpulse.core.logging.DPLog
 import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.telemetry.api.ErrorReporter
+import dev.shounakmulay.devpulse.core.telemetry.api.ErrorContext
+import dev.shounakmulay.devpulse.core.telemetry.api.NoOpTelemetry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -17,16 +20,19 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
     private val dataProvider: LocalCursorPagingSourceDataProvider<KEY, VALUE>,
     invalidationEvents: Flow<Unit>,
     invalidationScope: CoroutineScope,
-    private val logger: DPLogger = DPLog.tag("LocalCursorPagingSource")
+    private val logger: DPLogger = DPLog.tag("LocalCursorPagingSource"),
+    private val errors: ErrorReporter = NoOpTelemetry,
 ) : PagingSource<KEY, VALUE>() {
 
     constructor(
         database: RoomDatabase,
-        dataProvider: LocalCursorPagingSourceDataProvider<KEY, VALUE>
+        dataProvider: LocalCursorPagingSourceDataProvider<KEY, VALUE>,
+        errors: ErrorReporter = NoOpTelemetry,
     ) : this(
         dataProvider = dataProvider,
         invalidationEvents = database.createInvalidationFlow(dataProvider),
-        invalidationScope = database.getCoroutineScope()
+        invalidationScope = database.getCoroutineScope(),
+        errors = errors
     )
 
     private val invalidationJob: Job = invalidationEvents
@@ -87,6 +93,7 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            errors.capture(e, ErrorContext("feed_page_failed"))
             logger.e(e) {
                 "Paging load failed type=${params.loadTypeName()} " +
                         "hasKey=${params.hasKey()} loadSize=${params.loadSize} " +

@@ -12,7 +12,13 @@ kotlin {
     iosFrameworks(baseName = "core:data:SettingsKit")
 
     sourceSets {
+        commonTest.dependencies {
+            implementation(libs.kotlinx.coroutines.test)
+        }
+
         commonMain.dependencies {
+            implementation(project(Modules.Core.Telemetry.API))
+            implementation(libs.kotlinx.serialization.json)
             implementation(project(Modules.Core.Data.PREFERENCES))
             implementation(project(Modules.Core.Domain.MODELS))
         }

@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui
 import androidx.compose.runtime.Immutable
 import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
+import dev.shounakmulay.devpulse.core.domain.settings.privacy.TelemetryPrivacyState
 import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
 import kotlinx.serialization.Serializable
 
@@ -13,6 +14,7 @@ data class SettingsScreenState(
     val isBlackMode: Boolean = false,
     val themeMode: ThemeMode = ThemeMode.DEFAULT,
     val syncInBackground: Boolean = true,
+    val privacy: TelemetryPrivacyState = TelemetryPrivacyState(),
 ) : ScreenState {
     fun canToggleBlackMode(isDarkTheme: Boolean): Boolean =
         when (themeMode) {

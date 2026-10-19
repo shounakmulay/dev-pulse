@@ -21,6 +21,7 @@ kotlin {
             }
         }
         commonMain.dependencies {
+            implementation(project(Modules.Core.Telemetry.API))
             implementation(project(Modules.Core.COMMON))
 
             api(libs.androidx.room3.runtime)

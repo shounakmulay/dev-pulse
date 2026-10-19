@@ -125,4 +125,32 @@ class DPLogTest {
         assertTrue(oldSink.entries.isEmpty())
         assertEquals("Configured", newSink.singleEntry().message)
     }
+    @Test
+    fun `Given a throwing sink When logging Then healthy sinks still receive the entry`() {
+        val healthy = TestLogSink()
+        val throwing = object : LogSink {
+            override fun isLoggable(entry: LogEntry): Boolean = true
+            override fun log(entry: LogEntry) { error("sink failed") }
+        }
+        DPLog.configure(DPLogConfig(minLevel = DPLogLevel.Info, sinks = listOf(throwing, healthy)))
+
+        DPLog.i("fixture") { "safe message" }
+
+        assertEquals("safe message", healthy.singleEntry().message)
+    }
+
+    @Test
+    fun `Given a throwing filter When logging Then healthy sinks still receive the entry`() {
+        val healthy = TestLogSink()
+        val throwing = object : LogSink {
+            override fun isLoggable(entry: LogEntry): Boolean = error("filter failed")
+            override fun log(entry: LogEntry) = error("must not receive")
+        }
+        DPLog.configure(DPLogConfig(minLevel = DPLogLevel.Info, sinks = listOf(throwing, healthy)))
+
+        DPLog.i("fixture") { "safe message" }
+
+        assertEquals("safe message", healthy.singleEntry().message)
+    }
+
 }

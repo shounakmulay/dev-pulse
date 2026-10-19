@@ -14,6 +14,8 @@ import dev.shounakmulay.devpulse.feature.feed.navigation.feedFeatureEntries
 import dev.shounakmulay.devpulse.feature.home.navigation.homeFeatureEntries
 import dev.shounakmulay.devpulse.feature.settings.navigation.settingsFeatureEntries
 import kotlinx.collections.immutable.PersistentSet
+import org.koin.compose.koinInject
+import dev.shounakmulay.devpulse.observability.AppNavigationTelemetry
 
 @Composable
 internal fun DevPulseNavDisplay(
@@ -24,6 +26,7 @@ internal fun DevPulseNavDisplay(
     navigationSuiteType: NavigationSuiteType,
 ) {
     AppLevelUiInitialisers()
+    val telemetry = koinInject<AppNavigationTelemetry>()
 
     NavDisplay(
         modifier = Modifier,
@@ -32,6 +35,7 @@ internal fun DevPulseNavDisplay(
         tabRoutes = tabRoutes,
         windowAdaptiveInfo = windowAdaptiveInfo,
         navigationSuiteType = navigationSuiteType,
+        visibilityObserver = telemetry,
         entryProvider = {
             developerToolsFeatureEntries(navigator)
             homeFeatureEntries(navigator)

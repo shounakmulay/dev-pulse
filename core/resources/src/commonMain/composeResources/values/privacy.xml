@@ -1,0 +1,14 @@
+<resources>
+    <string name="privacy_heading">Privacy</string>
+    <string name="privacy_description">Choose what to share. You can use every feature either way.</string>
+    <string name="privacy_analytics">Usage analytics</string>
+    <string name="privacy_analytics_description">Share feature usage to help improve DevPulse.</string>
+    <string name="privacy_diagnostics">Crash and performance reports</string>
+    <string name="privacy_diagnostics_description">Share diagnostic information to help investigate crashes and slowness.</string>
+    <string name="privacy_loading">Loading your privacy choices…</string>
+    <string name="privacy_saving">Saving your choice…</string>
+    <string name="privacy_load_failed">Your privacy choices could not be loaded. Sharing stays off until you try again.</string>
+    <string name="privacy_save_failed">Your choice could not be saved. Any sharing you turned off is paused for this run. Your previous saved choice may return after restarting.</string>
+    <string name="privacy_apply_failed">Sharing controls could not finish updating. Try again to apply your choice.</string>
+    <string name="privacy_retry">Try again</string>
+</resources>
