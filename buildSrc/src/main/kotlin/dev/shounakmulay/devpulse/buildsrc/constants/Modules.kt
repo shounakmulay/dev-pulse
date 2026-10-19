@@ -29,6 +29,12 @@ object Modules {
         const val PERMISSIONS = ":core:permissions"
         const val COMMON = ":core:common"
         const val SYNC = ":core:sync"
+        const val REMOTE_CONFIG = ":core:remoteconfig"
+
+        object Telemetry {
+            const val API = ":core:telemetry:api"
+            const val RUNTIME = ":core:telemetry:runtime"
+        }
 
         object Domain {
             const val FEED = ":core:domain:feed"

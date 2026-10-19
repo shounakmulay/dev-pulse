@@ -60,3 +60,7 @@ include(":bridge:markdownconverter")
 include(":bridge:sqlitevec")
 include(":bridge:readability")
 include(":core:sync")
+
+include(":core:telemetry:api")
+include(":core:telemetry:runtime")
+include(":core:remoteconfig")
