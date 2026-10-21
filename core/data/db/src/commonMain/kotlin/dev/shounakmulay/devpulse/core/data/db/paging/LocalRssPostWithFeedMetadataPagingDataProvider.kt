@@ -27,6 +27,8 @@ class LocalRssPostWithFeedMetadataPagingDataProvider(
             addAll(
                 listOf(
                     ContentFeedPostTableName,
+                    "LocalRssPostUserState",
+                    "LocalRssFeedUserState",
                     FeedTableName,
                     PostCategoryTableName,
                     PostTagMappingTableName,

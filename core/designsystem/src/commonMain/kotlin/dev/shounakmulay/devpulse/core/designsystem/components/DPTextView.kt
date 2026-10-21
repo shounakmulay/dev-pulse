@@ -238,6 +238,8 @@ fun DPTextDot(
         modifier = modifier,
         color = if (isDarkTheme) MaterialTheme.colorScheme.surfaceBright else MaterialTheme.colorScheme.surfaceDim,
         text = "•",
-        variant = variant
+        variant = variant,
+        overflow = TextOverflow.Clip,
+        maxLines = 1
     )
 }

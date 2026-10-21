@@ -48,7 +48,7 @@ internal fun FeedDetailScreenState.FeedDetailTopAppBar(
         actions = {
             DPIconButton(
                 modifier = Modifier.rotate(45f),
-                icon = if (feed?.pinned == true) DPIcons.Pin else DPIcons.PinOutlined,
+                icon = if (uiFeed?.pinned == true) DPIcons.Pin else DPIcons.PinOutlined,
                 contentDescription = stringResource(stringRes.pin_feed),
                 variant = DPIconButtonVariant.Tertiary,
                 onClick = onPinToggled

@@ -26,8 +26,6 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedIt
         Index(value = ["fingerprint"], unique = true),
         Index(value = ["publishedAtEpochMillis", "updatedAt", "id"]),
         Index(value = ["feedId", "publishedAtEpochMillis", "updatedAt", "id"]),
-        Index(value = ["bookmarked", "publishedAtEpochMillis", "updatedAt", "id"]),
-        Index(value = ["feedId", "bookmarked", "publishedAtEpochMillis", "updatedAt", "id"]),
         Index(value = ["updatedAt", "id"]),
         Index(value = ["createdAt", "id"]),
         Index(value = ["title", "id"])
@@ -58,8 +56,6 @@ data class LocalRssContentFeedPost(
     val sourceUrl: String = "",
     val categories: String,
     val commentsUrl: String?,
-    @ColumnInfo(defaultValue = "0")
-    val bookmarked: Boolean = false,
     @Embedded(prefix = "youtubeData_")
     val youtubeData: LocalRssFeedItemYoutubeData?,
     @Embedded(prefix = "rawEnclosure_")

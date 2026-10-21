@@ -71,7 +71,6 @@ class RssPostMapper(
             sourceUrl = item.sourceUrl.orEmpty(),
             categories = item.categories.joinToString(),
             commentsUrl = item.commentsUrl,
-            bookmarked = existingIdentity?.bookmarked ?: false,
             youtubeData = item.youtubeItemData?.let { mapYoutubeData(it) },
             rawEnclosure = item.rawEnclosure?.let { mapRawEnclosure(it) },
             rawMedia = item.rawMediaContent?.let { mapRawMediaContent(it) },
@@ -126,7 +125,6 @@ class RssPostMapper(
             sourceUrl = from.sourceUrl,
             categories = from.categories.split(",").map { it.trim() }.filter { it.isNotBlank() },
             commentsUrl = from.commentsUrl,
-            bookmarked = from.bookmarked,
             youtubeItemData = from.youtubeData?.toRssFeedItemYoutubeData(),
             rawEnclosure = from.rawEnclosure?.toRssFeedItemRawEnclosure(),
             rawMediaContent = from.rawMedia?.toRssFeedItemMediaContent(),
@@ -154,7 +152,6 @@ class RssPostMapper(
             sourceUrl = from.sourceUrl.orEmpty(),
             categories = from.categories.joinToString(","),
             commentsUrl = from.commentsUrl,
-            bookmarked = from.bookmarked,
             pubDate = from.pubDate,
             publishedAtEpochMillis = from.publishedAtMillis,
             youtubeData = from.youtubeItemData?.let { mapFromYoutubeData(it) },
@@ -169,7 +166,6 @@ class RssPostMapper(
         return RssFeedPostIdentity(
             id = uuidMapper.toUuid(from.id),
             fingerprint = from.fingerprint,
-            bookmarked = from.bookmarked,
             createdAt = from.createdAt,
             updatedAt = from.updatedAt
         )
@@ -179,7 +175,6 @@ class RssPostMapper(
         return LocalRssContentFeedPostIdentitySlice(
             id = uuidMapper.fromUuid(from.id),
             fingerprint = from.fingerprint,
-            bookmarked = from.bookmarked,
             createdAt = from.createdAt,
             updatedAt = from.updatedAt
         )

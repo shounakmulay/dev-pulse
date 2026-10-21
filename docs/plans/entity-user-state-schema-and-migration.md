@@ -1,19 +1,16 @@
 # Separate feed and post entities from user state
 
-This document defines the proposed schema, application changes, and two ways to adopt it. It supplements the [read and unread feature plan](./post-read-unread-plan.md). Source and exported schema inspection occurred on 17 October 2026. The separation is agreed in this conversation. Application implementation, database resets, and migration execution are not part of this documentation task.
+This document defines the proposed entity/user-state schema, its one-time baseline reset, and the migration policy afterward. It supplements the [read and unread feature plan](./post-read-unread-plan.md). Source inspection occurred on 17 October 2026. The user selected a new version 1 baseline on 19 October 2026 because the app has no users. This documentation update does not execute database changes or reset an installation.
 
-## Select one target schema and one adoption path
+## Establish the new version 1 baseline
 
-Both adoption paths produce the same schema and application behavior. A fresh installation already creates the latest schema, including when the application also supports upgrade migrations. The choice is whether to preserve databases created by earlier development builds.
+Complete the database changes for this feature, then make the resulting schema the new `BASE = 1`. There is no upgrade migration or backfill from the previous development schema. Old development databases and the previous migration history are retired from the supported lineage.
 
-| Path | Use it when | Cost and limitation |
-| --- | --- | --- |
-| A. Preserve existing databases | Any development or test installation has subscriptions, bookmarks, pins, cached articles, or other database data worth retaining. | Implement and verify an upgrade migration, including external-content FTS and foreign keys. |
-| B. Make this the fresh baseline | Every existing installation and database fixture can deliberately be replaced. The user reports that the app is unreleased. | Implement only the target schema and application changes. Old databases require an explicitly agreed reset or a later supported migration. |
+Create fresh databases with the complete target schema, including both user-state tables, current discovery tables, FTS, indexes, and triggers. Both user-state tables begin empty. Missing state means unread, unbookmarked, unpinned, reading revision zero, and no opening timestamp.
 
-Recommend Path B for the unreleased app if the existing development data is disposable. Unreleased does not itself prove that every tester's data is disposable. Keep Path A documented as the preservation alternative. This recommendation does not authorize clearing any installed database.
+This is the only baseline reset. After this feature is complete, every database schema change requires a version increment, an exported schema, and a tested migration from the established baseline lineage. This applies before release as well as after release. Do not reintroduce an unreleased-app exception.
 
-The query, mapper, repository, UI, search, filtering, and paging work below is required under both paths. Choosing a fresh baseline removes migration engineering. It does not remove application changes.
+The ownership, query, mapper, repository, UI, search, filtering, and paging changes below remain required. Resetting the baseline removes legacy migration and backfill work. It does not remove those application changes.
 
 ## Establish the current source facts
 
@@ -65,7 +62,7 @@ Use zero or one state row per entity. A missing post row means unread, unbookmar
 
 Once an operation has created a state row, retain it while the parent exists, including after setting every value back to its default. In particular, deleting a post state row would erase `readRevision` and allow stale reading commands to treat it as untouched again.
 
-The preservation migration can seed rows for every existing entity. Fresh imports can remain sparse. Both representations must return identical effective values. Preserve UUIDs and fingerprints. Do not deduplicate state by URL across feeds.
+Do not seed rows from old entities or backfill old user fields. Fresh imports can remain sparse, and state commands create rows on first mutation. Preserve UUIDs and fingerprints across subsequent content refreshes within the new database. Do not deduplicate state by URL across feeds.
 
 ### Separate writers inside the user-state table
 
@@ -205,108 +202,52 @@ Retain the unique source URL and fingerprint indexes, parent feed relationships,
 
 The old composite indexes could combine bookmark filtering and content ordering inside one table. An index cannot span the new state and content tables. The planner may scan content in sort order and probe state, or begin with matching state and sort joined content. Sparse and dense distributions can favor different plans. Do not copy publication dates into state to imitate the old indexes before measuring the actual cost.
 
-## Path A. Preserve development databases through migration
+## Create the new baseline once
 
-### Register a new explicit upgrade
+### Reset schema history together with the final entity definitions
 
-Use the next unused version. Based on the inspected source, that is a proposed version 4 with a constant such as `ENTITY_USER_STATE`. Preserve schema exports 1, 2, and 3 and their existing auto-migration edges. Register an explicit 3-to-4 migration through the supported Room migration builder API. Verify supported older-version upgrade paths in tests.
+- [ ] Complete the user-state entity, DAO, projection, query, and caller changes before finalizing the baseline export.
+- [ ] Set `SchemaVersions.BASE = 1` and use it as the database version. Remove the old discovery version constants and the old 1-to-2 and 2-to-3 auto-migration declarations.
+- [ ] Remove migration specifications that have no remaining caller, including the old discovery search migration if it is used only by the retired lineage. Retain any reusable fresh-creation logic still needed by the new schema.
+- [ ] Replace the previous development schema exports with the generated final `1.json`. Remove retired exports 2 and 3 from the active Room schema directory. Git retains the previous history. Generate the new identity hash through Room rather than editing JSON by hand.
+- [ ] Regenerate fixtures and any actual bundled database artifacts for the complete new schema. Keep the current discovery tables and their seed behavior. Do not mistake a discovery JSON seed for a complete Room database snapshot.
+- [ ] Recreate development databases when running the new baseline. The previous development version 1 is structurally different from the new version 1. Changing the integer alone cannot make an existing file compatible. Do not add a 3-to-1 downgrade or a legacy backfill path.
+- [ ] Verify creation, reopen, imports, offline content, bookmarks, pinning, reading state, search, filters, paging, and database observation on a freshly created database.
 
-Use an explicit migration because values must be copied before their old columns are removed. An auto-migration that only creates tables and deletes columns does not establish that preservation order.
+Do not ship an automatic destructive-migration fallback. Subsequent schema versions must upgrade through the migration policy below. This turn updates the plan only. No installed database has been deleted or recreated.
 
-Stop old application writers by performing the upgrade during normal database opening before exposing DAOs and starting feed workers. Use the migration transaction managed by Room. Do not toggle foreign keys inside an already-running migration transaction.
+### Preserve runtime relationships within the new baseline
 
-### Create and backfill before removing columns
+Feed and post metadata FTS use parent SQLite row IDs. Child relationships use UUID foreign keys. Verify that fresh creation installs the Room-managed FTS synchronization triggers and [the custom content-FTS delete trigger](../../core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/triggers/PostTriggers.kt).
 
-The SQL below defines the proposed core transformation. It is a design fragment, not an already-registered Room migration. The final exported schema must validate column defaults, foreign-key actions, and the chosen state indexes.
+After import, test content inserts, updates, and deletes through actual DAOs. A publisher refresh must preserve existing state. A real deletion must cascade state and perform existing content-FTS cleanup. Do not implement parent refresh through `INSERT OR REPLACE`, which can delete child state.
 
-```sql
-CREATE TABLE LocalRssPostUserState (
-    postId TEXT NOT NULL PRIMARY KEY,
-    isRead INTEGER NOT NULL DEFAULT 0,
-    bookmarked INTEGER NOT NULL DEFAULT 0,
-    readRevision INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY (postId) REFERENCES LocalRssContentFeedPost(id)
-        ON UPDATE NO ACTION ON DELETE CASCADE
-);
+Run Room schema validation and foreign-key checks on the new database. External-content FTS matches, highlights, and later index maintenance must work. Legacy row-ID preservation during an upgrade is no longer a requirement for this one-time reset. Normal row-ID and relationship correctness within the new database remains required.
 
-CREATE TABLE LocalRssFeedUserState (
-    feedId TEXT NOT NULL PRIMARY KEY,
-    pinned INTEGER NOT NULL DEFAULT 0,
-    lastOpenedAt INTEGER DEFAULT NULL,
-    FOREIGN KEY (feedId) REFERENCES LocalRssFeed(id)
-        ON UPDATE NO ACTION ON DELETE CASCADE
-);
+## Require migrations for every later schema change
 
-INSERT INTO LocalRssPostUserState(postId, isRead, bookmarked, readRevision)
-SELECT id, 0, bookmarked, 0 FROM LocalRssContentFeedPost;
+Freeze the generated new `1.json` when this feature is complete. The next schema change becomes version 2 with a tested 1-to-2 migration. Later changes continue that lineage. Keep every established historical schema immutable.
 
-INSERT INTO LocalRssFeedUserState(feedId, pinned, lastOpenedAt)
-SELECT id, pinned, lastOpenedAt FROM LocalRssFeed;
+The policy covers tables, columns, defaults, nullability, primary and foreign keys, indexes, FTS configuration, and database triggers. Trigger changes made outside Room annotations still require a database version change and a migration that updates already-created databases. Editing `onCreate` alone does not upgrade an existing installation.
 
-DROP INDEX index_LocalRssFeed_pinned_id;
-DROP INDEX index_LocalRssContentFeedPost_bookmarked_publishedAtEpochMillis_updatedAt_id;
-DROP INDEX index_LocalRssContentFeedPost_feedId_bookmarked_publishedAtEpochMillis_updatedAt_id;
+For each later schema change, require the following evidence.
 
-ALTER TABLE LocalRssContentFeedPost DROP COLUMN bookmarked;
-ALTER TABLE LocalRssFeed DROP COLUMN pinned;
-ALTER TABLE LocalRssFeed DROP COLUMN lastOpenedAt;
-```
+- [ ] Increment the database version and generate its new schema export.
+- [ ] Supply and register a manual migration or a Room auto-migration with the required specification. An exported file alone is not a migration.
+- [ ] Preserve established schema exports. Do not rewrite `1.json` or any later historical export to make a schema diff disappear.
+- [ ] Test every supported baseline-to-current upgrade route against the real Room driver, including representative persisted user state.
+- [ ] Validate migrated structure against fresh creation at the target version. Verify foreign keys, FTS, triggers, user-state preservation, and post-upgrade content writes.
+- [ ] Keep destructive fallback and another baseline reset out of the upgrade path.
 
-Existing posts start unread at reading revision 0. Migrating a true bookmark is not a reading command. Preserve both true and false bookmarks, both pin values, null and non-null last-opened values, IDs, ingestion timestamps, and all content. Create any selected state indexes after the copy.
+Add a proposed CI schema-history check after establishing the new baseline. Compare against the PR merge base. Reject edits or deletion of established schema exports. When the generated structure changes, require a higher version, its new export, and migration tests proving a registered path. Include a check for versioned custom trigger definitions because Room's exported schema does not fully describe their behavior. This enforcement is planned, not implemented in this documentation task.
 
-Prefer in-place column removal over parent-table rebuilds, provided the app's actual SQLite runtime and Room migration lifecycle support it. Verify dependent indexes, triggers, views, and runtime capabilities first. Do not assume that a Python SQLite result proves the bundled app driver supports the same operation.
-
-### Protect row IDs, foreign keys, and FTS
-
-Feed and post metadata FTS currently identify content through the parent's implicit `rowid`, while child tables use UUID foreign keys. Preserving UUIDs alone is insufficient for a table rebuild. A rebuild can change row IDs, trigger cascading deletions, or run the custom post-delete trigger against extracted article FTS.
-
-Inventory relevant `sqlite_master` definitions from a test database opened by the current Room implementation. Capture Room-managed FTS synchronization triggers and [the custom content-FTS delete trigger](../../core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/triggers/PostTriggers.kt). Verify that dropping only user columns leaves those definitions valid. Room may manage FTS triggers during migration, so test subsequent inserts, content updates, and deletes after reopening, not only pre-existing search results.
-
-Do not drop parent tables or use `INSERT OR REPLACE` as a convenient migration or refresh primitive. If in-place removal fails the actual runtime gate, redesign the migration with a fully specified preservation procedure. Do not substitute an untested drop-and-copy recipe. Path B remains available if preserving these databases is no longer needed.
-
-The custom delete trigger is currently installed in `onCreate`. Confirm it exists after upgrade as well as fresh creation. If the chosen migration path removes it, explicitly restore it through the correct migration hook. Rebuild external-content FTS only if required by the verified Room migration behavior, and use the preserved current parent row IDs. Preserve standalone article-content FTS separately.
-
-### Verify preservation before accepting the upgrade
-
-- [ ] Upgrade a database containing multiple feeds, gapped parent row IDs, bookmarks, pins, null and non-null last-opened values, cached bodies, categories, tags, queue entries, sync metadata, and discovery content.
-- [ ] Compare all preserved values and parent row IDs against the pre-upgrade fixture. Confirm every post is initially unread with reading revision 0.
-- [ ] Validate the migrated database against the target Room schema and compare its structure with a freshly created target database. Sparse row contents can differ while effective query results agree.
-- [ ] Run `PRAGMA foreign_key_check` and the appropriate FTS integrity and match checks. Verify highlights, snippets, rank, and extracted content search.
-- [ ] Insert, update, and delete through the actual DAOs after migration and reopen. Confirm Room-managed FTS triggers, custom cleanup, and state cascades still work.
-- [ ] Exercise every supported old version to the target, including 1-to-2-to-3-to-4 and 2-to-3-to-4 if those versions remain supported. Do not label unrun paths verified.
-- [ ] Inject failure after backfill and before column removal completes. Confirm rollback leaves the old database usable without a partial upgrade.
-
-There is no planned downgrade. Keep a supported backup before a real preservation migration, using a consistent database backup procedure that accounts for WAL. Do not copy an actively written database file and assume the copy is complete. The app must not attempt to open the new schema with an older binary.
-
-## Path B. Adopt the target as the unreleased baseline
-
-### Keep a distinct schema identity
-
-Use the same target entities and query implementation, but omit the 3-to-4 migration. Prefer the next version number, currently proposed as 4, even when the build supports only newly created databases. A baseline is a schema contract, not a requirement to call it version 1.
-
-Remove obsolete auto-migration declarations from the fresh-only database configuration. Generate the target schema export with the existing Room tooling. Historical exports can remain as historical evidence unless a separate cleanup is agreed. Do not edit old schema JSON files by hand to imitate the new shape.
-
-Do not replace exported version 3 with a structurally different version 3. Existing databases carry a Room identity hash, and the same version number does not make incompatible layouts interchangeable. If the team explicitly chooses to restart numbering at version 1, do it only after intentionally retiring every old database and replacing the whole schema history consistently. It provides no runtime benefit over a distinct new version and is not the recommendation.
-
-### Replace development data deliberately
-
-- [ ] Identify every Android installation, iOS simulator or device, Desktop database, test fixture, and backup that the build is expected to open.
-- [ ] Decide whether each can be discarded. If any must survive, select Path A or retain an explicit supported conversion for that database.
-- [ ] Obtain the specific reset decision before clearing a real installation. This document grants no deletion permission.
-- [ ] Recreate the database through the normal app startup on the intentionally reset installation. A fresh database starts with no subscriptions or local user state until import and user actions populate it.
-- [ ] Regenerate fixtures and any bundled or prebuilt database artifacts that actually use `DevPulseDatabase`. The current discovery JSON seed is not automatically a full Room database snapshot.
-- [ ] Test an old database against the fresh-only build. It must require the documented intentional reset or supported conversion. Do not silently fall back to destructive migration.
-- [ ] Verify fresh create, process restart, imports, offline cache, pinning, bookmarking, reading state, search, filtering, and pagination on the target.
-
-OPML can restore subscriptions if a working export exists. It is not a replacement for bookmarks, pin state, cached content, or reading state. This task has not established a complete export or backup implementation. Do not promise restoration from a capability that has not been verified.
-
-The fresh-only decision does not remove future migration obligations. Once any build's data must survive upgrades, keep its exported schema and add tested migration paths for subsequent changes.
+Normal row inserts, state updates, and catalog refreshes within an unchanged schema do not need schema migrations. The rule governs changes to the stored database structure and its versioned behavior.
 
 ## Deliver the change in verifiable units
 
-The throughput checkpoint for this documentation task is n/a. For implementation, complete one coherent schema-and-caller change before adding reading interactions. Both schema adoption paths use the same application units.
+The throughput checkpoint for this documentation task is n/a. For implementation, complete one coherent schema-and-caller change before adding reading interactions. Use the selected new version 1 baseline for this feature.
 
-1. **Select the adoption path.** Record preservation versus intentional fresh baseline, actual schema version, supported installations, and current test baseline. This is the remaining data-retention decision.
+1. **Establish the selected baseline.** Finish the entity/user-state redesign, generate the new version 1 schema, retire the previous development lineage, and record the test baseline. Migration and backfill choices are resolved.
 2. **Separate ownership across persistence and callers.** Add state entities, DAOs, projections, domain aggregates, and narrow setters. Remove old entity fields and preservation copying. Update every query and mapper in the same unit so the target compiles without dual writes.
 3. **Prove existing behavior survives.** Verify bookmarks, pins, refresh interleavings, feed search, post search, all existing filters, both pagination strategies, and observers before enabling automatic read marking.
 4. **Add reading UX and filtering.** Execute the reader-visit, manual controls, status filter, empty states, and conditional Undo phases in the feature plan, using `readRevision` rather than a universal state revision.
@@ -327,7 +268,7 @@ No implementation, build, commit, PR, deployment, or data reset has been execute
 | Feed search rank ties and feed-list sort ties | Stable ordering by the documented UUID tie-breaker, with correct state values after a pin action. |
 | State changes on another screen | Detail, recent previews, feed lists, pinned feeds, and active search update through observation. Verify the custom provider's table list as well as Room static-query tracking. |
 | Counts and bulk action span unloaded pages | Count and exact matching IDs agree with the same predicates. Bulk does not stop at loaded rows or reverse later bookmarks. |
-| Migration or fresh startup | Actual Room validation passes, parent-child relationships survive or begin empty as intended, and FTS continues working after later content writes. |
+| Fresh version 1 startup | Actual Room validation passes, user-state tables begin empty, and parent-child relationships and FTS work after imports and later content writes. |
 
 Use the targeted Gradle and live-platform checks in the feature plan after confirming current task names. Run the existing baseline first and distinguish unrelated test drift or KSP failures from this work. Native interaction checks must include narrow and two-pane Android, iOS, and Desktop. Compilation alone does not establish paging stability or visible reader behavior.
 
@@ -335,8 +276,8 @@ Measure first page, append, prepend, anchor refresh, feed search, and state-chan
 
 ## Record what was checked for this document
 
-Current source, exported schema 3, index definitions, and query callers were inspected. An isolated in-memory probe recreated the exported table DDL using Python SQLite 3.53.1. It passed state backfill, in-place column removal, preservation of gapped feed and post row IDs, feed and post FTS matches, foreign-key checks, isolated bookmark and read writes, content-update preservation, missing-state unread filtering, and cascading deletion.
+Earlier source, exported schema 3, index definitions, and query callers were inspected. An isolated Python SQLite 3.53.1 probe checked an earlier preservation proposal. That proposal is superseded by the selected version 1 baseline reset. The probe is not evidence that the new baseline has been created or verified.
 
-That probe did not use the app's `BundledSQLiteDriver`, Room migration validation, Room-managed FTS synchronization triggers, custom paging runtime, or a device. Those checks remain required implementation evidence. The system Python SQLite lacked the trigram tokenizer, so the probe used the bundled workspace Python runtime. No live database was opened or modified.
+That probe did not use the app's `BundledSQLiteDriver`, Room migration validation, Room-managed FTS synchronization triggers, custom paging runtime, or a device. Fresh creation and runtime checks remain required implementation evidence. Migration checks become mandatory for every subsequent schema change. The system Python SQLite lacked the trigram tokenizer, so the probe used the bundled workspace Python runtime. No live database was opened or modified.
 
-Model the Domain shaped the content/user-state boundary and field-specific reading revision. Make Operations Idempotent shaped explicit-target setters and conditional Undo. Experience First retained existing search meaning and paging behavior while moving their storage dependencies. The strongest counterargument remains join and migration cost. If measured query performance is unacceptable, compare targeted indexes and publisher-only update contracts before adding duplicated content fields or denormalized counters.
+Model the Domain shaped the content/user-state boundary and field-specific reading revision. Make Operations Idempotent shaped explicit-target setters and conditional Undo. Experience First retained existing search meaning and paging behavior while moving their storage dependencies. The remaining design cost is joined query complexity and performance. Future changes also carry the required migration work. If measured query performance is unacceptable, compare targeted indexes and publisher-only update contracts before adding duplicated content fields or denormalized counters.

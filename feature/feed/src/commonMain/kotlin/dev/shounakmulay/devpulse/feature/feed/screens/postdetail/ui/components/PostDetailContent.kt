@@ -40,14 +40,18 @@ import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
 import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
 import dev.shounakmulay.devpulse.core.ui.transition.sharedBounds
+import dev.shounakmulay.devpulse.feature.feed.components.postRead.PostReadMenu
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.components.markdown.DPMarkdown
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.PostDetailScreenState
-import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.PostDetailScreenSection
+import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.ReaderVisitReadDecision
+import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.readerBodyMarkdown
 
 @Composable
 internal fun PostDetailContent(
     state: PostDetailScreenState,
+    onReadChanged: (UUID, Boolean) -> Unit = { _, _ -> },
+    onBodyVisible: () -> Unit = {},
     listState: LazyListState,
     onBookmarkChanged: (Boolean) -> Unit,
     onOpenInWebView: (String) -> Unit,
@@ -56,10 +60,15 @@ internal fun PostDetailContent(
     onNavigateToFeed: (UUID) -> Unit
 ) {
     DPMarkdown(
-        markdown = when (state.selectedSection) {
-            PostDetailScreenSection.RSS -> state.rssContent?.content
-            PostDetailScreenSection.EXTRACTED -> state.content?.content
-        }.orEmpty(),
+        markdown = readerBodyMarkdown(
+            section = state.selectedSection,
+            article = state.content?.content,
+            rss = state.rssContent?.content,
+            description = state.post?.summary,
+        ),
+        bodyReadEnabled = state.post != null &&
+                state.readVisit.decision == ReaderVisitReadDecision.Pending,
+        onBodyVisible = onBodyVisible,
         listState = listState,
         header = {
             postDetailContentHeader(
@@ -68,6 +77,7 @@ internal fun PostDetailContent(
                 onFeedClick = onNavigateToFeed
             )
             postDetailContentHeaderActions(
+                onReadChanged = onReadChanged,
                 post = state.post,
                 onBookmarkChanged = onBookmarkChanged,
                 onOpenInWebView = onOpenInWebView,
@@ -80,6 +90,7 @@ internal fun PostDetailContent(
 }
 
 private fun LazyListScope.postDetailContentHeaderActions(
+    onReadChanged: (UUID, Boolean) -> Unit,
     post: UIFeedPost?,
     onBookmarkChanged: (Boolean) -> Unit,
     onOpenInWebView: (String) -> Unit,
@@ -134,6 +145,7 @@ private fun LazyListScope.postDetailContentHeaderActions(
                     ) {
                         post.articleUrl?.let { url -> onOpenInWebView(url) }
                     }
+                    PostReadMenu(post = post, onReadChanged = onReadChanged)
                     val sharingService = rememberSharingService {
                         //TODO : Show toast
                     }

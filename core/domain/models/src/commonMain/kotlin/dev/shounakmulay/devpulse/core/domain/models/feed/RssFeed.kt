@@ -4,7 +4,6 @@ import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 
 data class RssFeed(
     val id: UUID,
-    val pinned: Boolean,
     val name: String?,
     val sourceUrl: String,
     val title: String?,
@@ -16,5 +15,4 @@ data class RssFeed(
     val youtubeChannel: RssFeedYoutubeChannel?,
     val createdAt: Long,
     val updatedAt: Long,
-    val lastOpenedAt: Long?
 )

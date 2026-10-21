@@ -8,6 +8,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddLink
 import androidx.compose.material.icons.filled.AddToQueue
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
@@ -23,10 +24,12 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.FormatLineSpacing
 import androidx.compose.material.icons.filled.FormatSize
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.OpenInBrowser
+import androidx.compose.material.icons.filled.Pending
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Remove
@@ -89,9 +92,11 @@ object DPIcons {
     val BookmarkAddOutline = Icons.Outlined.BookmarkAdd
     val BookmarkAdded = Icons.Default.BookmarkAdded
     val ChevronUp = Icons.Default.KeyboardArrowUp
+    val ChevronDown = Icons.Default.KeyboardArrowDown
     val ChevronLeft = Icons.AutoMirrored.Default.KeyboardArrowLeft
     val ChevronRight = Icons.AutoMirrored.Default.KeyboardArrowRight
     val Check = Icons.Default.Check
+    val Pending = Icons.Default.Pending
     val ArrowUp = Icons.Default.ArrowUpward
     val ArrowDownward = Icons.Default.ArrowDownward
     val ArrowBack = Icons.AutoMirrored.Default.ArrowBack
@@ -114,4 +119,6 @@ object DPIcons {
     val Search = Icons.Default.Search
     val ExpandContent = ExpandContentIcon
     val CollapseContent = CollapseContentIcon
+    val AddLink = Icons.Default.AddLink
+    val Open = Icons.AutoMirrored.Default.OpenInNew
 }

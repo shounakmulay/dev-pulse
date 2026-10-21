@@ -4,6 +4,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedUserStateDao
+import dev.shounakmulay.devpulse.core.common.coroutines.safeRunCatching
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithUserState
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.db.query.FtsQuerySanitizer
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
@@ -29,6 +32,7 @@ internal class FeedRepositoryImpl(
     private val opmlParser: OpmlParser,
     private val networkClient: DevPulseNetworkClient,
     private val feedDao: FeedDao,
+    private val feedUserStateDao: FeedUserStateDao,
     private val rssFeedMapper: RssFeedMapper,
     private val uuidMapper: UuidMapper,
     private val ftsQuerySanitizer: FtsQuerySanitizer
@@ -37,7 +41,7 @@ internal class FeedRepositoryImpl(
         feedDao.upsertFeed(rssFeedMapper.toLocalRssFeed(feed))
     }
 
-    override fun getFeedsListFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {
+    override fun getFeedsListFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeedWithUserState>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = {
@@ -69,7 +73,7 @@ internal class FeedRepositoryImpl(
         }
     }
 
-    override fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeed>> {
+    override fun getPinnedFeedFlow(pagingConfig: PagingConfig): Flow<PagingData<RssFeedWithUserState>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = {
@@ -83,12 +87,12 @@ internal class FeedRepositoryImpl(
             }
     }
 
-    override fun getFeed(id: UUID): Flow<RssFeed> {
+    override fun getFeed(id: UUID): Flow<RssFeedWithUserState> {
         return feedDao.observeFeed(uuidMapper.fromUuid(id))
             .map(rssFeedMapper::toRssFeed)
     }
 
-    override fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeed>> {
+    override fun getPinnedAndRecentFeeds(maxCount: Int): Flow<List<RssFeedWithUserState>> {
         return feedDao.getPinnedAndRecentFeeds(maxCount).map {
             it.map { feed ->
                 rssFeedMapper.toRssFeed(feed)
@@ -122,8 +126,8 @@ internal class FeedRepositoryImpl(
     }
 
     override suspend fun setFeedPinned(id: UUID, pinned: Boolean): Result<Unit> {
-        return runCatching {
-            feedDao.setFeedPinned(id = uuidMapper.fromUuid(id), pinned = pinned)
+        return safeRunCatching {
+            feedUserStateDao.setPinned(feedId = uuidMapper.fromUuid(id), pinned = pinned)
         }
     }
 
