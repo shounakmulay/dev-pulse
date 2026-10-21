@@ -1,8 +1,10 @@
 package dev.shounakmulay.devpulse.core.ui.image
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -14,19 +16,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import coil3.ColorImage
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
-import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
-import dev.shounakmulay.devpulse.core.resources.stringRes
-import devpulse.core.resources.generated.resources.feed_image_content_description
-import org.jetbrains.compose.resources.stringResource
+
+private enum class DPImageState { Loading, Loaded, Error }
 
 @Composable
 fun DPImage(
@@ -38,39 +38,44 @@ fun DPImage(
     placeholder: @Composable (modifier: Modifier) -> Unit = {},
     fallbackContent: @Composable (modifier: Modifier) -> Unit = {}
 ) {
-    var showErrorFallback by remember(url) {
-        mutableStateOf(false)
-    }
-    var isLoading by remember(url) {
-        mutableStateOf(true)
+    var state by remember(url) {
+        mutableStateOf(DPImageState.Loading)
     }
 
-    if (showErrorFallback) {
-        fallbackContent(modifier)
-    }
-
-    if (!showErrorFallback) {
+    Box(
+        modifier = modifier,
+        contentAlignment = alignment,
+        propagateMinConstraints = true,
+    ) {
         AsyncImage(
-            modifier = modifier,
             model = url,
-            contentDescription = contentDescription,
+            contentDescription = contentDescription.takeIf { state == DPImageState.Loaded },
             contentScale = contentScale,
             alignment = alignment,
             onLoading = {
-                isLoading = true
+                state = DPImageState.Loading
             },
             onSuccess = {
-                isLoading = false
+                state = DPImageState.Loaded
             },
             onError = {
-                showErrorFallback = true
-                isLoading = false
+                state = DPImageState.Error
             },
         )
-    }
-
-    if (isLoading && !showErrorFallback) {
-        placeholder(modifier)
+        if (state != DPImageState.Loaded) {
+            Box(
+                modifier = Modifier.matchParentSize()
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .semantics { this.contentDescription = contentDescription },
+                contentAlignment = alignment,
+            ) {
+                when (state) {
+                    DPImageState.Loading -> placeholder(Modifier.fillMaxSize())
+                    DPImageState.Error -> fallbackContent(Modifier.fillMaxSize())
+                    DPImageState.Loaded -> Unit
+                }
+            }
+        }
     }
 }
 

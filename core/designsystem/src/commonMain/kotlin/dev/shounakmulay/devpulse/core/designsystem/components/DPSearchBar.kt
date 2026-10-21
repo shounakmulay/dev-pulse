@@ -2,7 +2,6 @@ package dev.shounakmulay.devpulse.core.designsystem.components
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -18,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
@@ -45,11 +43,11 @@ fun DPSearchTopAppBar(
         modifier = modifier,
         colors = appBarColors ?: TopAppBarDefaults.topAppBarColors(),
         scrollBehavior = scrollBehavior,
-        navigationIcon = { navigationIcon(Modifier.padding(bottom = 6.dp)) },
+        navigationIcon = { navigationIcon(Modifier) },
         actions = actions,
         title = {
             DPTextField(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp).then(inputModifier),
+                modifier = inputModifier.fillMaxWidth(),
                 value = textValue,
                 onValueChange = onTextValueChange,
                 variant = DPTextFieldVariant.Filled,
