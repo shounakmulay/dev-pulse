@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.paging.compose.collectAsLazyPagingItems
-import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPLinearProgressIndicator
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSearchTopAppBar
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
@@ -24,7 +24,7 @@ import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
-import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
+import dev.shounakmulay.devpulse.core.ui.grid.adaptiveRowsCount
 import dev.shounakmulay.devpulse.core.ui.text.resolve
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryCollectionShelf
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryFeedDetailsBottomSheet
@@ -34,6 +34,7 @@ import devpulse.core.resources.generated.resources.discovery_search_all
 import devpulse.core.resources.generated.resources.import_feeds
 import devpulse.core.resources.generated.resources.post_search_minimum_length
 import org.jetbrains.compose.resources.stringResource
+import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -66,10 +67,10 @@ fun BrowseFeedsScreen(
                     DPBackNavigationIconButton(modifier) { navigator.navigateBack() }
                 },
                 actions = {
-                    DPButton(
-                        text = stringResource(stringRes.import_feeds),
+                    DPIconButton(
+                        icon = DPIcons.AddLink,
+                        contentDescription = stringResource(stringRes.import_feeds),
                         onClick = { navigator.navigate(Feed.AddFeed) },
-                        leadingIcon = DPIcons.Add
                     )
                 }
             )
@@ -100,6 +101,7 @@ fun BrowseFeedsScreen(
                 onFeedClick = { viewModel.onEvent(BrowseFeedsScreenEvent.OnFeedClick(it)) },
             )
         } else {
+            val rowsCount = adaptiveRowsCount()
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = normalListState,
@@ -112,6 +114,7 @@ fun BrowseFeedsScreen(
                 state.collectionShelves.forEach { shelf ->
                     DiscoveryCollectionShelf(
                         shelf = shelf,
+                        rowsCount = rowsCount,
                         pendingImportIds = state.pendingImportIds,
                         onViewAll = { viewModel.onEvent(BrowseFeedsScreenEvent.OnViewAll(it)) },
                         onAddFeed = { viewModel.onEvent(BrowseFeedsScreenEvent.OnAddFeed(it)) },
