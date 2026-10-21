@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 sealed interface RssPostFilter {
 
     fun order(): Int = when (this) {
-        is ReadStatus -> -1
         is PublishedRange -> 0
         is FeedIds -> 1
         is Bookmarked -> 2
@@ -23,7 +22,6 @@ sealed interface RssPostFilter {
     }
 
     fun isEmpty(): Boolean = when (this) {
-        is ReadStatus -> value == null
         is FeedIds -> values.isEmpty()
         is TagIdsAny -> values.isEmpty()
         is Bookmarked -> value == null
@@ -35,9 +33,6 @@ sealed interface RssPostFilter {
         is Category -> values.isEmpty()
         is SearchText -> value.isEmpty()
     }
-
-    @Serializable
-    data class ReadStatus(val value: Boolean?) : RssPostFilter
 
     @Serializable
     data class FeedIds(val values: Set<UUID>) : RssPostFilter

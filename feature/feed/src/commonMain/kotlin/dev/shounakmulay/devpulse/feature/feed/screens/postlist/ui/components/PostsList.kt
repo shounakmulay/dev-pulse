@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -24,17 +23,14 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPLinearProgressIn
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
-import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.ui.grid.adaptiveColumnsCount
 import dev.shounakmulay.devpulse.core.ui.text.isNotNullOrEmpty
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
-import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterEvent
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilters
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.postsListEmptyMessage
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
 import dev.shounakmulay.devpulse.feature.feed.screens.postlist.ui.PostListScreenState
-import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
 internal fun PostsList(
@@ -42,14 +38,11 @@ internal fun PostsList(
     lazyGridState: LazyGridState,
     postSortAndFilterViewModel: PostSortAndFilterViewModel,
     posts: LazyPagingItems<UIFeedPost>,
-    onReadChanged: (UUID, Boolean) -> Unit = { _, _ -> },
     onClearFilters: () -> Unit,
     state: PostListScreenState,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UUID) -> Unit,
 ) {
-    val sortAndFilterState by postSortAndFilterViewModel.collectAsState()
-    val readStatus = sortAndFilterState.filters.filterIsInstance<RssPostFilter.ReadStatus>().firstOrNull()?.value
     BoxWithConstraints {
         val columns = adaptiveColumnsCount()
         LazyVerticalGrid(
@@ -81,15 +74,9 @@ internal fun PostsList(
             }
 
             if (posts.loadState.refresh is LoadState.NotLoading && posts.itemCount == 0) {
-                postsListEmptyMessage(
-                    readStatus = readStatus,
-                    showAllPosts = {
-                        postSortAndFilterViewModel.onEvent(
-                            PostSortAndFilterEvent.OnFilterUpdated(RssPostFilter.ReadStatus(null))
-                        )
-                    },
-                    clearFilters = onClearFilters,
-                )
+                postsListEmptyMessage {
+                    onClearFilters()
+                }
             }
 
             items(count = posts.itemCount, key = posts.itemKey { it.id.value }) { index ->
@@ -99,7 +86,6 @@ internal fun PostsList(
                         modifier = Modifier
                             .animateItem(),
                         post = post,
-                        onReadChanged = onReadChanged,
                         showImage = post.search == null,
                         variant = when {
                             post.search == null -> state.feedPostListItemVariant

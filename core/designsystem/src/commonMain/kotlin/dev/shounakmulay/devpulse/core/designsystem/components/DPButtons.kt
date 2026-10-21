@@ -5,15 +5,14 @@ package dev.shounakmulay.devpulse.core.designsystem.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
@@ -47,6 +46,7 @@ import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPVariantColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.contentPadding
 import dev.shounakmulay.devpulse.core.designsystem.theme.dpPrimaryVariantColors
 import dev.shounakmulay.devpulse.core.designsystem.theme.dpSecondaryVariantColors
 import dev.shounakmulay.devpulse.core.designsystem.theme.dpTertiaryVariantColors
@@ -77,26 +77,22 @@ private fun resolveButtonColors(style: DPButtonStyle, variant: DPButtonVariant):
             disabledContainerColor = c.accent.copy(alpha = 0.12f),
             disabledContentColor = c.onAccent.copy(alpha = 0.38f),
         )
-
         DPButtonStyle.Tonal -> ButtonDefaults.filledTonalButtonColors(
             containerColor = c.container,
             contentColor = c.onContainer,
             disabledContainerColor = c.container.copy(alpha = 0.12f),
             disabledContentColor = c.onContainer.copy(alpha = 0.38f),
         )
-
         DPButtonStyle.Outlined -> ButtonDefaults.outlinedButtonColors(
             containerColor = Color.Transparent,
             contentColor = c.accent,
             disabledContentColor = c.accent.copy(alpha = 0.38f),
         )
-
         DPButtonStyle.Text -> ButtonDefaults.textButtonColors(
             containerColor = Color.Transparent,
             contentColor = c.accent,
             disabledContentColor = c.accent.copy(alpha = 0.38f),
         )
-
         DPButtonStyle.Elevated -> ButtonDefaults.elevatedButtonColors(
             containerColor = c.container,
             contentColor = c.onContainer,
@@ -195,74 +191,40 @@ fun DPButton(
 ) {
     val resolvedColors = colors ?: resolveButtonColors(style, variant)
     val resolvedShape = shape ?: resolveButtonShape(style)
-    val spacing = DPTheme.spacing
-    val resolvedPadding = contentPadding ?: when (size) {
-        DPSize.Small -> PaddingValues(horizontal = spacing.lg, vertical = spacing.sm)
-        DPSize.Medium -> PaddingValues(horizontal = spacing.xl, vertical = spacing.md)
-        DPSize.Large -> PaddingValues(horizontal = spacing.xxl, vertical = spacing.lg)
-    }
+    val resolvedPadding = contentPadding ?: size.contentPadding()
     val resolvedBorder = border ?: resolveButtonBorder(style, variant, enabled)
     val heightMod = modifier.heightIn(min = size.minHeight())
 
     when (style) {
         DPButtonStyle.Filled -> Button(
-            onClick = onClick,
-            modifier = heightMod,
-            enabled = enabled,
-            shape = resolvedShape,
-            colors = resolvedColors,
+            onClick = onClick, modifier = heightMod, enabled = enabled,
+            shape = resolvedShape, colors = resolvedColors,
             elevation = elevation ?: ButtonDefaults.buttonElevation(),
-            border = resolvedBorder,
-            contentPadding = resolvedPadding,
-            content = content,
+            border = resolvedBorder, contentPadding = resolvedPadding, content = content,
         )
-
         DPButtonStyle.Tonal -> FilledTonalButton(
-            onClick = onClick,
-            modifier = heightMod,
-            enabled = enabled,
-            shape = resolvedShape,
-            colors = resolvedColors,
+            onClick = onClick, modifier = heightMod, enabled = enabled,
+            shape = resolvedShape, colors = resolvedColors,
             elevation = elevation ?: ButtonDefaults.filledTonalButtonElevation(),
-            border = resolvedBorder,
-            contentPadding = resolvedPadding,
-            content = content,
+            border = resolvedBorder, contentPadding = resolvedPadding, content = content,
         )
-
         DPButtonStyle.Outlined -> OutlinedButton(
-            onClick = onClick,
-            modifier = heightMod,
-            enabled = enabled,
-            shape = resolvedShape,
-            colors = resolvedColors,
-            elevation = elevation,
-            border = resolvedBorder,
-            contentPadding = resolvedPadding,
-            content = content,
+            onClick = onClick, modifier = heightMod, enabled = enabled,
+            shape = resolvedShape, colors = resolvedColors,
+            elevation = elevation, border = resolvedBorder,
+            contentPadding = resolvedPadding, content = content,
         )
-
         DPButtonStyle.Text -> TextButton(
-            onClick = onClick,
-            modifier = heightMod,
-            enabled = enabled,
-            shape = resolvedShape,
-            colors = resolvedColors,
-            elevation = elevation,
-            border = resolvedBorder,
-            contentPadding = resolvedPadding,
-            content = content,
+            onClick = onClick, modifier = heightMod, enabled = enabled,
+            shape = resolvedShape, colors = resolvedColors,
+            elevation = elevation, border = resolvedBorder,
+            contentPadding = resolvedPadding, content = content,
         )
-
         DPButtonStyle.Elevated -> ElevatedButton(
-            onClick = onClick,
-            modifier = heightMod,
-            enabled = enabled,
-            shape = resolvedShape,
-            colors = resolvedColors,
+            onClick = onClick, modifier = heightMod, enabled = enabled,
+            shape = resolvedShape, colors = resolvedColors,
             elevation = elevation ?: ButtonDefaults.elevatedButtonElevation(),
-            border = resolvedBorder,
-            contentPadding = resolvedPadding,
-            content = content,
+            border = resolvedBorder, contentPadding = resolvedPadding, content = content,
         )
     }
 }
@@ -303,100 +265,26 @@ fun DPSplitButton(
 
 @DPComponentPreview
 @Composable
-private fun DPFilledButtonPreview() {
-    DPButtonStylePreview(DPButtonStyle.Filled)
-}
-
-@DPComponentPreview
-@Composable
-private fun DPTonalButtonPreview() {
-    DPButtonStylePreview(DPButtonStyle.Tonal)
-}
-
-@DPComponentPreview
-@Composable
-private fun DPOutlinedButtonPreview() {
-    DPButtonStylePreview(DPButtonStyle.Outlined)
-}
-
-@DPComponentPreview
-@Composable
-private fun DPTextButtonPreview() {
-    DPButtonStylePreview(DPButtonStyle.Text)
-}
-
-@DPComponentPreview
-@Composable
-private fun DPElevatedButtonPreview() {
-    DPButtonStylePreview(DPButtonStyle.Elevated)
-}
-
-@Composable
-private fun DPButtonStylePreview(style: DPButtonStyle) {
+private fun DPButtonMatrixPreview() {
     Preview {
         Column(
-            modifier = Modifier.widthIn(max = 720.dp).padding(DPTheme.spacing.lg),
-            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.lg),
+            modifier = Modifier.padding(DPTheme.spacing.lg),
+            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
         ) {
-            DPTextView(text = style.name, variant = DPTextViewVariant.TitleLarge)
-            DPButtonVariant.entries.forEach { variant ->
-                Column(verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm)) {
-                    DPTextView(text = variant.name, variant = DPTextViewVariant.TitleMedium)
-                    DPSize.entries.forEach { size ->
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
-                            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
-                        ) {
-                            listOf(true, false).forEach { enabled ->
-                                DPButton(
-                                    text = "${size.name} / ${if (enabled) "Enabled" else "Disabled"}",
-                                    onClick = {},
-                                    style = style,
-                                    variant = variant,
-                                    size = size,
-                                    enabled = enabled,
-                                )
-                            }
-                        }
-                    }
-                    listOf(true, false).forEach { enabled ->
-                        DPTextView(
-                            text = "Icons / ${if (enabled) "Enabled" else "Disabled"}",
-                            variant = DPTextViewVariant.LabelMedium,
-                        )
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
-                            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm),
-                        ) {
-                            DPButton(
-                                text = "Leading",
-                                onClick = {},
-                                style = style,
-                                variant = variant,
-                                leadingIcon = Icons.Default.Add,
-                                enabled = enabled,
-                            )
-                            DPButton(
-                                text = "Trailing",
-                                onClick = {},
-                                style = style,
-                                variant = variant,
-                                trailingIcon = Icons.Default.Add,
-                                enabled = enabled,
-                            )
-                            DPButton(
-                                text = "Both",
-                                onClick = {},
-                                style = style,
-                                variant = variant,
-                                leadingIcon = Icons.Default.Add,
-                                trailingIcon = Icons.Default.Add,
-                                enabled = enabled,
-                            )
-                        }
+            DPButtonStyle.entries.forEach { style ->
+                Row(horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm)) {
+                    DPButtonVariant.entries.forEach { variant ->
+                        DPButton(text = style.name, onClick = {}, style = style, variant = variant)
                     }
                 }
             }
+            Row(horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.sm)) {
+                DPSize.entries.forEach { s ->
+                    DPButton(text = s.name, onClick = {}, size = s)
+                }
+            }
+            DPButton(text = "With Icon", onClick = {}, leadingIcon = Icons.Default.Add)
+            DPButton(text = "Disabled", onClick = {}, enabled = false)
         }
     }
 }

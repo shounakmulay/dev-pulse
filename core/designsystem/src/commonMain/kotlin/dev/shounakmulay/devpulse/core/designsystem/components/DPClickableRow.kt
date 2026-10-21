@@ -5,31 +5,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPDensity
@@ -55,20 +43,13 @@ fun DPClickableRow(
 ) {
     val hPad = DPTheme.spacing.screenHorizontal
     val vPad = density.verticalPadding()
-    val minHeight = when (density) {
-        DPDensity.Dense -> 48.dp
-        DPDensity.Default -> 56.dp
-        DPDensity.Comfortable -> 64.dp
-    }
 
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = minHeight)
-            .clip(MaterialTheme.shapes.large)
             .clickable(enabled = enabled, onClick = onClick)
             .alpha(if (enabled) 1f else 0.38f)
-            .padding(horizontal = hPad, vertical = vPad),
+            .padding(horizontal = hPad, vertical = vPad).then(modifier),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -76,44 +57,29 @@ fun DPClickableRow(
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = null,
-                modifier = Modifier.size(leadingIconSize),
-                tint = leadingIconTint,
+                modifier = Modifier.size(leadingIconSize).padding(end = DPTheme.spacing.sm),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Spacer(Modifier.width(DPTheme.spacing.sm))
         }
 
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.xs),
-        ) {
-            DPTextView(
-                text = title,
-                variant = DPTextViewVariant.BodyLarge,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                lineHeight = 24.sp,
-            )
+        Column(modifier = Modifier.weight(1f)) {
+            DPTextView(text = title, variant = DPTextViewVariant.BodyMedium)
             if (subtitle != null) {
                 DPTextView(
                     text = subtitle,
-                    variant = DPTextViewVariant.BodySmall,
-                    fontSize = 13.sp,
-                    lineHeight = 20.sp,
-                    fontWeight = FontWeight.Normal,
+                    variant = DPTextViewVariant.LabelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
 
         if (trailingIcon != null) {
-            Spacer(Modifier.width(DPTheme.spacing.sm))
             if (onTrailingIconClick != null) {
-                IconButton(onClick = onTrailingIconClick, enabled = enabled) {
+                IconButton(onClick = onTrailingIconClick) {
                     Icon(
                         imageVector = trailingIcon,
                         contentDescription = null,
                         modifier = Modifier.size(trailingIconSize),
-                        tint = trailingIconTint,
                     )
                 }
             } else {
@@ -121,7 +87,7 @@ fun DPClickableRow(
                     imageVector = trailingIcon,
                     contentDescription = null,
                     modifier = Modifier.size(trailingIconSize),
-                    tint = trailingIconTint,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -141,17 +107,10 @@ fun DPClickableRow(
 ) {
     val hPad = DPTheme.spacing.screenHorizontal
     val vPad = density.verticalPadding()
-    val minHeight = when (density) {
-        DPDensity.Dense -> 48.dp
-        DPDensity.Default -> 56.dp
-        DPDensity.Comfortable -> 64.dp
-    }
 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = minHeight)
-            .clip(MaterialTheme.shapes.large)
             .alpha(if (enabled) 1f else 0.38f)
             .clickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = hPad, vertical = vPad),
@@ -175,36 +134,6 @@ private fun DPClickableRowPreview() {
                 density = DPDensity.Dense
             )
             DPClickableRow(title = "Disabled", onClick = {}, enabled = false)
-        }
-    }
-}
-
-@DPComponentPreview
-@Composable
-private fun DPClickableRowLargeTextPreview() {
-    Preview {
-        CompositionLocalProvider(
-            LocalDensity provides Density(density = LocalDensity.current.density, fontScale = 2f),
-        ) {
-            Column(modifier = Modifier.width(320.dp)) {
-                DPClickableRow(
-                    title = "A long feed name that needs room to wrap",
-                    subtitle = "Supporting information should remain readable at a larger text size.",
-                    onClick = {},
-                    leadingIcon = Icons.Default.Info,
-                    leadingIconTint = MaterialTheme.colorScheme.primary,
-                    trailingIcon = Icons.Default.Info,
-                    trailingIconTint = MaterialTheme.colorScheme.tertiary,
-                    onTrailingIconClick = {},
-                )
-                DPClickableRow(
-                    title = "A disabled row with a long descriptive title",
-                    subtitle = "This supporting text can also grow to multiple lines.",
-                    onClick = {},
-                    leadingIcon = Icons.Default.Info,
-                    enabled = false,
-                )
-            }
         }
     }
 }

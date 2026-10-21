@@ -12,7 +12,6 @@ import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSett
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
-import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.ReaderVisitReadDecision
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.PostDetailScreenSection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
@@ -31,7 +30,6 @@ class PostDetailViewModel(
     private val setContentTextSettingLineHeightScaleUseCase: SetContentTextSettingLineHeightScaleUseCase
 ) : EventHandler<PostDetailScreenEvent>,
     MviViewModel<PostDetailScreenState, PostDetailScreenEffect>(PostDetailScreenState()) {
-
     override fun createStateSerializer() = PostDetailScreenState.serializer()
 
     override fun bindStateSources(stateSubscriptionScope: CoroutineScope) {
@@ -69,28 +67,10 @@ class PostDetailViewModel(
 
     override fun onEvent(event: PostDetailScreenEvent) {
         when (event) {
-            PostDetailScreenEvent.BodyVisible -> onBodyVisible()
-            is PostDetailScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)
             is PostDetailScreenEvent.SetPostBookmarked -> setPostBookmarked(event)
             is PostDetailScreenEvent.OnSectionSelected -> onSectionSelected(event.section)
             is PostDetailScreenEvent.SetContentLineHeightScale -> setContentLineHeightScale(event.scale)
             is PostDetailScreenEvent.SetContentTextScale -> setContentTextScale(event.scale)
-        }
-    }
-
-    private fun onBodyVisible() {
-        intent {
-            if (state.post == null || state.readVisit.decision != ReaderVisitReadDecision.Pending) return@intent
-            reduce { state.copy(readVisit = state.readVisit.consume()) }
-            postInteractor.setPostRead(postId = postId, isRead = true)
-        }
-    }
-
-    private fun setPostRead(postId: UUID, isRead: Boolean) {
-        intent {
-            if (postId != this@PostDetailViewModel.postId) return@intent
-            reduce { state.copy(readVisit = state.readVisit.suppress()) }
-            postInteractor.setPostRead(postId = postId, isRead = isRead)
         }
     }
 

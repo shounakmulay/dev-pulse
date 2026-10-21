@@ -26,6 +26,7 @@ interface FeedSyncMetadataDao {
             identity.id AS identity_id,
             identity.title AS identity_title,
             identity.name AS identity_name,
+            identity.pinned AS identity_pinned,
             identity.sourceUrl AS identity_sourceUrl,
             identity.link AS identity_link,
             identity.createdAt AS identity_createdAt,

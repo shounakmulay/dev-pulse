@@ -14,8 +14,6 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostUserState
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedUserState
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostTag
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostToTagMapping
@@ -63,10 +61,7 @@ interface FeedPostDao {
             f.id AS feed_id,
             f.title AS feed_title,
             f.name AS feed_name,
-            COALESCE(ps.isRead, 0) AS postState_isRead,
-            COALESCE(ps.bookmarked, 0) AS postState_bookmarked,
-            COALESCE(fs.pinned, 0) AS feedState_pinned,
-            fs.lastOpenedAt AS feedState_lastOpenedAt,
+            f.pinned AS feed_pinned,
             f.sourceUrl AS feed_sourceUrl,
             f.link AS feed_link,
             f.createdAt AS feed_createdAt,
@@ -76,17 +71,17 @@ interface FeedPostDao {
             NULL AS search_highlightedContent
         FROM LocalRssContentFeedPost p
         INNER JOIN LocalRssFeed f ON p.feedId = f.id
-        LEFT JOIN LocalRssPostUserState ps ON ps.postId = p.id
-        LEFT JOIN LocalRssFeedUserState fs ON fs.feedId = f.id
         WHERE p.id = :id
         """
     )
     fun observePost(id: LocalUUID): Flow<LocalRssPostWithFeedAndSearch>
 
+    @Query("UPDATE LocalRssContentFeedPost SET bookmarked = :isBookmarked WHERE id = :id")
+    suspend fun updateBookmarkStatus(id: LocalUUID, isBookmarked: Boolean)
 
     @Query(
         """
-        SELECT id, fingerprint, createdAt, updatedAt
+        SELECT id, fingerprint, bookmarked, createdAt, updatedAt
         FROM LocalRssContentFeedPost
         WHERE fingerprint IN (:fingerprints)
         """
@@ -102,10 +97,7 @@ interface FeedPostDao {
             f.id AS feed_id,
             f.title AS feed_title,
             f.name AS feed_name,
-            COALESCE(ps.isRead, 0) AS postState_isRead,
-            COALESCE(ps.bookmarked, 0) AS postState_bookmarked,
-            COALESCE(fs.pinned, 0) AS feedState_pinned,
-            fs.lastOpenedAt AS feedState_lastOpenedAt,
+            f.pinned AS feed_pinned,
             f.sourceUrl AS feed_sourceUrl,
             f.link AS feed_link,
             f.createdAt AS feed_createdAt,
@@ -115,8 +107,6 @@ interface FeedPostDao {
             NULL AS search_highlightedContent
         FROM LocalRssContentFeedPost p
         INNER JOIN LocalRssFeed f ON p.feedId = f.id
-        LEFT JOIN LocalRssPostUserState ps ON ps.postId = p.id
-        LEFT JOIN LocalRssFeedUserState fs ON fs.feedId = f.id
         ORDER BY publishedAtEpochMillis DESC,  p.id DESC
         LIMIT :limit
         """
@@ -127,8 +117,6 @@ interface FeedPostDao {
         observedEntities = [
             LocalRssContentFeedPost::class,
             LocalRssFeed::class,
-            LocalRssPostUserState::class,
-            LocalRssFeedUserState::class,
             LocalRssPostToTagMapping::class,
             LocalRssPostTag::class
         ]

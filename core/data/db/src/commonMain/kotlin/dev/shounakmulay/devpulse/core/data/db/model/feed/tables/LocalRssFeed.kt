@@ -15,12 +15,14 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedYo
 @Entity(
     indices = [
         Index(value = ["sourceUrl"], unique = true),
+        Index(value = ["pinned", "id"]),
         Index(value = ["name", "id"]),
     ]
 )
 data class LocalRssFeed(
     @PrimaryKey
     val id: LocalUUID,
+    val pinned: Boolean,
     val sourceUrl: String,
     @ColumnInfo(defaultValue = "''")
     val title: String = "",
@@ -36,6 +38,8 @@ data class LocalRssFeed(
     val youtubeChannel: LocalRssFeedYoutubeChannel?,
     val createdAt: Long,
     val updatedAt: Long,
+    @ColumnInfo(defaultValue = "NULL")
+    val lastOpenedAt: Long?
 )
 
 @Entity

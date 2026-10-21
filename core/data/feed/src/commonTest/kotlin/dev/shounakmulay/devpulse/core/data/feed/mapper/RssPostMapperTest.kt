@@ -1,7 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
-import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.RssIdentityGenerator
@@ -24,12 +23,12 @@ class RssPostMapperTest {
     fun `Given RSS item date When mapped to local post Then raw publisher date is preserved`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = "Tue, 19 May 2026 10:00:00 +0000"),
-            feedId = LocalUUID("feed-1"),
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = LocalRssContentFeedPostIdentitySlice(
-                id = LocalUUID("post-1"),
+                id = "post-1",
                 fingerprint = "fingerprint-1",
-
+                bookmarked = false,
                 createdAt = 1234L,
                 updatedAt = 5678L
             )
@@ -44,7 +43,7 @@ class RssPostMapperTest {
     fun `Given RSS item GMT date When mapped to local post Then published time is parsed`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = "Tue, 19 May 2026 10:00:00 GMT"),
-            feedId = LocalUUID("feed-1"),
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = null
         )
@@ -54,63 +53,64 @@ class RssPostMapperTest {
     fun `Given RSS item offset date When mapped to local post Then published time is normalized to UTC`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = "Tue, 19 May 2026 15:30:00 +0530"),
-            feedId = LocalUUID("feed-1"),
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = null
         )
         assertEquals(1779184800000L, result.publishedAtEpochMillis)
     }
     @Test
-    fun `Given RSS item unparseable date When mapped to local post Then published time is the missing date sentinel`() {
+    fun `Given RSS item unparseable date When mapped to local post Then published time is null`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = "not a date"),
-            feedId = LocalUUID("feed-1"),
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = null
         )
-        assertEquals(Long.MIN_VALUE, result.publishedAtEpochMillis)
+        assertEquals(null, result.publishedAtEpochMillis)
     }
 @Test
-    fun `Given existing identity When mapped to local post Then local id is preserved`() {
+    fun `Given bookmarked existing identity When mapped to local post Then bookmark is preserved`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = null),
-            feedId = LocalUUID("feed-1"),
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = LocalRssContentFeedPostIdentitySlice(
-                id = LocalUUID("post-1"),
+                id = "post-1",
                 fingerprint = "fingerprint-1",
-
+                bookmarked = true,
                 createdAt = 1234L,
                 updatedAt = 5678L
             )
         )
 
-        assertEquals(LocalUUID("post-1"), result.id)
+        assertEquals(true, result.bookmarked)
     }
 
     @Test
-    fun `Given missing identity When mapped to local post Then creation time uses current clock`() {
+    fun `Given missing existing identity When mapped to local post Then bookmark is false`() {
         val result = mapper.toLocalRssContentFeedPost(
             item = createItem(pubDate = null),
-            feedId = LocalUUID("feed-1"),
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             existingIdentity = null
         )
 
-        assertEquals(1779184800000L, result.createdAt)
+        assertEquals(false, result.bookmarked)
     }
 
     @Test
-    fun `Given publisher local post When mapped to domain Then local id is preserved`() {
+    fun `Given bookmarked local post When mapped to domain post Then bookmark is preserved`() {
         val result = mapper.toRssFeedPost(
-            from = createLocalPost()
+            from = createLocalPost(bookmarked = true)
         )
 
-        assertEquals("post-1", result.id.value)
+        assertEquals(true, result.bookmarked)
     }
 
     private fun createItem(pubDate: String?): ParsedFeedItem {
         return ParsedFeedItem(
+            ordinal = 0,
             guid = "guid-1",
             title = "Title",
             author = "Author",
@@ -131,10 +131,10 @@ class RssPostMapperTest {
         )
     }
 
-    private fun createLocalPost(): LocalRssContentFeedPost {
+    private fun createLocalPost(bookmarked: Boolean): LocalRssContentFeedPost {
         return LocalRssContentFeedPost(
-            id = LocalUUID("post-1"),
-            feedId = LocalUUID("feed-1"),
+            id = uuidMapper.fromString("post-1"),
+            feedId = uuidMapper.fromString("feed-1"),
             fingerprint = "fingerprint-1",
             guid = "guid-1",
             title = "Title",
@@ -151,7 +151,7 @@ class RssPostMapperTest {
             sourceUrl = "https://example.com/feed.xml",
             categories = "",
             commentsUrl = null,
-
+            bookmarked = bookmarked,
             youtubeData = null,
             rawEnclosure = null,
             rawMedia = null,
@@ -170,7 +170,6 @@ class RssPostMapperTest {
         override fun getTimeElapsed(instant: Instant): Duration = Duration.ZERO
 
         override fun now(): Instant = Instant.fromEpochMilliseconds( nowEpochMilliseconds())
-        override fun timeInFuture(duration: Duration): Long = nowEpochMilliseconds() + duration.inWholeMilliseconds
         override fun nowEpochMilliseconds(): Long = 1779184800000L
         override fun today(): LocalDate = LocalDate(year = 2026, monthNumber = 5, dayOfMonth = 19)
     }

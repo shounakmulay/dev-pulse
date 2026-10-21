@@ -8,22 +8,22 @@ import androidx.compose.ui.graphics.Color
 // =============================================================================
 
 val primaryLight = Color(0xFFD96320)
-val onPrimaryLight = Color(0xFFfffbff)
+val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFFFE5D0)
 val onPrimaryContainerLight = Color(0xFF4A1D02)
 val inversePrimaryLight = Color(0xFFFFCDA8)
 
-val primaryDark = Color(0xFFD96320)
-val onPrimaryDark = Color(0xFFfffbff)
+val primaryDark = Color(0xFFD96320)         // intentionally same — orange holds in dark mode
+val onPrimaryDark = Color(0xFFFFFFFF)
 val primaryContainerDark = Color(0xFF8B3200)
 val onPrimaryContainerDark = Color(0xFFFFE5D0)
-val inversePrimaryDark = Color(0xFFA94312)
+val inversePrimaryDark = Color(0xFFD96320)
 
 // =============================================================================
 // SECONDARY — Warm sand terracotta
 // =============================================================================
 
-val secondaryLight = Color(0xFF8A5B30)
+val secondaryLight = Color(0xFFA87748)
 val onSecondaryLight = Color(0xFFFFFFFF)
 val secondaryContainerLight = Color(0xFFF5E6D3)
 val onSecondaryContainerLight = Color(0xFF3A2208)
@@ -116,6 +116,10 @@ val outlineVariantDark = Color(0xFF282C3A)
 val scrimDark = Color(0xFF000000)
 val inverseSurfaceDark = Color(0xFFE4E6F0)
 val inverseOnSurfaceDark = Color(0xFF181A24)
+
+// =============================================================================
+// SEMANTIC — success / warning / info (kept for reference; not used in components)
+// =============================================================================
 
 val successLight = Color(0xFF386A20)
 val onSuccessLight = Color(0xFFFFFFFF)

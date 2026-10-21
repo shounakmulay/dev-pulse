@@ -7,7 +7,7 @@ class LocalFeedPostFilterCatalogSqlTest {
 
     @Test
     fun `Given feed ids filter When building page Then uses IN clause with correct placeholders`() {
-        val query = LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.FeedIds(setOf("f1", "f2"))))
+        val query = LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.LocalFeedIds(setOf("f1", "f2"))))
         initialPage(query)
             .assertSqlContains("WHERE p.feedId IN (?, ?)")
             .assertBindings(
@@ -19,7 +19,7 @@ class LocalFeedPostFilterCatalogSqlTest {
 
     @Test
     fun `Given empty feed ids filter When building page Then ignores filter completely`() {
-        val query = LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.FeedIds(emptySet())))
+        val query = LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.LocalFeedIds(emptySet())))
         initialPage(query).assertSqlExcludes("WHERE")
     }
 
@@ -36,15 +36,30 @@ class LocalFeedPostFilterCatalogSqlTest {
     }
 
     @Test
+    fun `Given tag ids all filter When building page Then uses IN clause with GROUP BY and HAVING COUNT`() {
+        val query = LocalFeedPostQuery(filters = setOf(LocalFeedPostFilter.TagIdsAll(setOf(1, 2))))
+        initialPage(query)
+            .assertSqlContains(
+                "WHERE p.id IN ( SELECT postId FROM LocalRssPostToTagMapping WHERE tagId IN (?, ?) GROUP BY postId HAVING COUNT(DISTINCT tagId) = ? )"
+            )
+            .assertBindings(
+                FeedPostQueryFixtures.long(1L),
+                FeedPostQueryFixtures.long(2L),
+                FeedPostQueryFixtures.long(2L),
+                FeedPostQueryFixtures.long(20L)
+            )
+    }
+
+    @Test
     fun `Given boolean filters When building page Then uses exact matching`() {
         val query = LocalFeedPostQuery(
             filters = setOf(
                 LocalFeedPostFilter.Bookmarked(true),
-                LocalFeedPostFilter.PinnedFeed(false)
+                LocalFeedPostFilter.PinnedLocalFeed(false)
             )
         )
         initialPage(query)
-            .assertSqlContains("WHERE ps.bookmarked = ? AND COALESCE(fs.pinned, 0) = ?")
+            .assertSqlContains("WHERE p.bookmarked = ? AND f.pinned = ?")
             .assertBindings(
                 FeedPostQueryFixtures.boolean(true),
                 FeedPostQueryFixtures.boolean(false),
@@ -61,7 +76,7 @@ class LocalFeedPostFilterCatalogSqlTest {
             )
         )
         initialPage(query)
-            .assertSqlContains("WHERE (p.publishedAtEpochMillis >= ? AND p.publishedAtEpochMillis <= ?) AND (p.updatedAt >= ?)")
+            .assertSqlContains("WHERE p.publishedAtEpochMillis >= ? AND p.publishedAtEpochMillis <= ? AND p.updatedAt >= ?")
             .assertBindings(
                 FeedPostQueryFixtures.long(10L),
                 FeedPostQueryFixtures.long(20L),

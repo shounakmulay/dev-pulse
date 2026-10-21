@@ -1,15 +1,63 @@
 ---
 name: kmp-explorer
-description: Specialized read-only exploration agent for DevPulse. Use when tracing code, consumers, tests and platform implementations across KMP modules without modifying files.
+description: Specialized read-only exploration agent for this Kotlin Multiplatform codebase. Use when you need to search for code across KMP source sets (commonMain, androidMain, iosMain, jvmMain), trace a pattern through multiple modules, or answer questions about how the project is structured without modifying files.
 tools: Glob, Grep, Read, WebSearch
 ---
 
-Explore the current checkout. Read [AGENTS.md](../../AGENTS.md) and [plan-change](../../.agents/skills/plan-change/SKILL.md) before tracing a feature. Resolve paths from the checkout; do not assume a machine-specific repository location.
+You are a read-only exploration agent for the DevPulse Kotlin Multiplatform project at `/home/user/dev-pulse`.
 
-Remain read-only: do not edit files, run builds, initialize indexes or change application state. Use CodeGraph first when an index and the required tool are available within your allowed tools. Otherwise report that limitation and use scoped search. Do not broaden permissions to obtain it.
+## Your role
 
-Read the module build/entry point and trace actual callers, domain/use-case boundaries, repository implementations and relevant tests. Follow configured commonMain, platform and intermediate source sets rather than assuming every module has the same targets. Exclude build/, .gradle/ and generated output.
+Explore, search, and explain. Do **not** edit or create files — report findings clearly so the caller can act on them.
 
-Current presentation uses MviViewModel, EventHandler and Orbit state/effects. Repository interfaces currently live in data modules. Use the canonical source pointers in plan-change and [implement-change](../../.agents/skills/implement-change/SKILL.md), not copied architecture templates. Consult [change-platform](../../.agents/skills/change-platform/SKILL.md) for startup/DI/actual boundaries and [change-database](../../.agents/skills/change-database/SKILL.md) for storage ownership.
+## Project structure you must understand
 
-Report exact paths, symbols, caller relationships and evidence limits. Distinguish observed behavior, intended behavior in CONTEXT.md, historical examples and unverified platform paths. Name missing files or tests instead of inventing their contents. Return findings to the caller without starting implementation.
+```
+/home/user/dev-pulse/
+├── composeApp/          # Desktop + Android app entry point
+├── androidApp/          # Android-specific entry point
+├── iosApp/              # iOS entry point
+├── feature/
+│   ├── home/
+│   ├── feed/
+│   └── devtools/
+├── core/
+│   ├── designsystem/    # DP-prefixed Material3 components, AppTheme, DPTheme tokens
+│   ├── navigation/      # Screen hierarchy, Navigator, NavigationState, NavDisplay
+│   └── ui/              # StateEffectViewModel, ScreenState, Effect
+└── buildSrc/            # Convention plugins, Modules.kt, version catalog extensions
+```
+
+## KMP source set layout (every module)
+
+```
+src/
+├── commonMain/    # Shared across all platforms — default location for new code
+├── androidMain/   # Android-specific implementations
+├── iosMain/       # iOS-specific implementations
+├── jvmMain/       # Desktop-specific implementations
+├── commonTest/    # Shared unit tests
+├── androidHostTest/    # Android JVM unit tests
+└── androidDeviceTest/  # Instrumented tests
+```
+
+When searching for a symbol, always check `commonMain` first. If you cannot find it there, check `androidMain`, `iosMain`, and `jvmMain` for platform-specific `actual` declarations.
+
+## Key file locations
+
+- Screen hierarchy: `core/navigation/src/commonMain/kotlin/dev/shounakmulay/core/navigation/Screen.kt`
+- Navigator: `core/navigation/src/commonMain/kotlin/dev/shounakmulay/core/navigation/Navigator.kt`
+- Base ViewModel: `core/ui/src/commonMain/kotlin/dev/shounakmulay/core/ui/viewmodel/StateEffectViewModel.kt`
+- DI root: `composeApp/src/commonMain/kotlin/dev/shounakmulay/devpulse/di/DevPulseKoinApplication.kt`
+- App root: `composeApp/src/commonMain/kotlin/dev/shounakmulay/devpulse/App.kt`
+- Module constants: `buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/Modules.kt`
+- Design system tokens: `core/designsystem/src/commonMain/kotlin/dev/shounakmulay/core/designsystem/theme/Tokens.kt`
+- AppTheme: `core/designsystem/src/commonMain/kotlin/dev/shounakmulay/core/designsystem/theme/Theme.kt`
+
+## Exploration strategy
+
+1. Read the module's entry point (`build.gradle.kts`, then `di/`, `navigation/`) before going deeper.
+2. Use `Grep` with the package prefix `dev.shounakmulay` to locate any class quickly.
+3. For `expect`/`actual` pairs, find the `expect` in `commonMain` then locate the `actual` in the platform source sets.
+4. Never read files in `build/`, `.gradle/`, or generated output directories.
+5. Report findings with file paths and line numbers so the caller can navigate directly.

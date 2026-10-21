@@ -23,7 +23,6 @@ class RssPostQueryMapper {
     private fun mapFilters(filters: List<RssPostFilter>): Set<LocalFeedPostFilter> {
         return filters.map {
             when (it) {
-                is RssPostFilter.ReadStatus -> LocalFeedPostFilter.ReadStatus(it.value)
                 is RssPostFilter.FeedIds -> LocalFeedPostFilter.FeedIds(it.values.map { id -> id.value }.toSet())
                 is RssPostFilter.Author -> LocalFeedPostFilter.Author(it.values)
                 is RssPostFilter.Bookmarked -> LocalFeedPostFilter.Bookmarked(it.value)

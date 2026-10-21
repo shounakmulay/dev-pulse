@@ -14,10 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPDensity
@@ -41,21 +38,14 @@ fun DPListItem(
     shadowElevation: DPElevationLevel = DPElevationLevel.Level0,
 ) {
     ListItem(
-        headlineContent = {
-            DPTextView(
-                text = headlineText,
-                variant = DPTextViewVariant.BodyLarge,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                lineHeight = 24.sp,
-            )
-        },
-        modifier = modifier.clip(MaterialTheme.shapes.large),
+        headlineContent = { DPTextView(headlineText, variant = DPTextViewVariant.BodyMedium) },
+        modifier = modifier,
         overlineContent = overlineText?.let {
             {
                 DPTextView(
                     it,
                     variant = DPTextViewVariant.LabelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
@@ -64,16 +54,13 @@ fun DPListItem(
                 DPTextView(
                     it,
                     variant = DPTextViewVariant.BodySmall,
-                    fontSize = 13.sp,
-                    lineHeight = 20.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
         leadingContent = leadingContent,
         trailingContent = trailingContent,
-        colors = colors ?: ListItemDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        ),
+        colors = colors ?: ListItemDefaults.colors(),
         tonalElevation = tonalElevation.value(),
         shadowElevation = shadowElevation.value(),
     )
@@ -104,7 +91,7 @@ fun DPListItem(
     ListItem(
         selected = selected,
         onClick = onClick,
-        modifier = modifier.clip(MaterialTheme.shapes.large),
+        modifier = modifier,
         enabled = enabled,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
@@ -113,6 +100,7 @@ fun DPListItem(
                 DPTextView(
                     it,
                     variant = DPTextViewVariant.LabelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
@@ -121,8 +109,7 @@ fun DPListItem(
                 DPTextView(
                     it,
                     variant = DPTextViewVariant.BodySmall,
-                    fontSize = 13.sp,
-                    lineHeight = 20.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
@@ -130,15 +117,7 @@ fun DPListItem(
         elevation = ListItemDefaults.elevation(),
         contentPadding = resolvedPadding,
         interactionSource = null,
-        content = {
-            DPTextView(
-                text = headlineText,
-                variant = DPTextViewVariant.BodyLarge,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                lineHeight = 24.sp,
-            )
-        },
+        content = { DPTextView(headlineText, variant = DPTextViewVariant.BodyMedium) },
     )
 }
 

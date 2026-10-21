@@ -4,46 +4,51 @@ import dev.shounakmulay.devpulse.core.data.db.query.FeedPostQueryFixtures.initia
 import kotlin.test.Test
 
 class FeedPostRareCombinationTest {
+
     @Test
-    fun `Given search and state filters When building page Then intersects FTS matches before limiting`() {
-        initialPage(LocalFeedPostQuery(filters = setOf(
-            LocalFeedPostFilter.SearchText("rare"),
-            LocalFeedPostFilter.Bookmarked(true),
-            LocalFeedPostFilter.ReadStatus(false),
-        )))
-            .assertSqlContains("LocalRssContentFeedPostFts MATCH ?")
-            .assertSqlContains("LocalRssPostContentFts MATCH ?")
-            .assertSqlContains("ps.bookmarked = ? AND COALESCE(ps.isRead, 0) = ?")
-            .assertSqlContains("(ph.postRowId IS NOT NULL OR ah.postId IS NOT NULL)")
-            .assertOrderBy("p.publishedAtEpochMillis DESC", "p.id DESC")
+    fun `Verify SearchText correctness`() {
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.PublishedNewest,
+            filters = setOf(LocalFeedPostFilter.SearchText("rare"))
+        )
+        initialPage(query)
+            .assertSqlContains("(LOWER(p.title) LIKE ? ESCAPE '\\' OR LOWER(p.description) LIKE ? ESCAPE '\\')")
     }
 
     @Test
-    fun `Given author and source filters When building page Then normalizes and binds external values`() {
-        initialPage(LocalFeedPostQuery(filters = setOf(
-            LocalFeedPostFilter.Author(setOf("Writer")),
-            LocalFeedPostFilter.SourceFeed(setOf("URL")),
-        )))
+    fun `Verify Author correctness`() {
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.PublishedNewest,
+            filters = setOf(LocalFeedPostFilter.Author(setOf("writer")))
+        )
+        initialPage(query)
             .assertSqlContains("LOWER(p.author) IN (?)")
-            .assertSqlContains("LOWER(p.sourceUrl) IN (?)")
-            .assertBindings(SqlBinding.Text("writer"), SqlBinding.Text("url"), SqlBinding.LongValue(20L))
     }
 
     @Test
-    fun `Given category media and tag filters When building page Then intersects them under title ordering`() {
-        initialPage(LocalFeedPostQuery(
-            sort = LocalFeedPostSort.TitleAtoZ,
+    fun `Verify Source correctness`() {
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.PublishedNewest,
+            filters = setOf(LocalFeedPostFilter.SourceLocalFeed(setOf("url")))
+        )
+        initialPage(query)
+            .assertSqlContains("LOWER(p.sourceUrl) IN (?)")
+    }
+
+    @Test
+    fun `Verify multi filter combination correctness`() {
+        val query = LocalFeedPostQuery(
+            sort = LocalFeedPostSort.UpdatedNewest,
             filters = setOf(
                 LocalFeedPostFilter.Category(setOf("tech")),
                 LocalFeedPostFilter.HasImage(true),
-                LocalFeedPostFilter.TagIdsAny(setOf(1, 2)),
-            ),
-        ))
+                LocalFeedPostFilter.TagIdsAll(setOf(1, 2))
+            )
+        )
+        initialPage(query)
             .assertSqlContains("p.id IN (SELECT postId FROM LocalRssPostCategory WHERE LOWER(category) IN (?))")
-            .assertSqlContains("AND (p.image IS NOT NULL AND p.image != '')")
-            .assertSqlContains("AND p.id IN (SELECT postId FROM LocalRssPostToTagMapping WHERE tagId IN (?, ?))")
-            .assertBindings(SqlBinding.Text("tech"), SqlBinding.LongValue(1L), SqlBinding.LongValue(2L), SqlBinding.LongValue(20L))
-            .assertOrderBy("p.title ASC", "p.id DESC")
+            .assertSqlContains("(p.image IS NOT NULL AND p.image != '')")
+            .assertSqlContains("GROUP BY postId HAVING COUNT(DISTINCT tagId) = ?")
+            .assertOrderBy("p.updatedAt DESC", "p.id DESC")
     }
-
 }

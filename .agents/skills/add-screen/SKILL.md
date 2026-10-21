@@ -1,27 +1,116 @@
 ---
 name: add-screen
-description: Use when adding a screen to an existing DevPulse feature module, including state, events, effects, ViewModel and navigation wiring.
+description: Add a new screen to an existing DevPulse feature module. Creates ScreenState, ViewModel, Screen composable, and navigation entry, then wires it into the feature's entry point.
+argument-hint: "[feature-name] [screen-name]"
+disable-model-invocation: true
+allowed-tools: Read Glob Grep Write Edit
 ---
 
-# Add a screen
+Add a new screen to an existing feature module.
 
-Read AGENTS.md, the feature build file, its navigation entry point, and the current sibling screen's code and behavioral tests. State the behavior, owning use cases and acceptance checks before implementation.
+Feature: **$0**
+Screen: **$1**
 
-Use the package root `dev.shounakmulay.devpulse`. Put screen files under `feature/<feature>/src/commonMain/kotlin/dev/shounakmulay/devpulse/feature/<feature>/screens/<screen>/`.
+From `$1` derive the class prefix (PascalCase) — e.g. `feed-detail` → `FeedDetail`.
 
-Inspect these current references instead of copying an embedded template:
+## Step 1 — Add Screen type to `Screen.kt`
 
-- `core/ui/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/ui/viewmodel/MviViewModel.kt`: state/effect generic parameters, initial state and serializer hook.
-- `feature/settings/src/commonMain/kotlin/dev/shounakmulay/devpulse/feature/settings/screens/settings/ui/SettingsViewModel.kt`: EventHandler and lifecycle-bound observation. Its sync toggle currently ignores the returned failure; do not copy that omission.
-- `feature/feed/src/commonMain/kotlin/dev/shounakmulay/devpulse/feature/feed/screens/feed/navigation/FeedScreenEntry.kt`: typed entry and Koin ViewModel injection.
-- `core/navigation/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/navigation/Screen.kt`: actual serializable route hierarchy and parameter types.
+File: `core/navigation/src/commonMain/kotlin/dev/shounakmulay/core/navigation/Screen.kt`
 
-Create immutable serializable ScreenState, Effect and Event types as needed. Use MviViewModel<STATE, EFFECT>, @KoinViewModel, createStateSerializer(), Orbit state/effect APIs and DP components. Do not use StateEffectViewModel or createInitialState().
+Add the new `Screen` type in the appropriate location (inside a parent `object` if it is a nested route, or at the top level):
+```kotlin
+@Serializable
+@Immutable
+data class <Name>(/* typed params if needed */) : Screen
+```
 
-Add the typed route, screen entry and feature-entry registration. Inspect the current app entry provider before wiring it. Follow current list/detail metadata when applicable. Keep business decisions in use cases and preserve cancellation and state restoration.
+Use `data object` when the screen has no parameters, `data class` when it carries typed navigation arguments.
 
-Read `.agents/skills/verify-change/SKILL.md`. Preview `bash scripts/verify.sh --base <reviewed-integration-ref> --plan`, then execute it. New behavior needs meaningful assertions; existing placeholder tests are not a quality target. Check narrow/wide layout, back navigation, state restoration and relevant accessibility manually. Report unavailable platforms explicitly.
+## Step 2 — Create ScreenState
 
-Current app navigation ownership: [DevPulseNavApp](../../../composeApp/src/commonMain/kotlin/dev/shounakmulay/devpulse/composables/DevPulseNavApp.kt) defines tabRoutes, [DevPulseNavSuiteScaffold](../../../composeApp/src/commonMain/kotlin/dev/shounakmulay/devpulse/composables/DevPulseNavSuiteScaffold.kt) renders tab icons/reselection, and [DevPulseNavDisplay](../../../composeApp/src/commonMain/kotlin/dev/shounakmulay/devpulse/composables/DevPulseNavDisplay.kt) composes feature entry providers. [FeedFeatureEntries](../../../feature/feed/src/commonMain/kotlin/dev/shounakmulay/devpulse/feature/feed/navigation/FeedFeatureEntries.kt) aggregates per-screen entries. Update the relevant owner instead of copying historical App.kt registration snippets. The current empty tab-icon contentDescription is not an accessibility blueprint.
+Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$1/ui/<Name>ScreenState.kt`:
+```kotlin
+package dev.shounakmulay.devpulse.feature.$0.screens.$1.ui
 
-For every new data operation, keep the error boundary in its use case: one-shot work returns Result<T>/Result<Unit> through the injected dispatcher-catching helper, and observation returns Flow<Result<T>> through flowCachingOnDefault. Repositories and all lower layers expose plain T/Unit/Flow<T>, propagate exceptions and never catch or wrap them. Handle the use-case Result in the screen/interactor; do not place technical exception recovery in a ViewModel. Follow implement-change for the exact helper names, injected dispatcher choice and nested-use-case rules.
+import androidx.compose.runtime.Immutable
+import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
+import kotlinx.serialization.Serializable
+
+@Serializable
+@Immutable
+data class <Name>ScreenState(
+    val isLoading: Boolean = false,
+) : ScreenState
+```
+
+## Step 3 — Create ViewModel
+
+Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$1/ui/<Name>ViewModel.kt`:
+```kotlin
+package dev.shounakmulay.devpulse.feature.$0.screens.$1.ui
+
+import dev.shounakmulay.devpulse.core.ui.viewmodel.StateEffectViewModel
+import org.koin.core.annotation.KoinViewModel
+
+@KoinViewModel
+class <Name>ViewModel : StateEffectViewModel<<Name>ScreenState>() {
+    override fun createInitialState() = <Name>ScreenState()
+}
+```
+
+## Step 4 — Create Screen composable
+
+Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$1/ui/<Name>Screen.kt`:
+```kotlin
+package dev.shounakmulay.devpulse.feature.$0.screens.$1.ui
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
+
+@Composable
+fun <Name>Screen(viewModel: <Name>ViewModel, modifier: Modifier = Modifier) {
+    val state by viewModel.collectAsState()
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        DPTextView(text = "<Name>", variant = DPTextViewVariant.HeadingLarge)
+    }
+}
+```
+
+## Step 5 — Create navigation entry
+
+Create `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/screens/$1/navigation/<Name>ScreenEntry.kt`:
+```kotlin
+package dev.shounakmulay.devpulse.feature.$0.screens.$1.navigation
+
+import androidx.navigation3.runtime.EntryProviderScope
+import dev.shounakmulay.devpulse.core.navigation.Navigator
+import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.feature.$0.screens.$1.ui.<Name>Screen
+import org.koin.compose.viewmodel.koinViewModel
+
+internal fun EntryProviderScope<Screen>.<$1>Screen(navigator: Navigator) {
+    entry<<FullScreenType>> {
+        <Name>Screen(viewModel = koinViewModel())
+    }
+}
+```
+
+Replace `<FullScreenType>` with the qualified type from `Screen.kt` (e.g. `Screen.Tabs.Feed.FeedDetail`).
+
+If the screen receives navigation parameters from the entry lambda, extract them and pass to the ViewModel or composable as needed.
+
+## Step 6 — Register in feature entries
+
+File: `feature/$0/src/commonMain/kotlin/dev/shounakmulay/feature/$0/navigation/<Feature>FeatureEntries.kt`
+
+Add a call to the new screen entry function inside the `EntryProviderScope` lambda.
+
+## Step 7 — Verify
+
+Run `./gradlew :feature:$0:assemble` and fix any compilation errors.

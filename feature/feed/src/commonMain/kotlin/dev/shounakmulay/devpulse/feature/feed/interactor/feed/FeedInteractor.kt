@@ -8,8 +8,7 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.ExtractInitialsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPinnedAndRecentFeedsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithUserState
-import dev.shounakmulay.devpulse.core.domain.models.feed.FeedUserState
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
 import dev.shounakmulay.devpulse.core.ui.image.getWebsiteImageUrl
@@ -39,7 +38,7 @@ class FeedInteractor(
     }
 
     @JvmName("getUIFeedPagingDataFlow")
-    fun getUIFeedFlow(from: Flow<PagingData<RssFeedWithUserState>>): Flow<PagingData<UIFeed>> {
+    fun getUIFeedFlow(from: Flow<PagingData<RssFeed>>): Flow<PagingData<UIFeed>> {
         return from.map { pagingData ->
             pagingData.map {
                 toUIFeed(it)
@@ -49,20 +48,19 @@ class FeedInteractor(
 
 
 
-    fun toUIFeed(from: RssFeedWithUserState): UIFeed {
-        val feed = from.feed
+    fun toUIFeed(feed: RssFeed): UIFeed {
         return createUIFeed(
             id = feed.id,
             name = feed.name,
             title = feed.title,
             link = feed.link,
             sourceUrl = feed.sourceUrl,
-            pinned = from.userState.pinned,
+            pinned = feed.pinned,
             imageUrl = feed.image?.url
         )
     }
 
-    fun toUIFeed(feedIdentity: RssFeedIdentity, userState: FeedUserState): UIFeed {
+    fun toUIFeed(feedIdentity: RssFeedIdentity): UIFeed {
         val websiteImageUrl = getWebsiteImageUrl(feedIdentity.link, feedIdentity.sourceUrl)
         return createUIFeed(
             id = feedIdentity.id,
@@ -70,7 +68,7 @@ class FeedInteractor(
             title = feedIdentity.title,
             link = feedIdentity.link,
             sourceUrl = feedIdentity.sourceUrl,
-            pinned = userState.pinned,
+            pinned = feedIdentity.pinned,
             imageUrl = websiteImageUrl
         )
     }

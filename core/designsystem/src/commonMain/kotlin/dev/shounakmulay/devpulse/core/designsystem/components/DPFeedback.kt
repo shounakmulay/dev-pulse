@@ -3,10 +3,8 @@ package dev.shounakmulay.devpulse.core.designsystem.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ContainedLoadingIndicator
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
@@ -28,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPVariantColors
-import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPContextColors
 import dev.shounakmulay.devpulse.core.designsystem.theme.dpPrimaryVariantColors
 import dev.shounakmulay.devpulse.core.designsystem.theme.dpSecondaryVariantColors
 import dev.shounakmulay.devpulse.core.designsystem.theme.dpTertiaryVariantColors
@@ -55,25 +52,12 @@ private data class SnackbarColors(
 @ReadOnlyComposable
 private fun DPSnackbarVariant.resolveColors(): SnackbarColors {
     val cs = MaterialTheme.colorScheme
-    val context = LocalDPContextColors.current
     return when (this) {
-        DPSnackbarVariant.Info -> SnackbarColors(
-            container = context.infoContainer,
-            onContainer = context.onInfoContainer,
-            action = context.onInfoContainer,
-        )
-        DPSnackbarVariant.Success -> SnackbarColors(
-            container = context.successContainer,
-            onContainer = context.onSuccessContainer,
-            action = context.onSuccessContainer,
-        )
-        DPSnackbarVariant.Warning -> SnackbarColors(
-            container = context.warningContainer,
-            onContainer = context.onWarningContainer,
-            action = context.onWarningContainer,
-        )
-        DPSnackbarVariant.Danger -> SnackbarColors(cs.errorContainer, cs.onErrorContainer, cs.onErrorContainer)
-        DPSnackbarVariant.Neutral -> SnackbarColors(cs.surfaceContainerHigh, cs.onSurface, cs.onSurface)
+        DPSnackbarVariant.Info -> SnackbarColors(cs.secondaryContainer, cs.onSecondaryContainer, cs.secondary)
+        DPSnackbarVariant.Success -> SnackbarColors(cs.tertiaryContainer, cs.onTertiaryContainer, cs.tertiary)
+        DPSnackbarVariant.Warning -> SnackbarColors(cs.primaryContainer, cs.onPrimaryContainer, cs.primary)
+        DPSnackbarVariant.Danger -> SnackbarColors(cs.errorContainer, cs.onErrorContainer, cs.error)
+        DPSnackbarVariant.Neutral -> SnackbarColors(cs.surfaceContainerHigh, cs.onSurface, cs.primary)
     }
 }
 
@@ -154,18 +138,12 @@ fun DPSnackbar(
     val sc = variant.resolveColors()
     val action: (@Composable () -> Unit)? = actionLabel?.let { label ->
         @Composable {
-            TextButton(
-                onClick = onAction ?: {},
-                colors = ButtonDefaults.textButtonColors(contentColor = sc.action),
-            ) { Text(label) }
+            TextButton(onClick = onAction ?: {}) { Text(label) }
         }
     }
     val dismissAction: (@Composable () -> Unit)? = dismissLabel?.let { label ->
         @Composable {
-            TextButton(
-                onClick = onDismiss ?: {},
-                colors = ButtonDefaults.textButtonColors(contentColor = sc.action),
-            ) { Text(label) }
+            TextButton(onClick = onDismiss ?: {}) { Text(label) }
         }
     }
     Snackbar(
@@ -227,7 +205,6 @@ private fun DPFeedbackPreview() {
 }
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DPLoadingIndicator(modifier: Modifier = Modifier) {
     ContainedLoadingIndicator(

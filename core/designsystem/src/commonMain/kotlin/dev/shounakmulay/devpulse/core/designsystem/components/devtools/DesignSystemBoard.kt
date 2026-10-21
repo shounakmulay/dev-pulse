@@ -17,20 +17,28 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.devpulse.core.designsystem.theme.AppTheme
+import dev.shounakmulay.devpulse.core.designsystem.theme.DefaultIconSize
+import dev.shounakmulay.devpulse.core.designsystem.theme.DefaultSpacing
+import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPIconSize
+import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.designsystem.theme.appTypography
+import dev.shounakmulay.devpulse.core.designsystem.theme.calmMotionScheme
 import dev.shounakmulay.devpulse.core.designsystem.theme.darkScheme
+import dev.shounakmulay.devpulse.core.designsystem.theme.dpShapes
 import dev.shounakmulay.devpulse.core.designsystem.theme.getColorScheme
 import dev.shounakmulay.devpulse.core.designsystem.theme.lightScheme
 import dev.shounakmulay.devpulse.core.navigation.Navigator
@@ -65,73 +73,80 @@ fun DesignSystemBoard(navigator: Navigator) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val colorScheme = themeMode.resolveColorScheme()
 
-    AppTheme(
+    MaterialExpressiveTheme(
         colorScheme = colorScheme,
-        isDarkTheme = themeMode == ThemeMode.Dark || themeMode == ThemeMode.DynamicDark,
+        typography = appTypography(),
+        shapes = dpShapes,
+        motionScheme = calmMotionScheme(),
     ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(selected?.title ?: "Design System") },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            if (selected != null) {
-                                selected = null
-                            } else {
-                                navigator.navigateBack()
+        CompositionLocalProvider(
+            LocalDPSpacing provides DefaultSpacing,
+            LocalDPIconSize provides DefaultIconSize,
+        ) {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text(selected?.title ?: "Design System") },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                if (selected != null) {
+                                    selected = null
+                                } else {
+                                    navigator.navigateBack()
+                                }
+                            }) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back"
+                                )
                             }
-                        }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { showThemePicker = true }) {
-                            Icon(Icons.Default.Palette, contentDescription = "Switch theme")
-                        }
-                    },
-                )
-            },
-        ) { padding ->
-            AnimatedContent(
-                targetState = selected,
-                modifier = Modifier.padding(padding),
-            ) { section ->
-                when (section) {
-                    null -> SectionList(onSectionClick = { selected = it })
-                    BoardSection.Colors -> ColorBoard(Modifier.fillMaxSize())
-                    BoardSection.Typography -> TypographyBoard(Modifier.fillMaxSize())
-                    BoardSection.Shapes -> ShapeBoard(Modifier.fillMaxSize())
-                    BoardSection.Elevation -> ElevationBoard(Modifier.fillMaxSize())
-                    BoardSection.Motion -> MotionBoard(Modifier.fillMaxSize())
-                    BoardSection.Spacing -> SpacingBoard(Modifier.fillMaxSize())
-                    BoardSection.IconSize -> IconSizeBoard(Modifier.fillMaxSize())
-                    BoardSection.Buttons -> ButtonsBoard(Modifier.fillMaxSize())
-                    BoardSection.IconButtonsAndFabs -> IconButtonsAndFabsBoard(Modifier.fillMaxSize())
-                    BoardSection.CardsAndLists -> CardsAndListsBoard(Modifier.fillMaxSize())
-                    BoardSection.Chips -> ChipsBoard(Modifier.fillMaxSize())
-                    BoardSection.TextFields -> TextFieldsBoard(Modifier.fillMaxSize())
-                    BoardSection.SelectionControls -> SelectionControlsBoard(Modifier.fillMaxSize())
-                    BoardSection.SegmentedAndToolbars -> SegmentedAndToolbarsBoard(Modifier.fillMaxSize())
-                    BoardSection.Navigation -> NavigationBoard(Modifier.fillMaxSize())
-                    BoardSection.Feedback -> FeedbackBoard(Modifier.fillMaxSize())
-                    BoardSection.DialogsAndSheets -> DialogsAndSheetsBoard(Modifier.fillMaxSize())
-                    BoardSection.MenusAndPickers -> MenusAndPickersBoard(Modifier.fillMaxSize())
+                        },
+                        actions = {
+                            IconButton(onClick = { showThemePicker = true }) {
+                                Icon(Icons.Default.Palette, contentDescription = "Switch theme")
+                            }
+                        },
+                    )
+                },
+            ) { padding ->
+                AnimatedContent(
+                    targetState = selected,
+                    modifier = Modifier.padding(padding),
+                ) { section ->
+                    when (section) {
+                        null -> SectionList(onSectionClick = { selected = it })
+                        BoardSection.Colors -> ColorBoard(Modifier.fillMaxSize())
+                        BoardSection.Typography -> TypographyBoard(Modifier.fillMaxSize())
+                        BoardSection.Shapes -> ShapeBoard(Modifier.fillMaxSize())
+                        BoardSection.Elevation -> ElevationBoard(Modifier.fillMaxSize())
+                        BoardSection.Motion -> MotionBoard(Modifier.fillMaxSize())
+                        BoardSection.Spacing -> SpacingBoard(Modifier.fillMaxSize())
+                        BoardSection.IconSize -> IconSizeBoard(Modifier.fillMaxSize())
+                        BoardSection.Buttons -> ButtonsBoard(Modifier.fillMaxSize())
+                        BoardSection.IconButtonsAndFabs -> IconButtonsAndFabsBoard(Modifier.fillMaxSize())
+                        BoardSection.CardsAndLists -> CardsAndListsBoard(Modifier.fillMaxSize())
+                        BoardSection.Chips -> ChipsBoard(Modifier.fillMaxSize())
+                        BoardSection.TextFields -> TextFieldsBoard(Modifier.fillMaxSize())
+                        BoardSection.SelectionControls -> SelectionControlsBoard(Modifier.fillMaxSize())
+                        BoardSection.SegmentedAndToolbars -> SegmentedAndToolbarsBoard(Modifier.fillMaxSize())
+                        BoardSection.Navigation -> NavigationBoard(Modifier.fillMaxSize())
+                        BoardSection.Feedback -> FeedbackBoard(Modifier.fillMaxSize())
+                        BoardSection.DialogsAndSheets -> DialogsAndSheetsBoard(Modifier.fillMaxSize())
+                        BoardSection.MenusAndPickers -> MenusAndPickersBoard(Modifier.fillMaxSize())
+                    }
                 }
             }
-        }
 
-        if (showThemePicker) {
-            ModalBottomSheet(
-                onDismissRequest = { showThemePicker = false },
-                sheetState = sheetState,
-            ) {
-                ThemeSwitcherSheetContent(
-                    selected = themeMode,
-                    onSelect = { themeMode = it },
-                )
+            if (showThemePicker) {
+                ModalBottomSheet(
+                    onDismissRequest = { showThemePicker = false },
+                    sheetState = sheetState,
+                ) {
+                    ThemeSwitcherSheetContent(
+                        selected = themeMode,
+                        onSelect = { themeMode = it },
+                    )
+                }
             }
         }
     }

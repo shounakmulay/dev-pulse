@@ -61,7 +61,6 @@ class PostSortAndFilterViewModel(
                 filters = filters.map {
                     when (it) {
                         is RssPostFilter.Author -> it.copy(values = emptySet())
-                        is RssPostFilter.ReadStatus -> it.copy(value = null)
                         is RssPostFilter.Bookmarked -> it.copy(value = null)
                         is RssPostFilter.Category -> it.copy(values = emptySet())
                         is RssPostFilter.FeedIds -> it.copy(values = emptySet())

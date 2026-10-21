@@ -31,7 +31,6 @@ class FeedViewModel(
     private val feedOptionsMenuProcessor: FeedOptionsMenuProcessor
 ) : MviViewModel<FeedScreenState, FeedScreenEffect>(FeedScreenState()),
     EventHandler<FeedScreenEvent> {
-
     override fun createStateSerializer() = FeedScreenState.serializer()
 
     val pinnedAndRecentFeeds = feedInteractor
@@ -64,15 +63,8 @@ class FeedViewModel(
             initialValue = persistentListOf()
         )
 
-    private fun setPostRead(postId: UUID, isRead: Boolean) {
-        intent {
-            postInteractor.setPostRead(postId = postId, isRead = isRead)
-        }
-    }
-
     override fun onEvent(event: FeedScreenEvent) {
         when (event) {
-            is FeedScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)
             FeedScreenEvent.ConfirmDelete -> confirmDelete()
             FeedScreenEvent.DismissDelete -> intent {
                 if (state.feedOptions is FeedOptionsState.ConfirmingDelete) {

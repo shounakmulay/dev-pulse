@@ -1,21 +1,20 @@
 package dev.shounakmulay.devpulse.core.ui.content
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
@@ -37,8 +36,7 @@ fun EmptyContentPlaceholder(
     ) {
         DPTextView(
             text = text,
-            variant = DPTextViewVariant.TitleMedium,
-            textAlign = TextAlign.Center,
+            variant = DPTextViewVariant.TitleMedium
         )
     }
 }
@@ -49,26 +47,29 @@ fun EmptyContentPlaceholder(
     icon: ImageVector?,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    BoxWithConstraints(
-        modifier = modifier.fillMaxSize().padding(LocalDPSpacing.current.xl),
-        contentAlignment = Alignment.Center,
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val iconSize = (maxWidth * 0.25f).coerceIn(72.dp, 96.dp)
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            if (icon != null) {
-                Icon(
-                    modifier = Modifier.size(iconSize),
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                )
-                Spacer(Modifier.size(LocalDPSpacing.current.xxl))
+        if (icon != null) {
+            val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
+            val widthFraction = remember(windowSizeClass) {
+                if (windowSizeClass.minWidthDp > windowSizeClass.minHeightDp) {
+                    .25f
+                } else {
+                    .5f
+                }
             }
-            content()
+            Icon(
+                modifier = Modifier.fillMaxWidth(widthFraction),
+                imageVector = icon,
+                contentDescription = "",
+                tint = Color.Unspecified
+            )
         }
+        Spacer(Modifier.size(LocalDPSpacing.current.xxl))
+        content()
     }
 }
 

@@ -88,9 +88,6 @@ fun FeedScreen(
             )
 
             postsSection(
-                onReadChanged = { id, isRead ->
-                    viewModel.onEvent(FeedScreenEvent.SetPostRead(id, isRead))
-                },
                 articles = recentArticles,
                 isLoading = state.isArticlesLoading,
                 onPostClick = {

@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.postlist.ui
 
-import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.TopAppBarDefaults
@@ -15,6 +14,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSearchTopAppBar
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
@@ -26,6 +26,7 @@ import dev.shounakmulay.devpulse.core.ui.list.isAtTop
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterEvent
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.screens.postlist.ui.components.PostsList
 import devpulse.core.resources.generated.resources.post_search
 import org.jetbrains.compose.resources.stringResource
@@ -67,7 +68,6 @@ fun PostListScreen(
     Screen(
         modifier = Modifier.nestedScroll(appBarScrollBehavior.nestedScrollConnection),
         viewModel = viewModel,
-        onEffect = {},
         topAppBar = {
             DPSearchTopAppBar(
                 modifier = Modifier.focusRequester(searchFocusRequester),
@@ -88,15 +88,20 @@ fun PostListScreen(
             ScrollToTopFAB(lazyGridState = lazyGridState, collapsedFraction = 0f) {
                 appBarScrollBehavior.expand()
             }
-        }
+        },
+        onEffect = {},
     ) { state ->
         Column {
+            val onBookmarkChanged: (UIFeedPost, Boolean) -> Unit = { post, bookmarked ->
+                viewModel.onEvent(PostListScreenEvent.OnPostBookmarkChanged(post.id, bookmarked))
+            }
+            val onPostClick: (UUID) -> Unit = {
+                navigator.replaceOfSameType(Screen.Tabs.Feed.PostDetail(it), onRootStack = true)
+            }
+
             val posts = viewModel.posts.collectAsLazyPagingItems()
 
             PostsList(
-                onReadChanged = { id, isRead ->
-                    viewModel.onEvent(PostListScreenEvent.SetPostRead(id, isRead))
-                },
                 postSortAndFilterViewModel = postSortAndFilterViewModel,
                 lazyGridState = lazyGridState,
                 posts = posts,
@@ -104,12 +109,8 @@ fun PostListScreen(
                     postSortAndFilterViewModel.onEvent(PostSortAndFilterEvent.OnClearFilters)
                 },
                 state = state,
-                onBookmarkChanged = { post, bookmarked ->
-                    viewModel.onEvent(PostListScreenEvent.OnPostBookmarkChanged(post.id, bookmarked))
-                },
-                onPostClick = {
-                    navigator.replaceOfSameType(Screen.Tabs.Feed.PostDetail(it), onRootStack = true)
-                },
+                onBookmarkChanged = onBookmarkChanged,
+                onPostClick = onPostClick,
             )
         }
     }

@@ -4,19 +4,23 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
-import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonStyle
+import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
+import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
+import dev.shounakmulay.devpulse.core.designsystem.components.DPCard
+import dev.shounakmulay.devpulse.core.designsystem.components.DPCardStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
@@ -24,7 +28,6 @@ import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
-import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPContextColors
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.text.asAnnotatedString
@@ -41,19 +44,50 @@ import devpulse.core.resources.generated.resources.feed_action_retry
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
+fun DiscoveryFeedCard(
+    feed: UIDiscoveryFeed,
+    pending: Boolean,
+    onAdd: () -> Unit,
+    onClick: () -> Unit
+) {
+    DPCard(
+        modifier = Modifier.width(240.dp),
+        style = DPCardStyle.Outlined,
+        onClick = onClick
+    ) {
+        Column(
+            modifier = Modifier.padding(DPTheme.spacing.md),
+            verticalArrangement = Arrangement.spacedBy(DPTheme.spacing.md),
+        ) {
+            Row(
+                Modifier.height(IntrinsicSize.Min).fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                DPFeedListItemImage(
+                    url = feed.imageUrl,
+                    initials = feed.initials,
+                    feedTitle = feed.title,
+                )
+                DiscoveryFeedImportButton(
+                    state = feed.importState,
+                    pending = pending,
+                    onAdd = onAdd
+                )
+            }
+            DiscoveryFeedText(feed = feed, descriptionLines = 2)
+        }
+    }
+}
+
+@Composable
 fun DiscoveryFeedRow(
-    modifier: Modifier = Modifier,
     feed: UIDiscoveryFeed,
     pending: Boolean,
     onAdd: () -> Unit,
     onClick: () -> Unit
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .clickable(onClick = onClick)
-            .padding(DPTheme.spacing.lg),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(DPTheme.spacing.lg),
         horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.md),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -114,68 +148,39 @@ fun DiscoveryFeedImportButton(
         else -> stringRes.discovery_add
     }
 
-    DPIconButton(
-        icon = when (state) {
-            UIDiscoveryFeedImportState.Added -> DPIcons.Check
-            UIDiscoveryFeedImportState.Failed -> DPIcons.Refresh
-            else -> DPIcons.Add
+    DPButton(
+        text = stringResource(label),
+        style = when (state) {
+            UIDiscoveryFeedImportState.Added -> DPButtonStyle.Outlined
+            else -> DPButtonStyle.Filled
         },
-        contentDescription = stringResource(label),
         size = DPSize.Small,
-        style = DPIconButtonStyle.Filled,
-        colors = if (state == UIDiscoveryFeedImportState.Added) IconButtonDefaults.iconButtonColors(
-            disabledContainerColor = LocalDPContextColors.current.successContainer,
-            disabledContentColor = LocalDPContextColors.current.onSuccessContainer
-        ) else null,
         enabled = !pending && state in setOf(
             UIDiscoveryFeedImportState.NotAdded,
             UIDiscoveryFeedImportState.Queued,
             UIDiscoveryFeedImportState.Failed
         ),
+        leadingIcon = when (state) {
+            UIDiscoveryFeedImportState.Added -> DPIcons.Check
+            else -> null
+        },
         onClick = onAdd,
     )
-
-//    DPButton(
-//        text = stringResource(label),
-//        style = when (state) {
-//            UIDiscoveryFeedImportState.Added -> DPButtonStyle.Outlined
-//            else -> DPButtonStyle.Filled
-//        },
-//        size = DPSize.Small,
-//        enabled = !pending && state in setOf(
-//            UIDiscoveryFeedImportState.NotAdded,
-//            UIDiscoveryFeedImportState.Queued,
-//            UIDiscoveryFeedImportState.Failed
-//        ),
-//        leadingIcon = when (state) {
-//            UIDiscoveryFeedImportState.Added -> DPIcons.Check
-//            else -> null
-//        },
-//        onClick = onAdd,
-//    )
 }
 
-//@DPComponentPreview
-//@Composable
-//private fun DiscoveryFeedCardPreview() {
-//    Preview {
-//        DiscoveryFeedCard(
-//            feed = FeedPreviewData.discoveryFeed,
-//            pending = false,
-//            onAdd = {},
-//            onClick = {})
-//    }
-//}
+@DPComponentPreview
+@Composable
+private fun DiscoveryFeedCardPreview() {
+    Preview {
+        DiscoveryFeedCard(feed = FeedPreviewData.discoveryFeed, pending = false, onAdd = {}, onClick = {})
+    }
+}
 
 @DPComponentPreview
 @Composable
 private fun DiscoveryFeedRowPreview() {
     Preview {
-        DiscoveryFeedRow(
-            feed = FeedPreviewData.discoveryFeed,
-            pending = false,
-            onAdd = {},
-            onClick = {})
+        DiscoveryFeedRow(feed = FeedPreviewData.discoveryFeed, pending = false, onAdd = {}, onClick = {})
     }
 }
 
@@ -187,10 +192,7 @@ private fun DiscoveryFeedImportStatesPreview() {
             UIDiscoveryFeedImportState.entries.forEach { state ->
                 DiscoveryFeedImportButton(state = state, pending = false, onAdd = {})
             }
-            DiscoveryFeedImportButton(
-                state = UIDiscoveryFeedImportState.NotAdded,
-                pending = true,
-                onAdd = {})
+            DiscoveryFeedImportButton(state = UIDiscoveryFeedImportState.NotAdded, pending = true, onAdd = {})
         }
     }
 }

@@ -20,6 +20,7 @@ data class RssFeedPost(
     val sourceUrl: String?,
     val categories: List<String>,
     val commentsUrl: String?,
+    val bookmarked: Boolean,
     val youtubeItemData: RssFeedPostYoutubeData?,
     val rawEnclosure: RssFeedPostRawEnclosure?,
     val rawMediaContent: RssFeedPostMediaContent? = null,

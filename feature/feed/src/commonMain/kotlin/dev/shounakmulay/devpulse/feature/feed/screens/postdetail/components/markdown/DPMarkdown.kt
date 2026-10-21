@@ -1,9 +1,5 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.postdetail.components.markdown
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,8 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextLinkStyles
@@ -65,8 +63,6 @@ fun DPMarkdown(
     header: LazyListScope.() -> Unit = {},
     footer: LazyListScope.() -> Unit = {},
     listState: LazyListState = rememberLazyListState(),
-    bodyReadEnabled: Boolean = true,
-    onBodyVisible: () -> Unit = {},
     onImageClick: (link: String) -> Unit
 ) {
     val scopedViewModelOwner = rememberViewModelStoreOwner()
@@ -99,9 +95,6 @@ fun DPMarkdown(
                 SelectionContainer {
                     DPMarkdownContent(
                         state = markdownState,
-                        selectedContent = markdown,
-                        bodyReadEnabled = bodyReadEnabled,
-                        onBodyVisible = onBodyVisible,
                         header = header,
                         footer = footer,
                         listState = listState,
@@ -181,12 +174,9 @@ private fun DPMarkdownError(
 @Composable
 fun DPMarkdownContent(
     state: State,
-    selectedContent: String = (state as? State.Success)?.content.orEmpty(),
     header: LazyListScope.() -> Unit,
     footer: LazyListScope.() -> Unit,
     listState: LazyListState,
-    bodyReadEnabled: Boolean = true,
-    onBodyVisible: () -> Unit = {},
     onImageClick: (link: String) -> Unit
 ) {
     val components = remember {
@@ -260,38 +250,27 @@ fun DPMarkdownContent(
             ),
             components = components,
             success = { state, components, modifier ->
-                var viewport by remember { mutableStateOf(androidx.compose.ui.geometry.Rect.Zero) }
                 val nodes = remember(state.node) { state.node.children }
-                CompositionLocalProvider(LocalReaderExposure provides ReaderExposureContext(
-                    isEligible = bodyReadEnabled,
-                    viewport = viewport,
-                    renderedContent = state.content,
-                    selectedContent = selectedContent,
-                    onVisible = onBodyVisible,
-                )) {
-                    LazyColumn(
-                        modifier = modifier.fillMaxWidth().onGloballyPositioned { viewport = it.boundsInWindow() },
-                        state = listState
-                    ) {
-                        header()
-                        items(
-                            items = nodes,
-                            key = { node -> node.startOffset },
-                            contentType = { node -> node.type }
-                        ) { node ->
-                            ReaderTextExposure(qualifies = hasReadableBodyText(node, state.content) && !containsBodyImage(node)) {
-                                Box(modifier = Modifier.padding(horizontal = LocalDPSpacing.current.lg)) {
-                                    MarkdownElement(
-                                        node = node,
-                                        components = components,
-                                        content = state.content,
-                                        includeSpacer = true,
-                                    )
-                                }
-                            }
+                LazyColumn(
+                    modifier = modifier.fillMaxWidth(),
+                    state = listState
+                ) {
+                    header()
+                    items(
+                        items = nodes,
+                        key = { node -> node.startOffset },
+                        contentType = { node -> node.type }
+                    ) { node ->
+                        Box(modifier = Modifier.padding(horizontal = LocalDPSpacing.current.lg)) {
+                            MarkdownElement(
+                                node = node,
+                                components = components,
+                                content = state.content,
+                                includeSpacer = true,
+                            )
                         }
-                        footer()
                     }
+                    footer()
                 }
             }
         )
