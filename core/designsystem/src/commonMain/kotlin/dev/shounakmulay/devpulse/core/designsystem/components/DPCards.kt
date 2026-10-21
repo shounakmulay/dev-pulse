@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -46,18 +46,9 @@ private fun resolveCardColors(style: DPCardStyle, variant: DPCardVariant): CardC
     val c = variant.variantColors()
     return when {
         c == null -> when (style) {
-            DPCardStyle.Filled -> CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-            )
-            DPCardStyle.Elevated -> CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-            )
-            DPCardStyle.Outlined -> CardDefaults.outlinedCardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-            )
+            DPCardStyle.Filled -> CardDefaults.cardColors()
+            DPCardStyle.Elevated -> CardDefaults.elevatedCardColors()
+            DPCardStyle.Outlined -> CardDefaults.outlinedCardColors()
         }
         else -> when (style) {
             DPCardStyle.Filled -> CardDefaults.cardColors(
@@ -106,7 +97,7 @@ fun DPCard(
 
     when (style) {
         DPCardStyle.Filled -> {
-            val resolvedShape = shape ?: MaterialTheme.shapes.large
+            val resolvedShape = shape ?: CardDefaults.shape
             if (onClick != null) {
                 Card(
                     onClick = onClick, modifier = modifier, enabled = enabled,
@@ -122,7 +113,7 @@ fun DPCard(
             }
         }
         DPCardStyle.Elevated -> {
-            val resolvedShape = shape ?: MaterialTheme.shapes.large
+            val resolvedShape = shape ?: CardDefaults.elevatedShape
             if (onClick != null) {
                 ElevatedCard(
                     onClick = onClick, modifier = modifier, enabled = enabled,
@@ -139,7 +130,7 @@ fun DPCard(
             }
         }
         DPCardStyle.Outlined -> {
-            val resolvedShape = shape ?: MaterialTheme.shapes.large
+            val resolvedShape = shape ?: CardDefaults.outlinedShape
             if (onClick != null) {
                 OutlinedCard(
                     onClick = onClick, modifier = modifier, enabled = enabled,

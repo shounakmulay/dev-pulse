@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post
 
-import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,13 +15,11 @@ fun FeedPostGridCard(
     article: UIFeedPost,
     modifier: Modifier = Modifier,
     showImage: Boolean,
-    onReadChanged: (UUID, Boolean) -> Unit = { _, _ -> },
     onPostClick: (UIFeedPost) -> Unit,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
 ) {
     FeedPostListItem(
         post = article,
-        onReadChanged = onReadChanged,
         showImage = showImage,
         variant = FeedsPostListItemVariant.M,
         onBookmarkChanged = onBookmarkChanged,

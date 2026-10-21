@@ -166,7 +166,7 @@ fun DPBadge(
                 DPTextView(
                     text = text.orEmpty(),
                     variant = DPTextViewVariant.LabelSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = catColor,
                     fontFamily = monoFontFamily(),
                 )
             }

@@ -18,11 +18,12 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.navigation.Navigator
-import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
+import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 import dev.shounakmulay.devpulse.core.ui.text.resolve
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryFeedDetailsBottomSheet
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryFeedPagingList
@@ -33,7 +34,6 @@ import devpulse.core.resources.generated.resources.discovery_no_results
 import devpulse.core.resources.generated.resources.discovery_search_collection
 import devpulse.core.resources.generated.resources.post_search_minimum_length
 import org.jetbrains.compose.resources.stringResource
-import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -45,6 +45,8 @@ fun BrowseFeedCollectionScreen(
     val feeds = viewModel.feeds.collectAsLazyPagingItems()
     val listState = rememberLazyListState()
     val snackbarController = LocalSnackbarController.current
+    val onAddFeed: (UUID) -> Unit =
+        { viewModel.onEvent(BrowseFeedCollectionScreenEvent.OnAddFeed(it)) }
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     MviScreen(
         viewModel = viewModel,
@@ -88,16 +90,8 @@ fun BrowseFeedCollectionScreen(
                             if (searching) stringRes.discovery_no_results
                             else stringRes.discovery_collection_empty
                         ),
-                        onAddFeed = {
-                            viewModel.onEvent(BrowseFeedCollectionScreenEvent.OnAddFeed(it))
-                        },
-                        onFeedClick = {
-                            viewModel.onEvent(
-                                BrowseFeedCollectionScreenEvent.OnFeedClick(
-                                    it
-                                )
-                            )
-                        },
+                        onAddFeed = onAddFeed,
+                        onFeedClick = { viewModel.onEvent(BrowseFeedCollectionScreenEvent.OnFeedClick(it)) },
                         header = {
                             if (!searching) {
                                 stickyHeader {

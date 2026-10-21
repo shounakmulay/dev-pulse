@@ -8,7 +8,6 @@ import dev.shounakmulay.devpulse.bridge.markdownconverter.HtmlToMarkdownConverte
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.dao.PostContentDao
-import dev.shounakmulay.devpulse.core.data.db.dao.PostUserStateDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedAndSearch
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
 import dev.shounakmulay.devpulse.core.data.db.transaction.DevPulseDatabaseTransactionAccessor
@@ -19,8 +18,6 @@ import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostQueryMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.UuidMapper
 import dev.shounakmulay.devpulse.core.data.feed.parser.html.ArticleFtsContentParser
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
-import dev.shounakmulay.devpulse.core.domain.models.feed.FeedUserState
-import dev.shounakmulay.devpulse.core.domain.models.post.PostUserState
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPost
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContent
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
@@ -43,7 +40,6 @@ class PostRepositoryImpl(
     private val articleExtractor: ArticleExtractor,
     private val articleFtsContentParser: ArticleFtsContentParser,
     private val feedPostDao: FeedPostDao,
-    private val postUserStateDao: PostUserStateDao,
     private val postContentDao: PostContentDao,
     private val feedPostPagingSourceProvider: FeedPostPagingSourceProvider,
     private val rssPostQueryMapper: RssPostQueryMapper,
@@ -95,11 +91,7 @@ class PostRepositoryImpl(
     }
 
     override suspend fun setPostBookmarked(id: UUID, bookmarked: Boolean) {
-        postUserStateDao.setBookmarked(postId = uuidMapper.fromUuid(id), bookmarked = bookmarked)
-    }
-
-    override suspend fun setPostRead(id: UUID, isRead: Boolean) {
-        postUserStateDao.setRead(postId = uuidMapper.fromUuid(id), isRead = isRead)
+        feedPostDao.updateBookmarkStatus(id = uuidMapper.fromUuid(id), isBookmarked = bookmarked)
     }
 
     override suspend fun fetchPostContentUseCase(
@@ -235,11 +227,6 @@ class PostRepositoryImpl(
             post = rssPostMapper.toRssFeedPost(post),
             identity = rssFeedMapper.toRssIdentity(feed)
         ).copy(
-            postState = PostUserState(
-                isRead = postState.isRead,
-                bookmarked = postState.bookmarked,
-            ),
-            feedState = FeedUserState(pinned = feedState.pinned, lastOpenedAt = feedState.lastOpenedAt),
             search = search?.let {
                 RssPostSearchHighlights(
                     highlightedTitle = it.highlightedTitle,

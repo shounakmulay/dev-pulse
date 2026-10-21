@@ -8,7 +8,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 /** Generic size axis. Defaults to [Medium] everywhere. */
 enum class DPSize { Small, Medium, Large }
@@ -70,9 +69,9 @@ fun DPSize.iconSize(): Dp {
 @Composable
 @ReadOnlyComposable
 fun DPSize.labelStyle(): TextStyle = when (this) {
-    DPSize.Small -> MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp)
+    DPSize.Small -> MaterialTheme.typography.labelSmall
     DPSize.Medium -> MaterialTheme.typography.labelLarge
-    DPSize.Large -> MaterialTheme.typography.labelLarge
+    DPSize.Large -> MaterialTheme.typography.titleMedium
 }
 
 /** Gap between leading/trailing icon and label. */

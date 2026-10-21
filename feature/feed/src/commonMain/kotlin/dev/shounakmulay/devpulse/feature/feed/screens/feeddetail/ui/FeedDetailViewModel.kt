@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui
 
-import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
@@ -9,7 +8,7 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.GetFeedDetailUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithUserState
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
 import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveFeedPostListItemVariantUseCase
@@ -52,7 +51,6 @@ class FeedDetailViewModel(
 ),
     EventHandler<FeedDetailScreenEvent> {
 
-
     override fun createStateSerializer() = FeedDetailScreenState.serializer()
 
     init {
@@ -93,15 +91,8 @@ class FeedDetailViewModel(
             .launchIn(stateSubscriptionScope)
     }
 
-    private fun setPostRead(postId: UUID, isRead: Boolean) {
-        intent {
-            postInteractor.setPostRead(postId = postId, isRead = isRead)
-        }
-    }
-
     override fun onEvent(event: FeedDetailScreenEvent) {
         when (event) {
-            is FeedDetailScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)
             FeedDetailScreenEvent.ConfirmDelete -> confirmDelete()
             FeedDetailScreenEvent.DismissDelete -> intent {
                 if (state.feedOptions is FeedOptionsState.ConfirmingDelete) {
@@ -132,7 +123,7 @@ class FeedDetailViewModel(
     private fun onPinToggled() {
         intent {
             state.feed?.let {
-                setFeedPinnedUseCase(id = feedId, pinned = !(state.uiFeed?.pinned ?: false))
+                setFeedPinnedUseCase(id = feedId, pinned = !it.pinned)
             }
         }
     }
@@ -143,11 +134,11 @@ class FeedDetailViewModel(
         }
     }
 
-    private suspend fun updateFeed(feed: Result<RssFeedWithUserState>) {
+    private suspend fun updateFeed(feed: Result<RssFeed>) {
         feed.onSuccess { rssFeed ->
             setState {
                 copy(
-                    feed = rssFeed.feed,
+                    feed = rssFeed,
                     uiFeed = feedInteractor.toUIFeed(rssFeed),
                     isLoading = false
                 )

@@ -150,12 +150,10 @@ class LocalFeedPostSqlQueryBuilder(
                 bindings = bindings,
             )
         }
-        val selectIdsFirst = search == null && query.filters.any {
-            it is LocalFeedPostFilter.Bookmarked && it.value == true
-        }
-        val pageSql = buildString {
+        val sort = if (reversed) query.sort.reversed() else query.sort
+        val sql = buildString {
             search?.let { appendLine(it.ctes) }
-            appendProjection(search = search != null, idsOnly = selectIdsFirst)
+            appendProjection(search = search != null)
             if (search != null) {
                 appendLine("LEFT JOIN post_matches ph ON ph.postRowId = p.rowid")
                 appendLine("LEFT JOIN article_matches ah ON ah.postId = p.id")
@@ -163,20 +161,8 @@ class LocalFeedPostSqlQueryBuilder(
             if (clauses.isNotEmpty()) {
                 appendLine("WHERE ${clauses.joinToString(separator = " AND ")}")
             }
-            appendLine("ORDER BY ${buildOrderBy(query.sort, reversed)}")
+            appendLine("ORDER BY ${buildOrderBy(sort)}")
             append("LIMIT ?")
-        }
-        val sql = if (selectIdsFirst) {
-            buildString {
-                appendLine("WITH selected_posts AS MATERIALIZED (")
-                appendLine(pageSql)
-                appendLine(")")
-                appendProjection()
-                appendLine("INNER JOIN selected_posts selected ON selected.id = p.id")
-                append("ORDER BY ${buildOrderBy(query.sort, reversed)}")
-            }
-        } else {
-            pageSql
         }
         bindings += SqlBinding.LongValue(limit.toLong())
         return RoomRawQuery(sql = sql) { statement ->
@@ -189,14 +175,46 @@ class LocalFeedPostSqlQueryBuilder(
         val bindings: List<SqlBinding>,
     )
 
-    private fun buildOrderBy(sort: LocalFeedPostSort, reversed: Boolean): String {
-        val (primaryDirection, idDirection) = sort.getDirections()
-        val primary = if (reversed) primaryDirection.reverse() else primaryDirection
-        val id = if (reversed) idDirection.reverse() else idDirection
-        return "${sort.asColumnName()} ${primary.sql}, ${FeedColumnsSelector.ID} ${id.sql}"
+    private fun buildOrderBy(sort: LocalFeedPostSort): String {
+        val sortTerms = when (sort) {
+            LocalFeedPostSort.PublishedNewest -> {
+                listOf(
+                    "${FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS} ${LocalFeedPostSortDirection.Descending.sql}",
+                    orderByIdClause(LocalFeedPostSortDirection.Descending)
+                )
+            }
+
+            LocalFeedPostSort.PublishedOldest -> {
+                listOf(
+                    "${FeedColumnsSelector.PUBLISHED_AT_EPOCH_MILLIS} ${LocalFeedPostSortDirection.Ascending.sql}",
+                    orderByIdClause(
+                        LocalFeedPostSortDirection.Ascending
+                    )
+                )
+            }
+
+            LocalFeedPostSort.TitleAtoZ -> {
+                listOf(
+                    "${FeedColumnsSelector.TITLE} ${LocalFeedPostSortDirection.Ascending.sql}",
+                    orderByIdClause(LocalFeedPostSortDirection.Descending)
+                )
+            }
+
+            LocalFeedPostSort.TitleZtoA -> {
+                listOf(
+                    "${FeedColumnsSelector.TITLE} ${LocalFeedPostSortDirection.Descending.sql}",
+                    orderByIdClause(LocalFeedPostSortDirection.Descending)
+                )
+            }
+        }
+        return sortTerms.joinToString(", ")
     }
 
-    private fun StringBuilder.appendProjection(search: Boolean = false, idsOnly: Boolean = false) {
+    private fun orderByIdClause(direction: LocalFeedPostSortDirection): String {
+        return "${FeedColumnsSelector.ID} ${direction.sql}"
+    }
+
+    private fun StringBuilder.appendProjection(search: Boolean = false) {
         val highlightedTitle = if (search) "CASE WHEN ph.rawTitle != ph.title THEN ph.rawTitle END" else "NULL"
         val highlightedDescription = if (search) {
             "CASE WHEN ph.markedDescription != ph.description THEN ph.rawDescription END"
@@ -204,19 +222,14 @@ class LocalFeedPostSqlQueryBuilder(
         val highlightedContent = if (search) {
             "COALESCE(ah.rawContent, CASE WHEN ph.markedContent != ph.content THEN ph.rawContent END)"
         } else "NULL"
-        if (idsOnly) {
-            appendLine("SELECT p.id")
-        } else appendLine(
+        appendLine(
             """
             SELECT 
                 p.*,
                 ${FeedColumnsSelector.FEED_ID} AS ${FeedColumnsSelector.FEED_ID_ALIAS},
                 ${FeedColumnsSelector.FEED_TITLE} AS ${FeedColumnsSelector.FEED_TITLE_ALIAS},
                 ${FeedColumnsSelector.FEED_NAME} AS ${FeedColumnsSelector.FEED_NAME_ALIAS},
-                COALESCE(ps.isRead, 0) AS postState_isRead,
-                COALESCE(ps.bookmarked, 0) AS postState_bookmarked,
-                COALESCE(fs.pinned, 0) AS feedState_pinned,
-                fs.lastOpenedAt AS feedState_lastOpenedAt,
+                ${FeedColumnsSelector.FEED_PINNED} AS ${FeedColumnsSelector.FEED_PINNED_ALIAS},
                 ${FeedColumnsSelector.FEED_SOURCE_URL} AS ${FeedColumnsSelector.FEED_SOURCE_URL_ALIAS},
                 ${FeedColumnsSelector.FEED_LINK} AS ${FeedColumnsSelector.FEED_LINK_ALIAS},
                 ${FeedColumnsSelector.FEED_CREATED_AT} AS ${FeedColumnsSelector.FEED_CREATED_AT_ALIAS},
@@ -224,14 +237,8 @@ class LocalFeedPostSqlQueryBuilder(
                 $highlightedTitle AS search_highlightedTitle,
                 $highlightedDescription AS search_highlightedDescription,
                 $highlightedContent AS search_highlightedContent
-            """.trimIndent()
-        )
-        appendLine(
-            """
             FROM LocalRssContentFeedPost p
             INNER JOIN LocalRssFeed f ON ${FeedColumnsSelector.POST_FEED_ID} = ${FeedColumnsSelector.FEED_ID}
-            LEFT JOIN LocalRssPostUserState ps ON ps.postId = p.id
-            LEFT JOIN LocalRssFeedUserState fs ON fs.feedId = f.id
             """.trimIndent()
         )
     }
@@ -250,15 +257,9 @@ class LocalFeedPostSqlQueryBuilder(
                     }
                 }
 
-                is LocalFeedPostFilter.ReadStatus -> {
-                    if (filter.value == null) continue
-                    clauses += if (filter.value) "ps.isRead = ?" else "COALESCE(ps.isRead, 0) = ?"
-                    bindings += SqlBinding.BooleanValue(filter.value)
-                }
-
                 is LocalFeedPostFilter.Bookmarked -> {
                     if (filter.value == null) continue
-                    clauses += if (filter.value) "ps.bookmarked = ?" else "${FeedColumnsSelector.BOOKMARKED} = ?"
+                    clauses += "${FeedColumnsSelector.BOOKMARKED} = ?"
                     bindings += SqlBinding.BooleanValue(filter.value)
                 }
 
@@ -423,9 +424,8 @@ class LocalFeedPostSqlQueryBuilder(
         reversed: Boolean,
         bindings: MutableList<SqlBinding>
     ): String {
-        val (sortDirection, sortIdDirection) = cursor.sort.getDirections()
-        val primaryDirection = if (reversed) sortDirection.reverse() else sortDirection
-        val idDirection = if (reversed) sortIdDirection.reverse() else sortIdDirection
+        val effectiveSort = if (reversed) cursor.sort.reversed() else cursor.sort
+        val (primaryDirection, idDirection) = effectiveSort.getDirections()
         val primaryOp = primaryDirection.toOperator(includeCursor = false)
         val idOp = idDirection.toOperator(includeCursor)
         val sortColumnName = cursor.sort.asColumnName()

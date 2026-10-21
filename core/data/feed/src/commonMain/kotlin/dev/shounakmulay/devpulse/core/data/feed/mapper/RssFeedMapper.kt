@@ -4,9 +4,6 @@ import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedImage
 import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedYoutubeChannel
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedSearchResult
-import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedWithUserState
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithUserState
-import dev.shounakmulay.devpulse.core.domain.models.feed.FeedUserState
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
@@ -47,10 +44,12 @@ class RssFeedMapper(
             id = uuidMapper.toUuid(from.id),
             title = from.title,
             name = from.name,
+            pinned = from.pinned,
             sourceUrl = from.sourceUrl,
             link = from.link,
             createdAt = from.createdAt,
             updatedAt = from.updatedAt,
+            lastOpenedAt = from.lastOpenedAt,
         )
     }
 
@@ -74,6 +73,8 @@ class RssFeedMapper(
             youtubeChannel = from.youtubeChannel?.let { toLocalRssFeedYoutubeChannel(it) },
             createdAt = existingIdentity?.createdAt ?: now,
             updatedAt = now,
+            pinned = existingIdentity?.pinned ?: false,
+            lastOpenedAt = existingIdentity?.lastOpenedAt,
         )
     }
 
@@ -100,6 +101,8 @@ class RssFeedMapper(
             youtubeChannel = from.youtubeChannel?.let { toLocalRssFeedYoutubeChannel(it) },
             createdAt = existingIdentity?.createdAt ?: now,
             updatedAt = now,
+            pinned = existingIdentity?.pinned ?: false,
+            lastOpenedAt = existingIdentity?.lastOpenedAt,
         )
     }
 
@@ -117,6 +120,8 @@ class RssFeedMapper(
             youtubeChannel = from.youtubeChannel?.let { toLocalRssFeedYoutubeChannel(it) },
             createdAt = from.createdAt,
             updatedAt = from.updatedAt,
+            pinned = from.pinned,
+            lastOpenedAt = from.lastOpenedAt,
         )
     }
 
@@ -141,6 +146,8 @@ class RssFeedMapper(
             youtubeChannel = from.youtubeChannel?.let { toRssFeedYoutubeChannel(it) },
             createdAt = existingIdentity?.createdAt ?: now,
             updatedAt = now,
+            pinned = existingIdentity?.pinned ?: false,
+            lastOpenedAt = existingIdentity?.lastOpenedAt,
         )
     }
 
@@ -184,11 +191,6 @@ class RssFeedMapper(
         )
 
 
-    fun toRssFeed(from: LocalRssFeedWithUserState) = RssFeedWithUserState(
-        feed = toRssFeed(from.feed),
-        userState = FeedUserState(pinned = from.state.pinned, lastOpenedAt = from.state.lastOpenedAt),
-    )
-
     fun toRssFeed(from: LocalRssFeed) = RssFeed(
         id = uuidMapper.toUuid(from.id),
         sourceUrl = from.sourceUrl,
@@ -202,6 +204,8 @@ class RssFeedMapper(
         youtubeChannel = from.youtubeChannel?.toRssFeedYoutubeChannel(),
         createdAt = from.createdAt,
         updatedAt = from.updatedAt,
+        pinned = from.pinned,
+        lastOpenedAt = from.lastOpenedAt,
     )
 
     private fun LocalRssFeedImage.toRssFeedImage() = RssFeedImage(

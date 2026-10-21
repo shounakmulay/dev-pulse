@@ -5,9 +5,6 @@ import androidx.paging.map
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.extensions.ifNullOrBlank
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
-import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostReadUseCase
-import dev.shounakmulay.devpulse.core.domain.models.common.UUID
-import dev.shounakmulay.devpulse.core.logging.DPLog
 import dev.shounakmulay.devpulse.core.domain.feed.posts.GetPaginatedFeedPostsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
@@ -41,14 +38,12 @@ class PostInteractor(
     private val getRecentFeedItemsUseCase: GetRecentFeedItemsUseCase,
     private val getPaginatedFeedPostsUseCase: GetPaginatedFeedPostsUseCase,
     private val dispatcherProvider: DispatcherProvider,
-    private val dateTimeStringConverter: DateTimeStringConverter,
-    private val setPostReadUseCase: SetPostReadUseCase,
+    private val dateTimeStringConverter: DateTimeStringConverter
 ) {
     companion object {
         fun getDefaultFiltersFor(screen: Screen): ImmutableList<RssPostFilter> {
             return when (screen) {
                 is Screen.Tabs.Feed.FeedDetail -> listOf(
-                    RssPostFilter.ReadStatus(null),
                     RssPostFilter.Bookmarked(null),
                     RssPostFilter.PublishedRange(),
                     RssPostFilter.Category(emptySet()),
@@ -57,7 +52,6 @@ class PostInteractor(
 
                 else -> listOf(
                     RssPostFilter.FeedIds(emptySet()),
-                    RssPostFilter.ReadStatus(null),
                     RssPostFilter.Bookmarked(null),
                     RssPostFilter.PublishedRange(),
                     RssPostFilter.Category(emptySet()),
@@ -87,12 +81,6 @@ class PostInteractor(
         }
     }
 
-    suspend fun setPostRead(postId: UUID, isRead: Boolean) {
-        setPostReadUseCase(id = postId, isRead = isRead).onFailure {
-            DPLog.e(tag = "PostInteractor", throwable = it) { "Couldn't update post read status" }
-        }
-    }
-
     fun getRecentArticlesFlow(): Flow<ImmutableList<UIFeedPost>> {
         return getRecentFeedItemsUseCase().map { feedItems ->
             feedItems.map {
@@ -119,7 +107,7 @@ class PostInteractor(
 
     fun toUIFeedPost(postWithFeedIdentity: RssPostWithFeedIdentityAndSearch): UIFeedPost {
         val (post, feedIdentity) = postWithFeedIdentity
-        val uiFeedIdentity = feedInteractor.toUIFeed(feedIdentity, postWithFeedIdentity.feedState)
+        val uiFeedIdentity = feedInteractor.toUIFeed(feedIdentity)
         val title = post.title.ifNullOrBlank {
             uiFeedIdentity.title
         }
@@ -155,10 +143,9 @@ class PostInteractor(
             publishedText = publishedText,
             imageUrl = imageUrl,
             summary = summary,
-            bookmarked = postWithFeedIdentity.postState.bookmarked,
-            isRead = postWithFeedIdentity.postState.isRead,
+            bookmarked = post.bookmarked,
             createdAt = createAt,
-            feed = feedInteractor.toUIFeed(feedIdentity, postWithFeedIdentity.feedState),
+            feed = feedInteractor.toUIFeed(feedIdentity),
             search = postWithFeedIdentity.search?.let { search ->
                 UIFeedPostSearchHighlights(
                     highlightedTitle = search.highlightedTitle?.let(::parseFtsHighlightedText),

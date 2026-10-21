@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post
 
-import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
@@ -31,7 +30,6 @@ import org.jetbrains.compose.resources.stringResource
 fun LazyListScope.postsSection(
     articles: List<UIFeedPost>,
     isLoading: Boolean,
-    onReadChanged: (UUID, Boolean) -> Unit = { _, _ -> },
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UIFeedPost) -> Unit,
     onViewAll: () -> Unit
@@ -84,7 +82,6 @@ fun LazyListScope.postsSection(
                 FeedPostGridCard(
                     showImage = showImage,
                     article = article,
-                    onReadChanged = onReadChanged,
                     onBookmarkChanged = onBookmarkChanged,
                     onPostClick = onPostClick,
                     modifier = Modifier.animateItem()
