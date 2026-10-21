@@ -1,9 +1,11 @@
 package dev.shounakmulay.devpulse.core.ui.list.post
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,13 +18,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil3.ColorImage
+import coil3.compose.AsyncImagePreviewHandler
+import coil3.compose.LocalAsyncImagePreviewHandler
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconToggleButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextDot
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
@@ -33,9 +44,14 @@ import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
+import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.image.DPFeedImage
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.text.asAnnotatedString
+import devpulse.core.resources.generated.resources.bookmarked
+import devpulse.core.resources.generated.resources.post_read_state
+import devpulse.core.resources.generated.resources.post_unread_state
+import org.jetbrains.compose.resources.stringResource
 
 
 @Composable
@@ -53,20 +69,23 @@ fun FeedPostListItem(
     publishedText: String?,
     createdAt: String,
     bookmarked: Boolean,
+    isRead: Boolean = false,
+    actions: @Composable () -> Unit = {},
     onBookmarkChanged: (Boolean) -> Unit,
     onPostClick: () -> Unit
 ) {
+    val readStateDescription = stringResource(
+        if (isRead) stringRes.post_read_state else stringRes.post_unread_state
+    )
     Surface(
         modifier = modifier
             .fillMaxHeight()
             .clip(MaterialTheme.shapes.large)
-            .combinedClickable(
-                onClick = onPostClick,
-                onLongClick = {},
-            ),
+            .clickable(onClick = onPostClick)
+            .semantics { stateDescription = readStateDescription },
         border = BorderStroke(
             1.dp,
-            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.25f)
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
         ),
         shape = MaterialTheme.shapes.large,
         color = Color.Transparent
@@ -85,6 +104,8 @@ fun FeedPostListItem(
             publishedText = publishedText,
             createdAt = createdAt,
             bookmarked = bookmarked,
+            isRead = isRead,
+            actions = actions,
             onBookmarkChanged = onBookmarkChanged
         )
     }
@@ -105,14 +126,13 @@ private fun PostListItemContent(
     publishedText: String?,
     createdAt: String,
     bookmarked: Boolean,
+    isRead: Boolean,
+    actions: @Composable () -> Unit,
     onBookmarkChanged: (Boolean) -> Unit
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(
-            LocalDPSpacing.current.md,
-            Alignment.CenterVertically
-        )
+        verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md)
     ) {
         if (variant > FeedsPostListItemVariant.M) {
             if (showImage) {
@@ -122,22 +142,27 @@ private fun PostListItemContent(
                     variant = variant,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(MaterialTheme.shapes.large)
+                        .dimmedIfRead(isRead)
+                        .clip(MaterialTheme.shapes.medium)
                 )
             }
             FeedPostListItemFeedTitle(
                 variant = variant,
                 websiteImageUrl = websiteImageUrl,
                 feedInitials = feedInitials,
-                feedTitle = feedTitle
+                feedTitle = feedTitle,
+                isRead = isRead
             )
         }
         Row(
             horizontalArrangement = Arrangement.spacedBy(
                 LocalDPSpacing.current.md,
-                Alignment.CenterHorizontally
+                Alignment.Start
             ),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = when (variant) {
+                FeedsPostListItemVariant.XS -> Alignment.CenterVertically
+                else -> Alignment.Top
+            }
         ) {
             when (variant) {
                 FeedsPostListItemVariant.XS -> {
@@ -153,10 +178,12 @@ private fun PostListItemContent(
                 FeedsPostListItemVariant.M -> {
                     if (showImage) {
                         val size = if (variant == FeedsPostListItemVariant.M) {
-                            80.dp
+                            88.dp
                         } else 64.dp
                         FeedPostListItemImage(
-                            modifier = Modifier.size(size).clip(MaterialTheme.shapes.medium),
+                            modifier = Modifier.size(size)
+                                .dimmedIfRead(isRead)
+                                .clip(MaterialTheme.shapes.medium),
                             imageUrl = imageUrl,
                             title = title,
                             variant = variant,
@@ -167,16 +194,15 @@ private fun PostListItemContent(
                 else -> {}
             }
             Column(
-                verticalArrangement = Arrangement.spacedBy(
-                    LocalDPSpacing.current.md,
-                    Alignment.CenterVertically
-                )
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.sm)
             ) {
                 FeedPostListItemBody(
                     variant = variant,
                     title = title,
                     description = description,
-                    context = context
+                    context = context,
+                    isRead = isRead,
                 )
             }
         }
@@ -188,7 +214,9 @@ private fun PostListItemContent(
             feedTitle = feedTitle,
             publishedText = publishedText,
             createdAt = createdAt,
-            bookmarked = bookmarked
+            bookmarked = bookmarked,
+            isRead = isRead,
+            actions = actions,
         )
     }
 }
@@ -202,15 +230,17 @@ private fun FeedPostListItemMetadata(
     publishedText: String?,
     createdAt: String,
     bookmarked: Boolean,
-    onBookmarkChanged: (Boolean) -> Unit
+    actions: @Composable () -> Unit,
+    onBookmarkChanged: (Boolean) -> Unit,
+    isRead: Boolean
 ) {
     val labelTextVariant = remember(variant) {
         when (variant) {
             FeedsPostListItemVariant.XS -> DPTextViewVariant.LabelSmall
             FeedsPostListItemVariant.S -> DPTextViewVariant.LabelSmall
-            FeedsPostListItemVariant.M -> DPTextViewVariant.LabelSmallEmphasized
+            FeedsPostListItemVariant.M -> DPTextViewVariant.LabelSmall
             FeedsPostListItemVariant.L -> DPTextViewVariant.LabelMedium
-            FeedsPostListItemVariant.XL -> DPTextViewVariant.LabelMediumEmphasized
+            FeedsPostListItemVariant.XL -> DPTextViewVariant.LabelMedium
         }
     }
     Row(
@@ -231,12 +261,16 @@ private fun FeedPostListItemMetadata(
                     url = websiteImageUrl,
                     initials = feedInitials,
                     feedTitle = feedTitle,
-                    modifier = Modifier.size(16.dp).aspectRatio(1f).clip(CircleShape)
+                    modifier = Modifier
+                        .size(16.dp)
+                        .aspectRatio(1f)
+                        .clip(CircleShape)
+                        .dimmedIfRead(isRead)
                 )
                 DPTextDot()
                 DPTextView(
                     text = feedTitle,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = readTextColor(isRead),
                     variant = labelTextVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -246,45 +280,47 @@ private fun FeedPostListItemMetadata(
             }
             DPTextView(
                 text = publishedText ?: createdAt,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = readTextColor(isRead),
                 variant = labelTextVariant,
                 maxLines = 1
             )
-            DPTextDot()
-            DPTextView(
-                text = "12 Mins",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                variant = labelTextVariant,
-                maxLines = 1
-            )
+//            DPTextDot()
+//            DPTextView(
+//                text = "12 Mins",
+//                color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                variant = labelTextVariant,
+//                maxLines = 1
+//            )
         }
         DPIconToggleButton(
             size = DPSize.Small,
             icon = DPIcons.BookmarkAddOutline,
             checkedIcon = DPIcons.BookmarkAdded,
-            contentDescription = "",
+            contentDescription = stringResource(stringRes.bookmarked),
             checked = bookmarked,
             onCheckedChange = { checked ->
                 onBookmarkChanged(checked)
             },
         )
+        actions()
     }
 }
 
 @Composable
-private fun FeedPostListItemBody(
+private fun ColumnScope.FeedPostListItemBody(
     variant: FeedsPostListItemVariant,
     title: TextResource,
     description: TextResource?,
-    context: TextResource?
+    context: TextResource?,
+    isRead: Boolean,
 ) {
-    val titleTextVariant = remember(variant) {
+    val titleStyle = remember(variant) {
         when (variant) {
             FeedsPostListItemVariant.XS -> DPTextViewVariant.TitleSmall
-            FeedsPostListItemVariant.S -> DPTextViewVariant.TitleSmallEmphasized
+            FeedsPostListItemVariant.S -> DPTextViewVariant.TitleMedium
             FeedsPostListItemVariant.M -> DPTextViewVariant.TitleMedium
-            FeedsPostListItemVariant.L -> DPTextViewVariant.TitleLargeEmphasized
-            FeedsPostListItemVariant.XL -> DPTextViewVariant.HeadingSmallEmphasized
+            FeedsPostListItemVariant.L -> DPTextViewVariant.TitleMedium
+            FeedsPostListItemVariant.XL -> DPTextViewVariant.TitleLarge
         }
     }
     val titleMaxLine = remember(variant) {
@@ -299,10 +335,10 @@ private fun FeedPostListItemBody(
     val summaryTextVariant = remember(variant) {
         when (variant) {
             FeedsPostListItemVariant.XS -> DPTextViewVariant.BodySmall
-            FeedsPostListItemVariant.S -> DPTextViewVariant.BodySmall
-            FeedsPostListItemVariant.M -> DPTextViewVariant.BodySmallEmphasized
+            FeedsPostListItemVariant.S -> DPTextViewVariant.BodyMedium
+            FeedsPostListItemVariant.M -> DPTextViewVariant.BodyMedium
             FeedsPostListItemVariant.L -> DPTextViewVariant.BodyMedium
-            FeedsPostListItemVariant.XL -> DPTextViewVariant.BodyMediumEmphasized
+            FeedsPostListItemVariant.XL -> DPTextViewVariant.BodyLarge
         }
     }
     val summaryMaxLines = remember(variant) {
@@ -317,7 +353,9 @@ private fun FeedPostListItemBody(
 
     DPTextView(
         text = title.asAnnotatedString(color = MaterialTheme.colorScheme.primary),
-        variant = titleTextVariant,
+        color = readTextColor(isRead, ifNotRead = MaterialTheme.colorScheme.onSurface),
+        variant = titleStyle,
+        fontWeight = if (isRead) FontWeight.Normal else null,
         maxLines = titleMaxLine,
         overflow = TextOverflow.Ellipsis
     )
@@ -326,7 +364,7 @@ private fun FeedPostListItemBody(
         DPTextView(
             text = summary.asAnnotatedString(color = MaterialTheme.colorScheme.primary),
             variant = summaryTextVariant,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = readTextColor(isRead),
             maxLines = summaryMaxLines,
             overflow = TextOverflow.Ellipsis
         )
@@ -338,7 +376,8 @@ private fun FeedPostListItemFeedTitle(
     variant: FeedsPostListItemVariant,
     websiteImageUrl: String?,
     feedInitials: String,
-    feedTitle: String
+    feedTitle: String,
+    isRead: Boolean
 ) {
     val imageSize = remember(variant) {
         when (variant) {
@@ -371,8 +410,9 @@ private fun FeedPostListItemFeedTitle(
             text = feedTitle,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             variant = textVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            fontWeight = if (isRead) FontWeight.Medium else null,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
         )
     }
 }
@@ -398,28 +438,58 @@ private fun FeedPostListItemImage(
     )
 }
 
+private fun Modifier.dimmedIfRead(isRead: Boolean): Modifier {
+    return this.alpha(if (isRead) 0.25f else 1f)
+}
+
+@Composable
+private fun readTextColor(
+    isRead: Boolean,
+    ifNotRead: Color = MaterialTheme.colorScheme.onSurfaceVariant
+): Color {
+    return if (isRead) {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+    } else {
+        ifNotRead
+    }
+
+}
+
 @DPScreenPreview
 @Composable
+@OptIn(coil3.annotation.ExperimentalCoilApi::class)
 private fun FeedPostListItemVariantsPreview() {
     Preview {
-        LazyColumn {
-            items(FeedsPostListItemVariant.entries) { variant ->
-                FeedPostListItem(
-                    variant = variant,
-                    showImage = false,
-                    title = TextResource.fromText("Building better apps with Kotlin Multiplatform"),
-                    description = TextResource.fromText("Shared business logic and adaptive interfaces across platforms."),
-                    context = null,
-                    imageUrl = null,
-                    websiteImageUrl = null,
-                    feedInitials = "KB",
-                    feedTitle = "Kotlin Blog",
-                    publishedText = "2 hours ago",
-                    createdAt = "Today",
-                    bookmarked = true,
-                    onBookmarkChanged = {},
-                    onPostClick = {},
-                )
+        CompositionLocalProvider(
+            LocalAsyncImagePreviewHandler provides AsyncImagePreviewHandler {
+                ColorImage(Color(0xFFB8ADA1).toArgb())
+            }
+        ) {
+            LazyColumn(
+                contentPadding = PaddingValues(LocalDPSpacing.current.lg),
+                verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
+            ) {
+                items(FeedsPostListItemVariant.entries.drop(3).flatMap { variant ->
+                    listOf(variant to false, variant to true)
+                }) { (variant, isRead) ->
+                    FeedPostListItem(
+                        variant = variant,
+                        showImage = true,
+                        title = TextResource.fromText("Building better apps with Kotlin Multiplatform"),
+                        description = TextResource.fromText("Shared business logic and adaptive interfaces across platforms."),
+                        context = null,
+                        imageUrl = "preview-article",
+                        websiteImageUrl = null,
+                        feedInitials = "KB",
+                        feedTitle = "Kotlin Blog",
+                        publishedText = "2 hours ago",
+                        createdAt = "Today",
+                        bookmarked = variant == FeedsPostListItemVariant.M,
+                        isRead = isRead,
+                        onBookmarkChanged = {},
+                        onPostClick = {},
+                    )
+                }
             }
         }
     }

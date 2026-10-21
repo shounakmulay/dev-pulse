@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components
 
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -50,6 +51,7 @@ internal fun FeedPostList(
     uiFeed: UIFeed,
     feed: RssFeed,
     posts: LazyPagingItems<UIFeedPost>,
+    onReadChanged: (UUID, Boolean) -> Unit = { _, _ -> },
     postSortAndFilterState: PostSortAndFilterState,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UIFeedPost) -> Unit,
@@ -94,7 +96,11 @@ internal fun FeedPostList(
         }
 
         if (posts.loadState.refresh is LoadState.NotLoading && posts.itemCount == 0) {
-            postsListEmptyMessage(clearFilters)
+            postsListEmptyMessage(
+                readStatus = postSortAndFilterState.filters.filterIsInstance<RssPostFilter.ReadStatus>().firstOrNull()?.value,
+                showAllPosts = { onFilterUpdated(RssPostFilter.ReadStatus(null)) },
+                clearFilters = clearFilters,
+            )
         }
 
         items(
@@ -106,6 +112,7 @@ internal fun FeedPostList(
                 FeedPostListItem(
                     modifier = Modifier.animateItem(),
                     post = post,
+                    onReadChanged = onReadChanged,
                     showImage = true,
                     onPostClick = onPostClick,
                     onBookmarkChanged = onBookmarkChanged,

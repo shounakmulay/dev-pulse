@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.feed.mapper
 
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
+import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.feed.identity.RssIdentityGenerator
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedMetadata
@@ -27,10 +28,9 @@ class RssFeedMapperTest {
         val result = mapper.toLocalRssFeed(
             from = createChannel(lastBuildDate = "Tue, 19 May 2026 10:00:00 GMT"),
             existingIdentity = LocalRssFeedIdentitySlice(
-                id = "feed-1",
+                id = LocalUUID("feed-1"),
                 title = "Title",
                 name = "Example",
-                pinned = false,
                 sourceUrl = "https://example.com/feed.xml",
                 link = "https://example.com",
                 createdAt = 1234L,
@@ -45,6 +45,7 @@ class RssFeedMapperTest {
 
     private fun createQueueEntry(): RssFeedQueueEntry {
         return RssFeedQueueEntry(
+            feedId = null,
             url = "https://example.com/feed.xml",
             name = "Example",
             feedType = RssFeedType.CONTENT,
@@ -65,7 +66,8 @@ class RssFeedMapperTest {
             image = null,
             lastBuildDate = lastBuildDate,
             updatePeriod = null,
-            youtubeChannel = null
+            youtubeChannel = null,
+            etag = null,
         )
     }
 
@@ -79,6 +81,7 @@ class RssFeedMapperTest {
         override fun getTimeElapsed(instant: Instant): Duration = Duration.ZERO
 
         override fun now(): Instant = Instant.fromEpochMilliseconds( nowEpochMilliseconds())
+        override fun timeInFuture(duration: Duration): Long = nowEpochMilliseconds() + duration.inWholeMilliseconds
         override fun nowEpochMilliseconds(): Long = 1779184800000L
         override fun today(): LocalDate = LocalDate(year = 2026, monthNumber = 5, dayOfMonth = 19)
     }

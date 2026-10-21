@@ -5,6 +5,13 @@ import androidx.paging.PagingState
 import androidx.room3.RoomRawQuery
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
+import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedUserStateDao
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedUserState
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedWithUserState
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedSearchResult
+import dev.shounakmulay.devpulse.core.data.db.query.FtsQuerySanitizer
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
@@ -79,20 +86,14 @@ class FeedRepositoryImplTest {
             opmlParser = OpmlParser(),
             networkClient = networkClient,
             feedDao = FakeFeedDao(),
-            feedPostDao = FakeFeedPostDao(),
-            feedPostPagingSourceProvider = FakeFeedPostPagingSourceProvider(),
+            feedUserStateDao = FakeFeedUserStateDao(),
             rssFeedMapper = RssFeedMapper(
                 identityGenerator = FakeIdentityGenerator(),
                 dateTimeProvider = FakeDateTimeProvider(),
                 uuidMapper = UuidMapper()
             ),
-            rssPostMapper = RssPostMapper(
-                idGenerator = FakeIdentityGenerator(),
-                dateTimeProvider = FakeDateTimeProvider(),
-                uuidMapper = UuidMapper()
-            ),
-            logger = DPLog.tag("ContentFeedRepositoryImplTest"),
-            rssPostQueryMapper = RssPostQueryMapper()
+            uuidMapper = UuidMapper(),
+            ftsQuerySanitizer = FtsQuerySanitizer(),
         )
     }
 
@@ -108,9 +109,9 @@ class FeedRepositoryImplTest {
     private class FakeFeedImportCandidate : FeedImportCandidate {
         override val id: String = "fake"
 
-        override suspend fun parse(entry: RssFeedQueueEntry, xml: String) = Unit
+        override suspend fun parse(entry: RssFeedQueueEntry, xml: String) = error("Unused")
 
-        override suspend fun parse(entry: RssFeedQueueEntry, iterator: CharIterator) = Unit
+        override suspend fun parse(entry: RssFeedQueueEntry, iterator: CharIterator) = error("Unused")
     }
 
     private class FakeNetworkClient(
@@ -133,102 +134,28 @@ class FeedRepositoryImplTest {
     }
 
     private class FakeFeedDao : FeedDao {
-        override fun getFeedPagingSource(): PagingSource<Int, LocalRssFeed> = error("Unused")
-
-        override fun getPinnedFeedPagingSource(): PagingSource<Int, LocalRssFeed> = error("Unused")
-
-        override fun getPinnedAndRecentFeeds(count: Int): Flow<List<LocalRssFeed>> = emptyFlow()
-
+        override fun getFeedPagingSource(): PagingSource<Int, LocalRssFeedWithUserState> = error("Unused")
+        override fun getPinnedFeedPagingSource(): PagingSource<Int, LocalRssFeedWithUserState> = error("Unused")
+        override fun getPinnedAndRecentFeeds(count: Int): Flow<List<LocalRssFeedWithUserState>> = emptyFlow()
         override suspend fun getFeed(id: String): LocalRssFeed = error("Unused")
-
-        override fun observeFeed(id: String): Flow<LocalRssFeed> = error("Unused")
-
+        override fun observeFeed(id: LocalUUID): Flow<LocalRssFeedWithUserState> = error("Unused")
         override suspend fun getFeedBySourceUrl(sourceUrl: String): LocalRssFeed? = error("Unused")
-
-        override suspend fun setFeedPinned(id: String, pinned: Boolean) = Unit
-
-        override suspend fun getFeedIdentityBySourceUrl(sourceUrl: String): LocalRssFeedIdentitySlice? {
-            return error("Unused")
-        }
-
+        override suspend fun getFeedIdentityBySourceUrl(sourceUrl: String): LocalRssFeedIdentitySlice? = error("Unused")
         override suspend fun upsertFeed(feed: LocalRssFeed) = Unit
-
         override suspend fun upsertFeeds(feeds: List<LocalRssFeed>) = Unit
-
-        override suspend fun deleteFeeds(feeds: List<String>) = Unit
+        override suspend fun deleteFeeds(feeds: List<LocalUUID>) = Unit
+        override fun searchFeeds(query: String, snippetLength: Int, hlStart: String, hlEnd: String): PagingSource<Int, LocalRssFeedSearchResult> = error("Unused")
     }
 
-    private class FakeFeedPostDao : FeedPostDao {
-        override suspend fun upsertPost(post: LocalRssContentFeedPost) = Unit
-
-        override suspend fun upsertPosts(posts: List<LocalRssContentFeedPost>) = Unit
-
-        override suspend fun deletePosts(posts: List<LocalRssContentFeedPost>) = Unit
-
-        override suspend fun getPost(id: String): LocalRssContentFeedPost = error("Unused")
-
-        override suspend fun updateBookmarkStatus(id: String, isBookmarked: Boolean) = Unit
-
-        override suspend fun getByFingerprints(
-            fingerprints: Set<String>
-        ): Map<String, LocalRssContentFeedPostIdentitySlice> = emptyMap()
-
-        override suspend fun getPostsForFeed(feedId: String): List<LocalRssContentFeedPost> = emptyList()
-
-        override fun observeRecentPosts(limit: Int): Flow<List<LocalRssPostWithFeedAndSearch>> {
-            return emptyFlow()
-        }
-
-        override fun observePost(id: String): Flow<LocalRssPostWithFeedAndSearch> {
-            return emptyFlow()
-        }
-
-        override suspend fun getPostPage(query: RoomRawQuery): List<LocalRssPostWithFeedAndSearch> {
-            return emptyList()
-        }
-
-        override suspend fun getInitialPage(limit: Int): List<LocalRssContentFeedPost> = emptyList()
-
-        override suspend fun getPageAfter(
-            id: String,
-            limit: Int
-        ): List<LocalRssContentFeedPost> = emptyList()
-
-        override suspend fun getRefreshPageAround(
-            id: String,
-            limit: Int
-        ): List<LocalRssContentFeedPost> = emptyList()
-
-        override suspend fun upsertPostCategories(categories: List<LocalRssPostCategory>) = Unit
-        override suspend fun deletePostCategories(postId: String) = Unit
-        override suspend fun deletePostCategories(postIds: Set<String>) = Unit
-        override suspend fun getPageBeforeQuery(id: String, limit: Int): List<LocalRssContentFeedPost> = emptyList()
-    }
-
-    private class FakeFeedPostPagingSourceProvider : FeedPostPagingSourceProvider {
-        override fun getFeedPostPagingSource(
-            query: LocalFeedPostQuery
-        ): PagingSource<FeedPostCursor, LocalRssPostWithFeedAndSearch> {
-            return object : PagingSource<FeedPostCursor, LocalRssPostWithFeedAndSearch>() {
-                override fun getRefreshKey(
-                    state: PagingState<FeedPostCursor, LocalRssPostWithFeedAndSearch>
-                ): FeedPostCursor? = null
-
-                override suspend fun load(
-                    params: LoadParams<FeedPostCursor>
-                ): LoadResult<FeedPostCursor, LocalRssPostWithFeedAndSearch> {
-                    return LoadResult.Page(
-                        data = emptyList(),
-                        prevKey = null,
-                        nextKey = null
-                    )
-                }
-            }
-        }
+    private class FakeFeedUserStateDao : FeedUserStateDao {
+        override suspend fun getState(feedId: LocalUUID): LocalRssFeedUserState? = error("Unused")
+        override suspend fun ensureState(feedId: LocalUUID) = error("Unused")
+        override suspend fun updatePinned(feedId: LocalUUID, pinned: Boolean): Int = error("Unused")
+        override suspend fun updateLastOpenedAt(feedId: LocalUUID, lastOpenedAt: Long?): Int = error("Unused")
     }
 
     private class FakeIdentityGenerator : IdentityGenerator {
-        override fun generateSortableId(): String = "id"
+        override fun generateSortableId(): UUID = UUID("id")
 
         override fun generateFingerprint(vararg strings: String): String = strings.joinToString()
     }
@@ -240,6 +167,7 @@ class FeedRepositoryImplTest {
 
         override fun now(): Instant = Instant.fromEpochMilliseconds(0)
 
+        override fun timeInFuture(duration: Duration): Long = duration.inWholeMilliseconds
         override fun nowEpochMilliseconds(): Long = 0
 
         override fun today(): LocalDate = LocalDate(2026, 1, 1)

@@ -21,6 +21,7 @@ interface PostRepository {
 
     fun observeRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentityAndSearch>>
     suspend fun setPostBookmarked(id: UUID, bookmarked: Boolean)
+    suspend fun setPostRead(id: UUID, isRead: Boolean)
     suspend fun fetchPostContentUseCase(
         postId: UUID,
         type: RssFeedPostContentType

@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.core.data.db
 
-import androidx.room3.AutoMigration
 import androidx.room3.ColumnTypeConverters
 import androidx.room3.ConstructedBy
 import androidx.room3.DaoReturnTypeConverters
@@ -14,6 +13,10 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.db.converter.LocalCompressedTextTypeConverter
+import dev.shounakmulay.devpulse.core.data.db.dao.PostUserStateDao
+import dev.shounakmulay.devpulse.core.data.db.dao.FeedUserStateDao
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostUserState
+import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeedUserState
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDiscoveryCollectionDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDiscoveryCollectionToFeedMappingDao
@@ -24,7 +27,6 @@ import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedQueueDao
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedSyncMetadataDao
 import dev.shounakmulay.devpulse.core.data.db.dao.PostContentDao
-import dev.shounakmulay.devpulse.core.data.db.migration.FeedDiscoverySearchMigration
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryCollection
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryCollectionToFeedMapping
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalFeedDiscoveryFeedMetadata
@@ -54,6 +56,8 @@ import dev.shounakmulay.devpulse.core.data.db.triggers.createPostContentFtsDelet
 @Database(
     entities = [
         LocalRssFeed::class,
+        LocalRssFeedUserState::class,
+        LocalRssPostUserState::class,
         LocalRssFeedFts::class,
         LocalRssContentFeedPost::class,
         LocalRssContentFeedPostFts::class,
@@ -70,15 +74,7 @@ import dev.shounakmulay.devpulse.core.data.db.triggers.createPostContentFtsDelet
         LocalFeedDiscoveryFeedMetadataFts::class,
         LocalFeedDiscoveryCollectionToFeedMapping::class
     ],
-    autoMigrations = [
-        AutoMigration(from = SchemaVersions.BASE, to = SchemaVersions.FEED_DISCOVERY),
-        AutoMigration(
-            from = SchemaVersions.FEED_DISCOVERY,
-            to = SchemaVersions.FEED_DISCOVERY_SEARCH,
-            spec = FeedDiscoverySearchMigration::class,
-        )
-    ],
-    version = SchemaVersions.FEED_DISCOVERY_SEARCH
+    version = SchemaVersions.BASE
 )
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @ColumnTypeConverters(LocalCompressedTextTypeConverter::class)
@@ -91,6 +87,8 @@ abstract class DevPulseDatabase :
 
     abstract fun getFeedContentDao(): FeedPostDao
     abstract fun getFeedDao(): FeedDao
+    abstract fun getPostUserStateDao(): PostUserStateDao
+    abstract fun getFeedUserStateDao(): FeedUserStateDao
     abstract fun getFeedQueueDao(): FeedQueueDao
     abstract fun getPostContentDao(): PostContentDao
     abstract fun getPostCategoryDao(): FeedPostCategoryDao

@@ -1,5 +1,8 @@
 package dev.shounakmulay.devpulse.core.data.feed.repository
 
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedMetadata
+import kotlinx.coroutines.flow.emptyFlow
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionRequestor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
@@ -105,14 +108,18 @@ class FeedImportFallbackParserTest {
             private set
         val xmlRequests = mutableListOf<String>()
 
-        override suspend fun parse(entry: RssFeedQueueEntry, xml: String) {
+        override suspend fun parse(entry: RssFeedQueueEntry, xml: String): ParsedFeed {
             callCount += 1
             xmlRequests += xml
             failure?.let { throw it }
+            return ParsedFeed(
+                metadata = ParsedFeedMetadata(title = "Example", link = null, description = null, image = null, lastBuildDate = null, updatePeriod = null, youtubeChannel = null, etag = null),
+                items = emptyFlow(), issues = emptyList(),
+            )
         }
 
-        override suspend fun parse(entry: RssFeedQueueEntry, iterator: CharIterator) {
-            parse(entry = entry, xml = iterator.asSequence().joinToString(separator = ""))
+        override suspend fun parse(entry: RssFeedQueueEntry, iterator: CharIterator): ParsedFeed {
+            return parse(entry = entry, xml = iterator.asSequence().joinToString(separator = ""))
         }
     }
 
@@ -140,6 +147,7 @@ class FeedImportFallbackParserTest {
     private fun createQueueEntry(): RssFeedQueueEntry {
         return RssFeedQueueEntry(
             id = 1,
+            feedId = null,
             url = "https://example.com/feed.xml",
             name = "Example",
             feedType = RssFeedType.CONTENT,

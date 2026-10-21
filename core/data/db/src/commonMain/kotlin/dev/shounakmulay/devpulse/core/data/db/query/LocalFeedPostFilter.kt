@@ -6,6 +6,8 @@ import dev.shounakmulay.devpulse.core.common.text.HL_START
 sealed interface LocalFeedPostFilter {
     data class FeedIds(val values: Set<String>) : LocalFeedPostFilter
     data class TagIdsAny(val values: Set<Int>) : LocalFeedPostFilter
+    data class ReadStatus(val value: Boolean?) : LocalFeedPostFilter
+
     data class Bookmarked(val value: Boolean?) : LocalFeedPostFilter
     data class PinnedFeed(val value: Boolean?) : LocalFeedPostFilter
     data class PublishedRange(val range: FeedPostLongRange) : LocalFeedPostFilter
