@@ -18,6 +18,7 @@ import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.FeedDetail
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
 import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
 import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
+import dev.shounakmulay.devpulse.core.ui.list.paging.rememberPagingReturnPosition
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
 import dev.shounakmulay.devpulse.core.ui.text.resolve
@@ -27,6 +28,7 @@ import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSort
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
 import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components.FeedDetailTopAppBar
 import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components.FeedPostList
+import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -38,9 +40,17 @@ fun FeedDetailScreen(
 ) {
     val snackbarController = LocalSnackbarController.current
     val posts = viewModel.posts.collectAsLazyPagingItems()
+    val screenState by viewModel.state.collectAsState()
+    val sortAndFilterState by postSortAndFiltersViewModel.state.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val lazyGridState = rememberLazyGridState()
     val sharingService = rememberSharingService(onCopiedToClipboard = {})
+    val positionRestoreController = rememberPagingReturnPosition(
+        items = posts,
+        gridState = lazyGridState,
+        keyOf = { it.id.value },
+        queryKey = Json.encodeToString(sortAndFilterState) + screenState.searchQuery,
+    )
 
     OnTabReselect(navigator = navigator, tab = Screen.Tabs.Feed) {
         lazyGridState.animateScrollToItem(0)
@@ -112,6 +122,7 @@ fun FeedDetailScreen(
                 )
             },
             onPostClick = {
+                positionRestoreController.setItemToRestore(it.id.value)
                 navigator.replaceOfSameType(Screen.Tabs.Feed.PostDetail(it.id), onRootStack = true)
             },
             postSortAndFilterState = postSortAndFilterState,

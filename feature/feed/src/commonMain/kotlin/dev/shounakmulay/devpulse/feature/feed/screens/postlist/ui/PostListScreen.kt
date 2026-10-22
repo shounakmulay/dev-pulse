@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -14,7 +16,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSearchTopAppBar
-import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
@@ -23,13 +24,14 @@ import dev.shounakmulay.devpulse.core.ui.appbar.expand
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
 import dev.shounakmulay.devpulse.core.ui.list.isAtTop
+import dev.shounakmulay.devpulse.core.ui.list.paging.rememberPagingReturnPosition
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterEvent
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
-import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.screens.postlist.ui.components.PostsList
 import devpulse.core.resources.generated.resources.post_search
 import org.jetbrains.compose.resources.stringResource
+import kotlinx.serialization.json.Json
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -42,10 +44,19 @@ fun PostListScreen(
         parametersOf(postSortAndFilterViewModel.sortAndFiltersFlow)
     },
 ) {
+    val posts = viewModel.posts.collectAsLazyPagingItems()
+    val screenState by viewModel.state.collectAsState()
+    val sortAndFilterState by postSortAndFilterViewModel.state.collectAsState()
     val lazyGridState = rememberLazyGridState()
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val searchFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val returnPositionController = rememberPagingReturnPosition(
+        items = posts,
+        gridState = lazyGridState,
+        keyOf = { it.id.value },
+        queryKey = Json.encodeToString(sortAndFilterState) + screenState.searchQuery,
+    )
 
     OnTabReselect(navigator = navigator, tab = Screen.Tabs.Feed) {
         if (lazyGridState.isAtTop()) {
@@ -92,15 +103,6 @@ fun PostListScreen(
         onEffect = {},
     ) { state ->
         Column {
-            val onBookmarkChanged: (UIFeedPost, Boolean) -> Unit = { post, bookmarked ->
-                viewModel.onEvent(PostListScreenEvent.OnPostBookmarkChanged(post.id, bookmarked))
-            }
-            val onPostClick: (UUID) -> Unit = {
-                navigator.replaceOfSameType(Screen.Tabs.Feed.PostDetail(it), onRootStack = true)
-            }
-
-            val posts = viewModel.posts.collectAsLazyPagingItems()
-
             PostsList(
                 postSortAndFilterViewModel = postSortAndFilterViewModel,
                 lazyGridState = lazyGridState,
@@ -109,8 +111,21 @@ fun PostListScreen(
                     postSortAndFilterViewModel.onEvent(PostSortAndFilterEvent.OnClearFilters)
                 },
                 state = state,
-                onBookmarkChanged = onBookmarkChanged,
-                onPostClick = onPostClick,
+                onBookmarkChanged = { post, bookmarked ->
+                    viewModel.onEvent(
+                        PostListScreenEvent.OnPostBookmarkChanged(
+                            post.id,
+                            bookmarked
+                        )
+                    )
+                },
+                onPostClick = {
+                    returnPositionController.setItemToRestore(it.value)
+                    navigator.replaceOfSameType(
+                        Screen.Tabs.Feed.PostDetail(it),
+                        onRootStack = true
+                    )
+                },
             )
         }
     }
