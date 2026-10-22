@@ -46,7 +46,7 @@ Read the relevant canonical skill under `.agents/skills/<name>/SKILL.md`:
 - Use cases alone wrap ordinary failures in Kotlin Result or Flow<Result<T>> using DispatcherProvider.runCachingOnIO/runCatchingOnDefault or flowCachingOnDefault. Repositories and all lower layers return plain values/Unit/Flow<T>, throw on failure and never catch or construct Result. Preserve cancellation. Mock external boundaries only; use Given-When-Then tests with observable assertions.
 - Do not add comments except for non-obvious math, unintuitive platform workarounds or intentional deviations that resemble bugs. Do not create Markdown files explaining code changes.
 - Read only relevant files. Do not explore build/, .gradle/ or generated output. Use CodeGraph first when `.codegraph/` exists; otherwise use scoped search. Do not initialize an index.
-- For commit workflows, extract the first ABC-123-style branch prefix. With no ticket prefix, proceed ticket-free only when the user approves. Do not commit or push as part of setup unless requested.
+- For commit workflows, use a descriptive feature branch; never commit directly on `main` or use the `codex/` branch prefix. Extract the first ABC-123-style branch prefix. With no ticket prefix, proceed ticket-free only when the user approves. Do not commit or push as part of setup unless requested.
 
 ## Database schema policy
 

@@ -1,9 +1,5 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.postdetail.components.markdown
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,22 +16,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
+import com.mikepenz.markdown.annotator.annotatorSettings
 import com.mikepenz.markdown.compose.MarkdownElement
 import com.mikepenz.markdown.compose.components.markdownComponents
 import com.mikepenz.markdown.compose.elements.MarkdownHighlightedCodeBlock
 import com.mikepenz.markdown.compose.elements.MarkdownHighlightedCodeFence
+import com.mikepenz.markdown.compose.elements.MarkdownTable
+import com.mikepenz.markdown.compose.elements.MarkdownTableHeader
+import com.mikepenz.markdown.compose.elements.MarkdownTableRow
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.model.State
@@ -53,11 +56,11 @@ import dev.shounakmulay.devpulse.core.ui.content.EmptyContentPlaceholder
 import dev.snipme.highlights.Highlights
 import dev.snipme.highlights.model.SyntaxThemes
 import devpulse.core.resources.generated.resources.no_content
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun DPMarkdown(
@@ -65,8 +68,6 @@ fun DPMarkdown(
     header: LazyListScope.() -> Unit = {},
     footer: LazyListScope.() -> Unit = {},
     listState: LazyListState = rememberLazyListState(),
-    bodyReadEnabled: Boolean = true,
-    onBodyVisible: () -> Unit = {},
     onImageClick: (link: String) -> Unit
 ) {
     val scopedViewModelOwner = rememberViewModelStoreOwner()
@@ -99,9 +100,6 @@ fun DPMarkdown(
                 SelectionContainer {
                     DPMarkdownContent(
                         state = markdownState,
-                        selectedContent = markdown,
-                        bodyReadEnabled = bodyReadEnabled,
-                        onBodyVisible = onBodyVisible,
                         header = header,
                         footer = footer,
                         listState = listState,
@@ -181,12 +179,9 @@ private fun DPMarkdownError(
 @Composable
 fun DPMarkdownContent(
     state: State,
-    selectedContent: String = (state as? State.Success)?.content.orEmpty(),
     header: LazyListScope.() -> Unit,
     footer: LazyListScope.() -> Unit,
     listState: LazyListState,
-    bodyReadEnabled: Boolean = true,
-    onBodyVisible: () -> Unit = {},
     onImageClick: (link: String) -> Unit
 ) {
     val components = remember {
@@ -202,6 +197,36 @@ fun DPMarkdownContent(
                             .theme(SyntaxThemes.default(darkMode = darkTheme))
                     },
                     showHeader = true,
+                )
+            },
+            table = { model ->
+                MarkdownTable(
+                    content = model.content,
+                    node = model.node,
+                    style = model.typography.text,
+                    annotatorSettings = annotatorSettings(),
+                    headerBlock = { content, header, tableWidth, style ->
+                        MarkdownTableHeader(
+                            content = content,
+                            header = header,
+                            tableWidth = tableWidth,
+                            style = style,
+                            maxLines = Int.MAX_VALUE,
+                            overflow = TextOverflow.Clip,
+                            annotatorSettings = annotatorSettings(),
+                        )
+                    },
+                    rowBlock = { content, row, tableWidth, style ->
+                        MarkdownTableRow(
+                            content = content,
+                            header = row,
+                            tableWidth = tableWidth,
+                            style = style,
+                            maxLines = Int.MAX_VALUE,
+                            overflow = TextOverflow.Clip,
+                            annotatorSettings = annotatorSettings(),
+                        )
+                    },
                 )
             },
             codeFence = {
@@ -260,38 +285,27 @@ fun DPMarkdownContent(
             ),
             components = components,
             success = { state, components, modifier ->
-                var viewport by remember { mutableStateOf(androidx.compose.ui.geometry.Rect.Zero) }
                 val nodes = remember(state.node) { state.node.children }
-                CompositionLocalProvider(LocalReaderExposure provides ReaderExposureContext(
-                    isEligible = bodyReadEnabled,
-                    viewport = viewport,
-                    renderedContent = state.content,
-                    selectedContent = selectedContent,
-                    onVisible = onBodyVisible,
-                )) {
-                    LazyColumn(
-                        modifier = modifier.fillMaxWidth().onGloballyPositioned { viewport = it.boundsInWindow() },
-                        state = listState
-                    ) {
-                        header()
-                        items(
-                            items = nodes,
-                            key = { node -> node.startOffset },
-                            contentType = { node -> node.type }
-                        ) { node ->
-                            ReaderTextExposure(qualifies = hasReadableBodyText(node, state.content) && !containsBodyImage(node)) {
-                                Box(modifier = Modifier.padding(horizontal = LocalDPSpacing.current.lg)) {
-                                    MarkdownElement(
-                                        node = node,
-                                        components = components,
-                                        content = state.content,
-                                        includeSpacer = true,
-                                    )
-                                }
-                            }
+                LazyColumn(
+                    modifier = modifier.fillMaxWidth(),
+                    state = listState
+                ) {
+                    header()
+                    items(
+                        items = nodes,
+                        key = { node -> node.startOffset },
+                        contentType = { node -> node.type }
+                    ) { node ->
+                        Box(modifier = Modifier.padding(horizontal = LocalDPSpacing.current.lg)) {
+                            MarkdownElement(
+                                node = node,
+                                components = components,
+                                content = state.content,
+                                includeSpacer = true,
+                            )
                         }
-                        footer()
                     }
+                    footer()
                 }
             }
         )

@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.core.ui.list.post
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -171,6 +172,7 @@ private fun PostListItemContent(
                         initials = feedInitials,
                         feedTitle = feedTitle,
                         modifier = Modifier.size(24.dp).clip(CircleShape)
+                            .unreadFeedIconBorder(isRead)
                     )
                 }
 
@@ -265,6 +267,7 @@ private fun FeedPostListItemMetadata(
                         .size(16.dp)
                         .aspectRatio(1f)
                         .clip(CircleShape)
+                        .unreadFeedIconBorder(isRead)
                         .dimmedIfRead(isRead)
                 )
                 DPTextDot()
@@ -400,7 +403,8 @@ private fun FeedPostListItemFeedTitle(
         )
     ) {
         DPFeedImage(
-            modifier = Modifier.size(imageSize).clip(CircleShape),
+            modifier = Modifier.size(imageSize).clip(CircleShape)
+                .unreadFeedIconBorder(isRead),
             url = websiteImageUrl,
             initials = feedInitials,
             feedTitle = feedTitle
@@ -435,6 +439,15 @@ private fun FeedPostListItemImage(
         modifier = modifier.then(Modifier.aspectRatio(aspectRatio)),
         imageUrl = imageUrl,
         title = title
+    )
+}
+
+@Composable
+private fun Modifier.unreadFeedIconBorder(isRead: Boolean): Modifier {
+    return if (isRead) this else border(
+        width = 1.dp,
+        color = MaterialTheme.colorScheme.primary,
+        shape = CircleShape
     )
 }
 

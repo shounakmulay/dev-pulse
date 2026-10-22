@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 
 class ReaderVisitReadStateTest {
     @Test
-    fun `Given a new visit When body becomes visible Then automatic reading is consumed once`() {
+    fun `Given a new visit When content becomes available Then automatic reading is consumed once`() {
         val visit = ReaderVisitReadState()
         assertEquals(ReaderVisitReadDecision.Pending, visit.decision)
 

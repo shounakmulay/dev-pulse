@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import dev.shounakmulay.devpulse.core.designsystem.components.DPDropdownMenu
 import dev.shounakmulay.devpulse.core.designsystem.components.DPDropdownMenuItem
+import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import devpulse.core.resources.generated.resources.post_filter_all
 import devpulse.core.resources.generated.resources.post_filter_read
 import devpulse.core.resources.generated.resources.post_filter_unread
@@ -69,6 +70,11 @@ private fun LazyListScope.filters(
                                     false -> stringRes.post_filter_unread
                                     null -> stringRes.post_filter_all
                                 }),
+                                leadingIcon = when (value) {
+                                    true -> DPIcons.Read
+                                    false -> DPIcons.Unread
+                                    null -> DPIcons.Article
+                                },
                                 onClick = {
                                     expanded = false
                                     onFilterUpdated(filter.copy(value = value))
