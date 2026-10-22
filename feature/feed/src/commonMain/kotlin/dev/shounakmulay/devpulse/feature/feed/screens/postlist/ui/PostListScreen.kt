@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -31,7 +29,6 @@ import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSort
 import dev.shounakmulay.devpulse.feature.feed.screens.postlist.ui.components.PostsList
 import devpulse.core.resources.generated.resources.post_search
 import org.jetbrains.compose.resources.stringResource
-import kotlinx.serialization.json.Json
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -45,8 +42,6 @@ fun PostListScreen(
     },
 ) {
     val posts = viewModel.posts.collectAsLazyPagingItems()
-    val screenState by viewModel.state.collectAsState()
-    val sortAndFilterState by postSortAndFilterViewModel.state.collectAsState()
     val lazyGridState = rememberLazyGridState()
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val searchFocusRequester = remember { FocusRequester() }
@@ -55,7 +50,6 @@ fun PostListScreen(
         items = posts,
         gridState = lazyGridState,
         keyOf = { it.id.value },
-        queryKey = Json.encodeToString(sortAndFilterState) + screenState.searchQuery,
     )
 
     OnTabReselect(navigator = navigator, tab = Screen.Tabs.Feed) {
