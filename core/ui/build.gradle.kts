@@ -24,11 +24,13 @@ kotlin {
             api(project(Modules.Core.DESIGN_SYSTEM))
             api(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.Data.PREFERENCES))
+
             implementation(libs.compose.components.resources)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
             implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.datetime)
+            api(libs.androidx.paging.compose)
         }
     }
 }
