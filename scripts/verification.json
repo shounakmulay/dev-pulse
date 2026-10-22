@@ -501,7 +501,7 @@
     "feature/home/build.gradle.kts": "23d4d5d26a7d5706b80cb50d069948f1ed7eb3b79cbd81ee240517cdbe75fb19",
     "feature/feed/build.gradle.kts": "fc3a1e77cd0f375ef2cbd64fad46b716b805b8224763e5f52ee25ff9d5ff0b91",
     "feature/settings/build.gradle.kts": "cd503d5945cd61f86c64de16ca1f3969ae9c31871adae84c5d597d59f785c569",
-    "core/ui/build.gradle.kts": "cc1dea17ca3bacb383d54cb8d35e90843988c6d357a17aef1d55c5a0d2180ad2",
+    "core/ui/build.gradle.kts": "10d13bea84de99fadc4cf37197b97fb35af8a4f7bae6cb39ec43c04c88063c01",
     "core/resources/build.gradle.kts": "f258146d4bf3b085209bbafc7ac3606d828e6a3298c59e45103f71eb83ebc5f2",
     "core/logging/build.gradle.kts": "84319b6990647740de7662734a7b50c86eef422ec7a42987d41b2df21edb4424",
     "core/network/build.gradle.kts": "c0fd46dfd2c5140ed447d467291ff55503ac74d12f9dd3acdee36311596947da",
