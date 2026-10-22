@@ -38,6 +38,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -74,6 +76,8 @@ object DPIcons {
     val UserSettings = UserSettingsIcon
     val RssFeed = Icons.Default.RssFeed
     val Article = Icons.AutoMirrored.Default.Article
+    val Read = Icons.Default.Visibility
+    val Unread = Icons.Default.VisibilityOff
     val OpenInBrowser = Icons.Default.OpenInBrowser
     val Delete = Icons.Default.Delete
     val DeleteForever = Icons.Default.DeleteForever

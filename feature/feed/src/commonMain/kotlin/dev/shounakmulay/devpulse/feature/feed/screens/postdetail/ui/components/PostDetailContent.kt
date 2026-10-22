@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,14 +45,13 @@ import dev.shounakmulay.devpulse.feature.feed.components.postRead.PostReadMenu
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.components.markdown.DPMarkdown
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.PostDetailScreenState
-import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.ReaderVisitReadDecision
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.readerBodyMarkdown
 
 @Composable
 internal fun PostDetailContent(
     state: PostDetailScreenState,
     onReadChanged: (UUID, Boolean) -> Unit = { _, _ -> },
-    onBodyVisible: () -> Unit = {},
+    onContentAvailable: () -> Unit = {},
     listState: LazyListState,
     onBookmarkChanged: (Boolean) -> Unit,
     onOpenInWebView: (String) -> Unit,
@@ -59,16 +59,18 @@ internal fun PostDetailContent(
     onImageClick: (link: String) -> Unit,
     onNavigateToFeed: (UUID) -> Unit
 ) {
+    val markdown = readerBodyMarkdown(
+        section = state.selectedSection,
+        article = state.content?.content,
+        rss = state.rssContent?.content,
+        description = state.post?.summary,
+    )
+    LaunchedEffect(markdown, state.post?.id) {
+        if (state.post != null && markdown.isNotBlank()) onContentAvailable()
+    }
+
     DPMarkdown(
-        markdown = readerBodyMarkdown(
-            section = state.selectedSection,
-            article = state.content?.content,
-            rss = state.rssContent?.content,
-            description = state.post?.summary,
-        ),
-        bodyReadEnabled = state.post != null &&
-                state.readVisit.decision == ReaderVisitReadDecision.Pending,
-        onBodyVisible = onBodyVisible,
+        markdown = markdown,
         listState = listState,
         header = {
             postDetailContentHeader(
@@ -137,29 +139,10 @@ private fun LazyListScope.postDetailContentHeaderActions(
                             start = LocalDPSpacing.current.sm,
                         )
                 ) {
-                    DPIconButton(
-                        icon = DPIcons.OpenInBrowser,
-                        variant = DPIconButtonVariant.Tertiary,
-                        contentDescription = "",
-                        size = DPSize.Small,
-                    ) {
-                        post.articleUrl?.let { url -> onOpenInWebView(url) }
-                    }
-                    PostReadMenu(post = post, onReadChanged = onReadChanged)
                     val sharingService = rememberSharingService {
                         //TODO : Show toast
                     }
-                    DPIconButton(
-                        icon = DPIcons.Share,
-                        variant = DPIconButtonVariant.Tertiary,
-                        contentDescription = "",
-                        size = DPSize.Small
-                    ) {
-                        sharingService.share(
-                            text = post.title,
-                            link = post.articleUrl ?: post.sourceUrl ?: post.sourceName
-                        )
-                    }
+
                     DPIconButton(
                         icon = if (post.bookmarked) DPIcons.BookmarkAdded else DPIcons.BookmarkAddOutline,
                         contentDescription = "",
@@ -167,6 +150,20 @@ private fun LazyListScope.postDetailContentHeaderActions(
                     ) {
                         onBookmarkChanged(!post.bookmarked)
                     }
+
+                    PostReadMenu(
+                        post = post,
+                        onReadChanged = onReadChanged,
+                        onShare = {
+                            sharingService.share(
+                                text = post.title,
+                                link = post.articleUrl ?: post.sourceUrl ?: post.sourceName
+                            )
+                        },
+                        onOpenInBrowser = {
+                            post.articleUrl?.let { url -> onOpenInWebView(url) }
+                        },
+                    )
                 }
             }
         }

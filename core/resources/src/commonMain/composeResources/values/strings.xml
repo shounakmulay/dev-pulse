@@ -107,6 +107,8 @@
     <string name="quick_brown_fox">The quick brown fox jumps over the lazy dog.</string>
     <string name="quick_brown_fox3">The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.</string>
     <string name="article_reader">Reader</string>
+    <string name="post_detail_rss">Content from the feed</string>
+    <string name="post_detail_article">Content extracted from the website</string>
     <string name="appearance">Appearance</string>
     <string name="post_search">Search posts</string>
     <string name="post_search_minimum_length">Enter at least 3 characters</string>
@@ -125,6 +127,7 @@
     <string name="more_options">More options</string>"
     <string name="delete">Delete</string>
     <string name="share">Share</string>
+    <string name="open_in_browser">Open in browser</string>
     <string name="failed_to_delete_feed">Failed to delete feed</string>
     <string name="feed_deleted">Feed deleted successfully</string>
     <string name="confirm_delete_feed_title">Delete feed?</string>

@@ -69,7 +69,7 @@ class PostDetailViewModel(
 
     override fun onEvent(event: PostDetailScreenEvent) {
         when (event) {
-            PostDetailScreenEvent.BodyVisible -> onBodyVisible()
+            PostDetailScreenEvent.ContentAvailable -> onContentAvailable()
             is PostDetailScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)
             is PostDetailScreenEvent.SetPostBookmarked -> setPostBookmarked(event)
             is PostDetailScreenEvent.OnSectionSelected -> onSectionSelected(event.section)
@@ -78,7 +78,7 @@ class PostDetailViewModel(
         }
     }
 
-    private fun onBodyVisible() {
+    private fun onContentAvailable() {
         intent {
             if (state.post == null || state.readVisit.decision != ReaderVisitReadDecision.Pending) return@intent
             reduce { state.copy(readVisit = state.readVisit.consume()) }
