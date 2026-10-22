@@ -31,11 +31,6 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
 
     private val invalidationJob: Job = invalidationEvents
         .onEach {
-            logger.v {
-                "Paging source invalidated tables=${
-                    dataProvider.getTablesToTrack().joinToString()
-                }"
-            }
             invalidate()
         }
         .launchIn(invalidationScope)
@@ -97,20 +92,9 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
     }
 
     override fun getRefreshKey(state: PagingState<KEY, VALUE>): KEY? {
-        val anchorPosition = state.anchorPosition
-
-        logger.d {
-            "[FEED-PAGING] RefreshKey anchorPosition=$anchorPosition " +
-                    "pages=${state.pages.size}"
-        }
-
-        val item = anchorPosition?.let(state::closestItemToPosition)
-
-        logger.d {
-            "[FEED-PAGING] RefreshKey item=${item?.let(dataProvider::getId)}"
-        }
-
-        return item?.let(dataProvider::getId)
+        return state.anchorPosition
+            ?.let(state::closestItemToPosition)
+            ?.let(dataProvider::getId)
     }
 
     private fun LoadParams<KEY>.loadTypeName(): String {
