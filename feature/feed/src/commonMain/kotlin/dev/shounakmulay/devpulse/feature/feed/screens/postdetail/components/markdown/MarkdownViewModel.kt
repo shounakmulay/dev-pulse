@@ -25,9 +25,10 @@ class MarkdownViewModel : ViewModel() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val markdownState = markdownContent
-        .filter { it.isNotBlank() }
         .flatMapLatest { content ->
-            if (cache.contains(content)) {
+            if (content.isBlank()) {
+                flowOf(State.Loading())
+            } else if (cache.contains(content)) {
                 logger.d { "Returning cached value for ${content.take(10)}" }
                 flowOf(cache.getValue(content))
             } else {

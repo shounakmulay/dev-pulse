@@ -29,7 +29,7 @@ The links below point to the implementation inspected for this plan. Source fact
 | E7 | [LocalRssPostWithFeedMetadataPagingDataProvider.kt](../../core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/paging/LocalRssPostWithFeedMetadataPagingDataProvider.kt) explicitly lists tables to track for invalidation. [FeedPostDao.kt](../../core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/dao/FeedPostDao.kt) has separate recent-post and detail queries. | Updating only the paged projection leaves other screens stale. Track the new table in every relevant observer. |
 | E8 | [PostListViewModel.kt](../../feature/feed/src/commonMain/kotlin/dev/shounakmulay/devpulse/feature/feed/screens/postlist/ui/PostListViewModel.kt) combines sort and filters with debounced search, enabling search at three characters. [PostSortAndFilterViewModel.kt](../../feature/feed/src/commonMain/kotlin/dev/shounakmulay/devpulse/feature/feed/components/postFilterSort/PostSortAndFilterViewModel.kt) replaces an existing filter of the same type. [PostInteractor.kt](../../feature/feed/src/commonMain/kotlin/dev/shounakmulay/devpulse/feature/feed/interactor/post/PostInteractor.kt) seeds default filters. | Add the read filter to default state, mapping, rendering, ordering, emptiness, and clearing. Adding a sealed subtype alone does not enable it. |
 | E9 | [UIFeedPost.kt](../../feature/feed/src/commonMain/kotlin/dev/shounakmulay/devpulse/feature/feed/model/UIFeedPost.kt) has bookmark state but no reading state. The [feature list-item adapter](../../feature/feed/src/commonMain/kotlin/dev/shounakmulay/devpulse/feature/feed/screens/feed/ui/components/post/FeedPostListItem.kt) delegates to the [shared list item](../../core/ui/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/ui/list/post/FeedPostListItem.kt). | Add one shared visual treatment and route explicit actions through feature events. |
-| E10 | [SchemaVersions.kt](../../core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/SchemaVersions.kt) currently ends at version 3. [DevPulseDatabase.kt](../../core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/DevPulseDatabase.kt) registers Room entities and migrations. | Select a preserving upgrade or a fresh baseline at a distinct version. Recheck because discovery work is in progress. |
+| E10 | [SchemaVersions.kt](../../core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/SchemaVersions.kt) currently ends at version 3. [DevPulseDatabase.kt](../../core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/DevPulseDatabase.kt) registers Room entities and migrations. | Complete this feature as the new version 1 baseline. The previous development lineage is retired. All subsequent schema changes require migrations. |
 | E11 | [FeedPostKeysetPagingTest.kt](../../core/data/db/src/commonTest/kotlin/dev/shounakmulay/devpulse/core/data/db/paging/FeedPostKeysetPagingTest.kt) contains older cursor and DAO shapes than current production source. | Existing test filenames are useful locations, but their current compile readiness is unverified. Establish the baseline before assigning failures to this feature. |
 | E12 | [FeedDao.kt](../../core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/dao/FeedDao.kt) reads entity-owned `pinned` in full lists, pinned lists, feed detail, feed identity, recent feeds, and search. [FeedColumnsSelector.kt](../../core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/query/FeedColumnsSelector.kt) references `p.bookmarked` and `f.pinned`. | Move all those reads to joined state before removing entity columns. Changing only read-status queries leaves bookmark and pin behavior broken. |
 | E13 | [LocalRssFeed.kt](../../core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/model/feed/tables/LocalRssFeed.kt) contains `pinned`, `lastOpenedAt`, `name`, and `title`. Its FTS entity indexes title, name, and description. | Move the approved pin and opening state. Preserve current name and title fields and search semantics until custom naming ownership is separately resolved. |
@@ -183,9 +183,9 @@ Check the dimming in light and dark themes, at large text sizes, and with keyboa
 
 ### Decide how existing and future posts begin
 
-Start all existing posts as unread after migration. There is no source-backed visit history to infer which ones were read. Start new posts as unread, including old articles received late. Keep **All** as default so the migration does not suddenly hide content or impose an inbox workflow. Scoped bulk read gives users a deliberate way to clear an old backlog.
+Create the new baseline with empty user-state tables and no copied reading history. Start imported posts as unread, including old articles received late. Keep **All** as default so enabling reading state does not impose an inbox workflow. Scoped bulk read gives users a deliberate way to clear an old backlog.
 
-Do not mark existing rows read merely because their publication date precedes upgrade time. That would silently assert a history the app never recorded. A one-time upgrade prompt is unnecessary when the feature does not change the default list and offers a bulk cleanup action.
+Do not infer reading history from publication dates. Imported articles start unread regardless of age. A one-time upgrade prompt is unnecessary for this new baseline.
 
 Preserve reading state for an existing UUID across title, body, date, or image edits. Do not reset read state because content changed. The user may have acknowledged the item even when a publisher corrects it. A future **Updated since read** feature would need a separate content-version model.
 
@@ -205,7 +205,7 @@ Create `LocalRssPostUserState` in `core:data:db` with these columns.
 | --- | --- | --- |
 | `postId` | `LocalUUID`, primary key | Foreign key to `LocalRssContentFeedPost.id`, cascade on actual post deletion. |
 | `isRead` | Boolean, non-null | Effective default is false when there is no row. |
-| `bookmarked` | Boolean, non-null | Effective default is false when there is no row. Preserve existing bookmarks during a preserving migration. |
+| `bookmarked` | Boolean, non-null | Effective default is false when there is no row. No legacy backfill. |
 | `readRevision` | Long, non-null | Effective initial value is 0. Increase only for accepted reading commands. Bookmark changes never increment it. |
 
 Create `LocalRssFeedUserState` alongside it.
@@ -213,8 +213,8 @@ Create `LocalRssFeedUserState` alongside it.
 | Column | Shape | Rule |
 | --- | --- | --- |
 | `feedId` | `LocalUUID`, primary key | Foreign key to `LocalRssFeed.id`, cascade on actual feed deletion. |
-| `pinned` | Boolean, non-null | Effective default is false when there is no row. Preserve existing pins during a preserving migration. |
-| `lastOpenedAt` | Nullable epoch milliseconds | Effective default is null. Preserve existing values during a preserving migration. |
+| `pinned` | Boolean, non-null | Effective default is false when there is no row. No legacy backfill. |
+| `lastOpenedAt` | Nullable epoch milliseconds | Effective default is null. No legacy backfill. |
 
 Use composed `PostUserState` and `FeedUserState` domain values. A small `PostReadingState` view can expose `isRead` and `readRevision` for read commands if that keeps their ownership clear. Add post and feed state to observation results, including `RssPostWithFeedIdentityAndSearch`, without passing those fields through publisher refresh entities. Add observed values to `UIFeedPost` and existing feed presentation mapping. Exact composed projection names are implementation proposals, not existing APIs.
 
@@ -238,18 +238,15 @@ There is a specific cascade risk even with a separate table. Verify that the Roo
 
 The user approved moving existing bookmark and feed state as part of this design. Preserve current user-facing bookmark and pin behavior while replacing their storage and commands. This shared foundation must be verified before automatic reader marking is added.
 
-### Choose the database transition explicitly
+### Establish the selected version 1 baseline
 
-The companion [schema and migration document](./entity-user-state-schema-and-migration.md) contains the detailed transition. Both paths produce the same final entity and state split.
+The user selected a one-time reset on 19 October 2026. Complete the entity/user-state schema for this feature, set `SchemaVersions.BASE = 1`, and generate the complete new version 1 schema. There is no legacy migration or backfill. Start both user-state tables empty and apply their effective defaults through left joins.
 
-| Path | When it earns its place | Consequence |
-| --- | --- | --- |
-| Fresh baseline at the next schema version | Recommended for an unreleased app only when all current development and test databases are explicitly disposable. | Export a fresh version 4 schema if version 3 remains current. Remove old migration edges. Old databases fail to open until an intentional clear or reinstall. Do not silently enable destructive fallback. |
-| Preserving migration from current version to next | Choose when anyone needs existing subscriptions, posts, bookmarks, pins, opening history, or cached content. | Create state tables, backfill bookmark and feed state, remove obsolete indexes, then drop moved columns using a verified in-place migration. Preserve parent row IDs, FKs, and FTS. |
+Retire old schema exports and migration declarations from the active lineage. Recreate development databases when running the new baseline. The old development version 1 and the new version 1 are different database contracts. Merely changing the version integer cannot upgrade an old file.
 
-The version numbers are conditional on the current schema at implementation time. Do not overwrite an exported version 3 schema with a different identity under the same number. Rebasing the development schema to version 1 is a separate explicit choice and is not the recommended fresh-baseline path.
+After this feature is complete, every schema change requires a version increment, a new exported schema, and a registered, tested migration. Freeze the new `1.json`. Include custom FTS and trigger changes in this rule, even when Room annotations do not capture them. No later baseline reset or destructive fallback is allowed.
 
-Writing these documents does not authorize clearing a database, uninstalling an app, or running a migration. Select the transition when implementation starts. If disposability is uncertain, use the preserving path. Whichever path is chosen, test its actual Room schema identity and startup behavior before considering the foundation complete.
+The companion [schema and migration document](./entity-user-state-schema-and-migration.md) defines baseline creation, removal of the obsolete lineage, and the proposed CI enforcement. The choice is resolved. This documentation update does not itself recreate any database.
 
 ### Give commands explicit state and conflict rules
 
@@ -316,17 +313,17 @@ Throughput checkpoint is n/a for this read-only investigation and planning docum
 
 ### Phase 1. Separate and verify all approved user state
 
-- [ ] Select and record the fresh-baseline or preserving transition from [the migration document](./entity-user-state-schema-and-migration.md). Record which current databases need preservation. Do not clear any database as part of plan acceptance.
+- [ ] Follow the selected one-time version 1 reset in [the schema document](./entity-user-state-schema-and-migration.md). No legacy migration or backfill is required. Record the new baseline as the lineage for all subsequent migrations.
 - [ ] Create `core/data/db/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/db/model/feed/tables/LocalRssPostUserState.kt` and `LocalRssFeedUserState.kt`. Add field-specific `dao/PostUserStateDao.kt` and `dao/FeedUserStateDao.kt` operations with sparse defaults, retained rows, and cascading foreign keys.
-- [ ] Update `SchemaVersions.kt` and `DevPulseDatabase.kt` for the selected transition. Export the final schema at the next version. On the preserving path, backfill user fields before removing old columns and related indexes. On the fresh path, verify explicit failure on an old database rather than destructive fallback.
+- [ ] Update `SchemaVersions.kt` and `DevPulseDatabase.kt` to the final `BASE = 1` schema. Remove obsolete migration declarations, specifications with no caller, moved entity columns, and their old indexes. Generate the new `1.json`, retire the previous schema exports, and verify fresh creation without destructive fallback.
 - [ ] Extend `LocalRssPostWithFeedAndSearch` and feed projections with composed user state. Update `FeedPostDao.observePost`, `observeRecentPosts`, and `getPostPage`, plus every `FeedDao` observer and projection named in the query matrix above.
 - [ ] Update `LocalFeedPostSqlQueryBuilder`, `FeedColumnsSelector`, feed search SQL, bookmark and pin predicates, and `LocalRssPostWithFeedMetadataPagingDataProvider.getTablesToTrack()`. Observe both state tables. Preserve post keyset ordering and feed offset paging with deterministic UUID tie breakers.
-- [ ] Move bookmark and pin writes from `FeedPostDao.updateBookmarkStatus` and `FeedDao.setFeedPinned` to their field-specific state commands. Update `SetPostBookmarkedUseCase`, `SetFeedPinnedUseCase`, `PostRepositoryImpl`, and `FeedRepositoryImpl` without changing visible action semantics. No dedicated `lastOpenedAt` writer was found in the inspected feed code. Preserve its stored values without adding open tracking.
+- [ ] Move bookmark and pin writes from `FeedPostDao.updateBookmarkStatus` and `FeedDao.setFeedPinned` to their field-specific state commands. Update `SetPostBookmarkedUseCase`, `SetFeedPinnedUseCase`, `PostRepositoryImpl`, and `FeedRepositoryImpl` without changing visible action semantics. No dedicated `lastOpenedAt` writer was found in the inspected feed code. Keep the new field nullable without adding open tracking or copying old values.
 - [ ] Remove moved fields from publisher entities, identity slices, and refresh mappers. Update `RssPostMapper`, `RssFeedMapper`, `FeedSyncMetadataDao.getFeedsPastNextEligibleFetch`, and `LocalRssFeedSyncMetadataWithIdentity` so parsed publisher data and worker identity contracts cannot carry user-owned fields back into an upsert. Retain current feed name and title fields.
 - [ ] Create composed domain `PostUserState` and `FeedUserState`, plus `PostReadMutationResult` and reading command origin types. Update `RssPostWithFeedIdentityAndSearch`, feed observation models, UI mapping, and all affected callers together.
 - [ ] Add `setPostRead` to `core/data/feed/.../repository/PostRepository.kt` and implement it in `PostRepositoryImpl.kt` with the existing `DevPulseDatabaseTransactionAccessor`.
 - [ ] Create `core/domain/feed/.../posts/SetPostReadUseCase.kt`. Follow annotation-based Koin registration. Register the DAO through the existing DB DI pattern after inspecting its current provider.
-- [ ] Add real Room JVM integration tests in `core/data/db/src/jvmTest/.../UserStateDatabaseTest.kt`. Cover sparse defaults, the selected schema transition, field-specific interleavings, conditional reading mutations, duplicate retries, parent refresh, cascades, and observer invalidation.
+- [ ] Add real Room JVM integration tests in `core/data/db/src/jvmTest/.../UserStateDatabaseTest.kt`. Cover fresh version 1 creation, empty state tables, sparse defaults, field-specific interleavings, conditional reading mutations, duplicate retries, parent refresh, cascades, and observer invalidation. Add the planned schema-history guard before closing this feature so every later schema change requires a tested migration.
 
 The phase is complete when bookmark and pin actions still work across every existing screen, search, and filter, and refresh cannot overwrite them. Reading commands must persist across reopen and reject stale read revisions. No automatic read trigger ships before this gate. A Kotlin compile alone does not establish these properties.
 
@@ -387,8 +384,8 @@ Add feature ViewModel tests to the existing supported host test target after che
 
 | Scenario | Pass condition |
 | --- | --- |
-| Upgrade a populated database on the preserving path | Feed, post, bookmark, pin, opening, and content data survive. Existing posts are effectively unread at read revision 0. Parent row IDs and FTS behavior remain intact. |
-| Open old schema on the fresh-baseline path | Startup fails explicitly until an intentional reset. A separately created new database has the final schema and sparse state defaults. |
+| Create the new version 1 baseline | Room validates the complete schema. Both user-state tables start empty. Imports, foreign keys, FTS, and effective defaults work without legacy data copies. |
+| Propose a later schema change without migration | The planned schema-history check rejects mutation of an established export or a missing version increment and tested migration path. |
 | Mark read, close the database, reopen | State and revision remain correct. |
 | Refresh a known post after reading | Publisher fields update while reading state remains intact. Test the actual Room upsert implementation. |
 | Parse first, read second, save parsed post third | Read state survives the intentionally interleaved stale-content save. |

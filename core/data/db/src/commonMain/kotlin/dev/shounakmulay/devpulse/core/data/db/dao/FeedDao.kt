@@ -8,6 +8,7 @@ import dev.shounakmulay.devpulse.core.common.text.HL_END
 import dev.shounakmulay.devpulse.core.common.text.HL_START
 import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedSearchResult
+import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedWithUserState
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
 import kotlinx.coroutines.flow.Flow
@@ -15,30 +16,28 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FeedDao {
 
-    @Query("SELECT * FROM LocalRssFeed ORDER BY name, title, updatedAt DESC")
-    fun getFeedPagingSource(): PagingSource<Int, LocalRssFeed>
+    @Query("SELECT f.*, COALESCE(fs.pinned, 0) AS state_pinned, fs.lastOpenedAt AS state_lastOpenedAt FROM LocalRssFeed f LEFT JOIN LocalRssFeedUserState fs ON fs.feedId = f.id ORDER BY f.name, f.title, f.updatedAt DESC, f.id")
+    fun getFeedPagingSource(): PagingSource<Int, LocalRssFeedWithUserState>
 
-    @Query("SELECT * FROM LocalRssFeed WHERE pinned = '1' ORDER BY name, title, updatedAt DESC")
-    fun getPinnedFeedPagingSource(): PagingSource<Int, LocalRssFeed>
+    @Query("SELECT f.*, COALESCE(fs.pinned, 0) AS state_pinned, fs.lastOpenedAt AS state_lastOpenedAt FROM LocalRssFeed f LEFT JOIN LocalRssFeedUserState fs ON fs.feedId = f.id WHERE fs.pinned = 1 ORDER BY f.name, f.title, f.updatedAt DESC, f.id")
+    fun getPinnedFeedPagingSource(): PagingSource<Int, LocalRssFeedWithUserState>
 
-    @Query("SELECT * FROM LocalRssFeed ORDER BY pinned DESC, name, title LIMIT :count")
-    fun getPinnedAndRecentFeeds(count: Int): Flow<List<LocalRssFeed>>
+    @Query("SELECT f.*, COALESCE(fs.pinned, 0) AS state_pinned, fs.lastOpenedAt AS state_lastOpenedAt FROM LocalRssFeed f LEFT JOIN LocalRssFeedUserState fs ON fs.feedId = f.id ORDER BY COALESCE(fs.pinned, 0) DESC, f.name, f.title, f.id LIMIT :count")
+    fun getPinnedAndRecentFeeds(count: Int): Flow<List<LocalRssFeedWithUserState>>
 
     @Query("SELECT * FROM LocalRssFeed WHERE id = :id")
     suspend fun getFeed(id: String): LocalRssFeed
 
-    @Query("SELECT * FROM LocalRssFeed WHERE id = :id")
-    fun observeFeed(id: LocalUUID): Flow<LocalRssFeed>
+    @Query("SELECT f.*, COALESCE(fs.pinned, 0) AS state_pinned, fs.lastOpenedAt AS state_lastOpenedAt FROM LocalRssFeed f LEFT JOIN LocalRssFeedUserState fs ON fs.feedId = f.id WHERE f.id = :id")
+    fun observeFeed(id: LocalUUID): Flow<LocalRssFeedWithUserState>
 
     @Query("SELECT * FROM LocalRssFeed WHERE sourceUrl = :sourceUrl")
     suspend fun getFeedBySourceUrl(sourceUrl: String): LocalRssFeed?
 
-    @Query("UPDATE LocalRssFeed SET pinned = :pinned WHERE id = :id")
-    suspend fun setFeedPinned(id: LocalUUID, pinned: Boolean)
 
     @Query(
         """
-        SELECT id, title, name, pinned, sourceUrl, link, createdAt, updatedAt, lastOpenedAt
+        SELECT id, title, name, sourceUrl, link, createdAt, updatedAt
         FROM LocalRssFeed
         WHERE sourceUrl = :sourceUrl
     """
@@ -60,7 +59,7 @@ interface FeedDao {
             feed.id,
             feed.title,
             feed.name,
-            feed.pinned,
+            COALESCE(fs.pinned, 0) AS pinned,
             feed.link,
             feed.sourceUrl,
             feed.image_title,
@@ -72,6 +71,7 @@ interface FeedDao {
             snippet(LocalRssFeedFts, 2, :hlStart, :hlEnd, "...", :snippetLength) AS highlightedDescription
         FROM LocalRssFeedFts AS feedFts
         JOIN LocalRssFeed AS feed ON feed.rowId = feedFts.rowId
+        LEFT JOIN LocalRssFeedUserState fs ON fs.feedId = feed.id
         WHERE LocalRssFeedFts MATCH :query
         ORDER BY rank, feed.id
     """

@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.feature.feed.preview
 
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryFeed
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryFeedImportState
@@ -36,7 +36,7 @@ internal object FeedPreviewData {
     val discoveryFeed = UIDiscoveryFeed(
         id = feed.id,
         title = feed.title,
-        description = TextResource.fromText("News, tutorials, and release updates from the Kotlin team."),
+        description = TextResource.fromText("News, tutorials, and release updates from the Kotlin team. News, tutorials, and release updates from the Kotlin team. News, tutorials, and release updates from the Kotlin team."),
         feedUrl = feed.sourceUrl,
         websiteUrl = "https://blog.jetbrains.com/kotlin/",
         imageUrl = null,
@@ -45,7 +45,6 @@ internal object FeedPreviewData {
     )
     val rssFeed = RssFeed(
         id = feed.id,
-        pinned = feed.pinned,
         name = feed.title,
         sourceUrl = feed.sourceUrl,
         title = feed.title,
@@ -57,6 +56,5 @@ internal object FeedPreviewData {
         youtubeChannel = null,
         createdAt = 0L,
         updatedAt = 0L,
-        lastOpenedAt = null,
     )
 }

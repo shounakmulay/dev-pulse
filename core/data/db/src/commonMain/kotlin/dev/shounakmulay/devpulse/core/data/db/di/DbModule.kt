@@ -42,6 +42,12 @@ class DatabaseModule {
     }
 
     @Factory
+    fun providePostUserStateDao(db: DevPulseDatabase) = db.getPostUserStateDao()
+
+    @Factory
+    fun provideFeedUserStateDao(db: DevPulseDatabase) = db.getFeedUserStateDao()
+
+    @Factory
     fun provideFeedDao(
         db: DevPulseDatabase
     ) = db.getFeedDao()

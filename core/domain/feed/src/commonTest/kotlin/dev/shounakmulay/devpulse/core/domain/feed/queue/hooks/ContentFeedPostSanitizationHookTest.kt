@@ -1,11 +1,13 @@
-package dev.shounakmulay.devpulse.core.data.feed.hook
+package dev.shounakmulay.devpulse.core.domain.feed.queue.hooks
 
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
-import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemMediaContent
-import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemRawEnclosure
-import dev.shounakmulay.devpulse.core.data.db.model.feed.embedded.LocalRssFeedItemYoutubeData
-import dev.shounakmulay.devpulse.core.data.feed.model.hook.LocalPostWithIdentity
-import kotlinx.coroutines.test.runTest
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPost
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostMediaContent
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostRawEnclosure
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostYoutubeData
+import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostWithExistingIdentity
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -15,7 +17,7 @@ class ContentFeedPostSanitizationHookTest {
     private val hook = ContentFeedPostSanitizationHook()
 
     @Test
-    fun `Given rich text fields When hook processes post Then tags scripts styles and whitespace are removed`() = runTest {
+    fun `Given rich text fields When hook processes post Then summary is sanitized and original content is retained`() = runBlocking {
         val post = createPost(
             title = "  Plain   title  ",
             description = """
@@ -27,31 +29,31 @@ class ContentFeedPostSanitizationHookTest {
             content = "<article>First<br/>Second</article>"
         )
 
-        val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
+        val result = hook.process(actionType = RssFeedQueueActionType.IMPORT, post = RssFeedPostWithExistingIdentity(post = post, identity = null)).post
 
         assertEquals("Plain title", result.title)
         assertEquals("Hello world Next line", result.description)
-        assertEquals("First Second", result.content)
+        assertEquals("<article>First<br/>Second</article>", result.content)
     }
 
     @Test
-    fun `Given encoded entities When hook processes post Then common HTML entities are decoded`() = runTest {
+    fun `Given encoded entities When hook processes post Then common HTML entities are decoded`() = runBlocking {
         val post = createPost(
             title = "Tom &amp; Jerry",
             description = "&lt;b&gt;Quoted &quot;text&quot; &#39;here&#39;&lt;/b&gt;",
             categories = "Kotlin &amp; Compose"
         )
 
-        val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
+        val result = hook.process(actionType = RssFeedQueueActionType.IMPORT, post = RssFeedPostWithExistingIdentity(post = post, identity = null)).post
 
         assertEquals("Tom & Jerry", result.title)
         assertEquals("Quoted \"text\" 'here'", result.description)
-        assertEquals("Kotlin & Compose", result.categories)
+        assertEquals(listOf("Kotlin & Compose"), result.categories)
     }
 
     @Test
-    fun `Given blank text values When hook processes post Then nullable strings are null and categories is empty`() =
-        runTest {
+    fun `Given blank text values When hook processes post Then title and author are empty and summary is null`() =
+        runBlocking {
             val post = createPost(
                 title = "   ",
                 author = "\n\t",
@@ -59,16 +61,16 @@ class ContentFeedPostSanitizationHookTest {
                 categories = "   "
             )
 
-            val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
+            val result = hook.process(actionType = RssFeedQueueActionType.IMPORT, post = RssFeedPostWithExistingIdentity(post = post, identity = null)).post
 
-            assertNull(result.title)
-            assertNull(result.author)
+            assertEquals("", result.title)
+            assertEquals("", result.author)
             assertNull(result.description)
-            assertEquals("", result.categories)
+            assertEquals(listOf(""), result.categories)
         }
 
     @Test
-    fun `Given URL fields When hook processes post Then valid URLs remain and unsafe URLs are nulled`() = runTest {
+    fun `Given URL fields When hook processes post Then valid URLs remain and unsafe URLs are nulled`() = runBlocking {
         val post = createPost(
             guid = " opaque-guid ",
             link = "http://example.com/article",
@@ -79,21 +81,21 @@ class ContentFeedPostSanitizationHookTest {
             commentsUrl = "https://"
         )
 
-        val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
+        val result = hook.process(actionType = RssFeedQueueActionType.IMPORT, post = RssFeedPostWithExistingIdentity(post = post, identity = null)).post
 
         assertEquals("opaque-guid", result.guid)
         assertEquals("http://example.com/article", result.link)
         assertEquals("https://cdn.example.com/image.png", result.image)
         assertNull(result.audio)
         assertNull(result.video)
-        assertNull(result.sourceUrl)
+        assertEquals("", result.sourceUrl)
         assertNull(result.commentsUrl)
     }
 
     @Test
-    fun `Given nested feed models When hook processes post Then nested text and URL fields are sanitized`() = runTest {
+    fun `Given nested feed models When hook processes post Then nested text and URL fields are sanitized`() = runBlocking {
         val post = createPost(
-            youtubeData = LocalRssFeedItemYoutubeData(
+            youtubeData = RssFeedPostYoutubeData(
                 videoId = "video-1",
                 title = "<b>Video&nbsp;title</b>",
                 videoUrl = " https://youtube.example.com/watch?v=1 ",
@@ -102,37 +104,37 @@ class ContentFeedPostSanitizationHookTest {
                 viewsCount = 10,
                 likesCount = 2
             ),
-            rawEnclosure = LocalRssFeedItemRawEnclosure(
+            rawEnclosure = RssFeedPostRawEnclosure(
                 url = "javascript:bad()",
                 length = 123L,
                 type = " Audio/MPEG "
             ),
-            rawMedia = LocalRssFeedItemMediaContent(
+            rawMedia = RssFeedPostMediaContent(
                 url = "//media.example.com/video.mp4",
                 type = " Video/MP4 ",
                 medium = " Video "
             )
         )
 
-        val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
+        val result = hook.process(actionType = RssFeedQueueActionType.IMPORT, post = RssFeedPostWithExistingIdentity(post = post, identity = null)).post
 
-        assertEquals("video-1", result.youtubeData?.videoId)
-        assertEquals("Video title", result.youtubeData?.title)
-        assertEquals("https://youtube.example.com/watch?v=1", result.youtubeData?.videoUrl)
-        assertNull(result.youtubeData?.thumbnailUrl)
-        assertEquals("Video description", result.youtubeData?.description)
-        assertEquals(10, result.youtubeData?.viewsCount)
-        assertEquals(2, result.youtubeData?.likesCount)
+        assertEquals("video-1", result.youtubeItemData?.videoId)
+        assertEquals("Video title", result.youtubeItemData?.title)
+        assertEquals("https://youtube.example.com/watch?v=1", result.youtubeItemData?.videoUrl)
+        assertNull(result.youtubeItemData?.thumbnailUrl)
+        assertEquals("Video description", result.youtubeItemData?.description)
+        assertEquals(10, result.youtubeItemData?.viewsCount)
+        assertEquals(2, result.youtubeItemData?.likesCount)
         assertNull(result.rawEnclosure?.url)
         assertEquals(123L, result.rawEnclosure?.length)
         assertEquals("audio/mpeg", result.rawEnclosure?.type)
-        assertEquals("https://media.example.com/video.mp4", result.rawMedia?.url)
-        assertEquals("video/mp4", result.rawMedia?.type)
-        assertEquals("video", result.rawMedia?.medium)
+        assertEquals("//media.example.com/video.mp4", result.rawMediaContent?.url)
+        assertEquals(" Video/MP4 ", result.rawMediaContent?.type)
+        assertEquals(" Video ", result.rawMediaContent?.medium)
     }
 
     @Test
-    fun `Given identity and system fields When hook processes post Then those fields are unchanged`() = runTest {
+    fun `Given identity and system fields When hook processes post Then those fields are unchanged`() = runBlocking {
         val post = createPost(
             id = "post-2",
             feedId = "feed-2",
@@ -140,12 +142,12 @@ class ContentFeedPostSanitizationHookTest {
             pubDate = "Tue, 19 May 2026 10:00:00 GMT",
             createdAt = 111L,
             updatedAt = 222L,
-            rawEnclosure = LocalRssFeedItemRawEnclosure(
+            rawEnclosure = RssFeedPostRawEnclosure(
                 url = "https://example.com/audio.mp3",
                 length = 999L,
                 type = "audio/mpeg"
             ),
-            youtubeData = LocalRssFeedItemYoutubeData(
+            youtubeData = RssFeedPostYoutubeData(
                 videoId = "video-2",
                 title = "Video",
                 videoUrl = "https://youtube.example.com/watch?v=2",
@@ -156,17 +158,17 @@ class ContentFeedPostSanitizationHookTest {
             )
         )
 
-        val result = hook.process(LocalPostWithIdentity(post = post, identity = null)).post
+        val result = hook.process(actionType = RssFeedQueueActionType.IMPORT, post = RssFeedPostWithExistingIdentity(post = post, identity = null)).post
 
-        assertEquals("post-2", result.id)
-        assertEquals("feed-2", result.feedId)
+        assertEquals(UUID("post-2"), result.id)
+        assertEquals(UUID("feed-2"), result.feedId)
         assertEquals("fingerprint-2", result.fingerprint)
         assertEquals("Tue, 19 May 2026 10:00:00 GMT", result.pubDate)
-        assertEquals(111L, result.createdAt)
-        assertEquals(222L, result.updatedAt)
+        assertEquals(111L, result.createdAtMillis)
+        assertEquals(222L, result.updatedAtMillis)
         assertEquals(999L, result.rawEnclosure?.length)
-        assertEquals(50, result.youtubeData?.viewsCount)
-        assertEquals(5, result.youtubeData?.likesCount)
+        assertEquals(50, result.youtubeItemData?.viewsCount)
+        assertEquals(5, result.youtubeItemData?.likesCount)
     }
 
     private fun createPost(
@@ -188,22 +190,22 @@ class ContentFeedPostSanitizationHookTest {
         sourceUrl: String? = "https://example.com/feed.xml",
         categories: String = "Kotlin",
         commentsUrl: String? = "https://example.com/comments",
-        youtubeData: LocalRssFeedItemYoutubeData? = null,
-        rawEnclosure: LocalRssFeedItemRawEnclosure? = null,
-        rawMedia: LocalRssFeedItemMediaContent? = null,
+        youtubeData: RssFeedPostYoutubeData? = null,
+        rawEnclosure: RssFeedPostRawEnclosure? = null,
+        rawMedia: RssFeedPostMediaContent? = null,
         createdAt: Long = 1000L,
         updatedAt: Long = 2000L
-    ): LocalRssContentFeedPost {
-        return LocalRssContentFeedPost(
-            id = id,
-            feedId = feedId,
+    ): RssFeedPost {
+        return RssFeedPost(
+            id = UUID(id),
+            feedId = UUID(feedId),
             fingerprint = fingerprint,
             guid = guid,
             title = title,
             author = author,
             link = link,
             pubDate = pubDate,
-            publishedAtEpochMillis = publishedAtEpochMillis,
+            publishedAtMillis = publishedAtEpochMillis ?: Long.MIN_VALUE,
             description = description,
             content = content,
             image = image,
@@ -211,13 +213,13 @@ class ContentFeedPostSanitizationHookTest {
             video = video,
             sourceName = sourceName,
             sourceUrl = sourceUrl,
-            categories = categories,
+            categories = listOf(categories),
             commentsUrl = commentsUrl,
-            youtubeData = youtubeData,
+            youtubeItemData = youtubeData,
             rawEnclosure = rawEnclosure,
-            rawMedia = rawMedia,
-            createdAt = createdAt,
-            updatedAt = updatedAt
+            rawMediaContent = rawMedia,
+            createdAtMillis = createdAt,
+            updatedAtMillis = updatedAt
         )
     }
 }

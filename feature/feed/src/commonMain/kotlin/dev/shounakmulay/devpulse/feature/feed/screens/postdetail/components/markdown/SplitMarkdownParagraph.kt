@@ -48,7 +48,9 @@ fun SplitMarkdownParagraph(
 
     // Single segment, no images: skip the split path entirely, behave exactly like default.
     if (segments.size == 1 && segments[0] is Segment.TextRun) {
-        MarkdownParagraph(content, node, modifier, style, annotatorSettings)
+        ReaderTextExposure(qualifies = hasReadableBodyText(node, content)) {
+            MarkdownParagraph(content, node, modifier, style, annotatorSettings)
+        }
         return
     }
 
@@ -67,12 +69,14 @@ fun SplitMarkdownParagraph(
                     }
                     // skip rendering an empty Text for whitespace-only runs between images
                     if (styledText.text.isNotBlank()) {
-                        MarkdownText(
-                            content = styledText,
-                            node = node,
-                            style = style,
-                            sourceContent = content,
-                        )
+                        ReaderTextExposure(qualifies = segment.nodes.any { hasReadableBodyText(it, content) }) {
+                            MarkdownText(
+                                content = styledText,
+                                node = node,
+                                style = style,
+                                sourceContent = content,
+                            )
+                        }
                     }
                 }
 

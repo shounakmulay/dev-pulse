@@ -1,19 +1,21 @@
 package dev.shounakmulay.devpulse.feature.feed.components.discovery
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
@@ -22,6 +24,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
+import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryCollectionShelf
@@ -36,11 +39,11 @@ fun LazyListScope.DiscoveryCollectionShelf(
     pendingImportIds: Set<UUID>,
     onViewAll: (UUID) -> Unit,
     onAddFeed: (UUID) -> Unit,
-    onFeedClick: (UIDiscoveryFeed) -> Unit
+    onFeedClick: (UIDiscoveryFeed) -> Unit,
+    rowsCount: Int
 ) {
     stickyHeader(shelf.collection.id.value) {
-        DPSectionDivider(
-        ) {
+        DPSectionDivider {
             Row(
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = DPTheme.spacing.lg, vertical = DPTheme.spacing.md),
@@ -74,17 +77,22 @@ fun LazyListScope.DiscoveryCollectionShelf(
         if (shelf.feeds.isEmpty()) {
             DiscoveryMessage(stringResource(stringRes.discovery_collection_empty))
         } else {
-            LazyRow(
+            LazyHorizontalGrid(
+                modifier = Modifier
+                    .height((64.dp + LocalDPSpacing.current.xxxl) * rowsCount),
                 state = rememberSaveable(
                     shelf.collection.id.value,
-                    saver = LazyListState.Saver
-                ) { LazyListState() },
+                    saver = LazyGridState.Saver
+                ) { LazyGridState() },
                 contentPadding = PaddingValues(horizontal = DPTheme.spacing.lg),
-                horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.md),
+                rows = GridCells.Fixed(rowsCount),
             ) {
                 items(shelf.feeds, key = { it.id.value }) { feed ->
-                    DiscoveryFeedCard(
-                        feed = feed, pending = feed.id in pendingImportIds,
+                    DiscoveryFeedRow(
+                        modifier = Modifier.width(300.dp)
+                            .height(64.dp),
+                        feed = feed,
+                        pending = feed.id in pendingImportIds,
                         onAdd = {
                             onAddFeed(feed.id)
                         },

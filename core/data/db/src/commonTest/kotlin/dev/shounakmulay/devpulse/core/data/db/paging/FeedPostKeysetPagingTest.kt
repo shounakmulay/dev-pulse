@@ -4,12 +4,12 @@ import androidx.paging.PagingSource
 import androidx.room3.RoomRawQuery
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedAndSearch
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
-import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursorValue
+import dev.shounakmulay.devpulse.core.data.db.query.SqlBinding
+import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
+import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingFixtures.row
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostSort
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +26,7 @@ import kotlin.test.assertNull
 class FeedPostKeysetPagingTest {
 
     @Test
-    fun `Given tied published sort values When initial page loads Then next cursor includes full named sort key`() = runBlocking {
+    fun `Given tied published sort values When initial page loads Then next cursor includes publication and stable id`() = runBlocking {
         val pagingSource = createPagingSource(
             pages = listOf(
                 listOf(row("post-c"), row("post-b"))
@@ -108,60 +108,14 @@ class FeedPostKeysetPagingTest {
         )
     }
 
-    private fun cursor(id: String): FeedPostCursor {
-        return FeedPostCursor(
-            sort = LocalFeedPostSort.PublishedNewest,
-            values = listOf(
-                FeedPostCursorValue.LongValue(PublishedAt),
-                FeedPostCursorValue.LongValue(UpdatedAt),
-                FeedPostCursorValue.TextValue(id)
-            )
-        )
-    }
-
-    private fun row(id: String): LocalRssPostWithFeedAndSearch {
-        return LocalRssPostWithFeedAndSearch(
-            post = LocalRssContentFeedPost(
-                id = id,
-                feedId = FeedId,
-                fingerprint = "$id-fingerprint",
-                guid = "$id-guid",
-                title = "Tied title",
-                author = "Tied author",
-                link = "https://example.com/posts/$id",
-                pubDate = null,
-                publishedAtEpochMillis = PublishedAt,
-                description = "Description $id",
-                content = "Content $id",
-                image = null,
-                audio = null,
-                video = null,
-                sourceName = FeedName,
-                sourceUrl = "https://example.com/feed.xml",
-                categories = "",
-                commentsUrl = null,
-                bookmarked = false,
-                youtubeData = null,
-                rawEnclosure = null,
-                rawMedia = null,
-                createdAt = CreatedAt,
-                updatedAt = UpdatedAt
-            ),
-            feed = LocalRssFeedIdentitySlice(
-                id = FeedId,
-                title = FeedName,
-                name = FeedName,
-                pinned = false,
-                sourceUrl = "https://example.com/feed.xml",
-                link = "https://example.com",
-                createdAt = CreatedAt,
-                updatedAt = UpdatedAt
-            )
-        )
-    }
+    private fun cursor(id: String): FeedPostCursor = FeedPostCursor(
+        id = LocalUUID(id),
+        sort = LocalFeedPostSort.PublishedNewest,
+        sortValue = SqlBinding.LongValue(PublishedAt),
+    )
 
     private fun List<LocalRssPostWithFeedAndSearch>.postIds(): List<String> {
-        return map { it.post.id }
+        return map { it.post.id.value }
     }
 
     private class FakeFeedPostDao(
@@ -178,44 +132,21 @@ class FeedPostKeysetPagingTest {
 
         override suspend fun upsertPosts(posts: List<LocalRssContentFeedPost>) = unsupported()
 
-        override suspend fun upsertPostCategories(categories: List<LocalRssPostCategory>) = unsupported()
-
-        override suspend fun deletePostCategories(postId: String) = unsupported()
-
-        override suspend fun deletePostCategories(postIds: Set<String>) = unsupported()
-
         override suspend fun deletePosts(posts: List<LocalRssContentFeedPost>) = unsupported()
 
-        override suspend fun getPost(id: String): LocalRssContentFeedPost = unsupported()
+        override suspend fun getPost(id: LocalUUID): LocalRssContentFeedPost? = unsupported()
 
-        override suspend fun updateBookmarkStatus(id: String, isBookmarked: Boolean) = unsupported()
+        override fun observePost(id: LocalUUID): Flow<LocalRssPostWithFeedAndSearch> = emptyFlow()
 
         override suspend fun getByFingerprints(
             fingerprints: Set<String>
         ): Map<String, LocalRssContentFeedPostIdentitySlice> = unsupported()
 
-        override suspend fun getPostsForFeed(feedId: String): List<LocalRssContentFeedPost> = unsupported()
+        override suspend fun getLatestPostPublishedTimeForFeed(fromUuid: LocalUUID): Long? = unsupported()
 
         override fun observeRecentPosts(limit: Int): Flow<List<LocalRssPostWithFeedAndSearch>> {
             return emptyFlow()
         }
-
-        override suspend fun getInitialPage(limit: Int): List<LocalRssContentFeedPost> = unsupported()
-
-        override suspend fun getPageAfter(
-            id: String,
-            limit: Int
-        ): List<LocalRssContentFeedPost> = unsupported()
-
-        override suspend fun getRefreshPageAround(
-            id: String,
-            limit: Int
-        ): List<LocalRssContentFeedPost> = unsupported()
-
-        override suspend fun getPageBeforeQuery(
-            id: String,
-            limit: Int
-        ): List<LocalRssContentFeedPost> = unsupported()
 
         private fun unsupported(): Nothing {
             error("Fake DAO only supports feed post raw paging queries")
@@ -223,10 +154,6 @@ class FeedPostKeysetPagingTest {
     }
 
     private companion object {
-        const val FeedId = "feed-a"
-        const val FeedName = "Feed A"
         const val PublishedAt = 1_000L
-        const val UpdatedAt = 500L
-        const val CreatedAt = 100L
     }
 }
