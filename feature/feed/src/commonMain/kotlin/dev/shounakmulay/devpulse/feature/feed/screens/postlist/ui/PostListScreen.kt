@@ -104,6 +104,9 @@ fun PostListScreen(
     ) { state ->
         Column {
             PostsList(
+                onReadChanged = { id, isRead ->
+                    viewModel.onEvent(PostListScreenEvent.SetPostRead(id, isRead))
+                },
                 postSortAndFilterViewModel = postSortAndFilterViewModel,
                 lazyGridState = lazyGridState,
                 posts = posts,

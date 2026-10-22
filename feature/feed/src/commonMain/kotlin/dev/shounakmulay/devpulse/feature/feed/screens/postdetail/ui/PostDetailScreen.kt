@@ -66,6 +66,10 @@ fun PostDetailScreen(
 
         PostDetailContent(
             state = state,
+            onReadChanged = { id, isRead ->
+                viewModel.onEvent(PostDetailScreenEvent.SetPostRead(id, isRead))
+            },
+            onBodyVisible = { viewModel.onEvent(PostDetailScreenEvent.BodyVisible) },
             listState = listState,
             onBookmarkChanged = {
                 viewModel.onEvent(PostDetailScreenEvent.SetPostBookmarked(it))

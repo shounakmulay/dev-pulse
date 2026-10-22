@@ -108,6 +108,9 @@ fun FeedDetailScreen(
 
         val postSortAndFilterState by postSortAndFiltersViewModel.state.collectAsState()
         FeedPostList(
+            onReadChanged = { id, isRead ->
+                viewModel.onEvent(FeedDetailScreenEvent.SetPostRead(id, isRead))
+            },
             lazyGridState = lazyGridState,
             uiFeed = state.uiFeed,
             feed = state.feed,

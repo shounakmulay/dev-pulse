@@ -1,5 +1,15 @@
 package dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.filter
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import dev.shounakmulay.devpulse.core.designsystem.components.DPDropdownMenu
+import dev.shounakmulay.devpulse.core.designsystem.components.DPDropdownMenuItem
+import devpulse.core.resources.generated.resources.post_filter_all
+import devpulse.core.resources.generated.resources.post_filter_read
+import devpulse.core.resources.generated.resources.post_filter_unread
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +49,36 @@ private fun LazyListScope.filters(
         filters,
         key = { it::class.simpleName.ifNullOrBlank { it::class.toString() } }) { filter ->
         when (filter) {
+            is RssPostFilter.ReadStatus -> {
+                var expanded by remember { mutableStateOf(false) }
+                Box {
+                    OptionChip(
+                        selected = filter.value != null,
+                        onClick = { expanded = true },
+                        label = stringResource(when (filter.value) {
+                            true -> stringRes.post_filter_read
+                            false -> stringRes.post_filter_unread
+                            null -> stringRes.post_filter_all
+                        }),
+                    )
+                    DPDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        listOf<Boolean?>(null, false, true).forEach { value ->
+                            DPDropdownMenuItem(
+                                text = stringResource(when (value) {
+                                    true -> stringRes.post_filter_read
+                                    false -> stringRes.post_filter_unread
+                                    null -> stringRes.post_filter_all
+                                }),
+                                onClick = {
+                                    expanded = false
+                                    onFilterUpdated(filter.copy(value = value))
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+
             is RssPostFilter.Bookmarked -> ToggleChip(
                 name = stringResource(stringRes.bookmarked),
                 selected = filter.value,

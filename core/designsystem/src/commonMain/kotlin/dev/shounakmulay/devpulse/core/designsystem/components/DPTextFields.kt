@@ -2,6 +2,8 @@ package dev.shounakmulay.devpulse.core.designsystem.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -12,15 +14,15 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
@@ -47,7 +49,7 @@ fun DPTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    shape: Shape = MaterialTheme.shapes.extraExtraLarge,
+    shape: Shape = MaterialTheme.shapes.large,
     colors: TextFieldColors? = null,
     textStyle: TextStyle? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -122,7 +124,7 @@ fun DPTextField(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent,
+                errorIndicatorColor = MaterialTheme.colorScheme.error,
             ),
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -157,6 +159,42 @@ private fun DPTextFieldVariantsPreview() {
                     placeholder = "Feed URL",
                     enabled = false,
                 )
+            }
+        }
+    }
+}
+
+@DPComponentPreview
+@Composable
+private fun DPTextFieldLargeTextPreview() {
+    Preview {
+        CompositionLocalProvider(
+            LocalDensity provides Density(density = LocalDensity.current.density, fontScale = 2f),
+        ) {
+            Column(
+                modifier = Modifier.width(320.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                DPTextFieldVariant.entries.forEach { variant ->
+                    DPTextField(
+                        value = "invalid-url",
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxWidth(),
+                        variant = variant,
+                        label = "The complete address of the feed you want to follow",
+                        supportingText = "Enter a valid feed address that starts with https:// and try again.",
+                        isError = true,
+                    )
+                    DPTextField(
+                        value = "A longer feed name",
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxWidth(),
+                        variant = variant,
+                        label = "The name shown in your feed list",
+                        supportingText = "You can change this name later.",
+                        enabled = false,
+                    )
+                }
             }
         }
     }

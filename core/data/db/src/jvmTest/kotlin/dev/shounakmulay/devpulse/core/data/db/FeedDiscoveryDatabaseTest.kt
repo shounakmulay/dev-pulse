@@ -28,10 +28,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -40,40 +36,35 @@ import kotlin.test.assertTrue
 
 class FeedDiscoveryDatabaseTest {
     @Test
-    fun `Given v1 and populated v2 When upgrading Then user feeds survive and discovery search works after reopening`() = runBlocking {
-        for (version in listOf(1, 2)) {
-            val file = Files.createTempFile("discovery-v$version", ".db").toFile()
-            try {
-                BundledSQLiteDriver().open(file.absolutePath).use { connection ->
-                    createSchema(connection, version)
-                    connection.execute("INSERT INTO LocalRssFeed(id,pinned,sourceUrl,title,name,createdAt,updatedAt) VALUES ('subscribed',1,'https://example.com/1','Preserved title','',1,1)")
-                    if (version == 2) {
-                        connection.execute("INSERT INTO LocalFeedDiscoveryMasterMetadata VALUES ('catalog',1,1,1,1,NULL)")
-                        connection.execute("INSERT INTO LocalFeedDiscoveryCollection VALUES ('collection','catalog','path',1,'hash','slug','Collection',0,'Description')")
-                        connection.execute("INSERT INTO LocalFeedDiscoveryFeedMetadata VALUES ('feed-1','Kotlin News',NULL,'RSS','https://example.com/1',NULL,NULL,NULL)")
-                        connection.execute("INSERT INTO LocalFeedDiscoveryCollectionToFeedMapping VALUES ('collection','feed-1',0)")
-                    }
-                }
-                withDatabase(file.absolutePath) { db ->
-                    assertEquals("Preserved title", db.getFeedDao().getFeed("subscribed").title)
-                    if (version == 1) seed(db)
-                    assertEquals(listOf("feed-1"), search(db, "\"Kotlin\"").getInitialPage(10).map { it.feed.metadata.id.value })
-                    assertTrue(db.getFeedDiscoveryFeedMetadataDao().observeFeed(LocalUUID("feed-1")).first()!!.subscribed)
-                }
-                withDatabase(file.absolutePath) { db ->
-                    assertEquals("Preserved title", db.getFeedDao().getFeed("subscribed").title)
-                    assertEquals(listOf("feed-1"), search(db, "\"Kotlin\"").getInitialPage(10).map { it.feed.metadata.id.value })
-                }
-                BundledSQLiteDriver().open(file.absolutePath).use { connection ->
-                    connection.prepare("PRAGMA user_version").use { statement ->
-                        assertTrue(statement.step())
-                        assertEquals(3L, statement.getLong(0))
-                    }
-                    connection.prepare("PRAGMA foreign_key_check").use { statement -> assertFalse(statement.step()) }
-                }
-            } finally {
-                file.delete()
+    fun `Given populated baseline When reopening Then subscriptions and discovery search survive`() = runBlocking {
+        val file = Files.createTempFile("discovery-baseline", ".db").toFile()
+        try {
+            withDatabase(file.absolutePath) { db ->
+                seed(db)
+                db.getFeedDao().upsertFeed(LocalRssFeed(
+                    id = LocalUUID("subscribed"), sourceUrl = "https://example.com/1",
+                    title = "Preserved title", name = "", link = null, description = null,
+                    image = null, lastBuildDate = null, updatePeriod = null, youtubeChannel = null,
+                    createdAt = 1, updatedAt = 1,
+                ))
+                db.getFeedUserStateDao().setPinned(LocalUUID("subscribed"), true)
+                assertEquals(listOf("feed-1"), search(db, "\"Kotlin\"").getInitialPage(10).map { it.feed.metadata.id.value })
             }
+            withDatabase(file.absolutePath) { db ->
+                assertEquals("Preserved title", db.getFeedDao().getFeed("subscribed").title)
+                assertEquals(true, db.getFeedUserStateDao().getState(LocalUUID("subscribed"))!!.pinned)
+                assertEquals(listOf("feed-1"), search(db, "\"Kotlin\"").getInitialPage(10).map { it.feed.metadata.id.value })
+                assertTrue(db.getFeedDiscoveryFeedMetadataDao().observeFeed(LocalUUID("feed-1")).first()!!.subscribed)
+            }
+            BundledSQLiteDriver().open(file.absolutePath).use { connection ->
+                connection.prepare("PRAGMA user_version").use { statement ->
+                    assertTrue(statement.step())
+                    assertEquals(1L, statement.getLong(0))
+                }
+                connection.prepare("PRAGMA foreign_key_check").use { statement -> assertFalse(statement.step()) }
+            }
+        } finally {
+            file.delete()
         }
     }
 
@@ -160,10 +151,10 @@ class FeedDiscoveryDatabaseTest {
             subscriptionSource.registerInvalidatedCallback { subscribed.complete(Unit) }
             subscriptionSource.load(PagingSource.LoadParams.Refresh(null, 10, false))
             db.getFeedDao().upsertFeed(LocalRssFeed(
-                id = LocalUUID("subscribed"), pinned = false, sourceUrl = "https://example.com/1",
+                id = LocalUUID("subscribed"), sourceUrl = "https://example.com/1",
                 title = "Subscribed feed", name = "", link = null, description = null, image = null,
                 lastBuildDate = null, updatePeriod = null, youtubeChannel = null, createdAt = 1,
-                updatedAt = 1, lastOpenedAt = null,
+                updatedAt = 1,
             ))
             withTimeout(5_000) { subscribed.await() }
             assertTrue(db.getFeedDiscoveryFeedMetadataDao().observeFeed(LocalUUID("feed-1")).first()!!.subscribed)
@@ -220,21 +211,6 @@ class FeedDiscoveryDatabaseTest {
         actionType = action, requestor = LocalRssFeedQueueActionRequestor.USER, status = status,
         fetchAttempt = 0, tagIds = null, folderIds = null, createAt = 1, updatedAt = 1,
     )
-
-    private fun createSchema(connection: SQLiteConnection, version: Int) {
-        val path = "dev.shounakmulay.devpulse.core.data.db.DevPulseDatabase/$version.json"
-        val json = javaClass.classLoader.getResourceAsStream(path)!!.bufferedReader().use { it.readText() }
-        val schema = Json.parseToJsonElement(json).jsonObject.getValue("database").jsonObject
-        for (entity in schema.getValue("entities").jsonArray) {
-            val table = entity.jsonObject
-            val name = table.getValue("tableName").jsonPrimitive.content
-            connection.execute(table.getValue("createSql").jsonPrimitive.content.replace("\${TABLE_NAME}", name))
-            table["indices"]?.jsonArray?.forEach { index -> connection.execute(index.jsonObject.getValue("createSql").jsonPrimitive.content.replace("\${TABLE_NAME}", name)) }
-            table["contentSyncTriggers"]?.jsonArray?.forEach { trigger -> connection.execute(trigger.jsonPrimitive.content) }
-        }
-        schema.getValue("setupQueries").jsonArray.forEach { connection.execute(it.jsonPrimitive.content) }
-        connection.execute("PRAGMA user_version=$version")
-    }
 
     private fun SQLiteConnection.execute(sql: String) {
         prepare(sql).use { it.step() }

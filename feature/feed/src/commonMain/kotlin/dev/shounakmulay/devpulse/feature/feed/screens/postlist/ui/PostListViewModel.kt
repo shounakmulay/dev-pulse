@@ -34,6 +34,7 @@ class PostListViewModel(
 ),
     EventHandler<PostListScreenEvent> {
 
+
     override fun createStateSerializer() = PostListScreenState.serializer()
 
     init {
@@ -64,8 +65,15 @@ class PostListViewModel(
         }
     ).cachedIn(viewModelScope)
 
+    private fun setPostRead(postId: UUID, isRead: Boolean) {
+        intent {
+            postInteractor.setPostRead(postId = postId, isRead = isRead)
+        }
+    }
+
     override fun onEvent(event: PostListScreenEvent) {
         when (event) {
+            is PostListScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)
             is PostListScreenEvent.OnSearchQueryChanged -> onSearchQueryChanged(event)
 
             is PostListScreenEvent.OnPostBookmarkChanged -> onPostBookmarkChanged(
