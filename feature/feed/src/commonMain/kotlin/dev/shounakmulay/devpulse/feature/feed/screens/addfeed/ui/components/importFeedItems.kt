@@ -13,9 +13,7 @@ fun LazyGridScope.importFeedItems(
 ) {
     itemsIndexed(
         addFeedDataList,
-        key = { _, item ->
-            item.id
-        }
+        key = { _, item -> item.id }
     ) { index, addFeedData ->
         AddFeedInputCard(
             index = index,
