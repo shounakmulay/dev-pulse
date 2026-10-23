@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "638527259006",
+    "project_id": "dev-pulse-b6b18-staging",
+    "storage_bucket": "dev-pulse-b6b18-staging.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:638527259006:android:49cc89f404d4ee0c48f32f",
+        "android_client_info": {
+          "package_name": "dev.shounakmulay.devpulse.staging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfrlzBs807Ip1CpE0qJR1mg_pEIwUxPmg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

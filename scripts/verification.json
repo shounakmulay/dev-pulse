@@ -79,8 +79,8 @@
         ":composeApp"
       ],
       "tasks": [
-        "compileDebugKotlin",
-        "lintDebug"
+        "compileStagingDebugKotlin",
+        "lintStagingDebug"
       ]
     },
     ":core:navigation": {
@@ -476,12 +476,12 @@
   "configuration": {
     "settings.gradle.kts": "4126052ad0167958dc4c1def9d89c4766a927bec680e993efef4c3f9933be319",
     "build.gradle.kts": "21d354a60cfe39735041d6bd037a99a2217f2e22c0bf131d0d09311202b06d2d",
-    "gradle.properties": "53f7f76d2dd4a804019ce6a1bd245d4c7f8f5f2666f88bec692234d4fd51487d",
+    "gradle.properties": "e0b09dc6786ff47523295e78df525ddca17606f88a51a6c93fbe6cf6aa5e7861",
     "gradle/libs.versions.toml": "7b548124d8665488ff0814606577767d443d60e29c7fa853856a7cbf41baa6ef",
     "gradle/wrapper/gradle-wrapper.properties": "a180163249c7252412ddaee1c7adcf59f6494b1183136f690fbd9a3b8aaed00e",
     "buildSrc/build.gradle.kts": "067bf50532a953100869940ea95fa6f5b966851358fa305f43b4749cebe3bfbc",
     "buildSrc/settings.gradle.kts": "2fedb8cd96740247af3154c9cee8a9101d42a0d95bc689a2eb059ba9d5d1c9ce",
-    "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/BuildConfig.kt": "c99dd03a2257cd760d90dc59016216813a73027d39fa76e3a10ee3b30a71bebe",
+    "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/BuildConfig.kt": "c4c5223501fed51c268d33d8fab556888a5daa85083a6f945bde5835a84dd2d9",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/Modules.kt": "0af51fe6b5940010cb6cd7f71b4f4490021cb23b9429edd3af0c414f1dbac8c4",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/extensions/KmpExtensions.kt": "5a77729e9de9af0fc69074e3de27230dc64c1d17603bb8f49617789543159feb",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/extensions/ProjectConfigurations.kt": "ae6b4b18eac67fa5f1b589f73bb7cba0f81b395b771f372ff308209fcdc6623e",
@@ -495,7 +495,7 @@
     "composeApp/build.gradle.kts": "87825ecc865b2690031606a57d1d475347baabdc1674db0a8fe764e1c335bc4e",
     "core/designsystem/build.gradle.kts": "d4ac9df28345790b9f6e009a7a881b41160084fb9ac8d4befc44e7513e3eff26",
     "core/webview/build.gradle.kts": "cee3a665c98d53cd065b5b55ba0938338d0014233f337f034a03b92334ac7f55",
-    "androidApp/build.gradle.kts": "083b2f866f7dc36160a2fa2d65d4d92813d6c3eb08da2e80ddd143e0262c634f",
+    "androidApp/build.gradle.kts": "ff75d9776f55937efb3c14079899eeda78a7a6f03b2c8c5f3baed2fccdcd6af0",
     "core/navigation/build.gradle.kts": "0f915f0727bfd0ab6c4f51bbe2a0c389e49755d6eb25fcdf9f8fd8efda777f57",
     "feature/devtools/build.gradle.kts": "427d4a2a35be53478effe1354dee5a211d1967472d182982ba680ba3bf6cc184",
     "feature/home/build.gradle.kts": "23d4d5d26a7d5706b80cb50d069948f1ed7eb3b79cbd81ee240517cdbe75fb19",
@@ -503,18 +503,18 @@
     "feature/settings/build.gradle.kts": "cd503d5945cd61f86c64de16ca1f3969ae9c31871adae84c5d597d59f785c569",
     "core/ui/build.gradle.kts": "10d13bea84de99fadc4cf37197b97fb35af8a4f7bae6cb39ec43c04c88063c01",
     "core/resources/build.gradle.kts": "f258146d4bf3b085209bbafc7ac3606d828e6a3298c59e45103f71eb83ebc5f2",
-    "core/logging/build.gradle.kts": "84319b6990647740de7662734a7b50c86eef422ec7a42987d41b2df21edb4424",
+    "core/logging/build.gradle.kts": "c618f78da954d99d506ebeeb737ee92f16648adeb72b1f402e462a83bea08bde",
     "core/network/build.gradle.kts": "c0fd46dfd2c5140ed447d467291ff55503ac74d12f9dd3acdee36311596947da",
     "core/notifications/build.gradle.kts": "a014a45fe53886c40478cbb9746653b1160cd25efbe399625ff3f13e9be0d774",
     "core/permissions/build.gradle.kts": "dd606f002d3ee1dfa2e7e4e4b6811cf76e8f851046bbaa55177d2b2799f2b205",
     "core/data/preferences/build.gradle.kts": "773401808e7939c3a29aa944104dfdd3f69d3884130d8e8ceb307bff5c20254c",
     "core/data/settings/build.gradle.kts": "8c2d8074a2321117723bb39d12def6c404647a4949d41a7290d923e1c966459d",
-    "core/data/feed/build.gradle.kts": "c142c7c2c5cd7ab3935d470e0bd9bd1c740b9422e6359a156eb43aacf73d280a",
+    "core/data/feed/build.gradle.kts": "ab021c9cf998676dcbfda5bad7e591fc93269827fb42d6dfcb0053fb3f49e3cc",
     "core/data/db/build.gradle.kts": "83683729ee20fe44ad634c9db6896839d8b438109ee2748cd284e409ae2ca983",
     "core/domain/feed/build.gradle.kts": "b9aaf738c8730382e535957793ae784bf120637f3cb712d4e844a4522aa68530",
     "core/domain/models/build.gradle.kts": "849be40b033209acf2c4ec89d0fe42b4e5b6f27b9f47d2d58a106d84fee69914",
     "core/domain/settings/build.gradle.kts": "5cd45a9328e770af4fbd73fe007df1ce43e6dfa9ee4763cef305d3cd18069330",
-    "core/common/build.gradle.kts": "d55afeacb8986b02738474b07f1c64246db5db2956c0dc7f59f974520bc1076a",
+    "core/common/build.gradle.kts": "416624ca3c071f8c173a8ba63d112f7b7496e0aa28aac3be5730cdea89c7f9c0",
     "bridge/markdownconverter/build.gradle.kts": "4da8266473da5c74908f33e5a46814d8674c277c705225c282c41a4e46181e4c",
     "bridge/sqlitevec/build.gradle.kts": "8bb311bab408cd768f055b9a925274d02d09bf8b244978d5d7798b039d3306e8",
     "bridge/readability/build.gradle.kts": "1413a9164909a1209a97f93483b2d4fb0b5283d86cb151dfcf49154e35f5ae88",

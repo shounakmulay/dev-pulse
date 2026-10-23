@@ -223,8 +223,8 @@ def stages(root, registry, selected):
                 if not tests:
                     skipped.append(module + ': no common/JVM behavioral tests; compilation only')
             elif platform == 'android':
-                names = [t for t in ('lintAndroidMain', 'lintDebug', 'compileAndroidMain',
-                                     'compileDebugKotlin', 'testAndroidHostTest') if t in available]
+                names = [t for t in ('lintAndroidMain', 'lintStagingDebug', 'compileAndroidMain',
+                                     'compileStagingDebugKotlin', 'testAndroidHostTest') if t in available]
             elif platform == 'ios' and 'compileKotlinIosSimulatorArm64' in available:
                 names = ['compileKotlinIosSimulatorArm64']
             else:
