@@ -19,6 +19,7 @@ import devpulse.core.resources.generated.resources.feed_import_notification_text
 import devpulse.core.resources.generated.resources.feed_import_notification_title
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
@@ -54,9 +55,9 @@ class FeedImportForegroundService : CoroutineService() {
     override val dispatcher: CoroutineDispatcher
         get() = Dispatchers.Default
 
-
     private val processingMutex = Mutex()
 
+    @OptIn(FlowPreview::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (!processingMutex.tryLock()) {
             return START_STICKY
@@ -64,7 +65,7 @@ class FeedImportForegroundService : CoroutineService() {
 
         serviceScope.launch {
             val notification = createServiceNotification(
-                text = getKmpString(stringRes.feed_import_notification_initial_text)
+                text = getKmpString(stringRes.feed_import_notification_initial_text),
             )
             val nativeNotification = androidNotificationBuilder.createNotification(notification)
 
@@ -73,12 +74,12 @@ class FeedImportForegroundService : CoroutineService() {
             observeFeedQueue(
                 setOf(
                     RssFeedQueueStatus.PROCESSING,
-                    RssFeedQueueStatus.QUEUED
-                )
+                    RssFeedQueueStatus.QUEUED,
+                ),
             )
                 .onEach {
                     val notification = createServiceNotification(
-                        text = getKmpString(stringRes.feed_import_notification_text, it.size)
+                        text = getKmpString(stringRes.feed_import_notification_text, it.size),
                     )
                     androidNotificationProvider.showNotification(notification)
                 }
@@ -98,7 +99,7 @@ class FeedImportForegroundService : CoroutineService() {
     }
 
     private suspend fun createServiceNotification(
-        text: String
+        text: String,
     ): DPNotificationContent = DPNotificationContent(
         identifier = DPNotificationIdentifier.FEED_IMPORT_SERVICE,
         channel = DPNotificationChannel.FEED_IMPORT,
@@ -108,5 +109,4 @@ class FeedImportForegroundService : CoroutineService() {
     )
 
     override fun onBind(p0: Intent?): IBinder? = null
-
 }

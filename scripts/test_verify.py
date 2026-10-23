@@ -41,6 +41,11 @@ class VerificationTest(unittest.TestCase):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content)
 
+    def test_excluded_modules_skip_checks_but_keep_consumers(self):
+        self.registry['excluded_modules'] = [':core']
+        self.assertEqual([':app'], verify.select_modules(self.registry, {'core/change'}, False))
+        self.assertEqual([':app'], verify.select_modules(self.registry, set(), True))
+
     def test_clean_explicit_base(self):
         base, _ = verify.resolve_base(self.root, self.base)
         self.assertEqual(set(), verify.changed_paths(self.root, base))
@@ -88,6 +93,17 @@ class VerificationTest(unittest.TestCase):
         self.assertEqual([':app'], verify.select_modules(self.registry, {'app/item'}, False))
         self.assertEqual([':app', ':core'], verify.select_modules(self.registry, {'new.config'}, False))
         self.assertEqual([], verify.select_modules(self.registry, {'AGENTS.md'}, False))
+
+    def test_default_stages_compile_production_without_test_tasks(self):
+        registry = {'modules': {':core': {
+            'path': 'core', 'dependencies': [],
+            'tasks': ['compileKotlinJvm', 'jvmTest', 'lintJvm', 'compileAndroidMain',
+                      'lintAndroidMain', 'testAndroidHostTest']}}}
+        self.write('core/src/commonTest/kotlin/FailureTest.kt', 'not valid Kotlin')
+        with patch.dict(verify.os.environ, {'DEVPULSE_VERIFY_ANDROID': '1'}):
+            stages, _ = verify.stages(self.root, registry, [':core'])
+        self.assertEqual([('jvm', [':core:lintJvm', ':core:compileKotlinJvm']),
+                          ('android', [':core:lintAndroidMain', ':core:compileAndroidMain'])], stages)
 
     def test_android_stage_selects_flavored_app_checks(self):
         registry = {'modules': {':androidApp': {
@@ -144,6 +160,21 @@ class VerificationTest(unittest.TestCase):
         self.write('core/build.gradle.kts', 'fixture')
         (self.root / registry['references']['skill']).unlink()
         with self.assertRaisesRegex(ValueError, 'Missing canonical'):
+            verify.check_registry(self.root, registry)
+
+    def test_ci_configuration_requires_audit_and_rejects_later_drift(self):
+        registry = self.prepare_registry()
+        path = '.github/workflows/quality.yml'
+        self.write(path, 'name: Quality\n')
+        with self.assertRaisesRegex(ValueError, 'file set changed'):
+            verify.check_registry(self.root, registry)
+        registry['configuration'][path] = hashlib.sha256((self.root / path).read_bytes()).hexdigest()
+        verify.check_registry(self.root, registry)
+        self.write(path, 'name: Changed\n')
+        with self.assertRaisesRegex(ValueError, 'drift'):
+            verify.check_registry(self.root, registry)
+        self.write('.github/scripts/quality.sh', 'exit 0\n')
+        with self.assertRaisesRegex(ValueError, 'file set changed'):
             verify.check_registry(self.root, registry)
 
     def test_removed_build_command_definition_rejected(self):

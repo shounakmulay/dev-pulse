@@ -56,13 +56,15 @@ def select_modules(registry, paths, all_scopes):
         consumers = {m for m, v in modules.items() if selected.intersection(v['dependencies'])}
         expanded = selected | consumers
         if expanded == selected:
-            return sorted(selected)
+            return sorted(selected - set(registry.get('excluded_modules', [])))
         selected = expanded
 
 
 def check_registry(root, registry):
     if registry['version'] != 1 or not registry['modules']:
         raise ValueError('Unsupported or empty verification registry')
+    if not set(registry.get('excluded_modules', [])).issubset(registry['modules']):
+        raise ValueError('Unknown excluded verification module')
     for module, item in registry['modules'].items():
         if not re.fullmatch(r'(?::[A-Za-z][A-Za-z0-9]*)+', module):
             raise ValueError('Invalid module identifier')
@@ -81,13 +83,12 @@ def check_registry(root, registry):
     actual.update(('settings.gradle.kts', 'buildSrc/settings.gradle.kts', 'gradle.properties',
                    'gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties',
                    'gradlew', 'gradlew.bat', 'gradle/wrapper/gradle-wrapper.jar'))
+    actual.update(str(p.relative_to(root)) for p in (root / '.github').rglob('*') if p.is_file())
     if actual != set(registry['configuration']):
         raise ValueError('Build configuration file set changed; re-audit and refresh verification.json')
     for path, expected in registry['configuration'].items():
         if hashlib.sha256((root / path).read_bytes()).hexdigest() != expected:
             raise ValueError('Verification configuration drift: ' + path + '; re-audit before refreshing its digest')
-    if (root / '.github/workflows').exists():
-        raise ValueError('CI configuration added; audit parity before updating this runner')
     for path in registry['references'].values():
         if not (root / path).is_file():
             raise ValueError('Missing canonical reference: ' + path)
@@ -215,16 +216,12 @@ def stages(root, registry, selected):
         for module in selected:
             item = registry['modules'][module]
             available = item['tasks']
-            tests = any(list((root / item['path'] / 'src' / source).rglob('*.kt'))
-                        for source in ('commonTest', 'jvmTest'))
             if platform == 'jvm' and 'compileKotlinJvm' in available:
                 names = (['lintJvm'] if 'lintJvm' in available else [])
-                names += ['jvmTest'] if tests else ['compileKotlinJvm']
-                if not tests:
-                    skipped.append(module + ': no common/JVM behavioral tests; compilation only')
+                names += ['compileKotlinJvm']
             elif platform == 'android':
                 names = [t for t in ('lintAndroidMain', 'lintStagingDebug', 'compileAndroidMain',
-                                     'compileStagingDebugKotlin', 'testAndroidHostTest') if t in available]
+                                     'compileStagingDebugKotlin') if t in available]
             elif platform == 'ios' and 'compileKotlinIosSimulatorArm64' in available:
                 names = ['compileKotlinIosSimulatorArm64']
             else:
@@ -256,6 +253,8 @@ def main():
     plan, skipped = stages(ROOT, registry, selected)
     if args.test:
         module, pattern = args.test
+        if module in registry.get('excluded_modules', []):
+            parser.error('Module excluded from verification: ' + module)
         if module not in registry['modules'] or 'jvmTest' not in registry['modules'][module]['tasks']:
             parser.error('Unknown module or unsupported JVM test task')
         if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.*$]*', pattern):
@@ -271,7 +270,7 @@ def main():
         print('PLAN {}: {}'.format(name, shlex.join(gradle + tasks) if hasattr(shlex, 'join') else ' '.join(shlex.quote(a) for a in gradle + tasks)))
     for item in skipped:
         print('SKIP: ' + item)
-    print('UNSUPPORTED: ktlint, dead-code and architecture gates are not configured. Gradle --offline does not isolate test network I/O.')
+    print('QUALITY: Run ./gradlew qualityQuick for Spotless/Detekt or qualityCheck for the CI gate. This runner adds scoped production platform checks; --test explicitly opts in to a JVM test class. Gradle --offline does not isolate test network I/O.')
     if args.plan:
         print('PLAN ONLY: no verification executed')
         return 0

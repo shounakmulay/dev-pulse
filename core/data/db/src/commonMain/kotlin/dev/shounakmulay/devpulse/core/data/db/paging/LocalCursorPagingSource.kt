@@ -7,26 +7,33 @@ import dev.shounakmulay.devpulse.core.logging.log.DPLog
 import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import org.koin.core.component.KoinComponent
 
 class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
     private val dataProvider: LocalCursorPagingSourceDataProvider<KEY, VALUE>,
     invalidationEvents: Flow<Unit>,
-    invalidationScope: CoroutineScope,
-    private val logger: DPLogger = DPLog.tag("LocalCursorPagingSource")
-) : PagingSource<KEY, VALUE>() {
+    private val logger: DPLogger = DPLog.tag("LocalCursorPagingSource"),
+) : PagingSource<KEY, VALUE>(),
+    KoinComponent {
+
+    // TODO: Inject dispatcher provider and possible move creation of source out of DB
+    private val invalidationScope = CoroutineScope(
+        SupervisorJob() + Dispatchers.Default,
+    )
 
     constructor(
         database: RoomDatabase,
-        dataProvider: LocalCursorPagingSourceDataProvider<KEY, VALUE>
+        dataProvider: LocalCursorPagingSourceDataProvider<KEY, VALUE>,
     ) : this(
         dataProvider = dataProvider,
         invalidationEvents = database.createInvalidationFlow(dataProvider),
-        invalidationScope = database.getCoroutineScope()
     )
 
     private val invalidationJob: Job = invalidationEvents
@@ -58,6 +65,7 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
                 }
 
                 is LoadParams.Append -> dataProvider.getPageAfter(params.key, params.loadSize)
+
                 is LoadParams.Prepend -> dataProvider.getPageBefore(params.key, params.loadSize)
             }
 
@@ -77,46 +85,39 @@ class LocalCursorPagingSource<KEY : Any, VALUE : Any> internal constructor(
                     params is LoadParams.Append && items.size < params.loadSize -> null
                     items.isEmpty() -> null
                     else -> items.lastOrNull()?.let { dataProvider.getId(it) }
-                }
+                },
             )
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             logger.e(e) {
                 "Paging load failed type=${params.loadTypeName()} " +
-                        "hasKey=${params.hasKey()} loadSize=${params.loadSize} " +
-                        "tables=${dataProvider.getTablesToTrack().joinToString()}"
+                    "hasKey=${params.hasKey()} loadSize=${params.loadSize} " +
+                    "tables=${dataProvider.getTablesToTrack().joinToString()}"
             }
             LoadResult.Error(e)
         }
     }
 
-    override fun getRefreshKey(state: PagingState<KEY, VALUE>): KEY? {
-        return state.anchorPosition
-            ?.let(state::closestItemToPosition)
-            ?.let(dataProvider::getId)
+    override fun getRefreshKey(state: PagingState<KEY, VALUE>): KEY? = state.anchorPosition
+        ?.let(state::closestItemToPosition)
+        ?.let(dataProvider::getId)
+
+    private fun LoadParams<KEY>.loadTypeName(): String = when (this) {
+        is LoadParams.Refresh -> "Refresh"
+        is LoadParams.Append -> "Append"
+        is LoadParams.Prepend -> "Prepend"
     }
 
-    private fun LoadParams<KEY>.loadTypeName(): String {
-        return when (this) {
-            is LoadParams.Refresh -> "Refresh"
-            is LoadParams.Append -> "Append"
-            is LoadParams.Prepend -> "Prepend"
-        }
+    private fun LoadParams<KEY>.hasKey(): Boolean = when (this) {
+        is LoadParams.Refresh -> key != null
+        is LoadParams.Append -> true
+        is LoadParams.Prepend -> true
     }
-
-    private fun LoadParams<KEY>.hasKey(): Boolean {
-        return when (this) {
-            is LoadParams.Refresh -> key != null
-            is LoadParams.Append -> true
-            is LoadParams.Prepend -> true
-        }
-    }
-
 }
 
 private fun <KEY, VALUE> RoomDatabase.createInvalidationFlow(
-    dataProvider: LocalCursorPagingSourceDataProvider<KEY, VALUE>
+    dataProvider: LocalCursorPagingSourceDataProvider<KEY, VALUE>,
 ): Flow<Unit> {
     val tables = dataProvider.getTablesToTrack()
     require(tables.isNotEmpty()) {

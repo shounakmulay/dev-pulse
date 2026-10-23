@@ -5,7 +5,6 @@ import kotlin.concurrent.Volatile
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
-@Single
 object DPPerformance {
     @Volatile
     private var sinks: List<PerformanceSink>? = null

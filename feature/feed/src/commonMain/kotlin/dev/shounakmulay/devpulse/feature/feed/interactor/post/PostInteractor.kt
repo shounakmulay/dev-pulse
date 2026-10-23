@@ -5,13 +5,13 @@ import androidx.paging.map
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.extensions.ifNullOrBlank
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.posts.GetPaginatedFeedPostsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostReadUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
-import dev.shounakmulay.devpulse.core.logging.log.DPLog
-import dev.shounakmulay.devpulse.core.domain.feed.posts.GetPaginatedFeedPostsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentityAndSearch
+import dev.shounakmulay.devpulse.core.logging.log.DPLog
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
@@ -45,30 +45,30 @@ class PostInteractor(
     private val setPostReadUseCase: SetPostReadUseCase,
 ) {
     companion object {
-        fun getDefaultFiltersFor(screen: Screen): ImmutableList<RssPostFilter> {
-            return when (screen) {
-                is Screen.Tabs.Feed.FeedDetail -> listOf(
-                    RssPostFilter.ReadStatus(null),
-                    RssPostFilter.Bookmarked(null),
-                    RssPostFilter.PublishedRange(),
-                    RssPostFilter.Category(emptySet()),
-                    RssPostFilter.TagIdsAny(emptySet()),
-                )
+        fun getDefaultFiltersFor(screen: Screen): ImmutableList<RssPostFilter> = when (screen) {
+            is Screen.Tabs.Feed.FeedDetail -> listOf(
+                RssPostFilter.ReadStatus(null),
+                RssPostFilter.Bookmarked(null),
+                RssPostFilter.PublishedRange(),
+                RssPostFilter.Category(emptySet()),
+                RssPostFilter.TagIdsAny(emptySet()),
+            )
 
-                else -> listOf(
-                    RssPostFilter.FeedIds(emptySet()),
-                    RssPostFilter.ReadStatus(null),
-                    RssPostFilter.Bookmarked(null),
-                    RssPostFilter.PublishedRange(),
-                    RssPostFilter.Category(emptySet()),
-                    RssPostFilter.TagIdsAny(emptySet()),
-                )
-            }.sortedWith(compareBy<RssPostFilter> {
+            else -> listOf(
+                RssPostFilter.FeedIds(emptySet()),
+                RssPostFilter.ReadStatus(null),
+                RssPostFilter.Bookmarked(null),
+                RssPostFilter.PublishedRange(),
+                RssPostFilter.Category(emptySet()),
+                RssPostFilter.TagIdsAny(emptySet()),
+            )
+        }.sortedWith(
+            compareBy<RssPostFilter> {
                 it.isEmpty()
             }.thenBy {
                 it.order()
-            }).toImmutableList()
-        }
+            },
+        ).toImmutableList()
 
         val DEFAULT_SORT_OPTIONS: ImmutableList<UIPostSort> by lazy {
             RssPostSort.entries.map {
@@ -81,7 +81,7 @@ class PostInteractor(
                 UIPostSort(
                     name = TextResource.fromStringRes(nameRes),
                     selected = it == RssPostSort.PublishedNewest,
-                    sort = it
+                    sort = it,
                 )
             }.toImmutableList()
         }
@@ -93,28 +93,24 @@ class PostInteractor(
         }
     }
 
-    fun getRecentArticlesFlow(): Flow<ImmutableList<UIFeedPost>> {
-        return getRecentFeedItemsUseCase().map { feedItems ->
-            feedItems.map {
-                toUIFeedPost(it)
-            }.toImmutableList()
-        }.flowOn(dispatcherProvider.defaultDispatcher)
-    }
+    fun getRecentArticlesFlow(): Flow<ImmutableList<UIFeedPost>> = getRecentFeedItemsUseCase().map { feedItems ->
+        feedItems.map {
+            toUIFeedPost(it)
+        }.toImmutableList()
+    }.flowOn(dispatcherProvider.defaultDispatcher)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getPostsWithFilterAndSort(
-        filerAndSortFlow: Flow<Pair<RssPostSort?, List<RssPostFilter>>>
-    ): Flow<PagingData<UIFeedPost>> {
-        return filerAndSortFlow.flatMapLatest { (sort, filters) ->
-            getPaginatedFeedPostsUseCase(
-                filters = filters,
-                sort = sort ?: RssPostSort.PublishedNewest
-            ).map { pagingData ->
-                pagingData.map {
-                    toUIFeedPost(it)
-                }
-            }.flowOn(dispatcherProvider.defaultDispatcher)
-        }
+        filerAndSortFlow: Flow<Pair<RssPostSort?, List<RssPostFilter>>>,
+    ): Flow<PagingData<UIFeedPost>> = filerAndSortFlow.flatMapLatest { (sort, filters) ->
+        getPaginatedFeedPostsUseCase(
+            filters = filters,
+            sort = sort ?: RssPostSort.PublishedNewest,
+        ).map { pagingData ->
+            pagingData.map {
+                toUIFeedPost(it)
+            }
+        }.flowOn(dispatcherProvider.defaultDispatcher)
     }
 
     fun toUIFeedPost(postWithFeedIdentity: RssPostWithFeedIdentityAndSearch): UIFeedPost {
@@ -126,25 +122,25 @@ class PostInteractor(
         val imageUrl = listOf(
             post.image,
             post.rawMediaContent?.url,
-            post.rawEnclosure?.url
+            post.rawEnclosure?.url,
         ).firstOrNull { !it.isNullOrBlank() }
 
         val summary = listOf(
             post.description,
-            post.content
+            post.content,
         ).firstOrNull { !it.isNullOrBlank() }
 
-        val publishedText = post.publishedAtMillis?.let {
+        val publishedText = post.publishedAtMillis.let {
             dateTimeStringConverter.getTimeElapsedOrDateString(
                 Instant.fromEpochMilliseconds(
-                    it
-                )
+                    it,
+                ),
             )
         }
         val createAt = dateTimeStringConverter.getTimeElapsedOrDateString(
             Instant.fromEpochMilliseconds(
-                post.createdAtMillis
-            )
+                post.createdAtMillis,
+            ),
         )
         return UIFeedPost(
             id = post.id,
@@ -163,7 +159,7 @@ class PostInteractor(
                 UIFeedPostSearchHighlights(
                     highlightedTitle = search.highlightedTitle?.let(::parseFtsHighlightedText),
                     highlightedDescription = search.highlightedDescription?.let(::parseFtsHighlightedText),
-                    highlightedContent = search.highlightedContent?.let(::parseFtsHighlightedText)
+                    highlightedContent = search.highlightedContent?.let(::parseFtsHighlightedText),
                 )
             },
         )

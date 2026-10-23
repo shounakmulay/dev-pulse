@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.buildsrc.extensions
 
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.android.build.api.dsl.Lint
 import dev.shounakmulay.devpulse.buildsrc.constants.buildConfig
 import dev.shounakmulay.devpulse.buildsrc.plugins.PluginExtensions.applyPlugin
 import org.gradle.api.Project
@@ -13,12 +14,24 @@ internal fun Project.configureAndroidKmpLibrary() {
         applyPlugin("androidLint", libs.findPlugin("androidLint"))
     }
 
+    plugins.withId("com.android.lint") {
+        extensions.configure<Lint> {
+            ignoreTestSources = true
+            ignoreTestFixturesSources = true
+        }
+    }
+
     plugins.withId("com.android.kotlin.multiplatform.library") {
         extensions.configure<KotlinMultiplatformExtension> {
             targets.withType(KotlinMultiplatformAndroidLibraryTarget::class.java)
                 .configureEach {
                     compileSdk = buildConfig.android.compileSdk
                     minSdk = buildConfig.android.minSdk
+                    lint {
+                        lintConfig = rootProject.file("config/lint.xml")
+                        ignoreTestSources = true
+                        ignoreTestFixturesSources = true
+                    }
                 }
         }
     }

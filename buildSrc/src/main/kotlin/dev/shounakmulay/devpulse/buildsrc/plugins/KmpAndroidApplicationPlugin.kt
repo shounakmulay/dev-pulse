@@ -30,6 +30,11 @@ class KmpAndroidApplicationPlugin : Plugin<Project> {
                 dependencies.add("implementation", project(Modules.Core.COMMON))
                 extensions.configure<ApplicationExtension> {
                     compileSdk = buildConfig.android.compileSdk
+                    lint {
+                        lintConfig = rootProject.file("config/lint.xml")
+                        ignoreTestSources = true
+                        ignoreTestFixturesSources = true
+                    }
 
                     defaultConfig {
                         minSdk = buildConfig.android.minSdk

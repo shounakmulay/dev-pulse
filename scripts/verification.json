@@ -475,18 +475,18 @@
   },
   "configuration": {
     "settings.gradle.kts": "4126052ad0167958dc4c1def9d89c4766a927bec680e993efef4c3f9933be319",
-    "build.gradle.kts": "21d354a60cfe39735041d6bd037a99a2217f2e22c0bf131d0d09311202b06d2d",
+    "build.gradle.kts": "7401b240e69bb0b5f0a0aecc0611b8d7bbb37dac85c5b0b75499389cb8e64575",
     "gradle.properties": "e0b09dc6786ff47523295e78df525ddca17606f88a51a6c93fbe6cf6aa5e7861",
-    "gradle/libs.versions.toml": "7b548124d8665488ff0814606577767d443d60e29c7fa853856a7cbf41baa6ef",
+    "gradle/libs.versions.toml": "f510262c18721a966026c3963b007dc11548161da91bd2b02cb5dc0a2cb3a0aa",
     "gradle/wrapper/gradle-wrapper.properties": "a180163249c7252412ddaee1c7adcf59f6494b1183136f690fbd9a3b8aaed00e",
     "buildSrc/build.gradle.kts": "067bf50532a953100869940ea95fa6f5b966851358fa305f43b4749cebe3bfbc",
     "buildSrc/settings.gradle.kts": "2fedb8cd96740247af3154c9cee8a9101d42a0d95bc689a2eb059ba9d5d1c9ce",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/BuildConfig.kt": "c4c5223501fed51c268d33d8fab556888a5daa85083a6f945bde5835a84dd2d9",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/Modules.kt": "0af51fe6b5940010cb6cd7f71b4f4490021cb23b9429edd3af0c414f1dbac8c4",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/extensions/KmpExtensions.kt": "5a77729e9de9af0fc69074e3de27230dc64c1d17603bb8f49617789543159feb",
-    "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/extensions/ProjectConfigurations.kt": "ae6b4b18eac67fa5f1b589f73bb7cba0f81b395b771f372ff308209fcdc6623e",
+    "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/extensions/ProjectConfigurations.kt": "14d79dad2a773c09d6b749ebb745504e8ed0b1993c2246ba3dd192a48d3c447e",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/extensions/ProjectExtensions.kt": "6c80a15a4b689991869d0107045620952930ee0b449211d1d2c1c84b7f6dfd34",
-    "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/plugins/KmpAndroidApplicationPlugin.kt": "883f3cb3e3b95db51b71cc27d6028014a6cd559a997cda302859682f664b58c9",
+    "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/plugins/KmpAndroidApplicationPlugin.kt": "d7c85df0db35b7a679fbbfe8a14089bdbc92c446d859de9869d9bff4a1fe3ac5",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/plugins/KmpComposePlugin.kt": "f297594241c3391d5d099d8180d978b4081a79b97e44306752ca4661975d4146",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/plugins/KmpLibraryComposePlugin.kt": "bb59558c241f7ba4c4c1a342daedc4035b46cf2dc69767a46975dec5f05be461",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/plugins/KmpLibraryPlugin.kt": "57f7e8da20151324e2f470507b49a6967141fb5d6031aab62bf929999190ce91",
@@ -521,7 +521,9 @@
     "core/sync/build.gradle.kts": "22a2bdd486b534968b8fbbf9385b27e85c7cb2125ce77c4e0dadc0124f766b02",
     "gradlew": "b187b4c52e749f5760afdd6fadc31b2a98ad35fb249bf0dff03b72650f320409",
     "gradlew.bat": "1d297e00bd21de3ace22b4d7f2de1f9dfa858883d66bbf7c1ccbecccec8f4f3b",
-    "gradle/wrapper/gradle-wrapper.jar": "7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172"
+    "gradle/wrapper/gradle-wrapper.jar": "7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172",
+    ".github/workflows/quality.yml": "3ad028e5b6263643810015f6e01e388888c6cdb8498b4b57e38ba152282ed638",
+    ".github/scripts/quality.sh": "ae868492abec2b73aa131f8be4413edfeb32836df06f0cfc70e4a52fda37560f"
   },
   "references": {
     "skill": ".agents/skills/verify-change/SKILL.md",
@@ -765,5 +767,8 @@
       "test-change",
       "verify-change"
     ]
-  }
+  },
+  "excluded_modules": [
+    ":bridge:readability"
+  ]
 }

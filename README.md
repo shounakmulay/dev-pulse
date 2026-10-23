@@ -34,3 +34,34 @@ DevPulse is being designed around a few core ideas:
 
 - **Bring developer workflows together**  
   The broader direction includes developer-focused utilities such as monitoring, calendars, timers, and other day-to-day tools.
+
+## Code quality
+
+Run checks with the repository's Gradle wrapper and a JDK supported by Gradle 9.3.1. CI uses JDK 21.
+
+```bash
+sh scripts/install-hooks.sh
+./gradlew qualityQuick
+./gradlew qualityCheck
+./gradlew spotlessApply
+```
+
+`qualityQuick` runs Spotless with ktlint and one Detekt scan, including Compose Rules. It does not compile app code or run tests. The pre-push hook runs this gate without changing or staging files. Installation respects `core.hooksPath`, refuses an existing different pre-push hook, and uses Git's shared hook directory for worktrees. Integrate `.githooks/pre-push` manually when an existing hook must remain.
+
+`bridge/readability` is excluded from formatting, Detekt and Compose rules, Android Lint reporting, test gates, and scoped verification. Consumer checks can still compile it and generate lint dependency models. Its compilation remains part of normal app builds.
+
+Kotlin test source sets are excluded from formatting, Detekt, Compose rules and Android Lint. `qualityCheck` and the default `scripts/verify.sh` plan do not compile or execute Kotlin tests. Use `scripts/verify.sh --test MODULE CLASS` only to opt in to an individual JVM test class. CI retains the Python hook and verification-runner fixtures.
+
+`qualityCheck` also runs each configured Android KMP library's `lintAndroidMain`, the app's `lintStagingDebug`, and JVM production compilation. It requires the Android SDK and existing development configuration. Native compilation, device tests and iOS analysis remain separate platform checks. `scripts/verify.sh` retains its offline, scoped checks and its guard against tasks that write tracked generated artifacts.
+
+Spotless owns formatting. `.editorconfig` contains Kotlin preferences, including Compose function names. Validation never formats automatically. The fixed adoption commit `da167f6ccefe45154ecf13ce567d00019b1b63bb` limits formatting enforcement to added or changed files, avoiding hundreds of unrelated existing violations. Any file changed after that commit must be formatted in full. `spotlessApply` uses the same scope. Keep this commit available in local history; CI fetches full history.
+
+Detekt owns Kotlin bug and exception checks, deep nesting outside composables, and selected Compose state, remember and modifier rules. It scans handwritten production common, platform and buildSrc Kotlin sources and Gradle scripts. Build and generated directories are excluded. Adjust rules in `config/detekt.yml`; use a narrow `@Suppress("RuleId")` only for an intentional exception. `config/detekt-baseline.xml` records five findings present at adoption, including four Compose findings. Remove resolved entries rather than regenerating the baseline to hide new findings. Detekt formatting and naming rules are omitted to avoid overlap with ktlint.
+
+[Stable Detekt 1.23.8 embeds Kotlin 2.0.21](https://detekt.dev/docs/introduction/compatibility/). Its syntax scan successfully parsed the current Kotlin 2.4.10 project, but it cannot guarantee support for newer language syntax. Type-aware rules and target-specific analysis are deliberately omitted because the stable engine does not match the project compiler. [Compose Rules 0.4.23 matches this stable Detekt version](https://mrmans0n.github.io/compose-rules/detekt/). Reassess both together when a compatible stable engine is available. Android Lint supplies platform and type-aware Compose inspections; it does not replace the common/platform Kotlin scan.
+
+CI runs one job for PRs targeting `main` and pushes to `main`. It cancels superseded runs, runs `qualityCheck` once, uses setup-gradle's dependency/build cache, and uploads reports on failure. It does not require deployment credentials. Existing configuration-cache and build-cache settings remain enabled; no new parallelism setting is imposed. Reports are under `build/reports` in the root and modules. Android Lint uses `config/lint.xml` to exclude generated files under `build/generated` while retaining errors in handwritten sources.
+
+No Konsist or Kover dependency is added. Gradle already controls module dependencies and compilation checks platform imports. New architecture frameworks or coverage thresholds need a concrete rule or reporting requirement. Kermit remains unchanged.
+
+The production gate continues to expose existing production compilation and Android Lint failures. These remain visible in CI and its reports. The setup does not suppress them or change application behavior to obtain a pass.

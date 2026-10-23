@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="all">
+        <ignore regexp=".*[/\\]build[/\\]generated[/\\].*" />
+        <ignore regexp=".*[/\\]bridge[/\\]readability[/\\].*" />
+    </issue>
+</lint>

@@ -6,7 +6,6 @@ import org.koin.core.annotation.Single
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.cancellation.CancellationException
 
-@Single
 object DPLog {
     @Volatile
     private var configuration: DPLogConfig? = null

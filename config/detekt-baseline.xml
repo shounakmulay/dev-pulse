@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ModifierNotUsedAtRoot:BrowseFeedCollectionScreen.kt$modifier</ID>
+    <ID>ModifierNotUsedAtRoot:BrowseFeedsScreen.kt$modifier</ID>
+    <ID>MutableStateParam:DragIndicator.kt$splitRatio</ID>
+    <ID>MutableStateParam:ExpandableListDetailScene.kt$ExpandableListDetailScene$splitRatio</ID>
+    <ID>NestedBlockDepth:TextResourceExtensions.kt$fun TextResource.replace(oldValue: String, newValue: TextResource): TextResource</ID>
+  </CurrentIssues>
+</SmellBaseline>

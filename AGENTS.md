@@ -28,7 +28,7 @@ Read the relevant canonical skill under `.agents/skills/<name>/SKILL.md`:
 - `bash scripts/verify.sh --test :core:common dev.shounakmulay.devpulse.core.common.coroutines.SafeRunCatchingTest` runs one class; it does not verify consumers.
 - `--all` selects every module. `--strict` fails on omitted applicable checks. Android and iOS checks require `DEVPULSE_VERIFY_ANDROID=1` and `DEVPULSE_VERIFY_IOS=1` respectively. Device/UI verification remains manual.
 - The runner uses the local cached toolchain, runs offline, and installs nothing. Build configuration changes require re-auditing `scripts/verification.json`; do not merely bless changed digests.
-- `ktlintCheck` and `ktlintFormat` do not exist. Android/JVM lint tasks are configured by buildSrc; no architecture or dead-code gate is configured.
+- Use `./gradlew qualityQuick` for Spotless/Detekt and `./gradlew qualityCheck` for production Android lint and JVM compilation. Kotlin test source sets are excluded by default; explicit `scripts/verify.sh --test MODULE CLASS` opts in to a JVM class. Run `./gradlew spotlessApply` only when formatting is intended. `ktlintCheck` and `ktlintFormat` do not exist. No architecture or dead-code gate is configured.
 - Report executed checks, baseline failures and missing platform verification. Compilation, whitespace checks, preview rendering and runtime interaction are distinct evidence.
 
 ## Ownership and standards
