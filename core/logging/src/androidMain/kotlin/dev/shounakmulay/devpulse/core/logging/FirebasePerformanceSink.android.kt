@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.core.logging
 
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.perf.metrics.Trace
+import dev.shounakmulay.devpulse.core.common.BuildKonfigCommon
 import dev.shounakmulay.devpulse.core.logging.performance.PerformanceSink
 import dev.shounakmulay.devpulse.core.logging.performance.PerformanceTrace
 import dev.shounakmulay.devpulse.core.logging.performance.TraceEntry
@@ -18,6 +19,7 @@ internal class FirebasePerformanceSink(
     override fun startTrace(entry: TraceEntry): PerformanceTrace {
         val trace = performance.newTrace(entry.name)
         entry.data.forEach { (key, value) -> trace.putAttribute(key, value) }
+        trace.putAttribute("environment", BuildKonfigCommon.ENVIRONMENT)
         trace.start()
         return FirebasePerformanceTrace(trace)
     }

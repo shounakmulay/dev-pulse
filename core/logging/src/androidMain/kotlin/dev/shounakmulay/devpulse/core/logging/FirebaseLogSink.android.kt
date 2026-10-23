@@ -5,6 +5,7 @@ import android.os.Build
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.CustomKeysAndValues
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import dev.shounakmulay.devpulse.core.common.BuildKonfigCommon
 import dev.shounakmulay.devpulse.core.logging.log.DPLogLevel
 import dev.shounakmulay.devpulse.core.logging.log.LogEntry
 import dev.shounakmulay.devpulse.core.logging.log.LogSink
@@ -22,6 +23,7 @@ internal fun createFirebaseLogSinks(application: Application): List<LogSink> {
             crashlytics = FirebaseCrashlytics.getInstance(),
             defaultData = mapOf(
                 "platform" to "android",
+                "environment" to BuildKonfigCommon.ENVIRONMENT,
                 "app.version" to packageInfo.versionName.orEmpty(),
                 "app.build" to build.toString(),
             ),
