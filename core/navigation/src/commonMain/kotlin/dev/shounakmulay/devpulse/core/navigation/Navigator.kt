@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.core.navigation
 
 import androidx.compose.runtime.Immutable
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter

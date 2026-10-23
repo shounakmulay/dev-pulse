@@ -18,7 +18,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.domain.models.feedSync.RssFeedSyncMetadata
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -1,6 +1,9 @@
 package dev.shounakmulay.devpulse.core.logging
 
-import co.touchlab.kermit.Severity
+import dev.shounakmulay.devpulse.core.logging.log.DPLog
+import dev.shounakmulay.devpulse.core.logging.log.DPLogConfig
+import dev.shounakmulay.devpulse.core.logging.log.DPLogConfigs
+import dev.shounakmulay.devpulse.core.logging.log.DPLogLevel
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,16 +42,16 @@ class DPLogTest {
     }
 
     @Test
-    fun `Given Kermit writer When receiving severities Then maps to DP log levels`() {
+    fun `Given logger When receiving all severities Then preserves levels`() {
         val sink = TestLogSink()
-        val writer = KermitLogSinkWriter(listOf(sink))
+        DPLog.configure(DPLogConfig(minLevel = DPLogLevel.Verbose, sinks = listOf(sink)))
 
-        writer.log(Severity.Verbose, "verbose", "Tag", null)
-        writer.log(Severity.Debug, "debug", "Tag", null)
-        writer.log(Severity.Info, "info", "Tag", null)
-        writer.log(Severity.Warn, "warn", "Tag", null)
-        writer.log(Severity.Error, "error", "Tag", null)
-        writer.log(Severity.Assert, "assert", "Tag", null)
+        DPLog.v(tag = "Tag") { "verbose" }
+        DPLog.d(tag = "Tag") { "debug" }
+        DPLog.i(tag = "Tag") { "info" }
+        DPLog.w(tag = "Tag") { "warn" }
+        DPLog.e(tag = "Tag") { "error" }
+        DPLog.a(tag = "Tag") { "assert" }
 
         assertEquals(
             listOf(
@@ -75,7 +78,8 @@ class DPLogTest {
         }
 
         assertFalse(evaluated)
-        assertTrue(sink.entries.isEmpty())
+        DPLog.e(tag = "Enabled") { "Visible error" }
+        assertEquals("Visible error", sink.singleEntry().message)
     }
 
     @Test
@@ -93,7 +97,12 @@ class DPLogTest {
     fun `Given multiple sinks When logging warning Then all sinks receive entry`() {
         val firstSink = TestLogSink()
         val secondSink = TestLogSink()
-        DPLog.configure(DPLogConfig(minLevel = DPLogLevel.Verbose, sinks = listOf(firstSink, secondSink)))
+        DPLog.configure(
+            DPLogConfig(
+                minLevel = DPLogLevel.Verbose,
+                sinks = listOf(firstSink, secondSink)
+            )
+        )
 
         DPLog.w(tag = "Queue") { "Retry scheduled" }
 

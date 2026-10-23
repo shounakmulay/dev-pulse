@@ -8,7 +8,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedType
-import dev.shounakmulay.devpulse.core.logging.DPLog
+import dev.shounakmulay.devpulse.core.logging.log.DPLog
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkResponse
 import kotlinx.coroutines.test.runTest

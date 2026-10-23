@@ -11,7 +11,7 @@ import dev.shounakmulay.devpulse.core.domain.settings.feed.SetFeedPostListItemVa
 import dev.shounakmulay.devpulse.core.domain.settings.feed.SetSyncInBackgroundUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.theme.ObserveThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.theme.SetThemeSettingsUseCase
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import kotlinx.coroutines.flow.launchIn

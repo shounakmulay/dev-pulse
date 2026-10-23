@@ -28,7 +28,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedType
-import dev.shounakmulay.devpulse.core.logging.DPLog
+import dev.shounakmulay.devpulse.core.logging.log.DPLog
 import dev.shounakmulay.devpulse.core.ui.text.AnnotatedStringTextResource
 import dev.shounakmulay.devpulse.core.ui.text.SimpleTextResource
 import dev.shounakmulay.devpulse.core.ui.text.TextResourceSpan

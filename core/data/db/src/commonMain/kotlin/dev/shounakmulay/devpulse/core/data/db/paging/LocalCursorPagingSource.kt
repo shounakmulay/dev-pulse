@@ -3,8 +3,8 @@ package dev.shounakmulay.devpulse.core.data.db.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.room3.RoomDatabase
-import dev.shounakmulay.devpulse.core.logging.DPLog
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLog
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

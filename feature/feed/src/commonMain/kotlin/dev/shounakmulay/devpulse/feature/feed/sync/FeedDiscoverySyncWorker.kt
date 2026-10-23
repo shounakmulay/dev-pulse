@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.feature.feed.sync
 
 import dev.shounakmulay.devpulse.core.domain.feed.discovery.RefreshFeedDiscoveryUseCase
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.sync.DevPulseWorker
 import dev.shounakmulay.devpulse.core.sync.DevPulseWorkerType
 import dev.shounakmulay.devpulse.core.sync.toWorkerResult

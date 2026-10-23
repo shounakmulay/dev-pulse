@@ -13,7 +13,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.FeedDiscoveryCollection
 import dev.shounakmulay.devpulse.core.domain.models.feed.FeedDiscoveryFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.FeedDiscoveryImportState
 import dev.shounakmulay.devpulse.core.domain.models.feed.FeedDiscoveryQuery
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.ui.image.getWebsiteImageUrl
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryCollection

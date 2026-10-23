@@ -7,7 +7,7 @@ import dev.shounakmulay.devpulse.core.domain.feed.discovery.EnqueueFeedDiscovery
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.FeedDiscoveryImportState
 import dev.shounakmulay.devpulse.core.domain.models.feed.FeedDiscoveryQuery
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.text.TextResource

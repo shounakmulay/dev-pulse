@@ -3,7 +3,7 @@ package dev.shounakmulay.devpulse.core.data.feed.parser.discoveryseed
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.db.converter.GzipCompressor
 import dev.shounakmulay.devpulse.core.data.feed.model.discoveryseed.DiscoverySeedData
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import devpulse.core.resources.generated.resources.Res
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json

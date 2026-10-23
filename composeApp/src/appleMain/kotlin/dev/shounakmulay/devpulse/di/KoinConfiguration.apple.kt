@@ -1,4 +1,4 @@
 package dev.shounakmulay.devpulse.di
 
-actual fun org.koin.core.KoinApplication.registerNativeDependencies() {
+actual fun org.koin.core.KoinApplication.registerNativeKoinDependencies() {
 }

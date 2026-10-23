@@ -1,6 +1,6 @@
 package dev.shounakmulay.devpulse.core.network.di
 
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.KtorDevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.createHttpClient

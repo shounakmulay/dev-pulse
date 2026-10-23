@@ -1,5 +1,8 @@
 package dev.shounakmulay.devpulse.core.logging
 
+import dev.shounakmulay.devpulse.core.logging.log.LogEntry
+import dev.shounakmulay.devpulse.core.logging.log.LogSink
+
 internal class TestLogSink(
     private val loggable: (LogEntry) -> Boolean = { true },
 ) : LogSink {

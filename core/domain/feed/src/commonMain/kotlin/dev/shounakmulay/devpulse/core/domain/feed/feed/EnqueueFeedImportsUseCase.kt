@@ -9,7 +9,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionReque
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import org.koin.core.annotation.Factory
 
 

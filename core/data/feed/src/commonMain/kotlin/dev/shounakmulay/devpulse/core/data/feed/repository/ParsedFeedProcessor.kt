@@ -8,7 +8,7 @@ import dev.shounakmulay.devpulse.core.data.feed.mapper.UuidMapper
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostWithExistingIdentity
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeedItem
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import org.koin.core.annotation.Factory
 
 @Factory
