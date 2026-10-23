@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.core.logging.performance
 
-import org.koin.core.annotation.Single
 import kotlin.concurrent.Volatile
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
@@ -15,7 +14,7 @@ object DPPerformance {
 
     fun startTrace(
         trace: DPPerformanceTrace,
-        data: Map<String, String> = emptyMap()
+        data: Map<String, String> = emptyMap(),
     ): PerformanceTrace {
         val configuredSinks = requireNotNull(sinks) {
             "DPPerformance configuration is missing. Did you call DPPerformance.configure()"
