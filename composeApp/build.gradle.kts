@@ -27,9 +27,11 @@ kotlin {
     }
     iosFrameworks(baseName = "ComposeApp", isStatic = true) {
         export(project(Modules.Bridge.MARKDOWN_CONVERTER))
+        export(project(Modules.Core.LOGGING))
     }
     sourceSets {
         commonMain.dependencies {
+            api(project(Modules.Core.LOGGING))
             implementation(project(Modules.Core.UI))
             implementation(project(Modules.Core.WEBVIEW))
             implementation(project(Modules.Core.NAVIGATION))
@@ -63,6 +65,9 @@ kotlin {
             implementation(libs.multiplatform.markdown.renderer.coil3)
         }
         androidMain.dependencies {
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.crashlytics)
+            implementation(libs.firebase.performance)
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.koin.androidx.workmanager)
         }

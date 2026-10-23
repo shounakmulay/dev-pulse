@@ -4,6 +4,8 @@ import dev.shounakmulay.devpulse.buildsrc.constants.buildConfig
 import java.util.Properties
 
 plugins {
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.devpulse.kmp.android.application)
     alias(libs.plugins.devpulse.kmp.compose)
 }
