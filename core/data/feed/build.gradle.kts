@@ -20,6 +20,10 @@ buildkonfig {
     defaultConfigs("staging") {
         buildConfigField(STRING, "FEED_DISCOVERY_URL", "https://feeds.devpulse.shounakmulay.dev")
     }
+
+    defaultConfigs("production") {
+        buildConfigField(STRING, "FEED_DISCOVERY_URL", "https://feeds.devpulse.shounakmulay.dev")
+    }
 }
 
 kotlin {

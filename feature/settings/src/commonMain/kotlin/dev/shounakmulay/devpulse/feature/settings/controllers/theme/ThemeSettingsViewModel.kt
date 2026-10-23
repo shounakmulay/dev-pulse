@@ -11,7 +11,7 @@ import dev.shounakmulay.devpulse.core.designsystem.theme.darkScheme
 import dev.shounakmulay.devpulse.core.designsystem.theme.lightScheme
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 import dev.shounakmulay.devpulse.core.domain.settings.theme.ObserveThemeSettingsUseCase
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import kotlinx.coroutines.flow.launchIn
 import org.koin.core.annotation.KoinViewModel
 

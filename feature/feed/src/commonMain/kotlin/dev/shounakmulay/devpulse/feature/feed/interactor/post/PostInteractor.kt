@@ -7,7 +7,7 @@ import dev.shounakmulay.devpulse.core.common.extensions.ifNullOrBlank
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostReadUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
-import dev.shounakmulay.devpulse.core.logging.DPLog
+import dev.shounakmulay.devpulse.core.logging.log.DPLog
 import dev.shounakmulay.devpulse.core.domain.feed.posts.GetPaginatedFeedPostsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort

@@ -1,4 +1,4 @@
-package dev.shounakmulay.devpulse.core.logging
+package dev.shounakmulay.devpulse.core.logging.log
 
 import co.touchlab.kermit.Severity
 
@@ -18,13 +18,4 @@ internal fun DPLogLevel.toSeverity(): Severity = when (this) {
     DPLogLevel.Warn -> Severity.Warn
     DPLogLevel.Error -> Severity.Error
     DPLogLevel.Assert -> Severity.Assert
-}
-
-internal fun Severity.toDPLogLevel(): DPLogLevel = when (this) {
-    Severity.Verbose -> DPLogLevel.Verbose
-    Severity.Debug -> DPLogLevel.Debug
-    Severity.Info -> DPLogLevel.Info
-    Severity.Warn -> DPLogLevel.Warn
-    Severity.Error -> DPLogLevel.Error
-    Severity.Assert -> DPLogLevel.Assert
 }

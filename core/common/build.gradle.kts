@@ -14,6 +14,12 @@ buildkonfig {
     defaultConfigs {
         buildConfigField(
             type = STRING,
+            name = "ENVIRONMENT",
+            value = project.buildConfig.environment,
+            const = true
+        )
+        buildConfigField(
+            type = STRING,
             name = "APP_VERSION",
             value = project.buildConfig.versionName,
             const = true

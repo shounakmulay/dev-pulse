@@ -1,7 +1,6 @@
 package dev.shounakmulay.devpulse.core.data.db.query
 
 import androidx.room3.RoomRawQuery
-import dev.shounakmulay.devpulse.core.logging.logger
 
 class LocalFeedPostSqlQueryBuilder(
     private val query: LocalFeedPostQuery

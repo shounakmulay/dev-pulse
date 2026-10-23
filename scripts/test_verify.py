@@ -89,6 +89,15 @@ class VerificationTest(unittest.TestCase):
         self.assertEqual([':app', ':core'], verify.select_modules(self.registry, {'new.config'}, False))
         self.assertEqual([], verify.select_modules(self.registry, {'AGENTS.md'}, False))
 
+    def test_android_stage_selects_flavored_app_checks(self):
+        registry = {'modules': {':androidApp': {
+            'path': 'androidApp', 'dependencies': [],
+            'tasks': ['compileStagingDebugKotlin', 'lintStagingDebug']}}}
+        with patch.dict(verify.os.environ, {'DEVPULSE_VERIFY_ANDROID': '1'}):
+            stages, _ = verify.stages(self.root, registry, [':androidApp'])
+        self.assertEqual([('android', [':androidApp:lintStagingDebug',
+                                       ':androidApp:compileStagingDebugKotlin'])], stages)
+
     def test_missing_tool_and_failure_are_nonzero(self):
         with contextlib.redirect_stdout(io.StringIO()):
             with self.assertRaises(FileNotFoundError):

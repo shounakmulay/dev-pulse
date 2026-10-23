@@ -1,6 +1,6 @@
 package dev.shounakmulay.devpulse.core.network
 
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRedirect
 import io.ktor.client.plugins.compression.ContentEncoding

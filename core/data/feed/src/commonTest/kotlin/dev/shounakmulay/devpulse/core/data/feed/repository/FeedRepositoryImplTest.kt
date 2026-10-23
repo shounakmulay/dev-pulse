@@ -1,10 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.feed.repository
 
 import androidx.paging.PagingSource
-import androidx.paging.PagingState
-import androidx.room3.RoomRawQuery
 import dev.shounakmulay.devpulse.core.common.time.DateTimeProvider
-import dev.shounakmulay.devpulse.core.data.db.dao.FeedPostDao
 import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedUserStateDao
@@ -13,23 +10,14 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeed
 import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssFeedSearchResult
 import dev.shounakmulay.devpulse.core.data.db.query.FtsQuerySanitizer
 import dev.shounakmulay.devpulse.core.data.db.dao.FeedDao
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssContentFeedPost
 import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssFeed
-import dev.shounakmulay.devpulse.core.data.db.model.feed.tables.LocalRssPostCategory
-import dev.shounakmulay.devpulse.core.data.db.model.feed.projection.LocalRssPostWithFeedAndSearch
-import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssContentFeedPostIdentitySlice
 import dev.shounakmulay.devpulse.core.data.db.model.feed.slices.LocalRssFeedIdentitySlice
-import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingSourceProvider
-import dev.shounakmulay.devpulse.core.data.db.query.FeedPostCursor
-import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.feed.identity.IdentityGenerator
 import dev.shounakmulay.devpulse.core.data.feed.mapper.RssFeedMapper
-import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostMapper
-import dev.shounakmulay.devpulse.core.data.feed.mapper.RssPostQueryMapper
 import dev.shounakmulay.devpulse.core.data.feed.mapper.UuidMapper
 import dev.shounakmulay.devpulse.core.data.feed.parser.xml.opml.OpmlParser
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
-import dev.shounakmulay.devpulse.core.logging.DPLog
+import dev.shounakmulay.devpulse.core.logging.log.DPLog
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkResponse
 import kotlinx.coroutines.flow.Flow

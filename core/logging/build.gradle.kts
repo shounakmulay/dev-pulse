@@ -15,6 +15,12 @@ kotlin {
             implementation(libs.kermit)
         }
 
+        androidMain.dependencies {
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.crashlytics)
+            implementation(libs.firebase.performance)
+        }
+
         commonTest.dependencies {
             implementation(libs.kermit.test)
         }

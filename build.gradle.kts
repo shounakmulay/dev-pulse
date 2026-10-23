@@ -23,7 +23,7 @@ val generateIosXcconfig by tasks.registering {
             TEAM_ID=
 
             PRODUCT_NAME=DevPulse
-            PRODUCT_BUNDLE_IDENTIFIER=dev.shounakmulay.devpulse.DevPulse${'$'}(TEAM_ID)
+            PRODUCT_BUNDLE_IDENTIFIER=dev.shounakmulay.devpulse.DevPulse
 
             CURRENT_PROJECT_VERSION=$currentProjectVersion
             MARKETING_VERSION=$marketingVersion

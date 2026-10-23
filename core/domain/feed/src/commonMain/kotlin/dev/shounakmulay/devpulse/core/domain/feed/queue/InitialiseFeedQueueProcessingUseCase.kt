@@ -1,6 +1,6 @@
 package dev.shounakmulay.devpulse.core.domain.feed.queue
 
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import org.koin.core.annotation.Factory
 
 @Factory

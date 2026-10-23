@@ -1,7 +1,6 @@
 package dev.shounakmulay.devpulse.core.designsystem.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -109,15 +108,24 @@ fun DPCard(
             val resolvedShape = shape ?: MaterialTheme.shapes.large
             if (onClick != null) {
                 Card(
-                    onClick = onClick, modifier = modifier, enabled = enabled,
-                    shape = resolvedShape, colors = resolvedColors,
+                    onClick = onClick,
+                    modifier = modifier,
+                    enabled = enabled,
+                    shape = resolvedShape,
+                    colors = resolvedColors,
                     elevation = CardDefaults.cardElevation(),
-                    border = resolvedBorder, interactionSource = null, content = content,
+                    border = resolvedBorder,
+                    interactionSource = null,
+                    content = content,
                 )
             } else {
                 Card(
-                    modifier = modifier, shape = resolvedShape, colors = resolvedColors,
-                    elevation = CardDefaults.cardElevation(), border = resolvedBorder, content = content,
+                    modifier = modifier,
+                    shape = resolvedShape,
+                    colors = resolvedColors,
+                    elevation = CardDefaults.cardElevation(),
+                    border = resolvedBorder,
+                    content = content,
                 )
             }
         }
@@ -125,14 +133,20 @@ fun DPCard(
             val resolvedShape = shape ?: MaterialTheme.shapes.large
             if (onClick != null) {
                 ElevatedCard(
-                    onClick = onClick, modifier = modifier, enabled = enabled,
-                    shape = resolvedShape, colors = resolvedColors,
+                    onClick = onClick,
+                    modifier = modifier,
+                    enabled = enabled,
+                    shape = resolvedShape,
+                    colors = resolvedColors,
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = elevationDp),
-                    interactionSource = null, content = content,
+                    interactionSource = null,
+                    content = content,
                 )
             } else {
                 ElevatedCard(
-                    modifier = modifier, shape = resolvedShape, colors = resolvedColors,
+                    modifier = modifier,
+                    shape = resolvedShape,
+                    colors = resolvedColors,
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = elevationDp),
                     content = content,
                 )

@@ -6,3 +6,5 @@ import org.koin.core.annotation.Module
 @Module
 @ComponentScan("dev.shounakmulay.devpulse.core.logging")
 class LoggingModule
+
+expect fun nativeLoggingModule() : org.koin.core.module.Module

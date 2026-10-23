@@ -31,7 +31,7 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.FeedDiscoveryCollection
 import dev.shounakmulay.devpulse.core.domain.models.feed.FeedDiscoveryCollectionShelf
 import dev.shounakmulay.devpulse.core.domain.models.feed.FeedDiscoveryQuery
 import dev.shounakmulay.devpulse.core.domain.models.feed.FeedDiscoveryFeed
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkResponse
 import dev.shounakmulay.devpulse.core.network.HttpHeaders

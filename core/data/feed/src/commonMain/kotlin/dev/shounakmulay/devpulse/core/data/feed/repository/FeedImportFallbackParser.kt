@@ -2,7 +2,7 @@ package dev.shounakmulay.devpulse.core.data.feed.repository
 
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import org.koin.core.annotation.Factory
 

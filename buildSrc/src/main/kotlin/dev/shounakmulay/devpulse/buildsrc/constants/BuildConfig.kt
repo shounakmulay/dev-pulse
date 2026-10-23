@@ -6,6 +6,17 @@ import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 class BuildConfig(private val project: Project) {
+    val environment: String
+        get() {
+            require(!project.providers.gradleProperty("buildKonfig.flavor").isPresent) {
+                "Use buildkonfig.flavor (lowercase), not buildKonfig.flavor."
+            }
+            return project.providers.gradleProperty("buildkonfig.flavor").orElse("staging").get().also {
+                require(it in setOf("staging", "production")) {
+                    "Unknown environment '$it'. Set -Pbuildkonfig.flavor=staging or production."
+                }
+            }
+        }
     val versionName: String get() = version("app-versionName")
     val android = Android()
     val jvm = Jvm()

@@ -3,7 +3,7 @@ package dev.shounakmulay.devpulse.core.domain.feed.discovery
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.coroutines.runCatchingOnDefault
 import dev.shounakmulay.devpulse.core.data.feed.repository.FeedDiscoveryRepository
-import dev.shounakmulay.devpulse.core.logging.DPLogger
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.resources.ResourceFilePath
 import org.koin.core.annotation.Factory
 
