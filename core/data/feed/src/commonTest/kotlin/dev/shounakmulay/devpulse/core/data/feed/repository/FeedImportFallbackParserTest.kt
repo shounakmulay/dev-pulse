@@ -9,17 +9,24 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedType
 import dev.shounakmulay.devpulse.core.logging.log.DPLog
+import dev.shounakmulay.devpulse.core.logging.log.DPLogConfigs
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkClient
 import dev.shounakmulay.devpulse.core.network.DevPulseNetworkResponse
 import kotlinx.coroutines.test.runTest
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 
 class FeedImportFallbackParserTest {
+    @BeforeTest
+    fun configureLogger() {
+        DPLog.configure(DPLogConfigs.debug())
+    }
+
     @Test
     fun `Given primary succeeds When import runs Then XML is fetched once and fallback is not called`() = runTest {
         val primary = FakeCandidate(id = "prof18")
