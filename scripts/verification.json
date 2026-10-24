@@ -495,7 +495,7 @@
     "composeApp/build.gradle.kts": "87825ecc865b2690031606a57d1d475347baabdc1674db0a8fe764e1c335bc4e",
     "core/designsystem/build.gradle.kts": "d4ac9df28345790b9f6e009a7a881b41160084fb9ac8d4befc44e7513e3eff26",
     "core/webview/build.gradle.kts": "cee3a665c98d53cd065b5b55ba0938338d0014233f337f034a03b92334ac7f55",
-    "androidApp/build.gradle.kts": "e9eaa6a2064da320bc05c755943af070df2a9908fd52ad1ce175829152797d3e",
+    "androidApp/build.gradle.kts": "9bcc3cf4fc324f68e4b9a3b92de7f96e4e140991ba802e36e3018eb9f317938b",
     "core/navigation/build.gradle.kts": "0f915f0727bfd0ab6c4f51bbe2a0c389e49755d6eb25fcdf9f8fd8efda777f57",
     "feature/devtools/build.gradle.kts": "427d4a2a35be53478effe1354dee5a211d1967472d182982ba680ba3bf6cc184",
     "feature/home/build.gradle.kts": "23d4d5d26a7d5706b80cb50d069948f1ed7eb3b79cbd81ee240517cdbe75fb19",

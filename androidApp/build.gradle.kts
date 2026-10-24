@@ -84,10 +84,12 @@ abstract class ValidateFirebaseConfiguration : DefaultTask() {
         require(configuration.getAsJsonObject("project_info").get("project_id").asString == expectedProject.get()) {
             "Firebase project does not match the selected environment."
         }
-        require(configuration.getAsJsonArray("client").any {
-            it.asJsonObject.getAsJsonObject("client_info")
-                .getAsJsonObject("android_client_info").get("package_name").asString == expectedPackage.get()
-        }) {
+        require(
+            configuration.getAsJsonArray("client").any {
+                it.asJsonObject.getAsJsonObject("client_info")
+                    .getAsJsonObject("android_client_info").get("package_name").asString == expectedPackage.get()
+            },
+        ) {
             "Firebase Android package does not match the selected environment."
         }
     }
@@ -137,8 +139,12 @@ androidComponents {
         if (variant.buildType == "release") {
             tasks.matching {
                 it.name in setOf(
-                    "assemble$variantName", "bundle$variantName", "package$variantName",
-                    "package${variantName}Bundle", "sign${variantName}Bundle", "validateSigning$variantName"
+                    "assemble$variantName",
+                    "bundle$variantName",
+                    "package$variantName",
+                    "package${variantName}Bundle",
+                    "sign${variantName}Bundle",
+                    "validateSigning$variantName",
                 )
             }.configureEach {
                 dependsOn(validateUploadSigning)
