@@ -481,7 +481,7 @@
     "gradle/wrapper/gradle-wrapper.properties": "a180163249c7252412ddaee1c7adcf59f6494b1183136f690fbd9a3b8aaed00e",
     "buildSrc/build.gradle.kts": "067bf50532a953100869940ea95fa6f5b966851358fa305f43b4749cebe3bfbc",
     "buildSrc/settings.gradle.kts": "2fedb8cd96740247af3154c9cee8a9101d42a0d95bc689a2eb059ba9d5d1c9ce",
-    "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/BuildConfig.kt": "c4c5223501fed51c268d33d8fab556888a5daa85083a6f945bde5835a84dd2d9",
+    "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/BuildConfig.kt": "cba6d00fae803ab0a6bc5759ffb7133323de54dcf2cf60683bc739a3d98a849d",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/Modules.kt": "0af51fe6b5940010cb6cd7f71b4f4490021cb23b9429edd3af0c414f1dbac8c4",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/extensions/KmpExtensions.kt": "5a77729e9de9af0fc69074e3de27230dc64c1d17603bb8f49617789543159feb",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/extensions/ProjectConfigurations.kt": "14d79dad2a773c09d6b749ebb745504e8ed0b1993c2246ba3dd192a48d3c447e",
@@ -495,7 +495,7 @@
     "composeApp/build.gradle.kts": "87825ecc865b2690031606a57d1d475347baabdc1674db0a8fe764e1c335bc4e",
     "core/designsystem/build.gradle.kts": "d4ac9df28345790b9f6e009a7a881b41160084fb9ac8d4befc44e7513e3eff26",
     "core/webview/build.gradle.kts": "cee3a665c98d53cd065b5b55ba0938338d0014233f337f034a03b92334ac7f55",
-    "androidApp/build.gradle.kts": "ff75d9776f55937efb3c14079899eeda78a7a6f03b2c8c5f3baed2fccdcd6af0",
+    "androidApp/build.gradle.kts": "e9eaa6a2064da320bc05c755943af070df2a9908fd52ad1ce175829152797d3e",
     "core/navigation/build.gradle.kts": "0f915f0727bfd0ab6c4f51bbe2a0c389e49755d6eb25fcdf9f8fd8efda777f57",
     "feature/devtools/build.gradle.kts": "427d4a2a35be53478effe1354dee5a211d1967472d182982ba680ba3bf6cc184",
     "feature/home/build.gradle.kts": "23d4d5d26a7d5706b80cb50d069948f1ed7eb3b79cbd81ee240517cdbe75fb19",
@@ -522,8 +522,8 @@
     "gradlew": "b187b4c52e749f5760afdd6fadc31b2a98ad35fb249bf0dff03b72650f320409",
     "gradlew.bat": "1d297e00bd21de3ace22b4d7f2de1f9dfa858883d66bbf7c1ccbecccec8f4f3b",
     "gradle/wrapper/gradle-wrapper.jar": "7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172",
-    ".github/workflows/quality.yml": "3ad028e5b6263643810015f6e01e388888c6cdb8498b4b57e38ba152282ed638",
-    ".github/scripts/quality.sh": "ae868492abec2b73aa131f8be4413edfeb32836df06f0cfc70e4a52fda37560f"
+    ".github/scripts/quality.sh": "ae868492abec2b73aa131f8be4413edfeb32836df06f0cfc70e4a52fda37560f",
+    ".github/workflows/quality.yml": "7179c24a61cd427ba1d7d614fac07ede63941fd7352e45a348b136d9556d7eba"
   },
   "references": {
     "skill": ".agents/skills/verify-change/SKILL.md",

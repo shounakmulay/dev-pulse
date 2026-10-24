@@ -27,7 +27,17 @@ class BuildConfig(private val project: Project) {
         val compileSdk: Int get() = version("android-compileSdk").toInt()
         val minSdk: Int get() = version("android-minSdk").toInt()
         val targetSdk: Int get() = version("android-targetSdk").toInt()
-        val versionCode: Int get() = version("app-versionCode").toInt()
+        val versionCode: Int
+            get() {
+                val value = project.providers.environmentVariable("DEVPULSE_VERSION_CODE")
+                    .orElse(version("app-versionCode")).get()
+                require(value.matches(Regex("[0-9]+"))) {
+                    "DEVPULSE_VERSION_CODE must contain only decimal digits."
+                }
+                return requireNotNull(value.toIntOrNull()?.takeIf { it in 1..2_100_000_000 }) {
+                    "Android versionCode must be between 1 and 2100000000."
+                }
+            }
         val versionName: String get() = this@BuildConfig.versionName
     }
 
