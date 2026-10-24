@@ -1,0 +1,19 @@
+name: Set up Android build
+description: Set up the shared Java, Gradle and Android toolchain.
+inputs:
+  cache-read-only:
+    description: Prevent this job from writing to the shared Gradle cache.
+    default: 'true'
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v6
+      with:
+        distribution: temurin
+        java-version: '21'
+    - uses: gradle/actions/setup-gradle@v6
+      with:
+        cache-read-only: ${{ inputs.cache-read-only }}
+    - uses: android-actions/setup-android@v4
+      with:
+        log-accepted-android-sdk-licenses: 'false'

@@ -12,12 +12,9 @@ import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
 import dev.shounakmulay.devpulse.core.data.db.paging.FeedPostPagingFixtures.row
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostQuery
 import dev.shounakmulay.devpulse.core.data.db.query.LocalFeedPostSort
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.runBlocking
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -103,8 +100,7 @@ class FeedPostKeysetPagingTest {
             )
         return LocalCursorPagingSource(
             dataProvider = dataProvider,
-            invalidationEvents = MutableSharedFlow(),
-            invalidationScope = CoroutineScope(EmptyCoroutineContext)
+            invalidationEvents = emptyFlow()
         )
     }
 

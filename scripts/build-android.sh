@@ -28,4 +28,17 @@ esac
 
 root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
-exec ./gradlew ":androidApp:${task}${flavor}${variant}" "-Pbuildkonfig.flavor=$environment"
+./gradlew ":androidApp:${task}${flavor}${variant}" "-Pbuildkonfig.flavor=$environment"
+
+case "$format" in
+    apk) output_dir="$root/androidApp/build/outputs/apk/$environment/$build_type" ;;
+    aab) output_dir="$root/androidApp/build/outputs/bundle/${environment}${variant}" ;;
+esac
+shopt -s nullglob
+artifacts=("$output_dir"/*."$format")
+if [[ ${#artifacts[@]} -eq 0 ]]; then
+    echo "Build finished but no .$format file was found in $output_dir" >&2
+    exit 1
+fi
+printf '\nBuild output:\n'
+printf '%s\n' "${artifacts[@]}"

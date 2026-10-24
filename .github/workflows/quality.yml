@@ -2,15 +2,15 @@ name: Code quality
 
 on:
   pull_request:
-    branches: [main]
   push:
     branches: [main]
+  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: quality-${{ github.event.pull_request.number || github.ref }}
+  group: quality-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -21,19 +21,13 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: actions/setup-java@v6
+      - uses: ./.github/actions/setup-build
         with:
-          distribution: temurin
-          java-version: '21'
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
 
-      - uses: gradle/actions/setup-gradle@v6
-
-      - uses: android-actions/setup-android@v4
-        with:
-          log-accepted-android-sdk-licenses: 'false'
-
-      - name: Check production code quality
+      - name: Check Kotlin code quality
         run: .github/scripts/quality.sh
 
       - uses: actions/upload-artifact@v7

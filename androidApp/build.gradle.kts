@@ -55,10 +55,14 @@ abstract class ValidateUploadSigning : DefaultTask() {
     @get:Input
     abstract val settingsName: Property<String>
 
+    @get:Input
+    abstract val propertyName: Property<String>
+
     @TaskAction
     fun validate() {
         require(configured.get()) {
-            "Set ${settingsName.get()} to your private release signing properties file."
+            "Set ${propertyName.get()} in local.properties, ${settingsName.get()}, or " +
+                "-P${propertyName.get()} to your private release signing properties file."
         }
     }
 }
@@ -80,10 +84,12 @@ abstract class ValidateFirebaseConfiguration : DefaultTask() {
         require(configuration.getAsJsonObject("project_info").get("project_id").asString == expectedProject.get()) {
             "Firebase project does not match the selected environment."
         }
-        require(configuration.getAsJsonArray("client").any {
-            it.asJsonObject.getAsJsonObject("client_info")
-                .getAsJsonObject("android_client_info").get("package_name").asString == expectedPackage.get()
-        }) {
+        require(
+            configuration.getAsJsonArray("client").any {
+                it.asJsonObject.getAsJsonObject("client_info")
+                    .getAsJsonObject("android_client_info").get("package_name").asString == expectedPackage.get()
+            },
+        ) {
             "Firebase Android package does not match the selected environment."
         }
     }
@@ -97,7 +103,12 @@ val signingPropertyName = when (environment) {
     "staging" -> "devpulse.stagingSigningProperties"
     else -> "devpulse.signingProperties"
 }
-val uploadSigningPropertiesPath = providers.environmentVariable(signingSettingsName)
+val localSigningPropertiesPath = providers.fileContents(rootProject.layout.projectDirectory.file("local.properties"))
+    .asText.orElse("")
+    .map { content -> Properties().apply { load(content.reader()) }.getProperty(signingPropertyName).orEmpty() }
+    .filter { it.isNotBlank() }
+val uploadSigningPropertiesPath = localSigningPropertiesPath
+    .orElse(providers.environmentVariable(signingSettingsName))
     .orElse(providers.gradleProperty(signingPropertyName))
 val uploadSigningProperties = Properties().apply {
     uploadSigningPropertiesPath.orNull?.let { path ->
@@ -110,6 +121,7 @@ val uploadSigningProperties = Properties().apply {
 val validateUploadSigning by tasks.registering(ValidateUploadSigning::class) {
     configured.set(uploadSigningPropertiesPath.isPresent)
     settingsName.set(signingSettingsName)
+    propertyName.set(signingPropertyName)
 }
 
 val validateFirebaseConfiguration by tasks.registering(ValidateFirebaseConfiguration::class) {
@@ -127,8 +139,12 @@ androidComponents {
         if (variant.buildType == "release") {
             tasks.matching {
                 it.name in setOf(
-                    "assemble$variantName", "bundle$variantName", "package$variantName",
-                    "package${variantName}Bundle", "sign${variantName}Bundle", "validateSigning$variantName"
+                    "assemble$variantName",
+                    "bundle$variantName",
+                    "package$variantName",
+                    "package${variantName}Bundle",
+                    "sign${variantName}Bundle",
+                    "validateSigning$variantName",
                 )
             }.configureEach {
                 dependsOn(validateUploadSigning)
@@ -142,6 +158,7 @@ android {
         if (uploadSigningPropertiesPath.isPresent) {
             create("upload") {
                 storeFile = file(uploadSigningProperties.getProperty("storeFile"))
+                uploadSigningProperties.getProperty("storeType")?.let { storeType = it }
                 storePassword = uploadSigningProperties.getProperty("storePassword")
                 keyAlias = uploadSigningProperties.getProperty("keyAlias")
                 keyPassword = uploadSigningProperties.getProperty("keyPassword")
