@@ -1,4 +1,8 @@
 [versions]
+spotless = "8.10.4"
+ktlint = "1.8.0"
+detekt = "1.23.8"
+compose-rules = "0.4.23"
 firebase-bom = "35.0.2"
 firebase-crashlytics-plugin = "3.0.8"
 google-services = "4.5.0"
@@ -72,6 +76,7 @@ workRuntimeKtx = "2.12.0"
 zoomable = "2.15.0"
 
 [libraries]
+compose-rules-detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "compose-rules" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-performance = { module = "com.google.firebase:firebase-perf" }
@@ -197,6 +202,8 @@ sqlite-vector = { module = "ai.sqlite:vector", version.ref = "sqlite-vector" }
 zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 [plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-plugin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
 buildKonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }

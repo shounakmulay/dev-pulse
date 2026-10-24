@@ -7,11 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1C81D6F669B7BB6D2FFCCEB3 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 16D66C9411832E1B7D572C76 /* FirebaseCore */; };
-		445C052442747365B7CB2124 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */; };
 		8B16B3233021F3EA00B19956 /* vector in Frameworks */ = {isa = PBXBuildFile; productRef = 8B16B3223021F3EA00B19956 /* vector */; };
 		8BECEB6C3021A97B00013A96 /* HtmlToMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = 8BECEB6B3021A97B00013A96 /* HtmlToMarkdown */; };
-		B7C4F6137AC8345E71E92063 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = B9BCCFD9113EF7CB3F314345 /* FirebasePerformance */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -72,9 +69,6 @@
 			files = (
 				8BECEB6C3021A97B00013A96 /* HtmlToMarkdown in Frameworks */,
 				8B16B3233021F3EA00B19956 /* vector in Frameworks */,
-				1C81D6F669B7BB6D2FFCCEB3 /* FirebaseCore in Frameworks */,
-				445C052442747365B7CB2124 /* FirebaseCrashlytics in Frameworks */,
-				B7C4F6137AC8345E71E92063 /* FirebasePerformance in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -118,7 +112,6 @@
 				CD5681DE6F8ECCA8B522A147 /* Frameworks */,
 				5677177FA334863A9A19336C /* Resources */,
 				8BAED746301CD6DA00AD62B9 /* Embed Frameworks */,
-				4837AD78EDCCC366361E22F5 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -131,9 +124,6 @@
 			packageProductDependencies = (
 				8BECEB6B3021A97B00013A96 /* HtmlToMarkdown */,
 				8B16B3223021F3EA00B19956 /* vector */,
-				16D66C9411832E1B7D572C76 /* FirebaseCore */,
-				108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */,
-				B9BCCFD9113EF7CB3F314345 /* FirebasePerformance */,
 			);
 			productName = iosApp;
 			productReference = 9C3A2499CB7AA44381222227 /* DevPulse.app */;
@@ -165,8 +155,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				8BECEB6A3021A97B00013A96 /* XCRemoteSwiftPackageReference "html-to-markdown" */,
-				8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector" */,
-				3D4E442D29B7AC8B0A42E5A3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector#swift-package" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0D214C63A60B029018168CD5 /* Products */;
@@ -208,28 +197,6 @@
 			shellPath = /bin/sh;
 			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :composeApp:embedAndSignAppleFrameworkForXcode\n";
 		};
-		4837AD78EDCCC366361E22F5 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
-				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
-				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -264,10 +231,6 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
-				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-ObjC",
 				);
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -311,7 +274,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -360,10 +323,6 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
-				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-ObjC",
 				);
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -452,17 +411,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		3D4E442D29B7AC8B0A42E5A3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+		8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector#swift-package" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 13.0.0;
-			};
-		};
-		8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sqliteai/sqlite-vector.git";
+			repositoryURL = "https://github.com/sqliteai/sqlite-vector#swift-package";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
@@ -479,30 +430,15 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 3D4E442D29B7AC8B0A42E5A3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
-		};
-		16D66C9411832E1B7D572C76 /* FirebaseCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 3D4E442D29B7AC8B0A42E5A3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCore;
-		};
 		8B16B3223021F3EA00B19956 /* vector */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector" */;
+			package = 8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector#swift-package" */;
 			productName = vector;
 		};
 		8BECEB6B3021A97B00013A96 /* HtmlToMarkdown */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8BECEB6A3021A97B00013A96 /* XCRemoteSwiftPackageReference "html-to-markdown" */;
 			productName = HtmlToMarkdown;
-		};
-		B9BCCFD9113EF7CB3F314345 /* FirebasePerformance */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 3D4E442D29B7AC8B0A42E5A3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebasePerformance;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

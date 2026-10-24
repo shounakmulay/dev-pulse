@@ -1,0 +1,46 @@
+name: Code quality
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - uses: android-actions/setup-android@v4
+        with:
+          log-accepted-android-sdk-licenses: 'false'
+
+      - name: Check production code quality
+        run: .github/scripts/quality.sh
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: quality-reports
+          path: |
+            build/reports/
+            **/build/reports/
+          retention-days: 7

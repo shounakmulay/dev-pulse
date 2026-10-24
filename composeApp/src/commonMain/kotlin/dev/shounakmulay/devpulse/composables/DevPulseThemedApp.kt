@@ -1,7 +1,6 @@
 package dev.shounakmulay.devpulse.composables
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -26,7 +25,7 @@ internal fun DevPulseThemedApp(content: @Composable () -> Unit) {
         derivedStateOf {
             themeSettingsViewModel.getColorScheme(
                 themeSettingsState,
-                isSystemInDarkTheme = systemDarkTheme
+                isSystemInDarkTheme = systemDarkTheme,
             )
         }
     }
@@ -41,10 +40,8 @@ internal fun DevPulseThemedApp(content: @Composable () -> Unit) {
         colorScheme = colorScheme,
         isDarkTheme = isDarkTheme,
     ) {
-        Scaffold {
-            DevPulseSharedTransitionLayout {
-                content()
-            }
+        DevPulseSharedTransitionLayout {
+            content()
         }
     }
 }

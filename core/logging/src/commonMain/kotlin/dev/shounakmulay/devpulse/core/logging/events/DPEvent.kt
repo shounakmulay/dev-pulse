@@ -1,10 +1,8 @@
 package dev.shounakmulay.devpulse.core.logging.events
 
-import org.koin.core.annotation.Single
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.cancellation.CancellationException
 
-@Single
 object DPEvent {
     @Volatile
     private var sinks: List<EventSink>? = null

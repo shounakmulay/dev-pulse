@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +16,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
@@ -63,7 +60,7 @@ fun FeedsGridItem(
                 onClick = onClick,
                 onLongClick = onLongClick,
             ),
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -78,7 +75,7 @@ fun FeedsGridItem(
                     imageUrl = imageUrl,
                     initials = initials,
                     title = title,
-                    feedId = feedId
+                    feedId = feedId,
                 )
                 if (pinned) {
                     PinnedIcon()
@@ -96,27 +93,27 @@ private fun FeedsGridItemImage(
     initials: String,
     title: String,
 ) {
-
     Box(
         modifier = Modifier.fillMaxSize().clip(MaterialTheme.shapes.large),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         DPImage(
-            modifier = Modifier.fillMaxSize().sharedElement("feed_header_${feedId.value}").clip(MaterialTheme.shapes.large),
+            modifier = Modifier.fillMaxSize().sharedElement("feed_header_${feedId.value}")
+                .clip(MaterialTheme.shapes.large),
             url = imageUrl.orEmpty(),
             contentDescription = stringResource(
                 stringRes.feed_image_content_description,
-                title
+                title,
             ),
             fallbackContent = {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 ) {
                     FeedInitialsText(initials)
                 }
-            }
+            },
         )
     }
 }
@@ -131,7 +128,7 @@ private fun FeedInitialsText(initials: String) {
         textAlign = TextAlign.Center,
         autoSize = TextAutoSize.StepBased(
             minFontSize = 12.sp,
-            maxFontSize = 18.sp
+            maxFontSize = 18.sp,
         ),
         fontWeight = FontWeight.Bold,
         variant = DPTextViewVariant.DisplaySmallEmphasized,
@@ -167,7 +164,7 @@ private fun ListItemLabel(title: String?, sourceUrl: String) {
         textAlign = TextAlign.Center,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        variant = DPTextViewVariant.LabelSmall
+        variant = DPTextViewVariant.LabelSmall,
     )
 }
 
@@ -175,19 +172,15 @@ private fun ListItemLabel(title: String?, sourceUrl: String) {
 @Composable
 private fun FeedsGridItemPreview() {
     Preview {
-        AnimatedContent(targetState = Unit, label = "Feed preview") {
-            CompositionLocalProvider(LocalNavAnimatedContentScope provides this) {
-                FeedsGridItem(
-                    feedId = FeedPreviewData.feed.id,
-                    imageUrl = null,
-                    title = FeedPreviewData.feed.title,
-                    initials = FeedPreviewData.feed.initials,
-                    pinned = true,
-                    sourceUrl = FeedPreviewData.feed.sourceUrl,
-                    onClick = {},
-                    onLongClick = {},
-                )
-            }
-        }
+        FeedsGridItem(
+            feedId = FeedPreviewData.feed.id,
+            imageUrl = null,
+            title = FeedPreviewData.feed.title,
+            initials = FeedPreviewData.feed.initials,
+            pinned = true,
+            sourceUrl = FeedPreviewData.feed.sourceUrl,
+            onClick = {},
+            onLongClick = {},
+        )
     }
 }

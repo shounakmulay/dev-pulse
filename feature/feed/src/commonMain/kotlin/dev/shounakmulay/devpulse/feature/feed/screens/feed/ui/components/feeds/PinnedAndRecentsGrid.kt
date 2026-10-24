@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
@@ -15,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -24,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.window.core.layout.WindowSizeClass
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
@@ -58,7 +55,7 @@ fun PinnedAndRecentsGrid(
             .padding(horizontal = spacing.md, vertical = spacing.sm),
         rows = GridCells.Fixed(rowsCount),
         horizontalArrangement = Arrangement.spacedBy(spacing.xs),
-        verticalArrangement = Arrangement.spacedBy(spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(spacing.sm),
     ) {
         items(pinnedAndRecentFeeds, key = { it.id.value }) { item ->
             Box(Modifier.width(90.dp).animateItem()) {
@@ -102,7 +99,7 @@ fun PinnedAndRecentsGridLoading() {
             },
         rows = GridCells.Fixed(rowsCount),
         horizontalArrangement = Arrangement.spacedBy(spacing.sm),
-        verticalArrangement = Arrangement.spacedBy(spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(spacing.sm),
     ) {
         feedGridPlaceholders(count = rowsCount * 4)
     }
@@ -153,18 +150,22 @@ private fun FeedGridPlaceholderItem() {
 @Composable
 private fun PinnedAndRecentsGridPreview() {
     Preview {
-        AnimatedContent(targetState = Unit, label = "Feed preview") {
-            CompositionLocalProvider(LocalNavAnimatedContentScope provides this) {
-                PinnedAndRecentsGrid(
-                    pinnedAndRecentFeeds = persistentListOf(FeedPreviewData.feed, FeedPreviewData.feed.copy(id = UUID("00000000-0000-0000-0000-000000000003"), title = "Android Developers", initials = "AD", pinned = false)),
-                    onFeedClick = {},
-                    onFeedLongClick = {},
-                    selectedOptions = null,
-                    onDismissOptions = {},
-                    onOptionSelected = { _, _ -> },
-                )
-            }
-        }
+        PinnedAndRecentsGrid(
+            pinnedAndRecentFeeds = persistentListOf(
+                FeedPreviewData.feed,
+                FeedPreviewData.feed.copy(
+                    id = UUID("00000000-0000-0000-0000-000000000003"),
+                    title = "Android Developers",
+                    initials = "AD",
+                    pinned = false,
+                ),
+            ),
+            onFeedClick = {},
+            onFeedLongClick = {},
+            selectedOptions = null,
+            onDismissOptions = {},
+            onOptionSelected = { _, _ -> },
+        )
     }
 }
 

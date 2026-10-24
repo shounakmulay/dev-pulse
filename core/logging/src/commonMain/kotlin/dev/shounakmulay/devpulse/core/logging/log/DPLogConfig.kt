@@ -6,7 +6,7 @@ data class DPLogConfig(
 )
 
 object DPLogConfigs {
-    fun debug(sinks: List<LogSink>): DPLogConfig = DPLogConfig(
+    fun debug(sinks: List<LogSink> = emptyList()): DPLogConfig = DPLogConfig(
         minLevel = DPLogLevel.Verbose,
         sinks = sinks,
     )

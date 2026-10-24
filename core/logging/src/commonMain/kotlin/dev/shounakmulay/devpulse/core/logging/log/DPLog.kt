@@ -2,11 +2,9 @@ package dev.shounakmulay.devpulse.core.logging.log
 
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.platformLogWriter
-import org.koin.core.annotation.Single
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.cancellation.CancellationException
 
-@Single
 object DPLog {
     @Volatile
     private var configuration: DPLogConfig? = null
@@ -19,7 +17,7 @@ object DPLog {
 
     fun tag(tag: String): DPLogger = DPLogger(tag)
 
-    fun tag(owner: Any): DPLogger = tag(owner::class.simpleName ?: UnknownTag)
+    fun tag(owner: Any): DPLogger = tag(owner::class.simpleName ?: UNKNOWN_TAG)
 
     fun v(
         tag: String,
@@ -32,7 +30,7 @@ object DPLog {
             tag = tag,
             throwable = throwable,
             data = data,
-            message = message
+            message = message,
         )
     }
 
@@ -47,7 +45,7 @@ object DPLog {
             tag = tag,
             throwable = throwable,
             data = data,
-            message = message
+            message = message,
         )
     }
 
@@ -62,7 +60,7 @@ object DPLog {
             tag = tag,
             throwable = throwable,
             data = data,
-            message = message
+            message = message,
         )
     }
 
@@ -77,7 +75,7 @@ object DPLog {
             tag = tag,
             throwable = throwable,
             data = data,
-            message = message
+            message = message,
         )
     }
 
@@ -92,7 +90,7 @@ object DPLog {
             tag = tag,
             throwable = throwable,
             data = data,
-            message = message
+            message = message,
         )
     }
 
@@ -107,7 +105,7 @@ object DPLog {
             tag = tag,
             throwable = throwable,
             data = data,
-            message = message
+            message = message,
         )
     }
 
@@ -125,34 +123,35 @@ object DPLog {
 
         when (level) {
             DPLogLevel.Verbose -> Logger.v(tag = tag, throwable = throwable, message = message)
+
             DPLogLevel.Debug -> Logger.d(
                 tag = tag,
                 throwable = throwable,
-                message = message
+                message = message,
             )
 
             DPLogLevel.Info -> Logger.i(
                 tag = tag,
                 throwable = throwable,
-                message = message
+                message = message,
             )
 
             DPLogLevel.Warn -> Logger.w(
                 tag = tag,
                 throwable = throwable,
-                message = message
+                message = message,
             )
 
             DPLogLevel.Error -> Logger.e(
                 tag = tag,
                 throwable = throwable,
-                message = message
+                message = message,
             )
 
             DPLogLevel.Assert -> Logger.a(
                 tag = tag,
                 throwable = throwable,
-                message = message
+                message = message,
             )
         }
         config.sinks.forEach { sink ->
@@ -173,4 +172,4 @@ object DPLog {
     }
 }
 
-internal const val UnknownTag = "Unknown"
+internal const val UNKNOWN_TAG = "Unknown"
