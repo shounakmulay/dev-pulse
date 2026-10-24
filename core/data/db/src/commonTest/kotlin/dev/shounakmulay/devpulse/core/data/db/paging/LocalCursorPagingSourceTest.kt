@@ -1,11 +1,16 @@
 package dev.shounakmulay.devpulse.core.data.db.paging
 
 import androidx.paging.PagingSource
+import dev.shounakmulay.devpulse.core.logging.log.DPLog
+import dev.shounakmulay.devpulse.core.logging.log.DPLogConfigs
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -87,6 +92,7 @@ class LocalCursorPagingSourceTest {
 
     @Test
     fun `Given provider error When load fails Then returns load error`() = runBlocking {
+        DPLog.configure(DPLogConfigs.debug())
         val pagingSource = createPagingSource(error = IllegalStateException("failed"))
 
         val result = pagingSource.load(
@@ -122,18 +128,22 @@ class LocalCursorPagingSourceTest {
         val invalidationEvents = MutableSharedFlow<Unit>()
         val pagingSource = createPagingSource(
             items = listOf(1, 2, 3),
-            invalidationEvents = invalidationEvents,
-            invalidationScope = this
+            invalidationEvents = invalidationEvents
         )
 
-        while (invalidationEvents.subscriptionCount.value == 0) {
-            yield()
+        val invalidated = CompletableDeferred<Unit>()
+        pagingSource.registerInvalidatedCallback { invalidated.complete(Unit) }
+        try {
+            withTimeout(5_000) {
+                invalidationEvents.subscriptionCount.first { it > 0 }
+                assertFalse(pagingSource.invalid)
+                invalidationEvents.emit(Unit)
+                invalidated.await()
+            }
+            assertTrue(pagingSource.invalid)
+        } finally {
+            pagingSource.invalidate()
         }
-        assertFalse(pagingSource.invalid)
-        invalidationEvents.emit(Unit)
-        yield()
-
-        assertTrue(pagingSource.invalid)
     }
 
     @Test
@@ -141,34 +151,32 @@ class LocalCursorPagingSourceTest {
         val invalidationEvents = MutableSharedFlow<Unit>()
         val pagingSource = createPagingSource(
             items = listOf(1, 2, 3),
-            invalidationEvents = invalidationEvents,
-            invalidationScope = this
+            invalidationEvents = invalidationEvents
         )
 
-        while (invalidationEvents.subscriptionCount.value == 0) {
-            yield()
+        try {
+            withTimeout(5_000) {
+                invalidationEvents.subscriptionCount.first { it > 0 }
+                pagingSource.invalidate()
+                invalidationEvents.subscriptionCount.first { it == 0 }
+            }
+            assertEquals(0, invalidationEvents.subscriptionCount.value)
+        } finally {
+            pagingSource.invalidate()
         }
-        pagingSource.invalidate()
-        while (invalidationEvents.subscriptionCount.value > 0) {
-            yield()
-        }
-
-        assertEquals(0, invalidationEvents.subscriptionCount.value)
     }
 
     private fun createPagingSource(
         items: List<Int> = emptyList(),
         error: Exception? = null,
-        invalidationEvents: MutableSharedFlow<Unit> = MutableSharedFlow(),
-        invalidationScope: CoroutineScope = CoroutineScope(kotlin.coroutines.EmptyCoroutineContext)
+        invalidationEvents: Flow<Unit> = emptyFlow()
     ): LocalCursorPagingSource<Int, TestItem> {
         return LocalCursorPagingSource(
             dataProvider = FakeDataProvider(
                 items = items.map(::TestItem),
                 error = error
             ),
-            invalidationEvents = invalidationEvents,
-            invalidationScope = invalidationScope
+            invalidationEvents = invalidationEvents
         )
     }
 
