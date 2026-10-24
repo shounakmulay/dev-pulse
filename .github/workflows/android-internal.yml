@@ -1,0 +1,176 @@
+name: Android internal testing
+
+on:
+  push:
+    branches: [release]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the verified production bundle to Google Play internal testing.
+        type: boolean
+        default: true
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-internal-production
+  cancel-in-progress: false
+
+jobs:
+  admission:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Validate release source
+        run: python3 -B .github/scripts/android_cd.py preflight
+
+  quality:
+    needs: admission
+    uses: ./.github/workflows/quality.yml
+
+  production-checks:
+    needs: admission
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-build
+        with:
+          cache-read-only: 'false'
+      - name: Lint production and test database, feed and network behavior
+        run: python3 -B .github/scripts/android_cd.py verify-production
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: production-check-reports
+          path: '**/build/reports/'
+          retention-days: 7
+
+  build:
+    needs: [quality, production-checks]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: release-signing
+    outputs:
+      candidate: ${{ steps.build.outputs.candidate }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-build
+      - name: Build and validate the signed production candidate
+        id: build
+        run: python3 -B .github/scripts/android_cd.py build --destination "${RUNNER_TEMP}/android-candidate"
+        env:
+          ANDROID_VERSION_CODE_BASE: ${{ vars.ANDROID_VERSION_CODE_BASE }}
+          ANDROID_UPLOAD_CERT_SHA256: ${{ vars.ANDROID_UPLOAD_CERT_SHA256 }}
+          ANDROID_UPLOAD_KEYSTORE_BASE64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          ANDROID_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_STORE_PASSWORD }}
+          ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          ANDROID_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: android-internal-candidate
+          path: |
+            ${{ runner.temp }}/android-candidate/app.aab
+            ${{ runner.temp }}/android-candidate/candidate.json
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  publish:
+    needs: build
+    if: github.event_name == 'push' || inputs.publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: release-signing
+    env:
+      EXPECTED_CANDIDATE: ${{ needs.build.outputs.candidate }}
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      published: ${{ steps.readback.outputs.published }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v6
+        with:
+          name: android-internal-candidate
+          path: ${{ runner.temp }}/android-candidate
+      - name: Verify candidate provenance and checksum
+        run: python3 -B .github/scripts/android_cd.py validate --directory "${RUNNER_TEMP}/android-candidate"
+      - name: Select the configured Play authentication method
+        id: auth-mode
+        run: python3 -B .github/scripts/android_cd.py auth-mode
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      - name: Authenticate with the Play service-account key
+        id: auth-json
+        if: steps.auth-mode.outputs.mode == 'json'
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          service_account: ${{ fromJSON(secrets.PLAY_SERVICE_ACCOUNT_JSON || '{}').client_email }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
+          create_credentials_file: true
+          export_environment_variables: false
+      - name: Authenticate with workload identity federation
+        id: auth-oidc
+        if: steps.auth-mode.outputs.mode == 'oidc'
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
+          create_credentials_file: true
+          export_environment_variables: false
+      - name: Detect an already published candidate
+        id: existing
+        run: python3 -B .github/scripts/android_cd.py play-check --directory "${RUNNER_TEMP}/android-candidate"
+        env:
+          PLAY_ACCESS_TOKEN: ${{ steps.auth-json.outputs.access_token || steps.auth-oidc.outputs.access_token }}
+      - name: Upload the exact candidate to internal testing
+        if: steps.existing.outputs.published != 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: ${{ steps.auth-json.outputs.credentials_file_path || steps.auth-oidc.outputs.credentials_file_path }}
+          packageName: dev.shounakmulay.devpulse
+          releaseFiles: ${{ runner.temp }}/android-candidate/app.aab
+          tracks: internal
+          status: completed
+          releaseName: Internal run ${{ github.run_number }}
+      - name: Read back the committed Play release independently
+        id: readback
+        run: python3 -B .github/scripts/android_cd.py play-check --directory "${RUNNER_TEMP}/android-candidate" --require-published
+        env:
+          PLAY_ACCESS_TOKEN: ${{ steps.auth-json.outputs.access_token || steps.auth-oidc.outputs.access_token }}
+
+  record:
+    needs: [build, publish]
+    if: needs.publish.outputs.published == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Record the verified candidate as a GitHub prerelease
+        run: python3 -B .github/scripts/android_cd.py record
+        env:
+          CANDIDATE_JSON: ${{ needs.build.outputs.candidate }}
+          GH_TOKEN: ${{ github.token }}
