@@ -56,8 +56,7 @@ class BuildConfig(private val project: Project) {
         val currentProjectVersion: String get() = version("ios-currentProjectVersion")
     }
 
-    private fun version(alias: String): String =
-        project.libs.findVersion(alias).get().requiredVersion
+    private fun version(alias: String): String = project.libs.findVersion(alias).get().requiredVersion
 }
 
 val Project.buildConfig: BuildConfig get() = BuildConfig(this)

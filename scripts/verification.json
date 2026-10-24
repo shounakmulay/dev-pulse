@@ -481,7 +481,7 @@
     "gradle/wrapper/gradle-wrapper.properties": "a180163249c7252412ddaee1c7adcf59f6494b1183136f690fbd9a3b8aaed00e",
     "buildSrc/build.gradle.kts": "067bf50532a953100869940ea95fa6f5b966851358fa305f43b4749cebe3bfbc",
     "buildSrc/settings.gradle.kts": "2fedb8cd96740247af3154c9cee8a9101d42a0d95bc689a2eb059ba9d5d1c9ce",
-    "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/BuildConfig.kt": "cba6d00fae803ab0a6bc5759ffb7133323de54dcf2cf60683bc739a3d98a849d",
+    "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/BuildConfig.kt": "db554e9788f65c96738bba28c1817e10dfb37bb48c28f199c63d965fa648dae8",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/Modules.kt": "0af51fe6b5940010cb6cd7f71b4f4490021cb23b9429edd3af0c414f1dbac8c4",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/extensions/KmpExtensions.kt": "5a77729e9de9af0fc69074e3de27230dc64c1d17603bb8f49617789543159feb",
     "buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/extensions/ProjectConfigurations.kt": "14d79dad2a773c09d6b749ebb745504e8ed0b1993c2246ba3dd192a48d3c447e",
