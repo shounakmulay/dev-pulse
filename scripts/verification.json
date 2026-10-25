@@ -522,13 +522,16 @@
     "gradlew": "b187b4c52e749f5760afdd6fadc31b2a98ad35fb249bf0dff03b72650f320409",
     "gradlew.bat": "1d297e00bd21de3ace22b4d7f2de1f9dfa858883d66bbf7c1ccbecccec8f4f3b",
     "gradle/wrapper/gradle-wrapper.jar": "7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172",
-    ".github/CD.md": "b26b06206ad8dca6995c4d5502b89ab916c67ec2c60e0421b171242c78be9589",
+    ".github/CD.md": "a3571d6407136e12dde59be84aa2e4282e24b5456e424f4588baae10f3dadbf2",
     ".github/actions/setup-build/action.yml": "7a148f4339a68d53f0c480218a1a9ea9dd30b21c78a1a179a8425884da0db44c",
-    ".github/scripts/android_cd.py": "4d2913fc02c5a7bdedc78e38e6630dcc852e162dc3f35b281a8b5b6b9a67ecf3",
-    ".github/scripts/quality.sh": "70561e82d9eeb7b76583c691e70001ffbb7a4598b3b11f367dc8de4dced21c9d",
+    ".github/scripts/android_cd.py": "0a79574c4919c19dfa1d48e1ffa09f1e95c047cb93c4c22d163e5c8812bf16a6",
+    ".github/scripts/quality.sh": "67329001620c8e15c1619c9e30129b1e9e54e6d0075295575b92869ec952a06b",
     ".github/scripts/test_android_cd.py": "cdd63acbf85b21fad731e189f9c4cd1719c6971e5e2f46b14c110dc9045c3e8c",
-    ".github/workflows/android-internal.yml": "2916fe410e1f20d72f3e6b015d0c6f4e81a4b8718a5a7fdc716fc47dd911cc4e",
-    ".github/workflows/quality.yml": "a318be3f7f470b1d6b389625ac15ded15dd010b4f1c4ab67ba9ee7b24dacd97e"
+    ".github/workflows/android-internal.yml": "1470156820f573c6177920d612f4630f3be654627b3f3c10de6b565be3bf4b04",
+    ".github/workflows/quality.yml": "c71204d6458d8fd89ce4e74115fc5cd14d9d691829f26035dc867de6763eacf3",
+    ".github/scripts/test_play_auth.py": "0ea0e3500baea0eac18cbc589ec0b0451e32b42fc36e51c7ac8cb71dc1cced59",
+    ".github/scripts/requirements-play-auth.txt": "fb32c357609fd21a3883374c5f46c2d8b26342ee6ea86d9f4698a631affa722e",
+    ".github/actions/setup-play-auth/action.yml": "239ded86dc3d59f7edac521701b2f0aa7b6de9ce10a329d1b49b7367af170a1d"
   },
   "references": {
     "skill": ".agents/skills/verify-change/SKILL.md",

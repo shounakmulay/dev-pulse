@@ -115,17 +115,20 @@ jobs:
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      - uses: ./.github/actions/setup-play-auth
+        if: steps.auth-mode.outputs.mode == 'json'
       - name: Authenticate with the Play service-account key
         id: auth-json
         if: steps.auth-mode.outputs.mode == 'json'
         uses: google-github-actions/auth@v3
         with:
           credentials_json: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          service_account: ${{ fromJSON(secrets.PLAY_SERVICE_ACCOUNT_JSON || '{}').client_email }}
-          token_format: access_token
-          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
           create_credentials_file: true
           export_environment_variables: false
+      - name: Obtain a Play access token with the service-account key
+        id: auth-token
+        if: steps.auth-mode.outputs.mode == 'json'
+        run: python3 -B .github/scripts/android_cd.py play-token --credentials "${{ steps.auth-json.outputs.credentials_file_path }}"
       - name: Authenticate with workload identity federation
         id: auth-oidc
         if: steps.auth-mode.outputs.mode == 'oidc'
@@ -141,7 +144,7 @@ jobs:
         id: existing
         run: python3 -B .github/scripts/android_cd.py play-check --directory "${RUNNER_TEMP}/android-candidate"
         env:
-          PLAY_ACCESS_TOKEN: ${{ steps.auth-json.outputs.access_token || steps.auth-oidc.outputs.access_token }}
+          PLAY_ACCESS_TOKEN: ${{ steps.auth-token.outputs.access_token || steps.auth-oidc.outputs.access_token }}
       - name: Upload the exact candidate to internal testing
         if: steps.existing.outputs.published != 'true'
         uses: r0adkll/upload-google-play@v1
@@ -156,7 +159,7 @@ jobs:
         id: readback
         run: python3 -B .github/scripts/android_cd.py play-check --directory "${RUNNER_TEMP}/android-candidate" --require-published
         env:
-          PLAY_ACCESS_TOKEN: ${{ steps.auth-json.outputs.access_token || steps.auth-oidc.outputs.access_token }}
+          PLAY_ACCESS_TOKEN: ${{ steps.auth-token.outputs.access_token || steps.auth-oidc.outputs.access_token }}
 
   record:
     needs: [build, publish]
