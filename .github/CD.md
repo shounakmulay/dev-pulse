@@ -69,7 +69,7 @@ Load the file without displaying it:
 gh secret set PLAY_SERVICE_ACCOUNT_JSON --env release-signing < /absolute/private/path/play-service-account.json
 ```
 
-The workflow generates a scoped access token for independent Play readback. Grant the service account `roles/iam.serviceAccountTokenCreator` **on that same service account**. Do not grant this role project-wide. This is the key-based token requirement documented by [google-github-actions/auth](https://github.com/google-github-actions/auth#inputs-service-account-key-json).
+The workflow uses the existing JSON private key to exchange a signed JWT directly for an Android Publisher OAuth access token. It uses [Google's service-account credentials library](https://google-auth.readthedocs.io/en/latest/reference/google.oauth2.service_account.html), masks the token, and passes it to the independent Play readback steps. This JSON-key flow does not require `roles/iam.serviceAccountTokenCreator`. The auth action creates and cleans up the credential file; it does not impersonate the service account to mint this token.
 
 For workload identity federation instead, remove `PLAY_SERVICE_ACCOUNT_JSON` and add both environment variables:
 
@@ -124,10 +124,12 @@ The workflow serializes all production internal releases and does not cancel an 
 
 ## Verify changes locally
 
-Use Python 3.7 or newer:
+Use Python 3.12 and install the pinned Play authentication dependency:
 
 ```sh
+python3 -m pip install -r .github/scripts/requirements-play-auth.txt
 python3 -B .github/scripts/test_android_cd.py
+python3 -B .github/scripts/test_play_auth.py
 actionlint .github/workflows/android-internal.yml .github/workflows/quality.yml
 shellcheck .github/scripts/quality.sh scripts/build-android.sh
 ```

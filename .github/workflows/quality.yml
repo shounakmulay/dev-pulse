@@ -27,6 +27,8 @@ jobs:
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
 
+      - uses: ./.github/actions/setup-play-auth
+
       - name: Check Kotlin code quality
         run: .github/scripts/quality.sh
 

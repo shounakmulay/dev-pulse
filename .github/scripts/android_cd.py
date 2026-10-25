@@ -317,6 +317,25 @@ def auth_mode():
     output('mode', 'json' if key else 'oidc')
 
 
+def play_access_token(credentials_file):
+    from google.auth.exceptions import GoogleAuthError
+    from google.auth.transport.requests import Request as GoogleAuthRequest
+    from google.oauth2 import service_account
+
+    try:
+        credentials = service_account.Credentials.from_service_account_file(
+            str(credentials_file), scopes=['https://www.googleapis.com/auth/androidpublisher'],
+        )
+        credentials.refresh(GoogleAuthRequest())
+    except (GoogleAuthError, ValueError, KeyError) as error:
+        raise ReleaseError('Could not obtain a Play access token from the service-account key.') from error
+    token = credentials.token
+    if not token or '\n' in token or '\r' in token:
+        raise ReleaseError('Google returned an invalid Play access token.')
+    print(f'::add-mask::{token}')
+    output('access_token', token)
+
+
 def json_request(url, token, method='GET', payload=None, missing_ok=False):
     body = None if payload is None else json.dumps(payload).encode()
     request = Request(url, data=body, method=method, headers={
@@ -443,6 +462,8 @@ def main():
     commands.add_parser('preflight')
     commands.add_parser('verify-production')
     commands.add_parser('auth-mode')
+    play_token = commands.add_parser('play-token')
+    play_token.add_argument('--credentials', type=Path, required=True)
     builder = commands.add_parser('build')
     builder.add_argument('--destination', type=Path, required=True)
     for name in ('validate', 'play-check'):
@@ -463,6 +484,8 @@ def main():
             load_candidate(args.directory, required('GITHUB_SHA'), required('GITHUB_RUN_ID'))
         elif args.command == 'auth-mode':
             auth_mode()
+        elif args.command == 'play-token':
+            play_access_token(args.credentials)
         elif args.command == 'play-check':
             play_check(args.directory, args.require_published)
         elif args.command == 'record':
