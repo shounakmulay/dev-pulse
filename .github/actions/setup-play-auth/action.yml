@@ -1,0 +1,10 @@
+name: Set up Play authentication
+description: Install the Google authentication library for JSON-key OAuth and its regression tests.
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+    - run: python3 -m pip install --disable-pip-version-check -r .github/scripts/requirements-play-auth.txt
+      shell: bash
