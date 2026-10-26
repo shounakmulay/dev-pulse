@@ -3,6 +3,8 @@ package dev.shounakmulay.devpulse.core.common.coroutines
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -12,6 +14,8 @@ import kotlinx.coroutines.withContext
 interface DispatcherProvider {
     val defaultDispatcher: CoroutineDispatcher
     val ioDispatcher: CoroutineDispatcher
+    val mainDispatcher: MainCoroutineDispatcher
+        get() = Dispatchers.Main
 }
 
 suspend inline fun <T> DispatcherProvider.runCatchingOnDefault(crossinline block: suspend CoroutineScope.() -> T): Result<T> = withContext(defaultDispatcher) {

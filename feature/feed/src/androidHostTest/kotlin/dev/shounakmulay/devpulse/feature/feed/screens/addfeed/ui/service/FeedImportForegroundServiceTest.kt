@@ -150,18 +150,24 @@ class FeedImportForegroundServiceTest {
     }
 
     private suspend fun TestScope.withFixture(block: suspend TestScope.(Fixture) -> Unit) {
-        val dispatcher = StandardTestDispatcher(testScheduler)
-        Dispatchers.setMain(dispatcher)
+        val dispatcher = StandardTestDispatcher(testScheduler, name = "service-default")
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler, name = "service-main"))
         val queue = Queue()
         val executor = Executor(queue)
         val context = RuntimeEnvironment.getApplication() as Application
+        var defaultDispatcherRequested = false
         val dispatchers = object : DispatcherProvider {
-            override val defaultDispatcher = dispatcher
+            override val defaultDispatcher: kotlinx.coroutines.CoroutineDispatcher
+                get() {
+                    defaultDispatcherRequested = true
+                    return dispatcher
+                }
             override val ioDispatcher = dispatcher
         }
         val notificationContext = NotificationContext(context)
         startKoin {
             modules(module {
+                single<DispatcherProvider> { dispatchers }
                 single<RssFeedQueueExecutor> { executor }
                 single { ObserveFeedQueueUseCase(queue, dispatchers) }
                 single { AndroidNotificationBuilder(context) }
@@ -174,6 +180,7 @@ class FeedImportForegroundServiceTest {
         getString(stringRes.feed_import_notification_title)
         val controller = Robolectric.buildService(FeedImportForegroundService::class.java).create()
         try {
+            assertTrue(defaultDispatcherRequested, "Service scope must use the injected Default dispatcher")
             block(Fixture(controller.get(), queue, executor, notificationContext))
         } finally {
             controller.destroy()

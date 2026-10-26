@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.domain.feed.queue.ObserveFeedQueueUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.queue.RssFeedQueueExecutor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
@@ -20,7 +21,6 @@ import devpulse.core.resources.generated.resources.feed_import_notification_text
 import devpulse.core.resources.generated.resources.feed_import_notification_title
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.debounce
@@ -29,6 +29,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.core.annotation.Factory
 import kotlin.time.Duration.Companion.seconds
@@ -55,8 +57,11 @@ class FeedImportForegroundService : CoroutineService() {
     private val androidNotificationBuilder: AndroidNotificationBuilder by inject()
     private val androidNotificationProvider: AndroidNotificationProvider by inject()
 
+    private val dispatcherProvider: DispatcherProvider
+        get() = get()
+
     override val dispatcher: CoroutineDispatcher
-        get() = Dispatchers.Main.immediate
+        get() = dispatcherProvider.defaultDispatcher
 
     private var queueObserver: Job? = null
     private val logger = DPLog.tag("FeedImportForegroundService")
@@ -69,7 +74,10 @@ class FeedImportForegroundService : CoroutineService() {
                 val notification = createServiceNotification(
                     text = getKmpString(stringRes.feed_import_notification_initial_text),
                 )
-                startForeground(SERVICE_ID, androidNotificationBuilder.createNotification(notification))
+                val nativeNotification = androidNotificationBuilder.createNotification(notification)
+                withContext(dispatcherProvider.mainDispatcher.immediate) {
+                    startForeground(SERVICE_ID, nativeNotification)
+                }
                 queueExecutor.triggerQueueProcessing()
 
                 observeFeedQueue(
@@ -80,11 +88,12 @@ class FeedImportForegroundService : CoroutineService() {
                     .distinctUntilChanged()
                     .onEach { pending ->
                         if (pending.isNotEmpty()) queueExecutor.triggerQueueProcessing()
-                        androidNotificationProvider.showNotification(
-                            createServiceNotification(
-                                text = getKmpString(stringRes.feed_import_notification_text, pending.size),
-                            ),
+                        val notification = createServiceNotification(
+                            text = getKmpString(stringRes.feed_import_notification_text, pending.size),
                         )
+                        withContext(dispatcherProvider.mainDispatcher.immediate) {
+                            androidNotificationProvider.showNotification(notification)
+                        }
                     }
                     .debounce(1.seconds)
                     .first { it.isEmpty() }
@@ -99,7 +108,7 @@ class FeedImportForegroundService : CoroutineService() {
         return START_STICKY
     }
 
-    private fun stopSession(startId: Int) {
+    private suspend fun stopSession(startId: Int) = withContext(dispatcherProvider.mainDispatcher.immediate) {
         if (stopSelfResult(startId)) {
             stopForeground(STOP_FOREGROUND_REMOVE)
         }
