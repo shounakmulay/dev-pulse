@@ -6,6 +6,7 @@ import android.os.IBinder
 import dev.shounakmulay.devpulse.core.domain.feed.queue.ObserveFeedQueueUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.queue.RssFeedQueueExecutor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
+import dev.shounakmulay.devpulse.core.logging.log.DPLog
 import dev.shounakmulay.devpulse.core.notifications.AndroidNotificationBuilder
 import dev.shounakmulay.devpulse.core.notifications.AndroidNotificationProvider
 import dev.shounakmulay.devpulse.core.notifications.DPNotificationChannel
@@ -17,15 +18,17 @@ import dev.shounakmulay.devpulse.core.ui.service.CoroutineService
 import devpulse.core.resources.generated.resources.feed_import_notification_initial_text
 import devpulse.core.resources.generated.resources.feed_import_notification_text
 import devpulse.core.resources.generated.resources.feed_import_notification_title
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
 import org.koin.android.ext.android.inject
 import org.koin.core.annotation.Factory
 import kotlin.time.Duration.Companion.seconds
@@ -37,7 +40,7 @@ class FeedImportBackgroundProcessLauncherImpl(
 ) : FeedImportBackgroundProcessLauncher {
     override suspend fun launch() {
         val intent = Intent(context, FeedImportForegroundService::class.java)
-        context.startService(intent)
+        context.startForegroundService(intent)
     }
 }
 
@@ -53,49 +56,53 @@ class FeedImportForegroundService : CoroutineService() {
     private val androidNotificationProvider: AndroidNotificationProvider by inject()
 
     override val dispatcher: CoroutineDispatcher
-        get() = Dispatchers.Default
+        get() = Dispatchers.Main.immediate
 
-    private val processingMutex = Mutex()
+    private var queueObserver: Job? = null
+    private val logger = DPLog.tag("FeedImportForegroundService")
 
     @OptIn(FlowPreview::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (!processingMutex.tryLock()) {
-            return START_STICKY
-        }
+        queueObserver?.cancel()
+        queueObserver = serviceScope.launch {
+            try {
+                val notification = createServiceNotification(
+                    text = getKmpString(stringRes.feed_import_notification_initial_text),
+                )
+                startForeground(SERVICE_ID, androidNotificationBuilder.createNotification(notification))
+                queueExecutor.triggerQueueProcessing()
 
-        serviceScope.launch {
-            val notification = createServiceNotification(
-                text = getKmpString(stringRes.feed_import_notification_initial_text),
-            )
-            val nativeNotification = androidNotificationBuilder.createNotification(notification)
-
-            startForeground(SERVICE_ID, nativeNotification)
-
-            observeFeedQueue(
-                setOf(
+                observeFeedQueue(
                     RssFeedQueueStatus.PROCESSING,
                     RssFeedQueueStatus.QUEUED,
-                ),
-            )
-                .onEach {
-                    val notification = createServiceNotification(
-                        text = getKmpString(stringRes.feed_import_notification_text, it.size),
-                    )
-                    androidNotificationProvider.showNotification(notification)
-                }
-                .debounce(1.seconds)
-                .filter { it.isEmpty() }
-                .onEach {
-                    processingMutex.unlock()
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                    stopSelf()
-                }
-                .launchIn(serviceScope)
-
-            queueExecutor.triggerQueueProcessing()
+                )
+                    .map { it.getOrThrow() }
+                    .distinctUntilChanged()
+                    .onEach { pending ->
+                        if (pending.isNotEmpty()) queueExecutor.triggerQueueProcessing()
+                        androidNotificationProvider.showNotification(
+                            createServiceNotification(
+                                text = getKmpString(stringRes.feed_import_notification_text, pending.size),
+                            ),
+                        )
+                    }
+                    .debounce(1.seconds)
+                    .first { it.isEmpty() }
+                stopSession(startId)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                logger.e(failure) { "Feed import service session failed startId=$startId" }
+                stopSession(startId)
+            }
         }
-
         return START_STICKY
+    }
+
+    private fun stopSession(startId: Int) {
+        if (stopSelfResult(startId)) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        }
     }
 
     private suspend fun createServiceNotification(
