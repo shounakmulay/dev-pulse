@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="file" path="devpulse_default.preferences_pb" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="file" path="devpulse_default.preferences_pb" />
+        <include domain="database" path="dev_pulse.db" />
+    </device-transfer>
+</data-extraction-rules>

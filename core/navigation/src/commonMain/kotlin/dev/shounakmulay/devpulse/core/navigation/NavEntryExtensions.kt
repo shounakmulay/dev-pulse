@@ -1,11 +1,10 @@
 package dev.shounakmulay.devpulse.core.navigation
 
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavMetadataKey
+import androidx.navigation3.runtime.get
 
-internal fun <T : Any> NavEntry<T>.getScreenString(): String {
-    val screenString = (contentKey as? Pair<*, *>)?.first as? String
-    checkNotNull(screenString) {
-        "Screen string not found for $this. This could indicate that something has changed in the navigation library"
-    }
-    return screenString
-}
+data object ScreenKey : NavMetadataKey<Screen>
+
+internal val NavEntry<Screen>.screen: Screen?
+    get() = metadata[ScreenKey]
