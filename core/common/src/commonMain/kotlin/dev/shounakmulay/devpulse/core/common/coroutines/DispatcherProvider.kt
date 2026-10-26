@@ -14,34 +14,30 @@ interface DispatcherProvider {
     val ioDispatcher: CoroutineDispatcher
 }
 
-suspend inline fun <T> DispatcherProvider.runCatchingOnDefault(crossinline block: suspend CoroutineScope.() -> T): Result<T> {
-    return withContext(defaultDispatcher) {
-        try {
-            Result.success(block())
-        } catch (c: CancellationException) {
-            throw c
-        } catch (cause: Exception) {
-            Result.failure(cause)
-        }
+suspend inline fun <T> DispatcherProvider.runCatchingOnDefault(crossinline block: suspend CoroutineScope.() -> T): Result<T> = withContext(defaultDispatcher) {
+    try {
+        Result.success(block())
+    } catch (c: CancellationException) {
+        throw c
+    } catch (cause: Exception) {
+        Result.failure(cause)
     }
 }
 
-fun <T> Flow<T>.flowCachingOnDefault(dispatcherProvider: DispatcherProvider): Flow<Result<T>> =
-    map {
-        Result.success(it)
-    }.catch {
-        emit(Result.failure(it))
-    }
-        .flowOn(dispatcherProvider.defaultDispatcher)
+fun <T> Flow<T>.flowCachingOnDefault(dispatcherProvider: DispatcherProvider): Flow<Result<T>> = map {
+    Result.success(it)
+}.catch {
+    if (it is CancellationException) throw it
+    emit(Result.failure(it))
+}
+    .flowOn(dispatcherProvider.defaultDispatcher)
 
-suspend inline fun <T> DispatcherProvider.runCachingOnIO(crossinline block: suspend CoroutineScope.() -> T): Result<T> {
-    return withContext(ioDispatcher) {
-        try {
-            Result.success(block())
-        } catch (c: CancellationException) {
-            throw c
-        } catch (cause: Exception) {
-            Result.failure(cause)
-        }
+suspend inline fun <T> DispatcherProvider.runCachingOnIO(crossinline block: suspend CoroutineScope.() -> T): Result<T> = withContext(ioDispatcher) {
+    try {
+        Result.success(block())
+    } catch (c: CancellationException) {
+        throw c
+    } catch (cause: Exception) {
+        Result.failure(cause)
     }
 }
