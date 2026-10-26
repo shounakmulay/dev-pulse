@@ -478,7 +478,7 @@
     "settings.gradle.kts": "4126052ad0167958dc4c1def9d89c4766a927bec680e993efef4c3f9933be319",
     "build.gradle.kts": "7401b240e69bb0b5f0a0aecc0611b8d7bbb37dac85c5b0b75499389cb8e64575",
     "gradle.properties": "e0b09dc6786ff47523295e78df525ddca17606f88a51a6c93fbe6cf6aa5e7861",
-    "gradle/libs.versions.toml": "30c6df82f739391daf9d39c5e5fe5db8fd633c325a09f6d3c5b944a8881764ef",
+    "gradle/libs.versions.toml": "825237aa52fd94bf2dcad70260e12dfd8c84ae1338aeda387ffb456834ef7ddb",
     "gradle/wrapper/gradle-wrapper.properties": "a180163249c7252412ddaee1c7adcf59f6494b1183136f690fbd9a3b8aaed00e",
     "buildSrc/build.gradle.kts": "067bf50532a953100869940ea95fa6f5b966851358fa305f43b4749cebe3bfbc",
     "buildSrc/settings.gradle.kts": "2fedb8cd96740247af3154c9cee8a9101d42a0d95bc689a2eb059ba9d5d1c9ce",
