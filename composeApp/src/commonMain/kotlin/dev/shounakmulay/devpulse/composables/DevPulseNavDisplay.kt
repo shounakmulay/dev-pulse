@@ -4,10 +4,12 @@ import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation3.runtime.metadata
 import dev.shounakmulay.devpulse.core.navigation.NavDisplay
 import dev.shounakmulay.devpulse.core.navigation.NavigationState
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.core.navigation.ScreenKey
 import dev.shounakmulay.devpulse.core.webview.screen.navigation.webViewScreens
 import dev.shounakmulay.devpulse.feature.devtools.navigation.developerToolsFeatureEntries
 import dev.shounakmulay.devpulse.feature.feed.navigation.feedFeatureEntries
@@ -38,7 +40,11 @@ internal fun DevPulseNavDisplay(
             feedFeatureEntries(navigator)
             settingsFeatureEntries(navigator)
             webViewScreens(navigator)
-            entry<Screen.Tabs.Time> {
+            entry<Screen.Tabs.Time>(
+                metadata = metadata {
+                    put(ScreenKey, Screen.Tabs.Time)
+                }
+            ) {
                 ScreenPlaceholder(
                     it,
                     onOpenSettings = {

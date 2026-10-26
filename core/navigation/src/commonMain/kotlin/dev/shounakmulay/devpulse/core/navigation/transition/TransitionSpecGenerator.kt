@@ -6,7 +6,7 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.Scene
 import dev.shounakmulay.devpulse.core.navigation.Screen
-import dev.shounakmulay.devpulse.core.navigation.getScreenString
+import dev.shounakmulay.devpulse.core.navigation.screen
 import kotlinx.collections.immutable.PersistentSet
 
 internal fun createTransitionSpec(
@@ -75,13 +75,11 @@ private fun evaluateTransitionType(
 }
 
 private fun List<NavEntry<Screen>>.findRootTabIndex(tabRoutes: PersistentSet<Screen>): Int? {
-    val tabRouteStrings = tabRoutes.map { it.toString() }
     val tabScreen = lastOrNull {
-        it.getScreenString() in tabRouteStrings
+        it.screen in tabRoutes
     }
 
-    val result = tabScreen?.let {
-        tabRouteStrings.indexOf(it.getScreenString())
+    return tabScreen?.screen?.let {
+        tabRoutes.indexOf(it)
     }
-    return result
 }

@@ -8,7 +8,6 @@ import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
 import androidx.window.core.layout.WindowSizeClass
-import dev.shounakmulay.devpulse.core.navigation.getScreenString
 
 
 class ExpandableListDetailSceneStrategy<T : Any>(
@@ -35,7 +34,7 @@ class ExpandableListDetailSceneStrategy<T : Any>(
         // We use the list's contentKey to uniquely identify the scene.
         // This allows the detail panes to be displayed instantly through recomposition, rather than
         // having NavDisplay animate the whole scene out when the selected detail item changes.
-        val sceneKey = listEntry.getScreenString()
+        val sceneKey = listEntry.contentKey
 
         return ExpandableListDetailScene(
             key = sceneKey,
