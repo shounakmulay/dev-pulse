@@ -12,11 +12,11 @@ internal fun EntryProviderScope<Screen>.homeScreen(navigator: Navigator) {
     entry<Screen.Tabs.Home>(
         metadata = metadata {
             put(ScreenKey, Screen.Tabs.Home)
-        }
+        },
     ) {
         HomeScreen(
             viewModel = koinViewModel(),
-            navigator = navigator
+            navigator = navigator,
         )
     }
 }

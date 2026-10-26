@@ -7,8 +7,9 @@ import org.koin.core.component.KoinComponent
 
 @Factory
 class DPLogInitialiser(
-    private val dpLog: DPLog
-) : StartupAsyncInitialiser, KoinComponent {
+    private val dpLog: DPLog,
+) : StartupAsyncInitialiser,
+    KoinComponent {
     override val priority: StartupPriority
         get() = StartupPriority.HIGHEST
 

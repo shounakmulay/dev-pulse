@@ -6,12 +6,12 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class DPNotificationInitialiser(
-    private val notificationProvider: NotificationProvider
-): StartupAsyncInitialiser {
+    private val notificationProvider: NotificationProvider,
+) : StartupAsyncInitialiser {
     override val priority: StartupPriority
         get() = StartupPriority.MEDIUM
 
     override suspend fun initialise() {
-       notificationProvider.initialise()
+        notificationProvider.initialise()
     }
 }

@@ -8,7 +8,7 @@ import org.koin.core.annotation.Single
 
 @Single
 class DevPulseBackgroundWorkInitialiser(
-    private val backgroundSyncScheduler: BackgroundSyncScheduler
+    private val backgroundSyncScheduler: BackgroundSyncScheduler,
 ) : StartupAsyncInitialiser {
     override val priority: StartupPriority
         get() = StartupPriority.LOW
@@ -17,7 +17,7 @@ class DevPulseBackgroundWorkInitialiser(
         backgroundSyncScheduler.initialise(
             buildList {
                 addAll(FeedWorkRequestProvider.createFeedWorkRequests())
-            }
+            },
         )
     }
 }

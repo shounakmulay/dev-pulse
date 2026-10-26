@@ -9,15 +9,13 @@ import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
 import androidx.window.core.layout.WindowSizeClass
 
-
 class ExpandableListDetailSceneStrategy<T : Any>(
     val windowSizeClass: WindowSizeClass,
     val config: ListDetailScreenStrategyConfig = ExpandableListDetailSceneStrategyDefaults.defaultConfig,
-    private val stateHolder: SaveableStateHolder
+    private val stateHolder: SaveableStateHolder,
 ) : SceneStrategy<T> {
 
     override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {
-
         if (!windowSizeClass.isWidthAtLeastBreakpoint(config.widthBreakpoint)) {
             return null
         }
@@ -42,7 +40,7 @@ class ExpandableListDetailSceneStrategy<T : Any>(
             previousEntries = entries.dropLast(1),
             listEntry = listEntry,
             detailEntry = detailEntry,
-            draggable = draggable
+            draggable = draggable,
         )
     }
 
@@ -61,4 +59,3 @@ class ExpandableListDetailSceneStrategy<T : Any>(
         }
     }
 }
-

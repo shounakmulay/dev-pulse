@@ -12,13 +12,12 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import org.koin.core.annotation.Factory
 
-
 @Factory
 class FeedStartupAsyncInitialiser(
     private val enqueueFeedSyncUseCase: EnqueueFeedSyncUseCase,
     private val initialiseFeedQueueProcessingUseCase: InitialiseFeedQueueProcessingUseCase,
     private val observeSyncInBackgroundUseCase: ObserveSyncInBackgroundUseCase,
-    private val initialiseFeedDiscoveryFromSeedUseCase: InitialiseFeedDiscoveryFromSeedUseCase
+    private val initialiseFeedDiscoveryFromSeedUseCase: InitialiseFeedDiscoveryFromSeedUseCase,
 ) : StartupAsyncInitialiser {
     override val priority: StartupPriority
         get() = StartupPriority.LOW
@@ -26,7 +25,7 @@ class FeedStartupAsyncInitialiser(
     override suspend fun initialise(): Unit = coroutineScope {
         listOf(
             async { enqueueFeedSync() },
-            async { initialiseFeedDiscoveryFromSeedUseCase() }
+            async { initialiseFeedDiscoveryFromSeedUseCase() },
         ).awaitAll()
     }
 

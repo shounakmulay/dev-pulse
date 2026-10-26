@@ -43,19 +43,18 @@ internal fun DevPulseNavDisplay(
             entry<Screen.Tabs.Time>(
                 metadata = metadata {
                     put(ScreenKey, Screen.Tabs.Time)
-                }
+                },
             ) {
                 ScreenPlaceholder(
                     it,
                     onOpenSettings = {
                         navigator.navigate(
                             Screen.Settings,
-                            true
+                            true,
                         )
-                    })
+                    },
+                )
             }
-        }
+        },
     )
 }
-
-

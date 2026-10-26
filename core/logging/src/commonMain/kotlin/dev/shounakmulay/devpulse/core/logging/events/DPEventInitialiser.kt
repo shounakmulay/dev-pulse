@@ -7,8 +7,9 @@ import org.koin.core.component.KoinComponent
 
 @Factory
 class DPEventInitialiser(
-    private val dpEvent: DPEvent
-) : StartupAsyncInitialiser, KoinComponent {
+    private val dpEvent: DPEvent,
+) : StartupAsyncInitialiser,
+    KoinComponent {
     override val priority: StartupPriority
         get() = StartupPriority.HIGH
 

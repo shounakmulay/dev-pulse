@@ -19,12 +19,14 @@ internal fun createTransitionSpec(
         scope = scope,
         tabRoutes = tabRoutes,
         navigationSuiteType = navigationSuiteType,
-        transitionSpecType = transitionSpecType
+        transitionSpecType = transitionSpecType,
     )
 
     return when (transitionType) {
         is NavTransitionType.PopInStack -> backwardTransitionSpec()
+
         NavTransitionType.PushInStack -> forwardTransitionSpec()
+
         is NavTransitionType.TabSwitch -> {
             when (transitionType.direction) {
                 TabSwitchDirection.FORWARD -> forwardTransitionSpec()
@@ -59,11 +61,10 @@ private fun evaluateTransitionType(
             else -> {
                 if (isVertical) TabSwitchDirection.UPWARD else TabSwitchDirection.FORWARD
             }
-
         }
 
         return NavTransitionType.TabSwitch(
-            direction = direction
+            direction = direction,
         )
     }
 

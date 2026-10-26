@@ -10,5 +10,5 @@ enum class StartupPriority(val priority: Int) {
     LOW(100),
     MEDIUM(200),
     HIGH(300),
-    HIGHEST(Int.MAX_VALUE)
+    HIGHEST(Int.MAX_VALUE),
 }

@@ -12,7 +12,7 @@ internal fun EntryProviderScope<Screen>.feedScreen(navigator: Navigator) {
     entry<Screen.Tabs.Feed>(
         metadata = metadata {
             put(ScreenKey, Screen.Tabs.Feed)
-        }
+        },
     ) {
         FeedScreen(navigator = navigator, viewModel = koinViewModel())
     }
