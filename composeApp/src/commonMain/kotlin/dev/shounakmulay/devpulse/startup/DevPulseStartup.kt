@@ -2,6 +2,7 @@ package dev.shounakmulay.devpulse.startup
 
 import dev.shounakmulay.devpulse.core.common.coroutines.ApplicationScope
 import dev.shounakmulay.devpulse.core.common.startup.StartupAsyncInitialiser
+import dev.shounakmulay.devpulse.core.common.startup.StartupPriority
 import dev.shounakmulay.devpulse.di.koinConfiguration
 import kotlinx.coroutines.launch
 import org.koin.core.context.startKoin
@@ -23,10 +24,23 @@ object DevPulseStartup {
 
         koinApp.koin.run {
             val applicationScope by inject<ApplicationScope>()
-            getAll<StartupAsyncInitialiser>().forEach {
-                applicationScope.launch {
-                    it.initialise()
-                }
+            applicationScope.launch {
+                getAll<StartupAsyncInitialiser>()
+                    .sortedByDescending { it.priority }
+                    .also {
+                        it.forEach { println("StartupAsyncInitialiser: ${it::class.simpleName} --- ${it.priority}") }
+                    }
+                    .forEach {
+                        when (it.priority) {
+                            StartupPriority.HIGHEST -> {
+                                it.initialise()
+                            }
+
+                            else -> {
+                                launch { it.initialise() }
+                            }
+                        }
+                    }
             }
         }
     }

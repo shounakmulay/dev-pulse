@@ -12,6 +12,9 @@ kotlin {
     iosFrameworks(baseName = "core:domain:FeedKit")
 
     sourceSets {
+        commonTest.dependencies {
+            implementation(project(Modules.Core.Data.DB))
+        }
         commonMain.dependencies {
             api(project(Modules.Core.Domain.MODELS))
             implementation(project(Modules.Core.COMMON))

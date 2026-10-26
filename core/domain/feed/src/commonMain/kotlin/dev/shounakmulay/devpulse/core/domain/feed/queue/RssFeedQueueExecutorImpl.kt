@@ -46,8 +46,9 @@ internal class RssFeedQueueExecutorImpl(
     private val feedQueueRepository: RssFeedQueueRepository,
     private val dateTimeProvider: DateTimeProvider,
     private val parsedFeedProcessor: ParsedFeedProcessor,
-    logger: DPLogger
-) : RssFeedQueueExecutor, KoinComponent {
+    logger: DPLogger,
+) : RssFeedQueueExecutor,
+    KoinComponent {
 
     private val coreBatchHooks by lazy {
         getKoin().getAll<CorePostsBatchHook>()
@@ -55,7 +56,7 @@ internal class RssFeedQueueExecutorImpl(
     private val coreItemHooks by lazy {
         getKoin().getAll<CorePostsItemHook>()
     }
-    private val logger = logger.withTag(Tag)
+    private val logger = logger.withTag(TAG)
     private val coroutineScope =
         CoroutineScope(SupervisorJob() + dispatcherProvider.defaultDispatcher)
     private val queueProcessingMutex = Mutex()
@@ -67,6 +68,8 @@ internal class RssFeedQueueExecutorImpl(
             .onEach {
                 dispatcherProvider.runCatchingOnDefault {
                     drain()
+                }.onFailure { failure ->
+                    logger.e(failure) { "Queue drain failed; pending entries remain available for a later trigger" }
                 }
             }
             .launchIn(coroutineScope)
@@ -81,9 +84,7 @@ internal class RssFeedQueueExecutorImpl(
         }
     }
 
-    override suspend fun process(): Set<UUID> {
-        return drain()
-    }
+    override suspend fun process(): Set<UUID> = drain()
 
     private suspend fun drain(): Set<UUID> = queueProcessingMutex.withLock {
         logger.d { "Queue drain started" }
@@ -97,7 +98,7 @@ internal class RssFeedQueueExecutorImpl(
 
             if (next.status !in listOf(
                     RssFeedQueueStatus.QUEUED,
-                    RssFeedQueueStatus.PROCESSING
+                    RssFeedQueueStatus.PROCESSING,
                 )
             ) {
                 logger.w {
@@ -116,23 +117,26 @@ internal class RssFeedQueueExecutorImpl(
     }
 
     private suspend fun processEntry(entry: RssFeedQueueEntry): UUID? {
-        val existingFeedIdentity = feedRepository.getFeedIdentityBySourceUrl(entry.url)
-        val existingSyncMetadata = existingFeedIdentity?.id?.let {
-            feedSyncMetadataRepository.getSyncMetadata(it)
-        }
-
+        var existingFeedIdentity: RssFeedIdentity? = null
+        var existingSyncMetadata: RssFeedSyncMetadata? = null
         try {
+            existingFeedIdentity = feedRepository.getFeedIdentityBySourceUrl(entry.url)
+            existingSyncMetadata = existingFeedIdentity?.id?.let {
+                feedSyncMetadataRepository.getSyncMetadata(it)
+            }
             return processEntrySync(
                 entry = entry,
                 existingFeedIdentity = existingFeedIdentity,
-                existingSyncMetadata = existingSyncMetadata
+                existingSyncMetadata = existingSyncMetadata,
             )
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (e: Exception) {
             processEntrySyncError(
                 existingFeedIdentity = existingFeedIdentity,
                 existingSyncMetadata = existingSyncMetadata,
                 entry = entry,
-                exception = e
+                exception = e,
             )
             return null
         }
@@ -142,28 +146,26 @@ internal class RssFeedQueueExecutorImpl(
         existingFeedIdentity: RssFeedIdentity?,
         existingSyncMetadata: RssFeedSyncMetadata?,
         entry: RssFeedQueueEntry,
-        exception: Exception
+        exception: Exception,
     ) {
-        val syncMetadata = createSyncFailureMetadata(
-            existingFeedIdentity = existingFeedIdentity,
-            existingMetadata = existingSyncMetadata,
-        )
-        feedSyncRepository.onImportFailed(
-            entry = entry,
-            metadata = syncMetadata,
-        )
         logger.e(exception) {
             "Queue entry failed id=${entry.id} action=${entry.actionType} source=${entry.url.sourceSummary()}"
         }
-        if (exception is CancellationException) {
-            throw exception
+        feedSyncRepository.onImportFailed(entry = entry, metadata = null)
+        dispatcherProvider.runCatchingOnDefault {
+            createSyncFailureMetadata(
+                existingFeedIdentity = existingFeedIdentity,
+                existingMetadata = existingSyncMetadata,
+            )?.let { feedSyncMetadataRepository.upsertSyncMetadata(it) }
+        }.onFailure { failure ->
+            logger.e(failure) { "Failure metadata update failed for terminal queue entry id=${entry.id}" }
         }
     }
 
     private suspend fun processEntrySync(
         entry: RssFeedQueueEntry,
         existingFeedIdentity: RssFeedIdentity?,
-        existingSyncMetadata: RssFeedSyncMetadata?
+        existingSyncMetadata: RssFeedSyncMetadata?,
     ): UUID? {
         logger.d {
             "Queue entry claimed id=${entry.id} action=${entry.actionType} status=${entry.status} source=${entry.url.sourceSummary()}"
@@ -174,7 +176,7 @@ internal class RssFeedQueueExecutorImpl(
         val feed = feedSyncRepository.importFeed(
             entry = entry,
             parsedFeed = parsedFeed,
-            existingIdentity = existingFeedIdentity
+            existingIdentity = existingFeedIdentity,
         )
 
         val savedCount = savePosts(
@@ -192,7 +194,7 @@ internal class RssFeedQueueExecutorImpl(
                 feed = feed,
                 parsedFeed = parsedFeed,
                 savedCount = savedCount,
-            )
+            ),
         )
         logger.d {
             "Queue entry completed id=${entry.id} action=${entry.actionType} source=${entry.url.sourceSummary()}"
@@ -219,32 +221,30 @@ internal class RssFeedQueueExecutorImpl(
             savedCount = savedCount,
             parsedFeed = parsedFeed,
             consecutiveEmptyFetches = consecutiveEmptyFetches,
-            consecutiveFailures = 0
+            consecutiveFailures = 0,
         )
     }
 
-    private suspend fun createSyncFailureMetadata(
+    private fun createSyncFailureMetadata(
         existingMetadata: RssFeedSyncMetadata?,
         existingFeedIdentity: RssFeedIdentity?,
     ): RssFeedSyncMetadata? {
-        val emptyFetches = existingMetadata?.consecutiveEmptyFetches ?: 0
-        val failures = existingMetadata?.consecutiveFailures ?: 0
-        val consecutiveFailures = failures + 1
-
-        return createSyncMetadata(
-            feedId = existingFeedIdentity?.id ?: return null,
-            existingMetadata = existingMetadata,
-            savedCount = 0,
-            parsedFeed = null,
-            consecutiveEmptyFetches = emptyFetches,
-            consecutiveFailures = consecutiveFailures
+        val feedId = existingFeedIdentity?.id ?: return null
+        val interval = computeCheckIntervalHours(existingMetadata)
+        return RssFeedSyncMetadata(
+            feedId = feedId,
+            checkIntervalHours = interval,
+            consecutiveEmptyFetches = existingMetadata?.consecutiveEmptyFetches ?: 0,
+            consecutiveFailures = (existingMetadata?.consecutiveFailures ?: 0) + 1,
+            lastFetchedAt = dateTimeProvider.nowEpochMilliseconds(),
+            lastNewArticleAt = existingMetadata?.lastNewArticleAt,
+            nextEligibleFetchAt = computeNextEligibleFetch(interval),
+            etag = existingMetadata?.etag,
+            lastModified = existingMetadata?.lastModified,
         )
     }
 
-    private fun computeNextEligibleFetch(computedInterval: Int): Long {
-        return dateTimeProvider.timeInFuture(computedInterval.hours)
-    }
-
+    private fun computeNextEligibleFetch(computedInterval: Int): Long = dateTimeProvider.timeInFuture(computedInterval.hours)
 
     private suspend fun RssFeedQueueExecutorImpl.createSyncMetadata(
         feedId: UUID,
@@ -252,7 +252,7 @@ internal class RssFeedQueueExecutorImpl(
         savedCount: Int,
         parsedFeed: ParsedFeed?,
         consecutiveEmptyFetches: Int,
-        consecutiveFailures: Int
+        consecutiveFailures: Int,
     ): RssFeedSyncMetadata {
         val latestPostPublishedAt = postRepository.getLatestPostPublishedTimeForFeed(feedId)
         val computedInterval = computeCheckIntervalHours(existingMetadata, savedCount)
@@ -279,13 +279,13 @@ internal class RssFeedQueueExecutorImpl(
             lastNewArticleAt = latestPostPublishedAt,
             nextEligibleFetchAt = computeNextEligibleFetch(computedInterval),
             etag = parsedFeed?.metadata?.etag,
-            lastModified = parsedFeed?.metadata?.lastBuildDate
+            lastModified = parsedFeed?.metadata?.lastBuildDate,
         )
     }
 
     private fun computeCheckIntervalHours(
         existingMetadata: RssFeedSyncMetadata?,
-        savedCount: Int = 0
+        savedCount: Int = 0,
     ): Int {
         val factor = existingMetadata?.consecutiveEmptyFetches ?: 1
         if (savedCount == 0) {
@@ -297,7 +297,7 @@ internal class RssFeedQueueExecutorImpl(
 
     private fun computeConsecutiveEmptyFetches(
         emptyFetches: Int,
-        savedCount: Int = 0
+        savedCount: Int = 0,
     ): Int {
         if (savedCount == 0) {
             return emptyFetches + 1
@@ -319,7 +319,7 @@ internal class RssFeedQueueExecutorImpl(
             .map {
                 val posts = parsedFeedProcessor.mapToPostsWithIdentity(
                     rssItems = it,
-                    feedId = rssFeed.id
+                    feedId = rssFeed.id,
                 )
                 val batchProcessedPosts = coreBatchHooks
                     .fold(posts) { accumulator, hook ->
@@ -331,7 +331,7 @@ internal class RssFeedQueueExecutorImpl(
                         coreItemHooks.fold(postWithExistingIdentity) { acc, hook ->
                             hook.process(
                                 actionType = entry.actionType,
-                                post = acc
+                                post = acc,
                             )
                         }
                     }
@@ -348,9 +348,7 @@ internal class RssFeedQueueExecutorImpl(
         return upsertedCount
     }
 
-    override fun isProcessing(): Boolean {
-        return queueProcessingMutex.isLocked
-    }
+    override fun isProcessing(): Boolean = queueProcessingMutex.isLocked
 
     private fun String.sourceSummary(): String {
         val withoutScheme = substringAfter("://", this)
@@ -360,6 +358,6 @@ internal class RssFeedQueueExecutorImpl(
     }
 
     private companion object {
-        const val Tag = "RssFeedQueueExecutor"
+        const val TAG = "RssFeedQueueExecutor"
     }
 }

@@ -4,16 +4,24 @@ import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.coroutines.flowCachingOnDefault
 import dev.shounakmulay.devpulse.core.common.extensions.mapToSuccessNotNull
 import dev.shounakmulay.devpulse.core.data.feed.repository.RssFeedQueueRepository
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import org.koin.core.annotation.Factory
 
 @Factory
 class ObserveFeedQueueUseCase(
     private val feedQueueRepository: RssFeedQueueRepository,
-    private val dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider,
 ) {
     operator fun invoke(status: Set<RssFeedQueueStatus>) = feedQueueRepository
         .observeQueue(status)
         .flowCachingOnDefault(dispatcherProvider)
         .mapToSuccessNotNull()
+
+    operator fun invoke(vararg status: RssFeedQueueStatus): Flow<Result<List<RssFeedQueueEntry>>> = flow {
+        emitAll(feedQueueRepository.observeQueue(status.toSet()))
+    }.flowCachingOnDefault(dispatcherProvider)
 }

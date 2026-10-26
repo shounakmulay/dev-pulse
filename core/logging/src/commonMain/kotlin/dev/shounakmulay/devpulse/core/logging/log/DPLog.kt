@@ -7,7 +7,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 object DPLog {
     @Volatile
-    private var configuration: DPLogConfig? = null
+    private var configuration: DPLogConfig = DPLogConfigs.debug()
 
     fun configure(config: DPLogConfig) {
         configuration = config
@@ -116,9 +116,7 @@ object DPLog {
         data: Map<String, String>,
         message: () -> String,
     ) {
-        val config = requireNotNull(configuration) {
-            "DPLog configuration is missing. Did you call DPLog.configure()"
-        }
+        val config = configuration
         if (level < config.minLevel) return
 
         when (level) {
