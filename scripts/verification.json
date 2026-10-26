@@ -526,13 +526,15 @@
     ".github/CD.md": "a3571d6407136e12dde59be84aa2e4282e24b5456e424f4588baae10f3dadbf2",
     ".github/actions/setup-build/action.yml": "7a148f4339a68d53f0c480218a1a9ea9dd30b21c78a1a179a8425884da0db44c",
     ".github/scripts/android_cd.py": "0a79574c4919c19dfa1d48e1ffa09f1e95c047cb93c4c22d163e5c8812bf16a6",
-    ".github/scripts/quality.sh": "67329001620c8e15c1619c9e30129b1e9e54e6d0075295575b92869ec952a06b",
+    ".github/scripts/quality.sh": "eb401bde4718af7ca09e9c8abc38003376273a34b7bf4a5f6b6e8da574c0ed0c",
     ".github/scripts/test_android_cd.py": "cdd63acbf85b21fad731e189f9c4cd1719c6971e5e2f46b14c110dc9045c3e8c",
     ".github/workflows/android-internal.yml": "1470156820f573c6177920d612f4630f3be654627b3f3c10de6b565be3bf4b04",
-    ".github/workflows/quality.yml": "c71204d6458d8fd89ce4e74115fc5cd14d9d691829f26035dc867de6763eacf3",
+    ".github/workflows/quality.yml": "f8b4015d0fd9aae6b9196fd1625d8183f8d678d22edec155d781e716e2d8a944",
     ".github/scripts/test_play_auth.py": "0ea0e3500baea0eac18cbc589ec0b0451e32b42fc36e51c7ac8cb71dc1cced59",
     ".github/scripts/requirements-play-auth.txt": "fb32c357609fd21a3883374c5f46c2d8b26342ee6ea86d9f4698a631affa722e",
-    ".github/actions/setup-play-auth/action.yml": "239ded86dc3d59f7edac521701b2f0aa7b6de9ce10a329d1b49b7367af170a1d"
+    ".github/actions/setup-play-auth/action.yml": "239ded86dc3d59f7edac521701b2f0aa7b6de9ce10a329d1b49b7367af170a1d",
+    ".github/scripts/jvm-tests.sh": "5bc9e9f1919cb67bfb4b7f7df905c24eb7b88ba2daa9aef905ec78e0229dc1e4",
+    ".github/scripts/test_jvm_tests.py": "96001aa60baaf08f62c4fa0583babe002c6af110b442aed40acee78cd6b83b54"
   },
   "references": {
     "skill": ".agents/skills/verify-change/SKILL.md",

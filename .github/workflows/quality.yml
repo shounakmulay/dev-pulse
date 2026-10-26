@@ -32,6 +32,9 @@ jobs:
       - name: Check Kotlin code quality
         run: .github/scripts/quality.sh
 
+      - name: Test database, feed and network behavior
+        run: .github/scripts/jvm-tests.sh
+
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
@@ -39,4 +42,5 @@ jobs:
           path: |
             build/reports/
             **/build/reports/
+            **/build/test-results/
           retention-days: 7
