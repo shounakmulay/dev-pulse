@@ -22,17 +22,19 @@ import devpulse.core.resources.generated.resources.feed_import_notification_titl
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.core.annotation.Factory
+import kotlin.concurrent.Volatile
 import kotlin.time.Duration.Companion.seconds
 import org.jetbrains.compose.resources.getString as getKmpString
 
@@ -42,7 +44,7 @@ class FeedImportBackgroundProcessLauncherImpl(
 ) : FeedImportBackgroundProcessLauncher {
     override suspend fun launch() {
         val intent = Intent(context, FeedImportForegroundService::class.java)
-        context.startForegroundService(intent)
+        context.startService(intent)
     }
 }
 
@@ -63,54 +65,69 @@ class FeedImportForegroundService : CoroutineService() {
     override val dispatcher: CoroutineDispatcher
         get() = dispatcherProvider.defaultDispatcher
 
-    private var queueObserver: Job? = null
-    private val logger = DPLog.tag("FeedImportForegroundService")
+    private val processingMutex = Mutex()
+
+    @Volatile private var latestStartId = 0
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        latestStartId = startId
+        if (!processingMutex.tryLock()) {
+            queueExecutor.triggerQueueProcessing()
+            return START_STICKY
+        }
+        startProcessing(startId)
+        return START_STICKY
+    }
 
     @OptIn(FlowPreview::class)
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        queueObserver?.cancel()
-        queueObserver = serviceScope.launch {
+    private fun startProcessing(startId: Int) {
+        serviceScope.launch {
+            var finishingStartId = startId
             try {
                 val notification = createServiceNotification(
                     text = getKmpString(stringRes.feed_import_notification_initial_text),
                 )
                 val nativeNotification = androidNotificationBuilder.createNotification(notification)
-                withContext(dispatcherProvider.mainDispatcher.immediate) {
-                    startForeground(SERVICE_ID, nativeNotification)
-                }
+                startForeground(SERVICE_ID, nativeNotification)
                 queueExecutor.triggerQueueProcessing()
 
-                observeFeedQueue(
-                    RssFeedQueueStatus.PROCESSING,
-                    RssFeedQueueStatus.QUEUED,
-                )
+                val statuses = arrayOf(RssFeedQueueStatus.PROCESSING, RssFeedQueueStatus.QUEUED)
+                observeFeedQueue(*statuses)
                     .map { it.getOrThrow() }
-                    .distinctUntilChanged()
-                    .onEach { pending ->
-                        if (pending.isNotEmpty()) queueExecutor.triggerQueueProcessing()
+                    .onEach {
                         val notification = createServiceNotification(
-                            text = getKmpString(stringRes.feed_import_notification_text, pending.size),
+                            text = getKmpString(stringRes.feed_import_notification_text, it.size),
                         )
-                        withContext(dispatcherProvider.mainDispatcher.immediate) {
-                            androidNotificationProvider.showNotification(notification)
-                        }
+                        androidNotificationProvider.showNotification(notification)
                     }
                     .debounce(1.seconds)
-                    .first { it.isEmpty() }
-                stopSession(startId)
+                    .first { pending ->
+                        if (pending.isNotEmpty()) {
+                            false
+                        } else {
+                            finishingStartId = latestStartId
+                            observeFeedQueue(*statuses).first().getOrThrow().isEmpty()
+                        }
+                    }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                logger.e(failure) { "Feed import service session failed startId=$startId" }
-                stopSession(startId)
+                finishingStartId = startId
+                DPLog.e(tag = "FeedImportForegroundService", throwable = failure) {
+                    "Feed import service failed startId=$startId"
+                }
+            } finally {
+                withContext(NonCancellable + dispatcherProvider.mainDispatcher.immediate) {
+                    processingMutex.unlock()
+                    if (serviceScope.isActive) {
+                        if (stopSelfResult(finishingStartId)) {
+                            stopForeground(STOP_FOREGROUND_REMOVE)
+                        } else if (processingMutex.tryLock()) {
+                            startProcessing(latestStartId)
+                        }
+                    }
+                }
             }
-        }
-        return START_STICKY
-    }
-
-    private suspend fun stopSession(startId: Int) = withContext(dispatcherProvider.mainDispatcher.immediate) {
-        if (stopSelfResult(startId)) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
         }
     }
 
