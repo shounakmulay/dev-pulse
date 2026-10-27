@@ -21,7 +21,6 @@ fun DevPulseNavApp() {
     val tabRoutes by remember {
         mutableStateOf(
             persistentSetOf(
-                Screen.Tabs.Home,
                 Screen.Tabs.Feed,
             )
         )
@@ -29,7 +28,7 @@ fun DevPulseNavApp() {
 
     val navigationState = rememberNavigationState(
         rootStart = Screen.Tabs,
-        tabsStart = Screen.Tabs.Home,
+        tabsStart = Screen.Tabs.Feed,
         tabRoutes = tabRoutes
     )
     val navigationLogger = koinInject<DPLogger>().withTag("Navigator")
@@ -44,9 +43,9 @@ fun DevPulseNavApp() {
     val navigationSuiteLayoutType =
         NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(windowAdaptiveInfo)
 
-    val isTabsPageVisible by remember(navigationState.rootStack) {
+    val isTabsPageVisible by remember(navigationState.rootStack, tabRoutes.size) {
         derivedStateOf {
-            navigationState.rootStack.last() == Screen.Tabs
+            tabRoutes.size > 1 && navigationState.rootStack.last() == Screen.Tabs
         }
     }
     LaunchedEffect(isTabsPageVisible) {
@@ -63,6 +62,6 @@ fun DevPulseNavApp() {
         navigationState = navigationState,
         navigator = navigator,
         windowAdaptiveInfo = windowAdaptiveInfo,
-        navigationSuiteLayoutType = navigationSuiteLayoutType
+        navigationSuiteLayoutType = navigationSuiteLayoutType,
     )
 }

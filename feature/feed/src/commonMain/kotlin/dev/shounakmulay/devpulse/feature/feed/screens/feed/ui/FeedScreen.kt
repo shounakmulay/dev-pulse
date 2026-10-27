@@ -6,13 +6,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
+import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs
@@ -40,6 +46,22 @@ fun FeedScreen(
     val sharingService = rememberSharingService(onCopiedToClipboard = {})
     Screen(
         viewModel = viewModel,
+        topAppBar = {
+            TopAppBar(title = {
+                Icon(
+                    imageVector = DPIcons.devPulseIconLarge(),
+                    contentDescription = "DevPulse",
+                    tint = Color.Unspecified,
+                )
+            }, actions = {
+                DPIconButton(
+                    icon = DPIcons.UserSettings,
+                    variant = DPIconButtonVariant.Secondary,
+                    contentDescription = "",
+                    onClick = { navigator.navigate(Screen.Settings, onRootStack = true) },
+                )
+            })
+        },
         onEffect = {
             when (it) {
                 is FeedScreenEffect.Share -> sharingService.share(text = it.text.resolve())
@@ -108,19 +130,6 @@ fun FeedScreen(
                     navigator.navigate(PostList(PostList.PostListLaunchData.All))
                 }
             )
-//            stickyHeader {
-//                DPSectionDivider(
-//                    title = stringResource(stringRes.folders)
-//                ) {
-//                    DPButton(
-//                        text = stringResource(stringRes.feed_view_all),
-//                        onClick = {},
-//                        variant = DPButtonVariant.Secondary,
-//                        style = DPButtonStyle.Text,
-//                        size = DPSize.Small
-//                    )
-//                }
-//            }
         }
     }
 }

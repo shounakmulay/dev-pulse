@@ -15,9 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPDensity
@@ -35,7 +33,6 @@ fun DPListItem(
     supportingText: String? = null,
     leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
-    density: DPDensity = DPDensity.Default,
     colors: ListItemColors? = null,
     tonalElevation: DPElevationLevel = DPElevationLevel.Level0,
     shadowElevation: DPElevationLevel = DPElevationLevel.Level0,
@@ -45,9 +42,6 @@ fun DPListItem(
             DPTextView(
                 text = headlineText,
                 variant = DPTextViewVariant.BodyLarge,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                lineHeight = 24.sp,
             )
         },
         modifier = modifier.clip(MaterialTheme.shapes.large),
@@ -64,8 +58,6 @@ fun DPListItem(
                 DPTextView(
                     it,
                     variant = DPTextViewVariant.BodySmall,
-                    fontSize = 13.sp,
-                    lineHeight = 20.sp,
                 )
             }
         },
@@ -121,8 +113,6 @@ fun DPListItem(
                 DPTextView(
                     it,
                     variant = DPTextViewVariant.BodySmall,
-                    fontSize = 13.sp,
-                    lineHeight = 20.sp,
                 )
             }
         },
@@ -134,9 +124,6 @@ fun DPListItem(
             DPTextView(
                 text = headlineText,
                 variant = DPTextViewVariant.BodyLarge,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                lineHeight = 24.sp,
             )
         },
     )
@@ -166,13 +153,23 @@ fun DPListItem(
     content: @Composable () -> Unit,
 ) {
     ListItem(
-        selected = selected, onClick = onClick, modifier = modifier, enabled = enabled,
-        leadingContent = leadingContent, trailingContent = trailingContent,
-        overlineContent = overlineContent, supportingContent = supportingContent,
-        verticalAlignment = verticalAlignment, onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel, shapes = shapes, colors = colors,
-        elevation = elevation, contentPadding = contentPadding,
-        interactionSource = interactionSource, content = content,
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        overlineContent = overlineContent,
+        supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
+        shapes = shapes,
+        colors = colors,
+        elevation = elevation,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+        content = content,
     )
 }
 

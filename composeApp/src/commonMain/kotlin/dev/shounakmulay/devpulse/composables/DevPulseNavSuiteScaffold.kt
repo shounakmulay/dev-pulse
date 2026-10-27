@@ -40,7 +40,7 @@ internal fun DevPulseNavSuiteScaffold(
     navigationState: NavigationState,
     navigator: Navigator,
     windowAdaptiveInfo: WindowAdaptiveInfo,
-    navigationSuiteLayoutType: NavigationSuiteType
+    navigationSuiteLayoutType: NavigationSuiteType,
 ) {
     val haptic = LocalHapticFeedback.current
     val snackbarHostState = remember { SnackbarHostState() }
