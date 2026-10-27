@@ -22,20 +22,20 @@ fun DevPulseNavApp() {
         mutableStateOf(
             persistentSetOf(
                 Screen.Tabs.Feed,
-            )
+            ),
         )
     }
 
     val navigationState = rememberNavigationState(
         rootStart = Screen.Tabs,
         tabsStart = Screen.Tabs.Feed,
-        tabRoutes = tabRoutes
+        tabRoutes = tabRoutes,
     )
     val navigationLogger = koinInject<DPLogger>().withTag("Navigator")
     val navigator = remember(navigationLogger) {
         Navigator(
             state = navigationState,
-            logger = navigationLogger
+            logger = navigationLogger,
         )
     }
     val navigationSuiteState = rememberNavigationSuiteScaffoldState()

@@ -34,8 +34,9 @@ import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds.f
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.postsSection
 
 @OptIn(
-    ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3ExpressiveApi::class
+    ExperimentalMaterial3AdaptiveApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3ExpressiveApi::class,
 )
 @Composable
 fun FeedScreen(
@@ -65,9 +66,11 @@ fun FeedScreen(
         onEffect = {
             when (it) {
                 is FeedScreenEffect.Share -> sharingService.share(text = it.text.resolve())
+
                 is FeedScreenEffect.ShowToast -> {
                     snackbarController.showSnackbar(it.message.resolve())
                 }
+
                 else -> viewModel.unhandledEffect(it)
             }
         },
@@ -91,7 +94,7 @@ fun FeedScreen(
             modifier = Modifier.fillMaxWidth(),
             state = listState,
             horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(bottom = 100.dp)
+            contentPadding = PaddingValues(bottom = 100.dp),
         ) {
             feedsSection(
                 pinnedAndRecentFeeds = pinnedAndRecentFeeds,
@@ -122,13 +125,13 @@ fun FeedScreen(
                     viewModel.onEvent(
                         FeedScreenEvent.OnPostBookmarkChanged(
                             postId = post.id,
-                            bookmarked = bookmarked
-                        )
+                            bookmarked = bookmarked,
+                        ),
                     )
                 },
                 onViewAll = {
                     navigator.navigate(PostList(PostList.PostListLaunchData.All))
-                }
+                },
             )
         }
     }
