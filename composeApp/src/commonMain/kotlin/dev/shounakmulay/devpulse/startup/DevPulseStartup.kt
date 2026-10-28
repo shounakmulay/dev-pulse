@@ -27,9 +27,6 @@ object DevPulseStartup {
             applicationScope.launch {
                 getAll<StartupAsyncInitialiser>()
                     .sortedByDescending { it.priority }
-                    .also {
-                        it.forEach { println("StartupAsyncInitialiser: ${it::class.simpleName} --- ${it.priority}") }
-                    }
                     .forEach {
                         when (it.priority) {
                             StartupPriority.HIGHEST -> {

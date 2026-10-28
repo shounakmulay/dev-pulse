@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 // PRIMARY — Burnt amber orange (deep Claude orange variant)
 // =============================================================================
 
-val primaryLight = Color(0xFFD96320)
+val primaryLight = Color(0xFFB9541B)
 val onPrimaryLight = Color(0xFFfffbff)
 val primaryContainerLight = Color(0xFFFFE5D0)
 val onPrimaryContainerLight = Color(0xFF4A1D02)
@@ -163,7 +163,7 @@ data class DPContextColors(
     val info: Color,
     val onInfo: Color,
     val infoContainer: Color,
-    val onInfoContainer: Color
+    val onInfoContainer: Color,
 )
 
 val lightDPContextColors = DPContextColors(
@@ -178,7 +178,7 @@ val lightDPContextColors = DPContextColors(
     info = infoLight,
     onInfo = onInfoLight,
     infoContainer = infoContainerLight,
-    onInfoContainer = onInfoContainerLight
+    onInfoContainer = onInfoContainerLight,
 )
 
 val darkDPContextColors = DPContextColors(
@@ -193,7 +193,7 @@ val darkDPContextColors = DPContextColors(
     info = infoDark,
     onInfo = onInfoDark,
     infoContainer = infoContainerDark,
-    onInfoContainer = onInfoContainerDark
+    onInfoContainer = onInfoContainerDark,
 )
 
 val LocalDPContextColors = compositionLocalOf { lightDPContextColors }

@@ -5,6 +5,7 @@ import android.os.Build
 import com.google.firebase.crashlytics.CustomKeysAndValues
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dev.shounakmulay.devpulse.core.common.BuildKonfigCommon
+import dev.shounakmulay.devpulse.core.logging.consent.AnalyticsConsentProvider
 import dev.shounakmulay.devpulse.core.logging.log.DPLogLevel
 import dev.shounakmulay.devpulse.core.logging.log.LogEntry
 import dev.shounakmulay.devpulse.core.logging.log.LogSink
@@ -14,6 +15,7 @@ import org.koin.core.annotation.Factory
 internal class FirebaseLogSink(
     private val crashlytics: FirebaseCrashlytics,
     context: Context,
+    private val consentProvider: AnalyticsConsentProvider,
 ) : LogSink {
     private val defaultData: Map<String, String>
 
@@ -32,7 +34,7 @@ internal class FirebaseLogSink(
         )
     }
 
-    override fun isLoggable(entry: LogEntry): Boolean = entry.level >= DPLogLevel.Error
+    override fun isLoggable(entry: LogEntry): Boolean = consentProvider.getConsent()?.crashReporting == true && entry.level >= DPLogLevel.Error
 
     override fun log(entry: LogEntry) {
         if (!isLoggable(entry)) return

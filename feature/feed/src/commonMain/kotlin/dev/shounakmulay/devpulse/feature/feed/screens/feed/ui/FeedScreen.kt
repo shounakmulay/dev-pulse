@@ -30,6 +30,7 @@ import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
 import dev.shounakmulay.devpulse.core.ui.text.resolve
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedDeleteConfirmation
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsState
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.TelemetryConsentBanner
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds.feedsSection
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.postsSection
 
@@ -96,6 +97,16 @@ fun FeedScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(bottom = 100.dp),
         ) {
+            if (state.isTelemetryConsentLoaded && state.telemetryConsent == null) {
+                item(key = "telemetry-consent") {
+                    TelemetryConsentBanner(
+                        saving = state.isSavingTelemetryConsent,
+                        onSave = { crashReporting, performanceMetrics ->
+                            viewModel.onEvent(FeedScreenEvent.SaveTelemetryConsent(crashReporting, performanceMetrics))
+                        },
+                    )
+                }
+            }
             feedsSection(
                 pinnedAndRecentFeeds = pinnedAndRecentFeeds,
                 isFeedLoading = state.isFeedLoading,

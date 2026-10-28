@@ -6,23 +6,23 @@ import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptions
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 
 sealed interface FeedScreenEvent : ScreenEvent {
+    data class SaveTelemetryConsent(val crashReporting: Boolean, val performanceMetrics: Boolean) : FeedScreenEvent
     data class SetPostRead(val postId: UUID, val isRead: Boolean) : FeedScreenEvent
 
     data class OnFeedLongClick(val feed: UIFeed) : FeedScreenEvent
 
     data class OnPostBookmarkChanged(
         val postId: UUID,
-        val bookmarked: Boolean
+        val bookmarked: Boolean,
     ) : FeedScreenEvent
 
     data class OnFeedPinChanged(
         val feedId: UUID,
-        val pinned: Boolean
+        val pinned: Boolean,
     ) : FeedScreenEvent
 
     data class OnShowFeedOptions(val feed: UIFeed) : FeedScreenEvent
-    data class OnFeedOptionSelected(val feedId: UUID, val menuItem: FeedOptionsMenuItem) :
-        FeedScreenEvent
+    data class OnFeedOptionSelected(val feedId: UUID, val menuItem: FeedOptionsMenuItem) : FeedScreenEvent
 
     data class HideFeedOptions(val feedId: UUID) : FeedScreenEvent
     data object ConfirmDelete : FeedScreenEvent
