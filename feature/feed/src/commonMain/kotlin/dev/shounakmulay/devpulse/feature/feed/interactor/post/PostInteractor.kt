@@ -50,8 +50,6 @@ class PostInteractor(
                 RssPostFilter.ReadStatus(null),
                 RssPostFilter.Bookmarked(null),
                 RssPostFilter.PublishedRange(),
-                RssPostFilter.Category(emptySet()),
-                RssPostFilter.TagIdsAny(emptySet()),
             )
 
             else -> listOf(
@@ -59,8 +57,6 @@ class PostInteractor(
                 RssPostFilter.ReadStatus(null),
                 RssPostFilter.Bookmarked(null),
                 RssPostFilter.PublishedRange(),
-                RssPostFilter.Category(emptySet()),
-                RssPostFilter.TagIdsAny(emptySet()),
             )
         }.sortedWith(
             compareBy<RssPostFilter> {
