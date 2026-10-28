@@ -32,7 +32,7 @@ class AndroidCdTest(unittest.TestCase):
             'GITHUB_EVENT_NAME': 'workflow_dispatch', 'GITHUB_REF': 'refs/heads/main',
             'GITHUB_SHA': SOURCE, 'GITHUB_RUN_NUMBER': '9', 'GITHUB_RUN_ID': '123',
             'GITHUB_REPOSITORY': 'example/DevPulse', 'GITHUB_OUTPUT': str(self.output),
-            'RUNNER_TEMP': str(self.root), 'ANDROID_VERSION_CODE_BASE': '100',
+            'RUNNER_TEMP': str(self.root), 'PLAY_ACCESS_TOKEN': 'fixture play token',
             'ANDROID_UPLOAD_CERT_SHA256': SIGNER,
             'ANDROID_UPLOAD_KEYSTORE_BASE64': base64.b64encode(b'private keystore bytes').decode(),
             'ANDROID_UPLOAD_STORE_PASSWORD': 'store secret', 'ANDROID_UPLOAD_KEY_ALIAS': 'upload',
@@ -52,14 +52,59 @@ class AndroidCdTest(unittest.TestCase):
         (directory / 'candidate.json').write_text(self.candidate().json())
         return directory
 
-    def test_version_code_allocates_once_per_run_and_checks_android_range(self):
-        self.assertEqual(109, cd.version_code('100', '9', 1))
-        self.assertEqual(2_100_000_000, cd.version_code('2099999991', '9', 1))
-        for base, run in [('2099999992', '9'), ('-1', '9'), ('1.5', '9'), ('', '9'), ('0', '0')]:
-            with self.subTest(base=base, run=run), self.assertRaises(cd.ReleaseError):
-                cd.version_code(base, run, 1)
-        with self.assertRaises(cd.ReleaseError):
-            cd.version_code('0', '1', 1)
+    def test_given_internal_releases_when_allocating_then_only_highest_code_matters(self):
+        self.assertEqual(7, cd.version_code({'releases': [{'versionCodes': ['4', '6']}, {'versionCodes': ['5']}]}))
+        self.assertEqual(1, cd.version_code({}))
+        self.assertEqual(1, cd.version_code({'releases': []}))
+        self.assertEqual(2_100_000_000, cd.version_code({'releases': [{'versionCodes': ['2099999999']}]}))
+        for track in [None, {'releases': None}, {'releases': [None]},
+                      {'releases': [{'versionCodes': [7]}]},
+                      {'releases': [{'versionCodes': ['invalid']}]},
+                      {'releases': [{'versionCodes': ['2100000000']}]}]:
+            with self.subTest(track=track), self.assertRaises(cd.ReleaseError):
+                cd.version_code(track)
+
+    def test_given_play_track_when_selecting_then_edit_is_deleted_on_success_or_collision(self):
+        for maximum in (6, 7):
+            calls = []
+            def api(url, token, method='GET', payload=None, missing_ok=False):
+                calls.append((url, method))
+                if method == 'POST':
+                    return {'id': 'edit-1'}
+                if url.endswith('/tracks/internal'):
+                    return {'releases': [{'versionCodes': ['6']}]}
+                if url.endswith('/bundles'):
+                    return {'bundles': [{'versionCode': maximum}]}
+            with patch.object(cd, 'json_request', side_effect=api):
+                if maximum == 6:
+                    self.assertEqual(7, cd.next_play_version('token'))
+                else:
+                    with self.assertRaisesRegex(cd.ReleaseError, 'already contains bundle 7'):
+                        cd.next_play_version('token')
+            self.assertTrue(calls[-1][0].endswith('/edit-1'))
+            self.assertEqual('DELETE', calls[-1][1])
+
+    def test_given_missing_or_failed_track_when_selecting_then_cleanup_is_guaranteed(self):
+        for state in ('missing', 'failure', 'invalid'):
+            calls = []
+            def api(url, token, method='GET', payload=None, missing_ok=False):
+                calls.append((url, method))
+                if method == 'POST':
+                    return {'id': 'edit-1'}
+                if url.endswith('/tracks/internal'):
+                    self.assertTrue(missing_ok)
+                    if state == 'failure':
+                        raise cd.ReleaseError('fixture API failure')
+                    return None if state == 'missing' else {'releases': None}
+                if url.endswith('/bundles'):
+                    return {'bundles': []}
+            with patch.object(cd, 'json_request', side_effect=api):
+                if state == 'missing':
+                    self.assertEqual(1, cd.next_play_version('token'))
+                else:
+                    with self.assertRaises(cd.ReleaseError):
+                        cd.next_play_version('token')
+            self.assertEqual('DELETE', calls[-1][1])
 
     def test_cli_rejects_untrusted_event_and_ref_without_starting_external_tools(self):
         for event, ref, expected in [
@@ -161,7 +206,7 @@ class AndroidCdTest(unittest.TestCase):
 
     def test_build_uses_existing_helper_and_removes_private_signing_files(self):
         (self.root / 'gradle').mkdir()
-        (self.root / 'gradle/libs.versions.toml').write_text('[versions]\napp-versionCode = "1"\napp-versionName = "1.0.0"\n')
+        (self.root / 'gradle/libs.versions.toml').write_text('[versions]\napp-versionCode = "200"\napp-versionName = "1.0.0"\n')
         artifact = self.root / 'androidApp/build/outputs/bundle/productionRelease/production.aab'
         artifact.parent.mkdir(parents=True)
         artifact.write_bytes(b'candidate bytes')
@@ -185,7 +230,7 @@ class AndroidCdTest(unittest.TestCase):
                 return b''
             self.fail(f'Unexpected external operation {command}')
 
-        with patch.object(cd, 'checked', side_effect=external), patch.object(cd, 'bundletool', return_value=self.root / 'tool.jar'), patch.object(cd, 'validate_bundle') as validator:
+        with patch.object(cd, 'next_play_version', return_value=109), patch.object(cd, 'checked', side_effect=external), patch.object(cd, 'bundletool', return_value=self.root / 'tool.jar'), patch.object(cd, 'validate_bundle') as validator:
             cd.build(self.root, destination)
         self.assertEqual(self.candidate(), cd.load_candidate(destination, SOURCE, '123'))
         self.assertFalse(signing_paths[0].exists())
@@ -193,6 +238,34 @@ class AndroidCdTest(unittest.TestCase):
         self.assertEqual('109', str(validator.call_args[0][2]))
         self.assertEqual(self.candidate().json(), self.output.read_text().strip()[len('candidate='):])
         self.assertEqual(1, sum(command[0] == 'bash' for command in calls))
+
+    def test_given_restored_candidate_when_retrying_build_then_reuse_without_allocating(self):
+        directory = self.write_candidate()
+        with patch.object(cd, 'checked', return_value=SOURCE.encode()), patch.object(cd, 'next_play_version') as allocator:
+            cd.build(self.root, directory)
+        allocator.assert_not_called()
+        self.assertIn('reused=true', self.output.read_text())
+        self.assertIn(self.candidate().json(), self.output.read_text())
+        (directory / 'app.aab').write_bytes(b'tampered')
+        with patch.object(cd, 'checked', return_value=SOURCE.encode()), self.assertRaises(cd.ReleaseError):
+            cd.build(self.root, directory)
+
+    def test_given_empty_restore_directory_when_retrying_then_allocate_a_new_candidate(self):
+        directory = self.root / 'empty-restore'
+        directory.mkdir()
+        (self.root / 'gradle').mkdir()
+        (self.root / 'gradle/libs.versions.toml').write_text('[versions]\napp-versionCode = "7"\napp-versionName = "1.0.0"\n')
+        with patch.object(cd, 'checked', return_value=SOURCE.encode()), patch.object(cd, 'next_play_version', side_effect=cd.ReleaseError('allocation reached')) as allocator:
+            with self.assertRaisesRegex(cd.ReleaseError, 'allocation reached'):
+                cd.build(self.root, directory)
+        allocator.assert_called_once_with('fixture play token')
+        self.assertFalse(directory.exists())
+        directory.mkdir()
+        (directory / 'partial').write_text('incomplete download')
+        with patch.object(cd, 'checked', return_value=SOURCE.encode()), patch.object(cd, 'next_play_version') as allocator:
+            with self.assertRaises(OSError):
+                cd.build(self.root, directory)
+        allocator.assert_not_called()
 
     def test_build_failure_also_removes_private_signing_files(self):
         (self.root / 'gradle').mkdir()
@@ -203,7 +276,7 @@ class AndroidCdTest(unittest.TestCase):
             if command[0] == 'keytool':
                 return CERTIFICATE
             raise cd.ReleaseError('fixture build failed')
-        with patch.object(cd, 'checked', side_effect=external), patch.object(cd, 'bundletool', return_value=self.root / 'tool.jar'), self.assertRaises(cd.ReleaseError):
+        with patch.object(cd, 'next_play_version', return_value=109), patch.object(cd, 'checked', side_effect=external), patch.object(cd, 'bundletool', return_value=self.root / 'tool.jar'), self.assertRaises(cd.ReleaseError):
             cd.build(self.root, self.root / 'failed-candidate')
         self.assertEqual([], list(self.root.glob('devpulse-signing-*')))
         self.assertFalse(self.output.exists())
@@ -286,6 +359,62 @@ class AndroidCdTest(unittest.TestCase):
             cd.record(candidate)
         with patch.object(cd, 'json_request', return_value={'object': {'type': 'commit', 'sha': 'b' * 40}}), self.assertRaises(cd.ReleaseError):
             cd.record(candidate)
+
+    def test_given_published_candidate_when_reconciling_then_pr_changes_only_main_version(self):
+        original = '[versions]\napp-versionCode = "7"\napp-versionName = "1.0.3"\n'
+        updated = original.replace('"7"', '"109"')
+        for rerun in (False, True):
+            writes = []
+            def api(url, token, method='GET', payload=None, missing_ok=False):
+                if method != 'GET':
+                    writes.append((url, method, payload))
+                    if url.endswith('/pulls'):
+                        return {'html_url': 'https://example.com/pr/1'}
+                    return {}
+                if url.endswith('/git/ref/heads/main'):
+                    return {'object': {'sha': SOURCE}}
+                if '/git/ref/heads/chore/' in url:
+                    return {'object': {'sha': 'b' * 40}} if rerun else None
+                if '/contents/' in url:
+                    content = updated if rerun and 'ref=chore' in url else original
+                    return {'sha': 'c' * 40, 'content': base64.b64encode(content.encode()).decode()}
+                if '/compare/' in url:
+                    return {'files': [{'filename': 'gradle/libs.versions.toml'}]}
+                if 'head=' in url:
+                    return [{'html_url': 'https://example.com/pr/1'}] if rerun else []
+                if '/pulls?' in url:
+                    return [{'number': 2, 'head': {'ref': 'chore/android-version-code-108', 'repo': {'full_name': 'example/DevPulse'}}}]
+                self.fail(url)
+            with patch.object(cd, 'json_request', side_effect=api):
+                cd.reconcile_version(self.candidate())
+            puts = [payload for _, method, payload in writes if method == 'PUT']
+            self.assertEqual(0 if rerun else 1, len(puts))
+            if puts:
+                self.assertEqual(updated, base64.b64decode(puts[0]['content']).decode())
+                self.assertEqual('chore/android-version-code-109', puts[0]['branch'])
+            prs = [payload for url, _, payload in writes if url.endswith('/pulls')]
+            self.assertEqual(0 if rerun else 1, len(prs))
+            if prs:
+                self.assertEqual('main', prs[0]['base'])
+            self.assertEqual(('PATCH', {'state': 'closed'}), writes[-1][1:])
+
+    def test_given_main_matching_or_ahead_when_reconciling_then_no_writes(self):
+        for version in (109, 110):
+            original = f'[versions]\napp-versionCode = "{version}"\n'
+            with patch.object(cd, 'json_request', side_effect=[
+                {'object': {'sha': SOURCE}}, {'content': base64.b64encode(original.encode()).decode()},
+            ]) as api:
+                cd.reconcile_version(self.candidate())
+            self.assertEqual(2, api.call_count)
+
+    def test_given_modified_reconciliation_branch_when_reconciling_then_no_overwrite(self):
+        original = '[versions]\napp-versionCode = "7"\n'
+        with patch.object(cd, 'json_request', side_effect=[
+            {'object': {'sha': SOURCE}}, {'content': base64.b64encode(original.encode()).decode()},
+            {'object': {'sha': 'b' * 40}}, {'content': base64.b64encode(b'manual changes').decode()},
+        ]) as api, self.assertRaisesRegex(cd.ReleaseError, 'will not be overwritten'):
+            cd.reconcile_version(self.candidate())
+        self.assertEqual(4, api.call_count)
 
 
 if __name__ == '__main__':

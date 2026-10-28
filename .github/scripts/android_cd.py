@@ -16,6 +16,7 @@ import tempfile
 import time
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
+from urllib.parse import urlencode
 import xml.etree.ElementTree as ET
 
 
@@ -94,11 +95,39 @@ def positive_integer(value, name, allow_zero=False):
     return result
 
 
-def version_code(base, run_number, catalog_code):
-    value = positive_integer(base, 'ANDROID_VERSION_CODE_BASE', allow_zero=True) + positive_integer(run_number, 'GITHUB_RUN_NUMBER')
-    if not catalog_code < value <= MAX_VERSION_CODE:
-        raise ReleaseError('Generated versionCode must exceed the catalog version and be at most 2100000000.')
+def version_code(track):
+    if not isinstance(track, dict) or not isinstance(track.get('releases', []), list):
+        raise ReleaseError('Play returned an invalid internal track.')
+    codes = []
+    for release in track.get('releases', []):
+        if not isinstance(release, dict) or not isinstance(release.get('versionCodes', []), list):
+            raise ReleaseError('Play returned invalid internal release version codes.')
+        for code in release.get('versionCodes', []):
+            if not isinstance(code, str):
+                raise ReleaseError('Play returned an invalid internal version code.')
+            codes.append(positive_integer(code, 'Play internal versionCode'))
+    value = max(codes, default=0) + 1
+    if value > MAX_VERSION_CODE:
+        raise ReleaseError('Play internal versionCode has reached the Android limit.')
     return value
+
+
+def next_play_version(token):
+    base = f'https://androidpublisher.googleapis.com/androidpublisher/v3/applications/{PACKAGE}/edits'
+    edit = json_request(base, token, 'POST', {})
+    if not isinstance(edit, dict) or not re.fullmatch('[0-9A-Za-z_-]+', edit.get('id', '')):
+        raise ReleaseError('Play returned an invalid edit ID.')
+    url = f'{base}/{edit["id"]}'
+    try:
+        track = json_request(url + '/tracks/internal', token, missing_ok=True)
+        version = version_code({'releases': []} if track is None else track)
+        bundles = json_request(url + '/bundles', token)
+        maximum = max((bundle['versionCode'] for bundle in bundles.get('bundles', [])), default=0)
+        if version <= maximum:
+            raise ReleaseError(f'Internal track selects versionCode {version}, but Play already contains bundle {maximum}. Resolve the track or bundle conflict in Play Console.')
+        return version
+    finally:
+        json_request(url, token, 'DELETE')
 
 
 def preflight():
@@ -264,11 +293,21 @@ def catalog_versions(path):
 
 def build(root, destination):
     preflight()
-    versions = catalog_versions(root / 'gradle/libs.versions.toml')
-    version = version_code(required('ANDROID_VERSION_CODE_BASE'), required('GITHUB_RUN_NUMBER'), int(versions['app-versionCode']))
     source = checked(['git', 'rev-parse', 'HEAD'], root=root).decode().strip()
     if source != required('GITHUB_SHA'):
         raise ReleaseError('Checked-out source does not match GITHUB_SHA.')
+    if destination.is_dir() and not any(destination.iterdir()):
+        destination.rmdir()
+    if destination.exists():
+        candidate = load_candidate(destination, source, required('GITHUB_RUN_ID'))
+        if candidate.signer_sha256 != certificate_fingerprint(required('ANDROID_UPLOAD_CERT_SHA256')):
+            raise ReleaseError('Restored candidate signer differs from the configured upload certificate.')
+        output('candidate', candidate.json())
+        output('reused', 'true')
+        summary(f"Reusing this workflow run's verified candidate versionCode {candidate.version_code}.")
+        return
+    versions = catalog_versions(root / 'gradle/libs.versions.toml')
+    version = next_play_version(required('PLAY_ACCESS_TOKEN'))
     runner_temp = Path(required('RUNNER_TEMP'))
     tool = bundletool(runner_temp)
     destination.mkdir(parents=True, exist_ok=False)
@@ -362,7 +401,7 @@ def play_state(candidate, bundles, track):
     if not candidates:
         maximum = max((bundle['versionCode'] for bundle in bundles.get('bundles', [])), default=0)
         if candidate.version_code <= maximum:
-            raise ReleaseError('Candidate versionCode does not exceed existing Play bundles. Increase ANDROID_VERSION_CODE_BASE and start a new run.')
+            raise ReleaseError('Candidate versionCode does not exceed existing Play bundles. Resolve the Play track or bundle conflict and start a new run.')
         return PlayState.MISSING
     if len(candidates) != 1 or candidates[0].get('sha256', '').lower() != candidate.aab_sha256:
         raise ReleaseError('Play has a different bundle for this versionCode. Start a new run with a higher versionCode.')
@@ -455,6 +494,64 @@ def record(candidate):
     summary(f'GitHub prerelease: {release["html_url"]}')
 
 
+def reconcile_version(candidate):
+    repository = required('GITHUB_REPOSITORY')
+    if not re.fullmatch('[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', repository):
+        raise ReleaseError('Invalid GitHub repository.')
+    if candidate.source_sha != required('GITHUB_SHA') or candidate.run_id != required('GITHUB_RUN_ID'):
+        raise ReleaseError('Version reconciliation provenance does not match this workflow run.')
+    token = required('GH_TOKEN')
+    base = f'https://api.github.com/repos/{repository}'
+    main = json_request(base + '/git/ref/heads/main', token)['object']['sha']
+    path = '/contents/gradle/libs.versions.toml'
+    original = json_request(base + path + '?ref=' + main, token)
+    content = base64.b64decode(original['content']).decode('utf-8')
+    pattern = r'(?m)^(app-versionCode\s*=\s*")([0-9]+)("\s*(?:#.*)?)$'
+    updated, count = re.subn(pattern, lambda match: match[1] + str(candidate.version_code) + match[3], content)
+    if count != 1:
+        raise ReleaseError('Main must define exactly one app-versionCode.')
+    current = re.search(pattern, content)
+    current_code = int(current[2])
+    if current_code >= candidate.version_code:
+        summary(f'Main already records versionCode {current_code}; no reconciliation is needed.')
+        return
+    branch = f'chore/android-version-code-{candidate.version_code}'
+    ref = json_request(base + '/git/ref/heads/' + branch, token, missing_ok=True)
+    if ref is None:
+        json_request(base + '/git/refs', token, 'POST', {'ref': 'refs/heads/' + branch, 'sha': main})
+        ref = {'object': {'sha': main}}
+    existing = json_request(base + path + '?' + urlencode({'ref': branch}), token)
+    branch_content = base64.b64decode(existing['content']).decode('utf-8')
+    if branch_content != updated:
+        if ref['object']['sha'] != main or branch_content != content:
+            raise ReleaseError('Existing version reconciliation branch differs. It will not be overwritten.')
+        json_request(base + path, token, 'PUT', {
+            'message': f'chore: record Android internal version code {candidate.version_code}',
+            'content': base64.b64encode(updated.encode('utf-8')).decode('ascii'),
+            'sha': existing['sha'], 'branch': branch,
+        })
+    comparison = json_request(base + '/compare/main...' + branch, token)
+    if [file['filename'] for file in comparison.get('files', [])] != ['gradle/libs.versions.toml']:
+        raise ReleaseError('Version reconciliation must change only the version catalog.')
+    pulls = json_request(base + '/pulls?' + urlencode({
+        'state': 'open', 'base': 'main', 'head': repository.split('/')[0] + ':' + branch,
+    }), token)
+    if pulls:
+        pull = pulls[0]
+    else:
+        pull = json_request(base + '/pulls', token, 'POST', {
+            'title': f'chore: record Android internal version code {candidate.version_code}',
+            'head': branch, 'base': 'main',
+            'body': f'Google Play confirmed internal versionCode {candidate.version_code}. Update the catalog to match the published bundle.\n\n' + release_notes(candidate),
+        })
+    summary(f'Version reconciliation PR: {pull["html_url"]}')
+    open_pulls = json_request(base + '/pulls?state=open&base=main&per_page=100', token)
+    for older in open_pulls:
+        branch_match = re.fullmatch(r'chore/android-version-code-([0-9]+)', older.get('head', {}).get('ref', ''))
+        if branch_match and older.get('head', {}).get('repo', {}).get('full_name') == repository and int(branch_match[1]) < candidate.version_code:
+            json_request(base + '/pulls/' + str(older['number']), token, 'PATCH', {'state': 'closed'})
+
+
 def main():
     parser = argparse.ArgumentParser(description='Build and verify a production Android internal-testing candidate.')
     parser.add_argument('--root', type=Path, default=ROOT)
@@ -472,6 +569,7 @@ def main():
         if name == 'play-check':
             command.add_argument('--require-published', action='store_true')
     commands.add_parser('record')
+    commands.add_parser('reconcile-version')
     args = parser.parse_args()
     try:
         if args.command == 'preflight':
@@ -488,6 +586,8 @@ def main():
             play_access_token(args.credentials)
         elif args.command == 'play-check':
             play_check(args.directory, args.require_published)
+        elif args.command == 'reconcile-version':
+            reconcile_version(Candidate.parse(json.loads(required('CANDIDATE_JSON'))))
         elif args.command == 'record':
             record(Candidate.parse(json.loads(required('CANDIDATE_JSON'))))
     except (ReleaseError, OSError, json.JSONDecodeError, ET.ParseError) as error:
