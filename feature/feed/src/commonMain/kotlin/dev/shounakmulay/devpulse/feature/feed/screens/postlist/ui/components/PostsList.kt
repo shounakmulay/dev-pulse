@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.plus
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -27,8 +27,8 @@ import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVarian
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.ui.grid.adaptiveColumnsCount
 import dev.shounakmulay.devpulse.core.ui.text.isNotNullOrEmpty
-import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterEvent
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilters
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.postsListEmptyMessage
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
@@ -56,7 +56,7 @@ internal fun PostsList(
             modifier = modifier.fillMaxWidth(),
             state = lazyGridState,
             columns = GridCells.Fixed(columns),
-            contentPadding = PaddingValues(bottom = LocalDPSpacing.current.listItemHeight) + PaddingValues(horizontal = LocalDPSpacing.current.md),
+            contentPadding = PaddingValues(bottom = LocalDPSpacing.current.listItemHeight),
             horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
             verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
         ) {
@@ -97,6 +97,7 @@ internal fun PostsList(
                 if (post != null) {
                     FeedPostListItem(
                         modifier = Modifier
+                            .padding(horizontal = LocalDPSpacing.current.sm)
                             .animateItem(),
                         post = post,
                         onReadChanged = onReadChanged,

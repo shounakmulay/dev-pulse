@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 // PRIMARY — Burnt amber orange (deep Claude orange variant)
 // =============================================================================
 
-val primaryLight = Color(0xFFD96320)
+val primaryLight = Color(0xFFB9541B)
 val onPrimaryLight = Color(0xFFfffbff)
 val primaryContainerLight = Color(0xFFFFE5D0)
 val onPrimaryContainerLight = Color(0xFF4A1D02)

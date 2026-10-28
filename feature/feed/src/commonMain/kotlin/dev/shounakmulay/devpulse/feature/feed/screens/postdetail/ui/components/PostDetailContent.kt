@@ -244,12 +244,6 @@ private fun LazyListScope.postDetailContentHeader(
                         variant = DPTextViewVariant.BodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    DPTextDot(Modifier.padding(horizontal = LocalDPSpacing.current.sm))
-                    DPTextView(
-                        text = "12 Mins",
-                        variant = DPTextViewVariant.BodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
                 }
             }
             Spacer(Modifier.height(LocalDPSpacing.current.sm))

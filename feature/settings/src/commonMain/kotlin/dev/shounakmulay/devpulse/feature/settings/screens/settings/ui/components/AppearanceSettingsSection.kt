@@ -2,7 +2,6 @@ package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.component
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,10 +32,8 @@ internal fun AppearanceSettingsSection(
     onVariantSelected: (FeedsPostListItemVariant) -> Unit,
     onArticleSettingsClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier,
-        verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.sm)
-    ) {
+    val spacing = LocalDPSpacing.current
+    Column {
         SettingsSectionHeading(stringResource(stringRes.appearance))
         SettingsSubPageLink(
             headlineText = stringResource(stringRes.article_reader),
@@ -46,7 +43,7 @@ internal fun AppearanceSettingsSection(
         DPButtonGroup(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = LocalDPSpacing.current.md)
+                .padding(horizontal = spacing.screenHorizontal, vertical = spacing.sm)
                 .horizontalScroll(rememberScrollState()),
             overflowIndicator = {},
         ) {
@@ -65,7 +62,7 @@ internal fun AppearanceSettingsSection(
             }
         }
         FeedPostListItem(
-            modifier = Modifier.padding(horizontal = LocalDPSpacing.current.md)
+            modifier = Modifier.padding(horizontal = spacing.screenHorizontal)
                 .animateContentSize(),
             variant = selectedVariant,
             showImage = true,

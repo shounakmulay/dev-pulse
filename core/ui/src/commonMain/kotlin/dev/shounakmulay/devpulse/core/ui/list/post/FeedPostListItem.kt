@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.core.ui.list.post
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -84,10 +83,6 @@ fun FeedPostListItem(
             .clip(MaterialTheme.shapes.large)
             .clickable(onClick = onPostClick)
             .semantics { stateDescription = readStateDescription },
-        border = BorderStroke(
-            1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-        ),
         shape = MaterialTheme.shapes.large,
         color = Color.Transparent
     ) {
@@ -197,7 +192,13 @@ private fun PostListItemContent(
             }
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.sm)
+                verticalArrangement = Arrangement.spacedBy(
+                    if (variant == FeedsPostListItemVariant.XS) {
+                        LocalDPSpacing.current.xs
+                    } else {
+                        LocalDPSpacing.current.sm
+                    }
+                )
             ) {
                 FeedPostListItemBody(
                     variant = variant,
@@ -206,20 +207,38 @@ private fun PostListItemContent(
                     context = context,
                     isRead = isRead,
                 )
+                if (variant == FeedsPostListItemVariant.XS) {
+                    DPTextView(
+                        text = publishedText ?: createdAt,
+                        color = readTextColor(isRead),
+                        variant = DPTextViewVariant.LabelSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            if (variant == FeedsPostListItemVariant.XS) {
+                FeedPostListItemActions(
+                    bookmarked = bookmarked,
+                    onBookmarkChanged = onBookmarkChanged,
+                    actions = actions,
+                )
             }
         }
-        FeedPostListItemMetadata(
-            variant = variant,
-            onBookmarkChanged = onBookmarkChanged,
-            websiteImageUrl = websiteImageUrl,
-            feedInitials = feedInitials,
-            feedTitle = feedTitle,
-            publishedText = publishedText,
-            createdAt = createdAt,
-            bookmarked = bookmarked,
-            isRead = isRead,
-            actions = actions,
-        )
+        if (variant != FeedsPostListItemVariant.XS) {
+            FeedPostListItemMetadata(
+                variant = variant,
+                onBookmarkChanged = onBookmarkChanged,
+                websiteImageUrl = websiteImageUrl,
+                feedInitials = feedInitials,
+                feedTitle = feedTitle,
+                publishedText = publishedText,
+                createdAt = createdAt,
+                bookmarked = bookmarked,
+                isRead = isRead,
+                actions = actions,
+            )
+        }
     }
 }
 
@@ -287,26 +306,30 @@ private fun FeedPostListItemMetadata(
                 variant = labelTextVariant,
                 maxLines = 1
             )
-//            DPTextDot()
-//            DPTextView(
-//                text = "12 Mins",
-//                color = MaterialTheme.colorScheme.onSurfaceVariant,
-//                variant = labelTextVariant,
-//                maxLines = 1
-//            )
         }
-        DPIconToggleButton(
-            size = DPSize.Small,
-            icon = DPIcons.BookmarkAddOutline,
-            checkedIcon = DPIcons.BookmarkAdded,
-            contentDescription = stringResource(stringRes.bookmarked),
-            checked = bookmarked,
-            onCheckedChange = { checked ->
-                onBookmarkChanged(checked)
-            },
+        FeedPostListItemActions(
+            bookmarked = bookmarked,
+            onBookmarkChanged = onBookmarkChanged,
+            actions = actions,
         )
-        actions()
     }
+}
+
+@Composable
+private fun FeedPostListItemActions(
+    bookmarked: Boolean,
+    onBookmarkChanged: (Boolean) -> Unit,
+    actions: @Composable () -> Unit,
+) {
+    DPIconToggleButton(
+        size = DPSize.Small,
+        icon = DPIcons.BookmarkAddOutline,
+        checkedIcon = DPIcons.BookmarkAdded,
+        contentDescription = stringResource(stringRes.bookmarked),
+        checked = bookmarked,
+        onCheckedChange = onBookmarkChanged,
+    )
+    actions()
 }
 
 @Composable

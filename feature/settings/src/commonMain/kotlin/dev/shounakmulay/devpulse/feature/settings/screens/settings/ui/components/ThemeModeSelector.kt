@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.dp
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSegmentedButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSingleChoiceSegmentedButtonRow
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
@@ -22,6 +21,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
+import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 
 @Composable
@@ -29,13 +29,14 @@ internal fun ThemeModeSelector(
     selectedThemeMode: ThemeMode,
     onValueSelected: (ThemeMode) -> Unit
 ) {
+    val spacing = LocalDPSpacing.current
     val textMeasurer = rememberTextMeasurer()
     val textStyle = MaterialTheme.typography.labelMedium
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val iconSize = SegmentedButtonDefaults.IconSize
     BoxWithConstraints(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = Modifier.fillMaxWidth().padding(horizontal = spacing.screenHorizontal, vertical = spacing.sm)
     ) {
         val showLabels = with(density) {
             val count = ThemeMode.entries.size
@@ -44,7 +45,7 @@ internal fun ThemeModeSelector(
             val padding = SegmentedButtonDefaults.ContentPadding
             val contentInset = padding.calculateStartPadding(layoutDirection).roundToPx() +
                     padding.calculateEndPadding(layoutDirection).roundToPx() +
-                    iconSize.roundToPx() + 8.dp.roundToPx()
+                    iconSize.roundToPx() + spacing.sm.roundToPx()
             ThemeMode.entries.all { themeMode ->
                 val textWidth = textMeasurer.measure(
                     text = themeMode.label(),
