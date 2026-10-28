@@ -2,9 +2,8 @@ package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
@@ -32,6 +31,7 @@ import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.SettingsSectionHeading
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.SettingsSubPageLink
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.SettingsToggle
+import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.TelemetrySettingsSection
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.ThemeSettingsSection
 import devpulse.core.resources.generated.resources.data_and_sync
 import devpulse.core.resources.generated.resources.import_feeds
@@ -58,14 +58,18 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                 title = stringResource(stringRes.settings),
                 navigationIcon = {
                     DPBackNavigationIconButton(onNavigateBack = navigator::navigateBack)
-                }
+                },
             )
         },
     ) { state ->
         val canToggleBlackMode = state.canToggleBlackMode(isDarkTheme = DPTheme.isDarkTheme)
 
-        LazyColumn {
-            item {
+        val spacing = LocalDPSpacing.current
+        LazyColumn(
+            contentPadding = PaddingValues(top = spacing.sm, bottom = spacing.sectionGap),
+            verticalArrangement = Arrangement.spacedBy(spacing.lg),
+        ) {
+            item(key = "theme") {
                 ThemeSettingsSection(
                     selectedThemeMode = state.themeMode,
                     isBlackMode = state.isBlackMode,
@@ -75,25 +79,25 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                     },
                     onBlackModeToggled = { value ->
                         viewModel.onEvent(SettingsScreenEvent.OnBlackModeToggled(value))
-                    }
+                    },
                 )
             }
-            item {
+            item(key = "appearance") {
                 AppearanceSettingsSection(
                     selectedVariant = state.feedPostListItemVariant,
                     onVariantSelected = { variant ->
                         viewModel.onEvent(
                             SettingsScreenEvent.OnFeedPostListItemVariantSelected(
-                                variant
-                            )
+                                variant,
+                            ),
                         )
                     },
                     onArticleSettingsClick = {
                         viewModel.onEvent(SettingsScreenEvent.OnArticleSettingsClicked)
-                    }
+                    },
                 )
             }
-            item {
+            item(key = "data-and-sync") {
                 Column {
                     SettingsSectionHeading(title = stringResource(stringRes.data_and_sync))
                     SettingsSubPageLink(stringResource(stringRes.import_feeds)) {
@@ -105,34 +109,47 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                         supportingText = stringResource(stringRes.update_feeds_in_background),
                     ) {
                         viewModel.onEvent(
-                            SettingsScreenEvent.OnSyncInBackgroundToggled(it)
+                            SettingsScreenEvent.OnSyncInBackgroundToggled(it),
                         )
                     }
                 }
             }
-            item {
+            item(key = "privacy-and-diagnostics") {
+                TelemetrySettingsSection(
+                    crashReporting = state.crashReporting,
+                    performanceMetrics = state.performanceMetrics,
+                    loaded = state.isTelemetryConsentLoaded,
+                    saving = state.isSavingTelemetryConsent,
+                    error = state.telemetryConsentError,
+                    onCrashReportingChanged = {
+                        viewModel.onEvent(SettingsScreenEvent.OnTelemetryConsentChanged(crashReporting = it, performanceMetrics = state.performanceMetrics))
+                    },
+                    onPerformanceMetricsChanged = {
+                        viewModel.onEvent(SettingsScreenEvent.OnTelemetryConsentChanged(crashReporting = state.crashReporting, performanceMetrics = it))
+                    },
+                    onRetry = { viewModel.onEvent(SettingsScreenEvent.OnRetryTelemetryConsent) },
+                )
+            }
+            item(key = "others") {
                 OthersSection(
                     onLicensesClick = {
                         viewModel.onEvent(SettingsScreenEvent.OnLicensesClicked)
-                    }
+                    },
                 )
             }
-            item {
+            item(key = "developer-settings") {
                 DeveloperSettingsSection(
                     onDesignSystemBoardClick = {
                         viewModel.onEvent(SettingsScreenEvent.OnDesignSystemBoardClicked)
-                    }
+                    },
                 )
             }
-            item {
-                Spacer(Modifier.height(LocalDPSpacing.current.listItemHeight * 2))
-            }
-            item {
+            item(key = "version") {
                 Column(
                     modifier = Modifier.fillMaxWidth()
-                        .padding(bottom = LocalDPSpacing.current.listItemHeight),
+                        .padding(top = spacing.sectionGap),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.sm),
+                    verticalArrangement = Arrangement.spacedBy(spacing.sm),
                 ) {
                     Icon(
                         imageVector = DPIcons.devPulseIconLarge(),
@@ -142,7 +159,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                     DPTextView(
                         text = "v${BuildKonfigCommon.APP_VERSION}",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        variant = DPTextViewVariant.LabelMedium
+                        variant = DPTextViewVariant.LabelMedium,
                     )
                 }
             }

@@ -160,6 +160,7 @@ fun monoFontFamily() = FontFamily(
     Font(Res.font.dmmono_medium, FontWeight.Medium),
 )
 
+@Suppress("ktlint:standard:property-naming")
 class DPTextVariants(
     displayFont: FontFamily,
     bodyFont: FontFamily,
@@ -230,44 +231,44 @@ class DPTextVariants(
     val BodyLarge = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W400,
-        fontSize = 17.sp,
-        lineHeight = 26.sp,
-        letterSpacing = 0.1.sp,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp,
     )
     val BodyMedium = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W400,
-        fontSize = 15.sp,
-        lineHeight = 22.sp,
-        letterSpacing = 0.1.sp,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.25.sp,
     )
     val BodySmall = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W400,
         fontSize = 12.sp,
-        lineHeight = 18.sp,
-        letterSpacing = 0.1.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.4.sp,
     )
     val LabelLarge = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W500,
-        fontSize = 15.sp,
+        fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp,
     )
     val LabelMedium = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W500,
-        fontSize = 13.sp,
-        lineHeight = 18.sp,
-        letterSpacing = 0.1.sp,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp,
     )
     val LabelSmall = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W500,
-        fontSize = 12.sp,
-        lineHeight = 18.sp,
-        letterSpacing = 0.1.sp,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp,
     )
     val DisplayLargeEmphasized = TextStyle(
         fontFamily = displayFont,
@@ -335,44 +336,44 @@ class DPTextVariants(
     val BodyLargeEmphasized = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W500,
-        fontSize = 17.sp,
-        lineHeight = 26.sp,
-        letterSpacing = 0.1.sp,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp,
     )
     val BodyMediumEmphasized = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W500,
-        fontSize = 15.sp,
-        lineHeight = 22.sp,
-        letterSpacing = 0.1.sp,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.25.sp,
     )
     val BodySmallEmphasized = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W500,
         fontSize = 12.sp,
-        lineHeight = 18.sp,
-        letterSpacing = 0.1.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.4.sp,
     )
     val LabelLargeEmphasized = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W700,
-        fontSize = 15.sp,
+        fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp,
     )
     val LabelMediumEmphasized = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W700,
-        fontSize = 13.sp,
-        lineHeight = 18.sp,
-        letterSpacing = 0.1.sp,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp,
     )
     val LabelSmallEmphasized = TextStyle(
         fontFamily = bodyFont,
         fontWeight = FontWeight.W700,
-        fontSize = 12.sp,
-        lineHeight = 18.sp,
-        letterSpacing = 0.1.sp,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp,
     )
 }
 
@@ -420,4 +421,3 @@ fun appTypography(): Typography {
         labelSmallEmphasized = variants.LabelSmallEmphasized,
     )
 }
-

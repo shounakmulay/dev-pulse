@@ -2,7 +2,6 @@ package dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.component
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,22 +30,20 @@ import org.jetbrains.compose.resources.stringResource
 internal fun AppearanceSettingsSection(
     selectedVariant: FeedsPostListItemVariant,
     onVariantSelected: (FeedsPostListItemVariant) -> Unit,
-    onArticleSettingsClick: () -> Unit
+    onArticleSettingsClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier,
-        verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.sm)
-    ) {
+    val spacing = LocalDPSpacing.current
+    Column {
         SettingsSectionHeading(stringResource(stringRes.appearance))
         SettingsSubPageLink(
             headlineText = stringResource(stringRes.article_reader),
-            onClick = onArticleSettingsClick
+            onClick = onArticleSettingsClick,
         )
         var bookmarked by remember { mutableStateOf(false) }
         DPButtonGroup(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = LocalDPSpacing.current.md)
+                .padding(horizontal = spacing.screenHorizontal, vertical = spacing.sm)
                 .horizontalScroll(rememberScrollState()),
             overflowIndicator = {},
         ) {
@@ -60,19 +57,19 @@ internal fun AppearanceSettingsSection(
                         if (checked) {
                             onVariantSelected(variant)
                         }
-                    }
+                    },
                 )
             }
         }
         FeedPostListItem(
-            modifier = Modifier.padding(horizontal = LocalDPSpacing.current.md)
+            modifier = Modifier.padding(horizontal = spacing.screenHorizontal)
                 .animateContentSize(),
             variant = selectedVariant,
             showImage = true,
             title = TextResource.fromText("As We May Think"),
             description = TextResource.fromText(
                 "Vannevar Bush imagines the memex, a device for storing and linking books, records, " +
-                        "and communications to help people explore knowledge and extend their memory."
+                    "and communications to help people explore knowledge and extend their memory.",
             ),
             context = null,
             imageUrl = "https://cdn.theatlantic.com/thumbor/bZX1oW71zQgJwzuSKMaGQSW7_w8=/1x416:2999x2102/976x549/media/img/2018/03/AP_413517775098/original.jpg",
@@ -83,7 +80,7 @@ internal fun AppearanceSettingsSection(
             createdAt = "July 1945",
             bookmarked = bookmarked,
             onBookmarkChanged = { bookmarked = it },
-            onPostClick = {}
+            onPostClick = {},
         )
     }
 }

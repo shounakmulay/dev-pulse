@@ -1,11 +1,11 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components
 
-import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -28,6 +28,7 @@ import androidx.paging.compose.itemKey
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
@@ -58,13 +59,13 @@ internal fun FeedPostList(
     onFilterUpdated: (RssPostFilter) -> Unit,
     onSortUpdated: (UIPostSort) -> Unit,
     clearFilters: () -> Unit,
-    postListItemVariant: FeedsPostListItemVariant
+    postListItemVariant: FeedsPostListItemVariant,
 ) {
     LazyVerticalGrid(
         modifier = Modifier.fillMaxWidth(),
         state = lazyGridState,
         columns = GridCells.Adaptive(300.dp),
-        contentPadding = PaddingValues(LocalDPSpacing.current.md),
+        contentPadding = PaddingValues(vertical = LocalDPSpacing.current.md),
         horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
         verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
     ) {
@@ -75,12 +76,12 @@ internal fun FeedPostList(
                         .matchParentSize()
                         .blur(
                             radius = 32.dp,
-                            edgeTreatment = BlurredEdgeTreatment.Unbounded
+                            edgeTreatment = BlurredEdgeTreatment.Unbounded,
                         )
                         .alpha(0.1f),
                     url = uiFeed.websiteImageUrl.orEmpty(),
                     contentScale = ContentScale.FillBounds,
-                    contentDescription = ""
+                    contentDescription = "",
                 )
                 FeedHeader(uiFeed, feed)
             }
@@ -91,13 +92,14 @@ internal fun FeedPostList(
                 state = postSortAndFilterState,
                 onFilterUpdated = onFilterUpdated,
                 onSortUpdated = onSortUpdated,
-                clearFilters = clearFilters
+                clearFilters = clearFilters,
             )
         }
 
         if (posts.loadState.refresh is LoadState.NotLoading && posts.itemCount == 0) {
             postsListEmptyMessage(
-                readStatus = postSortAndFilterState.filters.filterIsInstance<RssPostFilter.ReadStatus>().firstOrNull()?.value,
+                readStatus = postSortAndFilterState.filters.filterIsInstance<RssPostFilter.ReadStatus>()
+                    .firstOrNull()?.value,
                 showAllPosts = { onFilterUpdated(RssPostFilter.ReadStatus(null)) },
                 clearFilters = clearFilters,
             )
@@ -105,18 +107,19 @@ internal fun FeedPostList(
 
         items(
             count = posts.itemCount,
-            key = posts.itemKey { it.id.value }
+            key = posts.itemKey { it.id.value },
         ) { index ->
             val post = posts[index]
             if (post != null) {
                 FeedPostListItem(
-                    modifier = Modifier.animateItem(),
+                    modifier = Modifier.padding(horizontal = LocalDPSpacing.current.sm)
+                        .animateItem(),
                     post = post,
                     onReadChanged = onReadChanged,
                     showImage = true,
                     onPostClick = onPostClick,
                     onBookmarkChanged = onBookmarkChanged,
-                    variant = postListItemVariant
+                    variant = postListItemVariant,
                 )
             }
         }
