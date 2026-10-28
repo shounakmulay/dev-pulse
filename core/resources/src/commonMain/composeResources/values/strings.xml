@@ -113,7 +113,7 @@
     <string name="post_search">Search posts</string>
     <string name="post_search_minimum_length">Enter at least 3 characters</string>
     <string name="post_search_error">Unable to search posts. Try again.</string>
-    <string name="data_and_sync">Data and Sync</string>
+    <string name="data_and_sync">Data &amp; Sync</string>
     <string name="sync_in_background">Sync in background</string>
     <string name="update_feeds_in_background">Update feeds periodically in the background</string>"
     <string name="view_on_github">View on GitHub</string>
@@ -162,4 +162,23 @@
     <string name="retry">Retry</string>
     <string name="post_read_filter_empty_hint">Show all reading states, or adjust your filters.</string>
     <string name="open_feed">Open feed</string>
+    <string name="telemetry_help_title">Help improve DevPulse</string>
+    <string name="telemetry_settings_title">Privacy &amp; diagnostics</string>
+    <string name="telemetry_intro">Choose whether to share crash reports and app usage and performance data</string>
+    <string name="telemetry_crash_title">Crash reports</string>
+    <string name="telemetry_performance_title">Usage &amp; performance</string>
+    <string name="telemetry_save">Save choices</string>
+    <string name="telemetry_decline">No thanks</string>
+    <string name="telemetry_privacy_policy">Privacy policy</string>
+    <string name="telemetry_callout_summary">Optional diagnostics. Off by default.</string>
+    <string name="telemetry_crash_description">Crash details to help find and fix problems.</string>
+    <string name="telemetry_performance_description">App interactions and performance measurements to help improve DevPulse.</string>
+    <string name="telemetry_restart_notice">Turning off crash reporting takes full effect after restarting. Enabling it may send retained reports.</string>
+    <string name="telemetry_settings_intro">Choose what to share.</string>
+    <string name="telemetry_settings_hint">DevPulse works normally with both options off.</string>
+    <string name="telemetry_change_hint">Change your choices anytime in Settings.</string>
+    <string name="telemetry_saving">Saving choices…</string>
+    <string name="telemetry_loading">Loading choices…</string>
+    <string name="telemetry_retry">Try again</string>
+    <string name="telemetry_error">Could not load or save diagnostics preferences. Please try again.</string>
 </resources>

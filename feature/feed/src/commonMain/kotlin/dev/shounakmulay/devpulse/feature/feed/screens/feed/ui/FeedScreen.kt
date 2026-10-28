@@ -6,13 +6,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
+import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonVariant
+import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs
@@ -24,12 +30,14 @@ import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
 import dev.shounakmulay.devpulse.core.ui.text.resolve
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedDeleteConfirmation
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsState
+import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.TelemetryConsentBanner
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.feeds.feedsSection
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.postsSection
 
 @OptIn(
-    ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3ExpressiveApi::class
+    ExperimentalMaterial3AdaptiveApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3ExpressiveApi::class,
 )
 @Composable
 fun FeedScreen(
@@ -40,12 +48,30 @@ fun FeedScreen(
     val sharingService = rememberSharingService(onCopiedToClipboard = {})
     Screen(
         viewModel = viewModel,
+        topAppBar = {
+            TopAppBar(title = {
+                Icon(
+                    imageVector = DPIcons.devPulseIconLarge(),
+                    contentDescription = "DevPulse",
+                    tint = Color.Unspecified,
+                )
+            }, actions = {
+                DPIconButton(
+                    icon = DPIcons.UserSettings,
+                    variant = DPIconButtonVariant.Secondary,
+                    contentDescription = "",
+                    onClick = { navigator.navigate(Screen.Settings, onRootStack = true) },
+                )
+            })
+        },
         onEffect = {
             when (it) {
                 is FeedScreenEffect.Share -> sharingService.share(text = it.text.resolve())
+
                 is FeedScreenEffect.ShowToast -> {
                     snackbarController.showSnackbar(it.message.resolve())
                 }
+
                 else -> viewModel.unhandledEffect(it)
             }
         },
@@ -69,8 +95,18 @@ fun FeedScreen(
             modifier = Modifier.fillMaxWidth(),
             state = listState,
             horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(bottom = 100.dp)
+            contentPadding = PaddingValues(bottom = 100.dp),
         ) {
+            if (state.isTelemetryConsentLoaded && state.telemetryConsent == null) {
+                item(key = "telemetry-consent") {
+                    TelemetryConsentBanner(
+                        saving = state.isSavingTelemetryConsent,
+                        onSave = { crashReporting, performanceMetrics ->
+                            viewModel.onEvent(FeedScreenEvent.SaveTelemetryConsent(crashReporting, performanceMetrics))
+                        },
+                    )
+                }
+            }
             feedsSection(
                 pinnedAndRecentFeeds = pinnedAndRecentFeeds,
                 isFeedLoading = state.isFeedLoading,
@@ -100,27 +136,14 @@ fun FeedScreen(
                     viewModel.onEvent(
                         FeedScreenEvent.OnPostBookmarkChanged(
                             postId = post.id,
-                            bookmarked = bookmarked
-                        )
+                            bookmarked = bookmarked,
+                        ),
                     )
                 },
                 onViewAll = {
                     navigator.navigate(PostList(PostList.PostListLaunchData.All))
-                }
+                },
             )
-//            stickyHeader {
-//                DPSectionDivider(
-//                    title = stringResource(stringRes.folders)
-//                ) {
-//                    DPButton(
-//                        text = stringResource(stringRes.feed_view_all),
-//                        onClick = {},
-//                        variant = DPButtonVariant.Secondary,
-//                        style = DPButtonStyle.Text,
-//                        size = DPSize.Small
-//                    )
-//                }
-//            }
         }
     }
 }
