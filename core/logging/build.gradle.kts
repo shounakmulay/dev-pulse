@@ -19,6 +19,7 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.crashlytics)
             implementation(libs.firebase.performance)
+            implementation(libs.firebase.analytics)
         }
 
         commonTest.dependencies {

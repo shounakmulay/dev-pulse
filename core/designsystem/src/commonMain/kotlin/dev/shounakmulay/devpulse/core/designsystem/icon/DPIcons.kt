@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.RssFeed
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.Sync
@@ -73,7 +74,7 @@ object DPIcons {
         }
     }
 
-    val UserSettings = UserSettingsIcon
+    val UserSettings = Icons.Default.Settings
     val RssFeed = Icons.Default.RssFeed
     val Article = Icons.AutoMirrored.Default.Article
     val Read = Icons.Default.Visibility

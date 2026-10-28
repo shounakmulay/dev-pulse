@@ -4,7 +4,12 @@ import androidx.lifecycle.viewModelScope
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SetFeedPinnedUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.domain.settings.telemetry.ObserveTelemetryConsentUseCase
+import dev.shounakmulay.devpulse.core.domain.settings.telemetry.SetTelemetryConsentUseCase
+import dev.shounakmulay.devpulse.core.logging.consent.DPAnalyticsConsent
+import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
+import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenuItem
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenuProcessor
@@ -14,6 +19,7 @@ import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.toFeedOptio
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import devpulse.core.resources.generated.resources.telemetry_error
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onEach
@@ -28,9 +34,37 @@ class FeedViewModel(
     private val postInteractor: PostInteractor,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val setFeedPinnedUseCase: SetFeedPinnedUseCase,
-    private val feedOptionsMenuProcessor: FeedOptionsMenuProcessor
+    observeTelemetryConsentUseCase: ObserveTelemetryConsentUseCase,
+    private val setTelemetryConsentUseCase: SetTelemetryConsentUseCase,
+    private val feedOptionsMenuProcessor: FeedOptionsMenuProcessor,
 ) : MviViewModel<FeedScreenState, FeedScreenEffect>(FeedScreenState()),
     EventHandler<FeedScreenEvent> {
+
+    init {
+        viewModelScope.launch {
+            observeTelemetryConsentUseCase().collect { result ->
+                result.onSuccess { consent ->
+                    setState { copy(telemetryConsent = consent, isTelemetryConsentLoaded = true) }
+                }.onFailure {
+                    postEffect(FeedScreenEffect.ShowToast(TextResource.fromStringRes(stringRes.telemetry_error)))
+                }
+            }
+        }
+    }
+
+    private fun saveTelemetryConsent(event: FeedScreenEvent.SaveTelemetryConsent) = intent {
+        if (state.isSavingTelemetryConsent || !state.isTelemetryConsentLoaded) return@intent
+        setState { copy(isSavingTelemetryConsent = true) }
+        val consent = DPAnalyticsConsent(
+            crashReporting = event.crashReporting,
+            usageAnalytics = event.performanceMetrics,
+            performanceMetrics = event.performanceMetrics,
+        )
+        setTelemetryConsentUseCase(consent).onFailure {
+            postEffect(FeedScreenEffect.ShowToast(TextResource.fromStringRes(stringRes.telemetry_error)))
+        }
+        setState { copy(isSavingTelemetryConsent = false) }
+    }
 
     override fun createStateSerializer() = FeedScreenState.serializer()
 
@@ -39,14 +73,14 @@ class FeedViewModel(
         .onEach {
             setState {
                 copy(
-                    isFeedLoading = false
+                    isFeedLoading = false,
                 )
             }
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = persistentListOf()
+            initialValue = persistentListOf(),
         )
 
     val recentArticles = postInteractor
@@ -54,14 +88,14 @@ class FeedViewModel(
         .onEach {
             setState {
                 copy(
-                    isArticlesLoading = false
+                    isArticlesLoading = false,
                 )
             }
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = persistentListOf()
+            initialValue = persistentListOf(),
         )
 
     private fun setPostRead(postId: UUID, isRead: Boolean) {
@@ -72,26 +106,34 @@ class FeedViewModel(
 
     override fun onEvent(event: FeedScreenEvent) {
         when (event) {
+            is FeedScreenEvent.SaveTelemetryConsent -> saveTelemetryConsent(event)
+
             is FeedScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)
+
             FeedScreenEvent.ConfirmDelete -> confirmDelete()
+
             FeedScreenEvent.DismissDelete -> intent {
                 if (state.feedOptions is FeedOptionsState.ConfirmingDelete) {
                     setState { copy(feedOptions = null) }
                 }
             }
+
             is FeedScreenEvent.OnFeedOptionSelected -> selectFeedOption(event.feedId, event.menuItem)
+
             is FeedScreenEvent.OnFeedLongClick -> showFeedOptions(event.feed)
+
             is FeedScreenEvent.OnPostBookmarkChanged -> onPostBookmarkChanged(
                 postId = event.postId,
-                bookmarked = event.bookmarked
+                bookmarked = event.bookmarked,
             )
 
             is FeedScreenEvent.OnFeedPinChanged -> onFeedPinChanged(
                 feedId = event.feedId,
-                pinned = event.pinned
+                pinned = event.pinned,
             )
 
             is FeedScreenEvent.OnShowFeedOptions -> showFeedOptions(event.feed)
+
             is FeedScreenEvent.HideFeedOptions -> dismissFeedOptions(event.feedId)
         }
     }

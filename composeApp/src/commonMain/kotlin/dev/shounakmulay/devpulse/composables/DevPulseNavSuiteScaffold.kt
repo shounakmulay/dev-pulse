@@ -40,7 +40,7 @@ internal fun DevPulseNavSuiteScaffold(
     navigationState: NavigationState,
     navigator: Navigator,
     windowAdaptiveInfo: WindowAdaptiveInfo,
-    navigationSuiteLayoutType: NavigationSuiteType
+    navigationSuiteLayoutType: NavigationSuiteType,
 ) {
     val haptic = LocalHapticFeedback.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -55,9 +55,9 @@ internal fun DevPulseNavSuiteScaffold(
                 tabRoutes = tabRoutes,
                 navigationState = navigationState,
                 haptic = haptic,
-                navigator = navigator
+                navigator = navigator,
             )
-        }
+        },
     ) {
         CompositionLocalProvider(LocalSnackbarController provides snackbarController) {
             Box(Modifier.fillMaxSize()) {
@@ -66,7 +66,7 @@ internal fun DevPulseNavSuiteScaffold(
                     navigator = navigator,
                     tabRoutes = tabRoutes,
                     windowAdaptiveInfo = windowAdaptiveInfo,
-                    navigationSuiteType = navigationSuiteLayoutType
+                    navigationSuiteType = navigationSuiteLayoutType,
                 )
                 DPSnackbarHost(
                     hostState = snackbarHostState,
@@ -82,7 +82,7 @@ private fun NavigationSuiteTabs(
     tabRoutes: PersistentSet<Screen>,
     navigationState: NavigationState,
     haptic: HapticFeedback,
-    navigator: Navigator
+    navigator: Navigator,
 ) {
     tabRoutes.forEach { tab ->
         NavigationSuiteItem(
@@ -106,7 +106,7 @@ private fun NavigationSuiteTabs(
                         else -> Icons.Default.ExpandMore
                     },
                     contentDescription = "",
-                    tint = if (tab == Screen.Tabs.Home) Color.Unspecified else LocalContentColor.current
+                    tint = if (tab == Screen.Tabs.Home) Color.Unspecified else LocalContentColor.current,
                 )
             },
             label = null,
