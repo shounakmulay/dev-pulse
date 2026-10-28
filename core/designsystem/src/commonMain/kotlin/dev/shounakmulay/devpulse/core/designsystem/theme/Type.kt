@@ -160,6 +160,7 @@ fun monoFontFamily() = FontFamily(
     Font(Res.font.dmmono_medium, FontWeight.Medium),
 )
 
+@Suppress("ktlint:standard:property-naming")
 class DPTextVariants(
     displayFont: FontFamily,
     bodyFont: FontFamily,
@@ -420,4 +421,3 @@ fun appTypography(): Typography {
         labelSmallEmphasized = variants.LabelSmallEmphasized,
     )
 }
-
