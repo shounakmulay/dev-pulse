@@ -1,0 +1,16 @@
+package dev.shounakmulay.devpulse.core.logging.consent
+
+import kotlinx.coroutines.flow.Flow
+
+data class DPAnalyticsConsent(
+    val crashReporting: Boolean,
+    val usageAnalytics: Boolean,
+    val performanceMetrics: Boolean,
+)
+
+interface AnalyticsConsentProvider {
+    fun getConsent(): DPAnalyticsConsent?
+    fun observeConsent(): Flow<DPAnalyticsConsent?>
+}
+
+expect fun applyTelemetryConsent(consent: DPAnalyticsConsent)

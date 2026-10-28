@@ -1,12 +1,17 @@
 package dev.shounakmulay.devpulse.core.logging.performance
 
+import dev.shounakmulay.devpulse.core.logging.consent.AnalyticsConsentProvider
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.concurrent.Volatile
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
-object DPPerformance {
+object DPPerformance : KoinComponent {
     @Volatile
     private var sinks: List<PerformanceSink>? = null
+
+    private val analyticsConsentProvider by inject<AnalyticsConsentProvider>()
 
     fun configure(sinks: List<PerformanceSink>) {
         this.sinks = sinks
@@ -16,6 +21,8 @@ object DPPerformance {
         trace: DPPerformanceTrace,
         data: Map<String, String> = emptyMap(),
     ): PerformanceTrace {
+        if (analyticsConsentProvider.getConsent()?.performanceMetrics != true) return NoOpPerformanceTrace
+
         val configuredSinks = requireNotNull(sinks) {
             "DPPerformance configuration is missing. Did you call DPPerformance.configure()"
         }
@@ -57,4 +64,8 @@ private class ActivePerformanceTrace(traces: List<PerformanceTrace>) : Performan
             }
         }
     }
+}
+
+private object NoOpPerformanceTrace : PerformanceTrace {
+    override fun stop() = Unit
 }
