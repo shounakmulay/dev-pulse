@@ -30,14 +30,14 @@ import org.jetbrains.compose.resources.stringResource
 internal fun AppearanceSettingsSection(
     selectedVariant: FeedsPostListItemVariant,
     onVariantSelected: (FeedsPostListItemVariant) -> Unit,
-    onArticleSettingsClick: () -> Unit
+    onArticleSettingsClick: () -> Unit,
 ) {
     val spacing = LocalDPSpacing.current
     Column {
         SettingsSectionHeading(stringResource(stringRes.appearance))
         SettingsSubPageLink(
             headlineText = stringResource(stringRes.article_reader),
-            onClick = onArticleSettingsClick
+            onClick = onArticleSettingsClick,
         )
         var bookmarked by remember { mutableStateOf(false) }
         DPButtonGroup(
@@ -57,7 +57,7 @@ internal fun AppearanceSettingsSection(
                         if (checked) {
                             onVariantSelected(variant)
                         }
-                    }
+                    },
                 )
             }
         }
@@ -69,7 +69,7 @@ internal fun AppearanceSettingsSection(
             title = TextResource.fromText("As We May Think"),
             description = TextResource.fromText(
                 "Vannevar Bush imagines the memex, a device for storing and linking books, records, " +
-                        "and communications to help people explore knowledge and extend their memory."
+                    "and communications to help people explore knowledge and extend their memory.",
             ),
             context = null,
             imageUrl = "https://cdn.theatlantic.com/thumbor/bZX1oW71zQgJwzuSKMaGQSW7_w8=/1x416:2999x2102/976x549/media/img/2018/03/AP_413517775098/original.jpg",
@@ -80,7 +80,7 @@ internal fun AppearanceSettingsSection(
             createdAt = "July 1945",
             bookmarked = bookmarked,
             onBookmarkChanged = { bookmarked = it },
-            onPostClick = {}
+            onPostClick = {},
         )
     }
 }

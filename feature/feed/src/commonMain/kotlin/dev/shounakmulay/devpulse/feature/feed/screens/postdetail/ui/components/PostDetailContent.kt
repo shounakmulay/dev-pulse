@@ -57,7 +57,7 @@ internal fun PostDetailContent(
     onOpenInWebView: (String) -> Unit,
     onOpenContentTextSettings: () -> Unit,
     onImageClick: (link: String) -> Unit,
-    onNavigateToFeed: (UUID) -> Unit
+    onNavigateToFeed: (UUID) -> Unit,
 ) {
     val markdown = readerBodyMarkdown(
         section = state.selectedSection,
@@ -76,18 +76,18 @@ internal fun PostDetailContent(
             postDetailContentHeader(
                 post = state.post,
                 onImageClick = onImageClick,
-                onFeedClick = onNavigateToFeed
+                onFeedClick = onNavigateToFeed,
             )
             postDetailContentHeaderActions(
                 onReadChanged = onReadChanged,
                 post = state.post,
                 onBookmarkChanged = onBookmarkChanged,
                 onOpenInWebView = onOpenInWebView,
-                onOpenContentTextSettings = onOpenContentTextSettings
+                onOpenContentTextSettings = onOpenContentTextSettings,
             )
         },
         footer = { },
-        onImageClick = onImageClick
+        onImageClick = onImageClick,
     )
 }
 
@@ -106,22 +106,22 @@ private fun LazyListScope.postDetailContentHeaderActions(
             Row(
                 modifier = Modifier.fillMaxWidth().padding(
                     vertical = LocalDPSpacing.current.xs,
-                    horizontal = LocalDPSpacing.current.xxs
+                    horizontal = LocalDPSpacing.current.xxs,
                 ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row(
                     Modifier.padding(
-                        end = LocalDPSpacing.current.sm
-                    )
+                        end = LocalDPSpacing.current.sm,
+                    ),
                 ) {
                     if (expandablePaneContext != null) {
                         DPIconButton(
                             icon = if (expandablePaneContext.isExpanded) DPIcons.CollapseContent else DPIcons.ExpandContent,
                             contentDescription = "",
                             size = DPSize.Small,
-                            onClick = expandablePaneContext.onToggleExpanded
+                            onClick = expandablePaneContext.onToggleExpanded,
                         )
                     }
                     DPIconButton(
@@ -129,7 +129,7 @@ private fun LazyListScope.postDetailContentHeaderActions(
                         variant = DPIconButtonVariant.Tertiary,
                         contentDescription = "",
                         size = DPSize.Small,
-                        onClick = onOpenContentTextSettings
+                        onClick = onOpenContentTextSettings,
                     )
                 }
                 Row(
@@ -137,16 +137,16 @@ private fun LazyListScope.postDetailContentHeaderActions(
                         .weight(1f, fill = false)
                         .padding(
                             start = LocalDPSpacing.current.sm,
-                        )
+                        ),
                 ) {
                     val sharingService = rememberSharingService {
-                        //TODO : Show toast
+                        // TODO : Show toast
                     }
 
                     DPIconButton(
                         icon = if (post.bookmarked) DPIcons.BookmarkAdded else DPIcons.BookmarkAddOutline,
                         contentDescription = "",
-                        size = DPSize.Small
+                        size = DPSize.Small,
                     ) {
                         onBookmarkChanged(!post.bookmarked)
                     }
@@ -157,7 +157,7 @@ private fun LazyListScope.postDetailContentHeaderActions(
                         onShare = {
                             sharingService.share(
                                 text = post.title,
-                                link = post.articleUrl ?: post.sourceUrl ?: post.sourceName
+                                link = post.articleUrl ?: post.sourceUrl ?: post.sourceName,
                             )
                         },
                         onOpenInBrowser = {
@@ -173,7 +173,7 @@ private fun LazyListScope.postDetailContentHeaderActions(
 private fun LazyListScope.postDetailContentHeader(
     post: UIFeedPost?,
     onImageClick: (String) -> Unit,
-    onFeedClick: (UUID) -> Unit
+    onFeedClick: (UUID) -> Unit,
 ) {
     if (post == null) return
     item("ArticleHeader") {
@@ -189,35 +189,35 @@ private fun LazyListScope.postDetailContentHeader(
                         .clip(MaterialTheme.shapes.large)
                         .sharedBounds(
                             key = "Image${post.imageUrl}",
-                            clipShape = MaterialTheme.shapes.large
+                            clipShape = MaterialTheme.shapes.large,
                         ),
                     url = post.imageUrl,
                     contentScale = ContentScale.FillWidth,
-                    contentDescription = ""
+                    contentDescription = "",
                 )
             }
             Spacer(Modifier.height(LocalDPSpacing.current.lg))
             DPTextView(
                 text = post.title,
                 variant = DPTextViewVariant.DisplaySmallEmphasized,
-                modifier = Modifier.padding()
+                modifier = Modifier.padding(),
             )
             Spacer(Modifier.height(LocalDPSpacing.current.md))
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Row(
                     modifier = Modifier
                         .weight(1f, fill = false)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = null
+                            indication = null,
                         ) {
                             onFeedClick(post.feed.id)
                         },
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     DPFeedImage(
                         url = post.feed.websiteImageUrl,
@@ -226,7 +226,7 @@ private fun LazyListScope.postDetailContentHeader(
                         modifier = Modifier
                             .size(LocalDPSpacing.current.lg)
                             .clip(CircleShape)
-                            .align(Alignment.CenterVertically)
+                            .align(Alignment.CenterVertically),
                     )
                     DPTextDot(Modifier.padding(horizontal = LocalDPSpacing.current.sm))
                     DPTextView(
@@ -234,7 +234,7 @@ private fun LazyListScope.postDetailContentHeader(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         variant = DPTextViewVariant.BodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 Spacer(Modifier.width(16.dp))
@@ -242,7 +242,7 @@ private fun LazyListScope.postDetailContentHeader(
                     DPTextView(
                         text = post.publishedText ?: post.createdAt,
                         variant = DPTextViewVariant.BodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

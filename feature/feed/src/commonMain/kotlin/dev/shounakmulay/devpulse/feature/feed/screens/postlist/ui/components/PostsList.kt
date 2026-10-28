@@ -67,7 +67,7 @@ internal fun PostsList(
                     } else {
                         Spacer(
                             Modifier.fillMaxWidth().height(4.dp)
-                                .background(MaterialTheme.colorScheme.background)
+                                .background(MaterialTheme.colorScheme.background),
                         )
                     }
                     PostSortAndFilters(
@@ -76,7 +76,6 @@ internal fun PostsList(
                             lazyGridState.requestScrollToItem(0)
                         },
                     )
-
                 }
             }
 
@@ -85,7 +84,7 @@ internal fun PostsList(
                     readStatus = readStatus,
                     showAllPosts = {
                         postSortAndFilterViewModel.onEvent(
-                            PostSortAndFilterEvent.OnFilterUpdated(RssPostFilter.ReadStatus(null))
+                            PostSortAndFilterEvent.OnFilterUpdated(RssPostFilter.ReadStatus(null)),
                         )
                     },
                     clearFilters = onClearFilters,
@@ -109,7 +108,7 @@ internal fun PostsList(
                             else -> FeedsPostListItemVariant.XS
                         },
                         onBookmarkChanged = onBookmarkChanged,
-                        onPostClick = { onPostClick(it.id) }
+                        onPostClick = { onPostClick(it.id) },
                     )
                 }
             }

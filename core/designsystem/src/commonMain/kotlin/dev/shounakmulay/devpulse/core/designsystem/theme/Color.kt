@@ -163,7 +163,7 @@ data class DPContextColors(
     val info: Color,
     val onInfo: Color,
     val infoContainer: Color,
-    val onInfoContainer: Color
+    val onInfoContainer: Color,
 )
 
 val lightDPContextColors = DPContextColors(
@@ -178,7 +178,7 @@ val lightDPContextColors = DPContextColors(
     info = infoLight,
     onInfo = onInfoLight,
     infoContainer = infoContainerLight,
-    onInfoContainer = onInfoContainerLight
+    onInfoContainer = onInfoContainerLight,
 )
 
 val darkDPContextColors = DPContextColors(
@@ -193,7 +193,7 @@ val darkDPContextColors = DPContextColors(
     info = infoDark,
     onInfo = onInfoDark,
     infoContainer = infoContainerDark,
-    onInfoContainer = onInfoContainerDark
+    onInfoContainer = onInfoContainerDark,
 )
 
 val LocalDPContextColors = compositionLocalOf { lightDPContextColors }

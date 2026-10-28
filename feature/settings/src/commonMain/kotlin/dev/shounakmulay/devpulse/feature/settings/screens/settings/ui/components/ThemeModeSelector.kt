@@ -27,7 +27,7 @@ import dev.shounakmulay.devpulse.core.domain.models.theme.ThemeMode
 @Composable
 internal fun ThemeModeSelector(
     selectedThemeMode: ThemeMode,
-    onValueSelected: (ThemeMode) -> Unit
+    onValueSelected: (ThemeMode) -> Unit,
 ) {
     val spacing = LocalDPSpacing.current
     val textMeasurer = rememberTextMeasurer()
@@ -36,7 +36,7 @@ internal fun ThemeModeSelector(
     val layoutDirection = LocalLayoutDirection.current
     val iconSize = SegmentedButtonDefaults.IconSize
     BoxWithConstraints(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = spacing.screenHorizontal, vertical = spacing.sm)
+        modifier = Modifier.fillMaxWidth().padding(horizontal = spacing.screenHorizontal, vertical = spacing.sm),
     ) {
         val showLabels = with(density) {
             val count = ThemeMode.entries.size
@@ -44,8 +44,8 @@ internal fun ThemeModeSelector(
             val width = (constraints.maxWidth + overlap * (count - 1)) / count
             val padding = SegmentedButtonDefaults.ContentPadding
             val contentInset = padding.calculateStartPadding(layoutDirection).roundToPx() +
-                    padding.calculateEndPadding(layoutDirection).roundToPx() +
-                    iconSize.roundToPx() + spacing.sm.roundToPx()
+                padding.calculateEndPadding(layoutDirection).roundToPx() +
+                iconSize.roundToPx() + spacing.sm.roundToPx()
             ThemeMode.entries.all { themeMode ->
                 val textWidth = textMeasurer.measure(
                     text = themeMode.label(),
@@ -65,7 +65,7 @@ internal fun ThemeModeSelector(
                     onClick = { onValueSelected(themeMode) },
                     shape = SegmentedButtonDefaults.itemShape(
                         index = index,
-                        count = ThemeMode.entries.size
+                        count = ThemeMode.entries.size,
                     ),
                     icon = {
                         val icon = when (themeMode) {
@@ -76,7 +76,7 @@ internal fun ThemeModeSelector(
                         Icon(
                             imageVector = icon,
                             modifier = Modifier.size(iconSize),
-                            contentDescription = themeMode.label()
+                            contentDescription = themeMode.label(),
                         )
                     },
                     label = {
@@ -84,20 +84,18 @@ internal fun ThemeModeSelector(
                             text = if (showLabels) themeMode.label() else "",
                             variant = DPTextViewVariant.LabelMedium,
                         )
-                    }
+                    },
                 )
             }
         }
     }
 }
 
-
-private fun ThemeMode.label(): String =
-    when (this) {
-        ThemeMode.LIGHT -> "Light"
-        ThemeMode.DARK -> "Dark"
-        ThemeMode.SYSTEM -> "System"
-    }
+private fun ThemeMode.label(): String = when (this) {
+    ThemeMode.LIGHT -> "Light"
+    ThemeMode.DARK -> "Dark"
+    ThemeMode.SYSTEM -> "System"
+}
 
 @DPComponentPreview
 @Composable
