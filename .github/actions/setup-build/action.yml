@@ -17,3 +17,8 @@ runs:
     - uses: android-actions/setup-android@v4
       with:
         log-accepted-android-sdk-licenses: 'false'
+    - name: Install the configured Android NDK
+      shell: bash
+      run: |
+        ndk_version=$(python3 -c 'import tomllib; print(tomllib.load(open("gradle/libs.versions.toml", "rb"))["versions"]["android-ndk"])')
+        sdkmanager "ndk;$ndk_version"
