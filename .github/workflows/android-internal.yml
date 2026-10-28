@@ -58,6 +58,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     environment: release-signing
+    permissions:
+      contents: read
+      id-token: write
     outputs:
       candidate: ${{ steps.build.outputs.candidate }}
     steps:
@@ -65,17 +68,57 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-build
+      - name: Select the configured Play authentication method
+        id: auth-mode
+        run: python3 -B .github/scripts/android_cd.py auth-mode
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      - uses: ./.github/actions/setup-play-auth
+        if: steps.auth-mode.outputs.mode == 'json'
+      - name: Authenticate with the Play service-account key
+        id: auth-json
+        if: steps.auth-mode.outputs.mode == 'json'
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          create_credentials_file: true
+          export_environment_variables: false
+      - name: Obtain a Play access token with the service-account key
+        id: auth-token
+        if: steps.auth-mode.outputs.mode == 'json'
+        run: python3 -B .github/scripts/android_cd.py play-token --credentials "${{ steps.auth-json.outputs.credentials_file_path }}"
+      - name: Authenticate with workload identity federation
+        id: auth-oidc
+        if: steps.auth-mode.outputs.mode == 'oidc'
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
+          create_credentials_file: true
+          export_environment_variables: false
+      - name: Restore this run's candidate when retrying
+        if: github.run_attempt > 1
+        continue-on-error: true
+        uses: actions/download-artifact@v6
+        with:
+          name: android-internal-candidate
+          path: ${{ runner.temp }}/android-candidate
       - name: Build and validate the signed production candidate
         id: build
         run: python3 -B .github/scripts/android_cd.py build --destination "${RUNNER_TEMP}/android-candidate"
         env:
-          ANDROID_VERSION_CODE_BASE: ${{ vars.ANDROID_VERSION_CODE_BASE }}
+          PLAY_ACCESS_TOKEN: ${{ steps.auth-token.outputs.access_token || steps.auth-oidc.outputs.access_token }}
           ANDROID_UPLOAD_CERT_SHA256: ${{ vars.ANDROID_UPLOAD_CERT_SHA256 }}
           ANDROID_UPLOAD_KEYSTORE_BASE64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
           ANDROID_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_STORE_PASSWORD }}
           ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
           ANDROID_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
       - uses: actions/upload-artifact@v7
+        if: steps.build.outputs.reused != 'true'
         with:
           name: android-internal-candidate
           path: |
@@ -168,12 +211,18 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Record the verified candidate as a GitHub prerelease
         run: python3 -B .github/scripts/android_cd.py record
+        env:
+          CANDIDATE_JSON: ${{ needs.build.outputs.candidate }}
+          GH_TOKEN: ${{ github.token }}
+      - name: Reconcile the published version code with main
+        run: python3 -B .github/scripts/android_cd.py reconcile-version
         env:
           CANDIDATE_JSON: ${{ needs.build.outputs.candidate }}
           GH_TOKEN: ${{ github.token }}
