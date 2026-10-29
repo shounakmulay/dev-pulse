@@ -61,8 +61,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    outputs:
-      candidate: ${{ steps.build.outputs.candidate }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -134,8 +132,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     environment: release-signing
-    env:
-      EXPECTED_CANDIDATE: ${{ needs.build.outputs.candidate }}
     permissions:
       contents: read
       id-token: write
@@ -216,13 +212,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - uses: actions/download-artifact@v6
+        with:
+          name: android-internal-candidate
+          path: ${{ runner.temp }}/android-candidate
       - name: Record the verified candidate as a GitHub prerelease
-        run: python3 -B .github/scripts/android_cd.py record
+        run: python3 -B .github/scripts/android_cd.py record --directory "${RUNNER_TEMP}/android-candidate"
         env:
-          CANDIDATE_JSON: ${{ needs.build.outputs.candidate }}
           GH_TOKEN: ${{ github.token }}
       - name: Reconcile the published version code with main
-        run: python3 -B .github/scripts/android_cd.py reconcile-version
+        run: python3 -B .github/scripts/android_cd.py reconcile-version --directory "${RUNNER_TEMP}/android-candidate"
         env:
-          CANDIDATE_JSON: ${{ needs.build.outputs.candidate }}
           GH_TOKEN: ${{ github.token }}

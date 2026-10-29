@@ -331,15 +331,11 @@ def build(root, destination):
         })
         shutil.copyfile(aab, destination / 'app.aab')
         (destination / 'candidate.json').write_text(candidate.json() + '\n')
-    output('candidate', candidate.json())
     summary(release_notes(candidate) + '\n\nThe build passed artifact validation. Device smoke and Play installation have not been run by this workflow.')
 
 
 def load_candidate(directory, expected_sha, expected_run):
     candidate = Candidate.parse(json.loads((directory / 'candidate.json').read_text()))
-    expected = os.environ.get('EXPECTED_CANDIDATE')
-    if expected and candidate != Candidate.parse(json.loads(expected)):
-        raise ReleaseError('Downloaded metadata does not match the candidate emitted by the build job.')
     if candidate.source_sha != expected_sha or candidate.run_id != expected_run:
         raise ReleaseError('Candidate provenance does not match this workflow run.')
     if sha256(directory / 'app.aab') != candidate.aab_sha256:
@@ -568,8 +564,10 @@ def main():
         command.add_argument('--directory', type=Path, required=True)
         if name == 'play-check':
             command.add_argument('--require-published', action='store_true')
-    commands.add_parser('record')
-    commands.add_parser('reconcile-version')
+    record_command = commands.add_parser('record')
+    record_command.add_argument('--directory', type=Path, required=True)
+    reconcile_command = commands.add_parser('reconcile-version')
+    reconcile_command.add_argument('--directory', type=Path, required=True)
     args = parser.parse_args()
     try:
         if args.command == 'preflight':
@@ -587,9 +585,9 @@ def main():
         elif args.command == 'play-check':
             play_check(args.directory, args.require_published)
         elif args.command == 'reconcile-version':
-            reconcile_version(Candidate.parse(json.loads(required('CANDIDATE_JSON'))))
+            reconcile_version(load_candidate(args.directory, required('GITHUB_SHA'), required('GITHUB_RUN_ID')))
         elif args.command == 'record':
-            record(Candidate.parse(json.loads(required('CANDIDATE_JSON'))))
+            record(load_candidate(args.directory, required('GITHUB_SHA'), required('GITHUB_RUN_ID')))
     except (ReleaseError, OSError, json.JSONDecodeError, ET.ParseError) as error:
         print(f'Android CD failed: {error}', file=sys.stderr)
         return 1
