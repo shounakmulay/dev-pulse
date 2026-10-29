@@ -1,5 +1,5 @@
 {
-  "originHash" : "c6a3fe88f11c76073b8e236f30149e9f686f538e646749b3d804cd41f9c9809b",
+  "originHash" : "be79fb11e598700202851d29075368c6925c53f4b0e5c4f9833eea0d06fdbd67",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -22,10 +22,10 @@
     {
       "identity" : "firebase-ios-sdk",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/firebase/firebase-ios-sdk.git",
+      "location" : "https://github.com/firebase/firebase-ios-sdk",
       "state" : {
-        "revision" : "dc5821fd8c986596363fef8feec4b0e8c1f0ded3",
-        "version" : "13.1.0"
+        "revision" : "dc6dfd442b1f3ec215ed62b8beb2623ffab010d6",
+        "version" : "13.1.1"
       }
     },
     {
@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/xberg-io/html-to-markdown",
       "state" : {
-        "revision" : "83e692102bceb8bb707c785abcc68f4f9749931b",
-        "version" : "3.10.4"
+        "revision" : "e23f0c0de1dab61aa2708a85e4205800caefa9ad",
+        "version" : "3.19.0"
       }
     },
     {
@@ -130,10 +130,10 @@
     {
       "identity" : "sqlite-vector",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sqliteai/sqlite-vector.git",
+      "location" : "https://github.com/sqliteai/sqlite-vector",
       "state" : {
-        "revision" : "b68d34ac66ccbdb781a161b0060dc07020f3cbb2",
-        "version" : "1.0.0"
+        "revision" : "0c2223ada9dce1fa33248c8835a15f51d9a0f655",
+        "version" : "1.1.2"
       }
     }
   ],
