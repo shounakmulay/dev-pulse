@@ -236,7 +236,7 @@ class AndroidCdTest(unittest.TestCase):
         self.assertFalse(signing_paths[0].exists())
         self.assertEqual(artifact, validator.call_args[0][0])
         self.assertEqual('109', str(validator.call_args[0][2]))
-        self.assertEqual(self.candidate().json(), self.output.read_text().strip()[len('candidate='):])
+        self.assertFalse(self.output.exists())
         self.assertEqual(1, sum(command[0] == 'bash' for command in calls))
 
     def test_given_restored_candidate_when_retrying_build_then_reuse_without_allocating(self):
