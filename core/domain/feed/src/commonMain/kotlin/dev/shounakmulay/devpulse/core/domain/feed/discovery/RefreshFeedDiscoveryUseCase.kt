@@ -12,6 +12,7 @@ import org.koin.core.annotation.Factory
 class RefreshFeedDiscoveryUseCase(
     private val feedDiscoveryRepository: FeedDiscoveryRepository,
     private val dispatcherProvider: DispatcherProvider,
+    private val dpEvent: DPEvent,
     logger: DPLogger,
 ) {
     private companion object {
@@ -23,9 +24,9 @@ class RefreshFeedDiscoveryUseCase(
     suspend operator fun invoke() = dispatcherProvider.runCatchingOnDefault {
         feedDiscoveryRepository.refresh()
     }.onSuccess {
-        DPEvent.track(DPEvents.DISCOVERY_FETCH_COMPLETED)
+        dpEvent.track(DPEvents.DISCOVERY_FETCH_COMPLETED)
     }.onFailure {
-        DPEvent.track(DPEvents.DISCOVERY_FETCH_FAILED)
+        dpEvent.track(DPEvents.DISCOVERY_FETCH_FAILED)
         log.e(it) { "Discovery catalog refresh failed" }
     }
 }

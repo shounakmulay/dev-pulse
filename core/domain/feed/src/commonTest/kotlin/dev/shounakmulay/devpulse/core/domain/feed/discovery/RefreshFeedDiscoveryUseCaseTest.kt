@@ -69,6 +69,7 @@ class RefreshFeedDiscoveryUseCaseTest {
     }
 
     private fun useCase(refresh: suspend () -> Unit) = RefreshFeedDiscoveryUseCase(
+        dpEvent = DPEvent,
         feedDiscoveryRepository = DiscoveryRepository(refresh),
         dispatcherProvider = object : DispatcherProvider {
             override val defaultDispatcher = Dispatchers.Unconfined

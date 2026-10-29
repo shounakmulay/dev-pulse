@@ -42,6 +42,7 @@ import kotlin.time.Duration.Companion.hours
 @Single(binds = [RssFeedQueueExecutor::class])
 internal class RssFeedQueueExecutorImpl(
     private val dispatcherProvider: DispatcherProvider,
+    private val dpEvent: DPEvent,
     private val feedRepository: FeedRepository,
     private val postRepository: PostRepository,
     private val feedSyncMetadataRepository: FeedSyncMetadataRepository,
@@ -156,7 +157,7 @@ internal class RssFeedQueueExecutorImpl(
         }
         feedSyncRepository.onImportFailed(entry = entry, metadata = null)
         if (entry.actionType == RssFeedQueueActionType.IMPORT) {
-            DPEvent.track(DPEvents.FEED_IMPORT_FAILED)
+            dpEvent.track(DPEvents.FEED_IMPORT_FAILED)
         }
         dispatcherProvider.runCatchingOnDefault {
             createSyncFailureMetadata(
@@ -206,7 +207,7 @@ internal class RssFeedQueueExecutorImpl(
             "Queue entry completed id=${entry.id} action=${entry.actionType} source=${entry.url.sourceSummary()}"
         }
         if (entry.actionType == RssFeedQueueActionType.IMPORT) {
-            DPEvent.track(DPEvents.FEED_IMPORT_COMPLETED)
+            dpEvent.track(DPEvents.FEED_IMPORT_COMPLETED)
         }
         return feed.id
     }

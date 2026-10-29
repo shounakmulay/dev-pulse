@@ -169,6 +169,7 @@ class RssFeedQueueExecutorTest {
             override fun generateFingerprint(vararg strings: String) = strings.joinToString()
         }
         val executor = RssFeedQueueExecutorImpl(
+            dpEvent = DPEvent,
             dispatcherProvider = TestDispatchers, feedRepository = feeds, postRepository = posts,
             feedSyncMetadataRepository = metadata, feedSyncRepository = sync, feedQueueRepository = queue,
             dateTimeProvider = time,
