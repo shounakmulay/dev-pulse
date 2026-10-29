@@ -1,20 +1,31 @@
 package dev.shounakmulay.devpulse.feature.feed.components.discovery
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import dev.shounakmulay.devpulse.core.designsystem.components.DPCircularProgressIndicator
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
@@ -23,8 +34,9 @@ import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.icon.DPIcons
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
-import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPContextColors
+import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
+import dev.shounakmulay.devpulse.core.designsystem.theme.iconSize
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.core.ui.text.asAnnotatedString
@@ -46,15 +58,15 @@ fun DiscoveryFeedRow(
     feed: UIDiscoveryFeed,
     pending: Boolean,
     onAdd: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
             .clickable(onClick = onClick)
-            .padding(DPTheme.spacing.lg),
-        horizontalArrangement = Arrangement.spacedBy(DPTheme.spacing.md),
+            .padding(LocalDPSpacing.current.lg),
+        horizontalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.md),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         DPFeedListItemImage(
@@ -96,7 +108,6 @@ private fun ColumnScope.DiscoveryFeedText(feed: UIDiscoveryFeed, descriptionLine
             overflow = TextOverflow.Ellipsis,
         )
     }
-
 }
 
 @Composable
@@ -105,67 +116,75 @@ fun DiscoveryFeedImportButton(
     pending: Boolean,
     onAdd: () -> Unit,
 ) {
-    val label = when {
-        pending -> stringRes.discovery_adding
-        state == UIDiscoveryFeedImportState.Added -> stringRes.discovery_added
-        state == UIDiscoveryFeedImportState.Adding -> stringRes.discovery_adding
-        state == UIDiscoveryFeedImportState.Queued -> stringRes.discovery_queued
-        state == UIDiscoveryFeedImportState.Failed -> stringRes.feed_action_retry
-        else -> stringRes.discovery_add
+    val displayState = when {
+        state == UIDiscoveryFeedImportState.Added || state == UIDiscoveryFeedImportState.Adding -> state
+        pending -> UIDiscoveryFeedImportState.Queued
+        else -> state
     }
-
-    DPIconButton(
-        icon = when (state) {
-            UIDiscoveryFeedImportState.Added -> DPIcons.Check
-            UIDiscoveryFeedImportState.Failed -> DPIcons.Refresh
-            else -> DPIcons.Add
+    val label = stringResource(
+        when (displayState) {
+            UIDiscoveryFeedImportState.Added -> stringRes.discovery_added
+            UIDiscoveryFeedImportState.Adding -> stringRes.discovery_adding
+            UIDiscoveryFeedImportState.Queued -> stringRes.discovery_queued
+            UIDiscoveryFeedImportState.Failed -> stringRes.feed_action_retry
+            UIDiscoveryFeedImportState.NotAdded -> stringRes.discovery_add
         },
-        contentDescription = stringResource(label),
-        size = DPSize.Small,
-        style = DPIconButtonStyle.Filled,
-        colors = if (state == UIDiscoveryFeedImportState.Added) IconButtonDefaults.iconButtonColors(
-            disabledContainerColor = LocalDPContextColors.current.successContainer,
-            disabledContentColor = LocalDPContextColors.current.onSuccessContainer
-        ) else null,
-        enabled = !pending && state in setOf(
-            UIDiscoveryFeedImportState.NotAdded,
-            UIDiscoveryFeedImportState.Queued,
-            UIDiscoveryFeedImportState.Failed
-        ),
-        onClick = onAdd,
     )
+    Box(
+        modifier = Modifier.size(LocalDPSpacing.current.touchTarget),
+        contentAlignment = Alignment.Center,
+    ) {
+        when (displayState) {
+            UIDiscoveryFeedImportState.Queued, UIDiscoveryFeedImportState.Adding -> {
+                Box(
+                    modifier = Modifier.matchParentSize().semantics {
+                        contentDescription = label
+                        liveRegion = LiveRegionMode.Polite
+                        if (displayState == UIDiscoveryFeedImportState.Adding) {
+                            progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate
+                        }
+                    },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (displayState == UIDiscoveryFeedImportState.Adding) {
+                        DPCircularProgressIndicator(
+                            modifier = Modifier.size(DPSize.Small.iconSize())
+                                .clearAndSetSemantics { },
+                        )
+                    } else {
+                        Image(
+                            imageVector = DPIcons.Pending,
+                            contentDescription = null,
+                            modifier = Modifier.size(DPSize.Small.iconSize()),
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
+                        )
+                    }
+                }
+            }
 
-//    DPButton(
-//        text = stringResource(label),
-//        style = when (state) {
-//            UIDiscoveryFeedImportState.Added -> DPButtonStyle.Outlined
-//            else -> DPButtonStyle.Filled
-//        },
-//        size = DPSize.Small,
-//        enabled = !pending && state in setOf(
-//            UIDiscoveryFeedImportState.NotAdded,
-//            UIDiscoveryFeedImportState.Queued,
-//            UIDiscoveryFeedImportState.Failed
-//        ),
-//        leadingIcon = when (state) {
-//            UIDiscoveryFeedImportState.Added -> DPIcons.Check
-//            else -> null
-//        },
-//        onClick = onAdd,
-//    )
+            else -> DPIconButton(
+                icon = when (displayState) {
+                    UIDiscoveryFeedImportState.Added -> DPIcons.Check
+                    UIDiscoveryFeedImportState.Failed -> DPIcons.Refresh
+                    else -> DPIcons.Add
+                },
+                contentDescription = label,
+                size = DPSize.Small,
+                style = DPIconButtonStyle.Filled,
+                colors = if (displayState == UIDiscoveryFeedImportState.Added) {
+                    IconButtonDefaults.iconButtonColors(
+                        disabledContainerColor = LocalDPContextColors.current.successContainer,
+                        disabledContentColor = LocalDPContextColors.current.onSuccessContainer,
+                    )
+                } else {
+                    null
+                },
+                enabled = displayState != UIDiscoveryFeedImportState.Added,
+                onClick = onAdd,
+            )
+        }
+    }
 }
-
-//@DPComponentPreview
-//@Composable
-//private fun DiscoveryFeedCardPreview() {
-//    Preview {
-//        DiscoveryFeedCard(
-//            feed = FeedPreviewData.discoveryFeed,
-//            pending = false,
-//            onAdd = {},
-//            onClick = {})
-//    }
-//}
 
 @DPComponentPreview
 @Composable
@@ -175,7 +194,8 @@ private fun DiscoveryFeedRowPreview() {
             feed = FeedPreviewData.discoveryFeed,
             pending = false,
             onAdd = {},
-            onClick = {})
+            onClick = {},
+        )
     }
 }
 
@@ -183,14 +203,15 @@ private fun DiscoveryFeedRowPreview() {
 @Composable
 private fun DiscoveryFeedImportStatesPreview() {
     Preview {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.sm)) {
             UIDiscoveryFeedImportState.entries.forEach { state ->
                 DiscoveryFeedImportButton(state = state, pending = false, onAdd = {})
             }
             DiscoveryFeedImportButton(
                 state = UIDiscoveryFeedImportState.NotAdded,
                 pending = true,
-                onAdd = {})
+                onAdd = {},
+            )
         }
     }
 }
