@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalUriHandler
+import dev.shounakmulay.devpulse.core.common.BuildEnvironment
 import dev.shounakmulay.devpulse.core.common.BuildKonfigCommon
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
@@ -137,7 +138,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                     },
                 )
             }
-            if (BuildKonfigCommon.ENVIRONMENT == "staging") {
+            if (BuildKonfigCommon.ENVIRONMENT == BuildEnvironment.STAGING) {
                 item(key = "developer-settings") {
                     DeveloperSettingsSection(
                         onDesignSystemBoardClick = {

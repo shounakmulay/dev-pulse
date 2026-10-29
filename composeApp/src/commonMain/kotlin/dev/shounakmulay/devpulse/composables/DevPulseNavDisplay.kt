@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.metadata
+import dev.shounakmulay.devpulse.core.common.BuildEnvironment
 import dev.shounakmulay.devpulse.core.common.BuildKonfigCommon
 import dev.shounakmulay.devpulse.core.navigation.NavDisplay
 import dev.shounakmulay.devpulse.core.navigation.NavigationState
@@ -37,7 +38,7 @@ internal fun DevPulseNavDisplay(
         windowAdaptiveInfo = windowAdaptiveInfo,
         navigationSuiteType = navigationSuiteType,
         entryProvider = {
-            if (BuildKonfigCommon.ENVIRONMENT == "staging") {
+            if (BuildKonfigCommon.ENVIRONMENT == BuildEnvironment.STAGING) {
                 developerToolsFeatureEntries(navigator)
             } else {
                 entry<Screen.DeveloperTools.DesignSystemBoard> {
