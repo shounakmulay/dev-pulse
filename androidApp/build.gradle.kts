@@ -154,6 +154,7 @@ androidComponents {
 }
 
 android {
+    ndkVersion = libs.versions.android.ndk.get()
     signingConfigs {
         if (uploadSigningPropertiesPath.isPresent) {
             create("upload") {
