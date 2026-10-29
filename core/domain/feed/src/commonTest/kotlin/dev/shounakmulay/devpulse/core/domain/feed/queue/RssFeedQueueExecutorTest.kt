@@ -1,5 +1,13 @@
 package dev.shounakmulay.devpulse.core.domain.feed.queue
 
+import dev.shounakmulay.devpulse.core.logging.consent.AnalyticsConsentProvider
+import dev.shounakmulay.devpulse.core.logging.consent.DPAnalyticsConsent
+import dev.shounakmulay.devpulse.core.logging.events.DPEvent
+import dev.shounakmulay.devpulse.core.logging.events.EventEntry
+import dev.shounakmulay.devpulse.core.logging.events.EventSink
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.room3.RoomRawQuery
@@ -32,20 +40,40 @@ import kotlinx.coroutines.runBlocking
 import kotlin.test.*
 
 class RssFeedQueueExecutorTest {
+    private val events = mutableListOf<EventEntry>()
+
+    @AfterTest
+    fun resetTelemetry() {
+        DPEvent.configure(emptyList())
+        stopKoin()
+    }
+
     @kotlin.test.BeforeTest
     fun configureLogging() {
+        startKoin { modules(module {
+            single<AnalyticsConsentProvider> { object : AnalyticsConsentProvider {
+                override fun getConsent() = DPAnalyticsConsent(true, true, true)
+                override fun observeConsent() = flowOf(getConsent())
+            } }
+        }) }
+        DPEvent.configure(listOf(object : EventSink {
+            override fun isTrackable(entry: EventEntry) = true
+            override fun track(entry: EventEntry) { events += entry }
+        }))
         DPLog.configure(DPLogConfig(minLevel = DPLogLevel.Assert))
     }
 
     @Test
     fun `Given lookup or fetch failure When draining Then failed entry does not block next entry`() = runBlocking {
         for (lookupFails in listOf(true, false)) {
+            events.clear()
             val fixture = Fixture()
             fixture.queue.entries += listOf(entry(1), entry(2))
             if (lookupFails) fixture.feeds.lookup = { if (it.endsWith("/1")) error("lookup failed") else null }
             else fixture.feeds.fetch = { if (it.id == 1) error("invalid XML") else parsedFeed() }
 
             assertEquals(setOf(UUID("feed-2")), fixture.executor.process())
+            assertEquals(listOf(EventEntry("feed_import_failed"), EventEntry("feed_import_completed")), events)
             assertEquals(listOf(RssFeedQueueStatus.FAILED, RssFeedQueueStatus.COMPLETED), fixture.queue.entries.map { it.status })
         }
     }
@@ -57,6 +85,7 @@ class RssFeedQueueExecutorTest {
         fixture.feeds.fetch = { throw CancellationException("worker stopped") }
         assertFailsWith<CancellationException> { fixture.executor.process() }
         assertEquals(0, fixture.sync.failed)
+        assertEquals(emptyList(), events)
         assertEquals(RssFeedQueueStatus.QUEUED, fixture.queue.entries[1].status)
     }
 
@@ -117,6 +146,15 @@ class RssFeedQueueExecutorTest {
         fixture.sync.failStatusWrite = false
         assertEquals(setOf(UUID("feed-2")), fixture.executor.process())
         assertEquals(listOf(RssFeedQueueStatus.FAILED, RssFeedQueueStatus.COMPLETED), fixture.queue.entries.map { it.status })
+    }
+
+    @Test
+    fun `Given sync entries When processing success and failure Then no import events are emitted`() = runBlocking {
+        val fixture = Fixture()
+        fixture.queue.entries += listOf(entry(1), entry(2)).map { it.copy(actionType = RssFeedQueueActionType.SYNC) }
+        fixture.feeds.fetch = { if (it.id == 1) error("fetch failed") else parsedFeed() }
+        fixture.executor.process()
+        assertEquals(emptyList(), events)
     }
 
     private class Fixture {
