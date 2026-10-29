@@ -32,13 +32,13 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 fun CircleNumber(
     number: Int,
     error: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val animatedColor by animateColorAsState(
         targetValue = if (error) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceDim,
     )
     val animatedTextColor by animateColorAsState(
-        targetValue = if (error) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface
+        targetValue = if (error) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface,
     )
     Box(
         contentAlignment = Alignment.Center,
@@ -46,8 +46,8 @@ fun CircleNumber(
             .size(56.dp)
             .background(
                 color = animatedColor,
-                shape = CircleShape
-            )
+                shape = CircleShape,
+            ),
     ) {
         DPTextView(
             text = number.toString(),
@@ -62,7 +62,7 @@ fun CircleNumber(
 fun CircleStatus(
     status: RssFeedQueueStatus?,
     contentDescription: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val contextColors = LocalDPContextColors.current
     val animatedContainerColor by animateColorAsState(
@@ -88,24 +88,24 @@ fun CircleStatus(
             .semantics { this.contentDescription = contentDescription }
             .background(
                 color = animatedContainerColor,
-                shape = CircleShape
-            )
+                shape = CircleShape,
+            ),
     ) {
         AnimatedVisibility(
             status == RssFeedQueueStatus.PROCESSING,
             enter = fadeIn(),
-            exit = fadeOut()
+            exit = fadeOut(),
         ) {
             ContainedLoadingIndicator(
                 containerColor = animatedContainerColor,
-                indicatorColor = contextColors.onInfoContainer
+                indicatorColor = contextColors.onInfoContainer,
             )
         }
 
         AnimatedVisibility(
             status != RssFeedQueueStatus.PROCESSING,
             enter = fadeIn(),
-            exit = fadeOut()
+            exit = fadeOut(),
         ) {
             Icon(
                 modifier = Modifier.size(24.dp),
@@ -115,7 +115,7 @@ fun CircleStatus(
                     RssFeedQueueStatus.FAILED -> DPIcons.Failed
                     else -> DPIcons.Queued
                 },
-                contentDescription = null
+                contentDescription = null,
             )
         }
     }

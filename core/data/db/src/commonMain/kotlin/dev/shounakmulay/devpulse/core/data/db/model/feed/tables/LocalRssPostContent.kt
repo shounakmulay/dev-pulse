@@ -8,7 +8,6 @@ import dev.shounakmulay.devpulse.core.data.db.model.core.LocalCompressedText
 import dev.shounakmulay.devpulse.core.data.db.model.core.LocalUUID
 import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssPostContentType
 
-
 @Entity(
     primaryKeys = ["postId", "type"],
     foreignKeys = [
@@ -16,15 +15,15 @@ import dev.shounakmulay.devpulse.core.data.db.model.feed.enums.LocalRssPostConte
             entity = LocalRssContentFeedPost::class,
             parentColumns = ["id"],
             childColumns = ["postId"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
 )
 data class LocalRssPostContent(
     val postId: LocalUUID,
     val type: LocalRssPostContentType,
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    val content: LocalCompressedText
+    val content: LocalCompressedText,
 )
 
 @Entity
@@ -34,5 +33,5 @@ data class LocalRssPostContent(
 )
 data class LocalRssPostContentFts(
     val postId: LocalUUID,
-    val content: String
+    val content: String,
 )
