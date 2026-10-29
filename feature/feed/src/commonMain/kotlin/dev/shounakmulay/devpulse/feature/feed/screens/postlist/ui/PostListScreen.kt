@@ -112,15 +112,15 @@ fun PostListScreen(
                     viewModel.onEvent(
                         PostListScreenEvent.OnPostBookmarkChanged(
                             post.id,
-                            bookmarked
-                        )
+                            bookmarked,
+                        ),
                     )
                 },
                 onPostClick = {
-                    returnPositionController.setItemToRestore(it.value)
+                    returnPositionController.setItemToRestore(it.id.value)
                     navigator.replaceOfSameType(
-                        Screen.Tabs.Feed.PostDetail(it),
-                        onRootStack = true
+                        Screen.Tabs.Feed.PostDetail(id = it.id, feedId = it.feed.id),
+                        onRootStack = true,
                     )
                 },
             )
