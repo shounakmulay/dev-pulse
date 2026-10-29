@@ -29,6 +29,7 @@ data class LocalRssPostContent(
 
 @Entity
 @Fts5(
+    contentEntity = Any::class,
     notIndexed = ["postId"],
 )
 data class LocalRssPostContentFts(
