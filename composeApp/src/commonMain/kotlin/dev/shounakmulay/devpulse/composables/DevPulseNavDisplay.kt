@@ -3,8 +3,10 @@ package dev.shounakmulay.devpulse.composables
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.metadata
+import dev.shounakmulay.devpulse.core.common.BuildKonfigCommon
 import dev.shounakmulay.devpulse.core.navigation.NavDisplay
 import dev.shounakmulay.devpulse.core.navigation.NavigationState
 import dev.shounakmulay.devpulse.core.navigation.Navigator
@@ -35,7 +37,15 @@ internal fun DevPulseNavDisplay(
         windowAdaptiveInfo = windowAdaptiveInfo,
         navigationSuiteType = navigationSuiteType,
         entryProvider = {
-            developerToolsFeatureEntries(navigator)
+            if (BuildKonfigCommon.ENVIRONMENT == "staging") {
+                developerToolsFeatureEntries(navigator)
+            } else {
+                entry<Screen.DeveloperTools.DesignSystemBoard> {
+                    LaunchedEffect(navigator) {
+                        navigator.navigateBack()
+                    }
+                }
+            }
             homeFeatureEntries(navigator)
             feedFeatureEntries(navigator)
             settingsFeatureEntries(navigator)

@@ -137,12 +137,14 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                     },
                 )
             }
-            item(key = "developer-settings") {
-                DeveloperSettingsSection(
-                    onDesignSystemBoardClick = {
-                        viewModel.onEvent(SettingsScreenEvent.OnDesignSystemBoardClicked)
-                    },
-                )
+            if (BuildKonfigCommon.ENVIRONMENT == "staging") {
+                item(key = "developer-settings") {
+                    DeveloperSettingsSection(
+                        onDesignSystemBoardClick = {
+                            viewModel.onEvent(SettingsScreenEvent.OnDesignSystemBoardClicked)
+                        },
+                    )
+                }
             }
             item(key = "version") {
                 Column(
