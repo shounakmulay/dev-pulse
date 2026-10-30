@@ -144,6 +144,7 @@
       "dependencies": [
         ":core:common",
         ":core:data:feed",
+        ":core:data:settings",
         ":core:domain:feed",
         ":core:domain:models",
         ":core:domain:settings",
@@ -500,7 +501,7 @@
     "core/navigation/build.gradle.kts": "0f915f0727bfd0ab6c4f51bbe2a0c389e49755d6eb25fcdf9f8fd8efda777f57",
     "feature/devtools/build.gradle.kts": "427d4a2a35be53478effe1354dee5a211d1967472d182982ba680ba3bf6cc184",
     "feature/home/build.gradle.kts": "23d4d5d26a7d5706b80cb50d069948f1ed7eb3b79cbd81ee240517cdbe75fb19",
-    "feature/feed/build.gradle.kts": "fc3a1e77cd0f375ef2cbd64fad46b716b805b8224763e5f52ee25ff9d5ff0b91",
+    "feature/feed/build.gradle.kts": "24a3e13b947707583ad2c7e6543dca5e86d01e7ddf77790920eb50799c788631",
     "feature/settings/build.gradle.kts": "cd503d5945cd61f86c64de16ca1f3969ae9c31871adae84c5d597d59f785c569",
     "core/ui/build.gradle.kts": "10d13bea84de99fadc4cf37197b97fb35af8a4f7bae6cb39ec43c04c88063c01",
     "core/resources/build.gradle.kts": "f258146d4bf3b085209bbafc7ac3606d828e6a3298c59e45103f71eb83ebc5f2",
