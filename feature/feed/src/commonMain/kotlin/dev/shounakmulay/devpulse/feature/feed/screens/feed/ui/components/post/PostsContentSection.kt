@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post
 
-import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
@@ -22,6 +21,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import devpulse.core.resources.generated.resources.feed_articles
@@ -34,11 +34,12 @@ fun LazyListScope.postsSection(
     onReadChanged: (UUID, Boolean) -> Unit = { _, _ -> },
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UIFeedPost) -> Unit,
-    onViewAll: () -> Unit
+    onOpenInBrowser: (String) -> Unit,
+    onViewAll: () -> Unit,
 ) {
     stickyHeader {
         DPSectionDivider(
-            title = stringResource(stringRes.feed_articles)
+            title = stringResource(stringRes.feed_articles),
         ) {
             DPButton(
                 enabled = articles.isNotEmpty(),
@@ -46,7 +47,7 @@ fun LazyListScope.postsSection(
                 onClick = onViewAll,
                 variant = DPButtonVariant.Secondary,
                 style = DPButtonStyle.Text,
-                size = DPSize.Small
+                size = DPSize.Small,
             )
         }
     }
@@ -74,7 +75,7 @@ fun LazyListScope.postsSection(
                 items = articles,
                 key = { index, article ->
                     article.id.value
-                }
+                },
             ) { index, article ->
                 val showImage by remember(article, index) {
                     derivedStateOf {
@@ -87,7 +88,8 @@ fun LazyListScope.postsSection(
                     onReadChanged = onReadChanged,
                     onBookmarkChanged = onBookmarkChanged,
                     onPostClick = onPostClick,
-                    modifier = Modifier.animateItem()
+                    onOpenInBrowser = onOpenInBrowser,
+                    modifier = Modifier.animateItem(),
                 )
             }
         }

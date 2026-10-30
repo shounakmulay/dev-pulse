@@ -6,18 +6,19 @@ import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptions
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 
 sealed interface FeedDetailScreenEvent : ScreenEvent {
+    data class OpenInBrowser(val url: String) : FeedDetailScreenEvent
+
     data class SetPostRead(val postId: UUID, val isRead: Boolean) : FeedDetailScreenEvent
 
     data object Retry : FeedDetailScreenEvent
     data object OnPinToggled : FeedDetailScreenEvent
     data class OnPostBookmarkChanged(
         val postId: UUID,
-        val bookmarked: Boolean
+        val bookmarked: Boolean,
     ) : FeedDetailScreenEvent
 
-
     data class OnFeedOptionSelected(
-        val option: FeedOptionsMenuItem
+        val option: FeedOptionsMenuItem,
     ) : FeedDetailScreenEvent
 
     data class OnShowFeedOptions(val feed: UIFeed) : FeedDetailScreenEvent

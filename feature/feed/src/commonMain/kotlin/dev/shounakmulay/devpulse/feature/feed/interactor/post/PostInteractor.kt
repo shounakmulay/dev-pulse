@@ -8,9 +8,11 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.GetPaginatedFeedPostsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostReadUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.domain.models.contentSettings.BrowserOpeningTarget
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostSort
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentityAndSearch
+import dev.shounakmulay.devpulse.core.domain.settings.content.GetBrowserOpeningTargetUseCase
 import dev.shounakmulay.devpulse.core.logging.log.DPLog
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
@@ -43,6 +45,7 @@ class PostInteractor(
     private val dispatcherProvider: DispatcherProvider,
     private val dateTimeStringConverter: DateTimeStringConverter,
     private val setPostReadUseCase: SetPostReadUseCase,
+    private val getBrowserOpeningTargetUseCase: GetBrowserOpeningTargetUseCase,
 ) {
     companion object {
         fun getDefaultFiltersFor(screen: Screen): ImmutableList<RssPostFilter> = when (screen) {
@@ -82,6 +85,10 @@ class PostInteractor(
             }.toImmutableList()
         }
     }
+
+    suspend fun getBrowserOpeningTarget(url: String): BrowserOpeningTarget = getBrowserOpeningTargetUseCase(url).onFailure {
+        DPLog.e(tag = "PostInteractor", throwable = it) { "Couldn't read browser opening preference" }
+    }.getOrNull() ?: BrowserOpeningTarget.External(url)
 
     suspend fun setPostRead(postId: UUID, isRead: Boolean) {
         setPostReadUseCase(id = postId, isRead = isRead).onFailure {

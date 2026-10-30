@@ -28,12 +28,11 @@ class PostListViewModel(
     postSortAndFiltersFlow: Flow<Pair<RssPostSort?, List<RssPostFilter>>>,
     private val postInteractor: PostInteractor,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
-    private val observeFeedPostListItemVariantUseCase: ObserveFeedPostListItemVariantUseCase
+    private val observeFeedPostListItemVariantUseCase: ObserveFeedPostListItemVariantUseCase,
 ) : MviViewModel<PostListScreenState, PostListScreenEffect>(
-    PostListScreenState()
+    PostListScreenState(),
 ),
     EventHandler<PostListScreenEvent> {
-
 
     override fun createStateSerializer() = PostListScreenState.serializer()
 
@@ -56,13 +55,13 @@ class PostListViewModel(
                     .takeIf { query -> query.length >= 3 }
             }
                 .distinctUntilChanged()
-                .debounceSearch()
+                .debounceSearch(),
         ) { (sort, filters), searchQuery ->
             sort to buildList {
                 addAll(filters.filterNot { it is RssPostFilter.SearchText })
                 searchQuery?.let { add(RssPostFilter.SearchText(it)) }
             }
-        }
+        },
     ).cachedIn(viewModelScope)
 
     private fun setPostRead(postId: UUID, isRead: Boolean) {
@@ -73,12 +72,17 @@ class PostListViewModel(
 
     override fun onEvent(event: PostListScreenEvent) {
         when (event) {
+            is PostListScreenEvent.OpenInBrowser -> intent {
+                postEffect(PostListScreenEffect.OpenInBrowser(postInteractor.getBrowserOpeningTarget(event.url)))
+            }
+
             is PostListScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)
+
             is PostListScreenEvent.OnSearchQueryChanged -> onSearchQueryChanged(event)
 
             is PostListScreenEvent.OnPostBookmarkChanged -> onPostBookmarkChanged(
                 postId = event.postId,
-                bookmarked = event.bookmarked
+                bookmarked = event.bookmarked,
             )
         }
     }
@@ -94,5 +98,4 @@ class PostListViewModel(
             setPostBookmarkedUseCase(id = postId, bookmarked = bookmarked)
         }
     }
-
 }
