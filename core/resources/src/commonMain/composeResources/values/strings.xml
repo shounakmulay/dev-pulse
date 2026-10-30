@@ -181,4 +181,8 @@
     <string name="telemetry_loading">Loading choices…</string>
     <string name="telemetry_retry">Try again</string>
     <string name="telemetry_error">Could not load or save diagnostics preferences. Please try again.</string>
+    <string name="browser_opening_description">Choose which browser to use.</string>
+    <string name="in_app_browser">In-app browser</string>
+    <string name="external_browser">External browser</string>
+    <string name="browser_opening_error">Browser preference is unavailable. Please try again.</string>
 </resources>

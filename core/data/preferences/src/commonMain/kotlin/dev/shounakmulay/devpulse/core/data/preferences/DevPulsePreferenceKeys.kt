@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.core.data.preferences
 
 object DevPulsePreferenceKeys {
+    val browserOpeningMode = DevPulsePreferenceKey.StringPreferenceKey("browserOpeningMode")
     val telemetryCrashlyticsConsent = DevPulsePreferenceKey.BooleanPreferenceKey("telemetryCrashlyticsConsent")
     val telemetryAnalyticsConsent = DevPulsePreferenceKey.BooleanPreferenceKey("telemetryAnalyticsConsent")
     val telemetryPerformanceConsent = DevPulsePreferenceKey.BooleanPreferenceKey("telemetryPerformanceConsent")

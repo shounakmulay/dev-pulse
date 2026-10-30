@@ -11,11 +11,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalUriHandler
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.rememberDPModalBottomSheetController
 import dev.shounakmulay.devpulse.core.ui.content.ContentTextSettingsBottomSheet
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
+import dev.shounakmulay.devpulse.feature.feed.components.browser.openBrowser
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.components.PostDetailContent
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.components.PostDetailFloatingToolbar
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.components.PostDetailTopAppBar
@@ -25,8 +27,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun PostDetailScreen(
     viewModel: PostDetailViewModel,
-    navigator: Navigator
+    navigator: Navigator,
 ) {
+    val uriHandler = LocalUriHandler.current
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Screen<PostDetailScreenState, PostDetailScreenEffect, PostDetailViewModel>(
         modifier = Modifier
@@ -36,8 +39,16 @@ fun PostDetailScreen(
             PostDetailTopAppBar(navigator, topAppBarScrollBehavior)
         },
         onEffect = {
-            viewModel.unhandledEffect(it)
-        }
+            when (it) {
+                is PostDetailScreenEffect.OpenInBrowser -> openBrowser(
+                    target = it.target,
+                    uriHandler = uriHandler,
+                    openInApp = { url -> navigator.navigate(Screen.WebView(url)) },
+                )
+
+                else -> viewModel.unhandledEffect(it)
+            }
+        },
     ) { state ->
         val visible by remember {
             derivedStateOf {
@@ -46,7 +57,7 @@ fun PostDetailScreen(
         }
         val scope = rememberCoroutineScope()
         val contentTextSettingsSheetController = rememberDPModalBottomSheetController(
-            skipPartiallyExpanded = true
+            skipPartiallyExpanded = true,
         )
         val listState = rememberLazyListState()
 
@@ -61,7 +72,7 @@ fun PostDetailScreen(
                 } else {
                     viewModel.onEvent(PostDetailScreenEvent.OnSectionSelected(it))
                 }
-            }
+            },
         )
 
         PostDetailContent(
@@ -74,8 +85,8 @@ fun PostDetailScreen(
             onBookmarkChanged = {
                 viewModel.onEvent(PostDetailScreenEvent.SetPostBookmarked(it))
             },
-            onOpenInWebView = {
-                navigator.navigate(Screen.WebView(it))
+            onOpenInBrowser = {
+                viewModel.onEvent(PostDetailScreenEvent.OpenInBrowser(it))
             },
             onOpenContentTextSettings = {
                 contentTextSettingsSheetController.show()
@@ -85,7 +96,7 @@ fun PostDetailScreen(
             },
             onNavigateToFeed = {
                 navigator.navigate(Screen.Tabs.Feed.FeedDetail(it))
-            }
+            },
         )
 
         ContentTextSettingsBottomSheet(
@@ -95,16 +106,7 @@ fun PostDetailScreen(
             },
             onLineHeightScaleChanged = {
                 viewModel.onEvent(PostDetailScreenEvent.SetContentLineHeightScale(it))
-            }
+            },
         )
     }
 }
-
-
-
-
-
-
-
-
-

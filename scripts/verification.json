@@ -509,7 +509,7 @@
     "core/notifications/build.gradle.kts": "a014a45fe53886c40478cbb9746653b1160cd25efbe399625ff3f13e9be0d774",
     "core/permissions/build.gradle.kts": "dd606f002d3ee1dfa2e7e4e4b6811cf76e8f851046bbaa55177d2b2799f2b205",
     "core/data/preferences/build.gradle.kts": "773401808e7939c3a29aa944104dfdd3f69d3884130d8e8ceb307bff5c20254c",
-    "core/data/settings/build.gradle.kts": "8c2d8074a2321117723bb39d12def6c404647a4949d41a7290d923e1c966459d",
+    "core/data/settings/build.gradle.kts": "9b7b336403fcda29ad6fc981a9caad0b1c9e7165e984bd8d63c7510089a0da3c",
     "core/data/feed/build.gradle.kts": "ab021c9cf998676dcbfda5bad7e591fc93269827fb42d6dfcb0053fb3f49e3cc",
     "core/data/db/build.gradle.kts": "83683729ee20fe44ad634c9db6896839d8b438109ee2748cd284e409ae2ca983",
     "core/domain/feed/build.gradle.kts": "dc865fa0cfdd29d2a82a6eca720fd702fd0bcf60da4ab2f8ba87ef813e5c7b4e",
