@@ -528,6 +528,7 @@
     ".github/scripts/android_cd.py": "0a79574c4919c19dfa1d48e1ffa09f1e95c047cb93c4c22d163e5c8812bf16a6",
     ".github/scripts/quality.sh": "eb401bde4718af7ca09e9c8abc38003376273a34b7bf4a5f6b6e8da574c0ed0c",
     ".github/scripts/test_android_cd.py": "cdd63acbf85b21fad731e189f9c4cd1719c6971e5e2f46b14c110dc9045c3e8c",
+    ".github/workflows/android-firebase.yml": "36bd0f161252446d16352d1509cdd10863250dc566c9885e01096963b36b92c8",
     ".github/workflows/android-internal.yml": "b2c4a1d80bcca02b2f8ca05fdd9f90f0bda14da3450c509e7bd35d48640e71e6",
     ".github/workflows/quality.yml": "f8b4015d0fd9aae6b9196fd1625d8183f8d678d22edec155d781e716e2d8a944",
     ".github/scripts/test_play_auth.py": "0ea0e3500baea0eac18cbc589ec0b0451e32b42fc36e51c7ac8cb71dc1cced59",
