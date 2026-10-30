@@ -54,7 +54,7 @@ internal fun PostDetailContent(
     onContentAvailable: () -> Unit = {},
     listState: LazyListState,
     onBookmarkChanged: (Boolean) -> Unit,
-    onOpenInWebView: (String) -> Unit,
+    onOpenInBrowser: (String) -> Unit,
     onOpenContentTextSettings: () -> Unit,
     onImageClick: (link: String) -> Unit,
     onNavigateToFeed: (UUID) -> Unit,
@@ -82,7 +82,7 @@ internal fun PostDetailContent(
                 onReadChanged = onReadChanged,
                 post = state.post,
                 onBookmarkChanged = onBookmarkChanged,
-                onOpenInWebView = onOpenInWebView,
+                onOpenInBrowser = onOpenInBrowser,
                 onOpenContentTextSettings = onOpenContentTextSettings,
             )
         },
@@ -95,7 +95,7 @@ private fun LazyListScope.postDetailContentHeaderActions(
     onReadChanged: (UUID, Boolean) -> Unit,
     post: UIFeedPost?,
     onBookmarkChanged: (Boolean) -> Unit,
-    onOpenInWebView: (String) -> Unit,
+    onOpenInBrowser: (String) -> Unit,
     onOpenContentTextSettings: () -> Unit,
 ) {
     if (post == null) return
@@ -161,7 +161,7 @@ private fun LazyListScope.postDetailContentHeaderActions(
                             )
                         },
                         onOpenInBrowser = {
-                            post.articleUrl?.let { url -> onOpenInWebView(url) }
+                            post.articleUrl?.let { url -> onOpenInBrowser(url) }
                         },
                     )
                 }

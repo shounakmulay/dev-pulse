@@ -1,0 +1,66 @@
+name: Android Firebase distribution
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-firebase-staging
+  cancel-in-progress: false
+
+jobs:
+  distribute:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: staging-distribution
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-build
+      - name: Build the signed staging release APK
+        run: |
+          python3 -B - <<'PY'
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          import tempfile
+
+          sys.path.insert(0, '.github/scripts')
+          from android_cd import signing_properties
+
+          with tempfile.TemporaryDirectory(dir=os.environ['RUNNER_TEMP']) as directory:
+              properties, _ = signing_properties(Path(directory), Path.cwd())
+              os.environ['DEVPULSE_STAGING_SIGNING_PROPERTIES'] = str(properties)
+              subprocess.run(['bash', 'scripts/build-android.sh', 'staging', 'release', 'apk'], check=True)
+          PY
+        env:
+          GRADLE_OPTS: -Dorg.gradle.configuration-cache=false
+          ANDROID_UPLOAD_CERT_SHA256: ${{ vars.ANDROID_UPLOAD_CERT_SHA256 }}
+          ANDROID_UPLOAD_KEYSTORE_BASE64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          ANDROID_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_STORE_PASSWORD }}
+          ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          ANDROID_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools@15.34.2
+      - name: Authenticate with Firebase
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+      - name: Distribute the staging APK
+        run: |
+          app_id=$(python3 -c 'import json; print(json.load(open("androidApp/src/staging/google-services.json"))["client"][0]["client_info"]["mobilesdk_app_id"])')
+          firebase appdistribution:distribute androidApp/build/outputs/apk/staging/release/*.apk \
+            --app "$app_id" \
+            --groups "${FIREBASE_TESTER_GROUPS:?Set FIREBASE_TESTER_GROUPS in staging-distribution}" \
+            --release-notes "main commit $GITHUB_SHA" \
+            --non-interactive
+        env:
+          FIREBASE_TESTER_GROUPS: ${{ vars.FIREBASE_TESTER_GROUPS }}

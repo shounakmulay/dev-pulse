@@ -72,7 +72,7 @@ class RssFeedQueueExecutorTest {
             if (lookupFails) fixture.feeds.lookup = { if (it.endsWith("/1")) error("lookup failed") else null }
             else fixture.feeds.fetch = { if (it.id == 1) error("invalid XML") else parsedFeed() }
 
-            assertEquals(setOf(UUID("feed-2")), fixture.executor.process())
+            assertEquals(setOf(UUID("feed-2")), fixture.executor.process().syncedFeedIds)
             assertEquals(listOf(EventEntry("feed_import_failed"), EventEntry("feed_import_completed")), events)
             assertEquals(listOf(RssFeedQueueStatus.FAILED, RssFeedQueueStatus.COMPLETED), fixture.queue.entries.map { it.status })
         }
@@ -107,7 +107,7 @@ class RssFeedQueueExecutorTest {
         fixture.feeds.lookup = { if (it.endsWith("/1")) RssFeedIdentity(UUID("one"), null, null, it, null, 0, 0) else null }
         fixture.feeds.fetch = { if (it.id == 1) error("invalid XML") else parsedFeed() }
         fixture.metadata.failWrite = true
-        assertEquals(setOf(UUID("feed-2")), fixture.executor.process())
+        assertEquals(setOf(UUID("feed-2")), fixture.executor.process().syncedFeedIds)
         assertEquals(listOf(RssFeedQueueStatus.FAILED, RssFeedQueueStatus.COMPLETED), fixture.queue.entries.map { it.status })
     }
 
@@ -144,7 +144,7 @@ class RssFeedQueueExecutorTest {
         assertFailsWith<IllegalStateException> { fixture.executor.process() }
         assertEquals(RssFeedQueueStatus.QUEUED, fixture.queue.entries[1].status)
         fixture.sync.failStatusWrite = false
-        assertEquals(setOf(UUID("feed-2")), fixture.executor.process())
+        assertEquals(setOf(UUID("feed-2")), fixture.executor.process().syncedFeedIds)
         assertEquals(listOf(RssFeedQueueStatus.FAILED, RssFeedQueueStatus.COMPLETED), fixture.queue.entries.map { it.status })
     }
 
@@ -157,12 +157,58 @@ class RssFeedQueueExecutorTest {
         assertEquals(emptyList(), events)
     }
 
+    @Test
+    fun `Given empty feed When sync completes Then no feed has new posts`() = runBlocking {
+        val fixture = Fixture()
+        fixture.queue.entries += entry(1)
+        val result = fixture.executor.process()
+        assertEquals(setOf(UUID("feed-1")), result.syncedFeedIds)
+        assertEquals(emptySet(), result.feedsWithNewPosts)
+    }
+
+    @Test
+    fun `Given existing articles When reimported Then no feed has new posts`() = runBlocking {
+        val fixture = Fixture()
+        fixture.queue.entries += entry(1)
+        fixture.feeds.fetch = { parsedFeed("existing") }
+        fixture.postDao.existing = true
+        val result = fixture.executor.process()
+        assertEquals(1, fixture.sync.importedPosts.size)
+        assertEquals(setOf(UUID("feed-1")), result.syncedFeedIds)
+        assertEquals(emptySet(), result.feedsWithNewPosts)
+    }
+
+    @Test
+    fun `Given mixed existing and new articles When syncing Then only feeds gaining posts are reported`() = runBlocking {
+        val fixture = Fixture()
+        fixture.queue.entries += listOf(entry(1), entry(2))
+        fixture.feeds.fetch = { if (it.id == 1) parsedFeed("existing", "new") else parsedFeed() }
+        fixture.postDao.existingGuids = setOf("existing")
+        val result = fixture.executor.process()
+        assertEquals(2, fixture.sync.importedPosts.size)
+        assertEquals(setOf(UUID("feed-1"), UUID("feed-2")), result.syncedFeedIds)
+        assertEquals(setOf(UUID("feed-1")), result.feedsWithNewPosts)
+    }
+
+    @Test
+    fun `Given new articles When storage fails Then no new content is reported`() = runBlocking {
+        val fixture = Fixture()
+        fixture.queue.entries += entry(1)
+        fixture.feeds.fetch = { parsedFeed("new") }
+        fixture.sync.failPostWrite = true
+        val result = fixture.executor.process()
+        assertEquals(emptySet(), result.feedsWithNewPosts)
+        assertEquals(emptySet(), result.syncedFeedIds)
+        assertEquals(RssFeedQueueStatus.FAILED, fixture.queue.entries.single().status)
+    }
+
     private class Fixture {
         val queue = Queue()
         val feeds = Feeds()
         val posts = Posts()
         val metadata = Metadata()
         val sync = Sync(queue, metadata)
+        val postDao = PostDao()
         private val time = DefaultDateTimeProvider()
         private val ids = object : IdentityGenerator {
             override fun generateSortableId() = UUID("unused")
@@ -173,7 +219,7 @@ class RssFeedQueueExecutorTest {
             dispatcherProvider = TestDispatchers, feedRepository = feeds, postRepository = posts,
             feedSyncMetadataRepository = metadata, feedSyncRepository = sync, feedQueueRepository = queue,
             dateTimeProvider = time,
-            parsedFeedProcessor = ParsedFeedProcessor(ids, UnusedPostDao, RssPostMapper(ids, time, UuidMapper()), UuidMapper(), DPLog.tag("test")),
+            parsedFeedProcessor = ParsedFeedProcessor(ids, postDao, RssPostMapper(ids, time, UuidMapper()), UuidMapper(), DPLog.tag("test")),
             logger = DPLog.tag("test")
         )
     }
@@ -189,6 +235,8 @@ class RssFeedQueueExecutorTest {
     private class Sync(private val queue: Queue, private val metadataRepository: Metadata) : FeedSyncRepository {
         var failed = 0
         var failStatusWrite = false
+        var failPostWrite = false
+        val importedPosts = mutableListOf<RssFeedPostWithExistingIdentity>()
         override suspend fun importFeed(entry: RssFeedQueueEntry, parsedFeed: ParsedFeed, existingIdentity: RssFeedIdentity?) = RssFeed(
             id = UUID("feed-${entry.id}"), name = null, sourceUrl = entry.url, title = null, link = null,
             description = null, image = null, lastBuildDate = null, updatePeriod = null, youtubeChannel = null, createdAt = 0, updatedAt = 0
@@ -203,17 +251,25 @@ class RssFeedQueueExecutorTest {
             queue.updateQueueEntry(entry.copy(status = RssFeedQueueStatus.FAILED, fetchAttempt = entry.fetchAttempt + 1))
         }
         override suspend fun getFeedsDueForSync(): List<Pair<RssFeedSyncMetadata, RssFeedIdentity>> = error("Unused")
-        override suspend fun importPosts(postsWithExistingIdentities: List<RssFeedPostWithExistingIdentity>) = error("Unused")
+        override suspend fun importPosts(postsWithExistingIdentities: List<RssFeedPostWithExistingIdentity>) {
+            check(!failPostWrite) { "post storage unavailable" }
+            importedPosts += postsWithExistingIdentities
+        }
         override suspend fun removeStaleEntries(entry: RssFeedQueueEntry) = error("Unused")
     }
 
-    private object UnusedPostDao : FeedPostDao {
+    private class PostDao : FeedPostDao {
+        var existing = false
+        var existingGuids = emptySet<String>()
         override suspend fun upsertPost(post: LocalRssContentFeedPost) = error("Unused")
         override suspend fun upsertPosts(posts: List<LocalRssContentFeedPost>) = error("Unused")
         override suspend fun deletePosts(posts: List<LocalRssContentFeedPost>) = error("Unused")
         override suspend fun getPost(id: LocalUUID): LocalRssContentFeedPost? = error("Unused")
         override fun observePost(id: LocalUUID): Flow<LocalRssPostWithFeedAndSearch> = error("Unused")
-        override suspend fun getByFingerprints(fingerprints: Set<String>): Map<String, LocalRssContentFeedPostIdentitySlice> = error("Unused")
+        override suspend fun getByFingerprints(fingerprints: Set<String>): Map<String, LocalRssContentFeedPostIdentitySlice> =
+            fingerprints.filter { existing || it.substringAfter(", ") in existingGuids }.associateWith {
+                LocalRssContentFeedPostIdentitySlice(LocalUUID("existing"), it, 0, 0)
+            }
         override fun observeRecentPosts(limit: Int): Flow<List<LocalRssPostWithFeedAndSearch>> = error("Unused")
         override suspend fun getPostPage(query: RoomRawQuery): List<LocalRssPostWithFeedAndSearch> = error("Unused")
         override suspend fun getLatestPostPublishedTimeForFeed(fromUuid: LocalUUID): Long? = error("Unused")
@@ -225,7 +281,11 @@ class RssFeedQueueExecutorTest {
     }
 
     private companion object {
-        fun parsedFeed() = ParsedFeed(ParsedFeedMetadata.build {}, emptyFlow(), emptyList())
+        fun parsedFeed(vararg guids: String) = ParsedFeed(
+            ParsedFeedMetadata.build {},
+            guids.map { value -> ParsedFeedItem.build { guid = value } }.asFlow(),
+            emptyList(),
+        )
         fun entry(id: Int) = RssFeedQueueEntry(
             id = id, feedId = null, url = "https://example.com/$id", name = null,
             feedType = RssFeedType.CONTENT, actionType = RssFeedQueueActionType.IMPORT,

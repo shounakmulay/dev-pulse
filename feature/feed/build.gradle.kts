@@ -24,6 +24,7 @@ kotlin {
     sourceSets {
         getByName("androidHostTest").dependencies {
             implementation(project(Modules.Core.Data.FEED))
+            implementation(project(Modules.Core.Data.SETTINGS))
             implementation(project(Modules.Core.LOGGING))
             implementation(libs.turbine)
             implementation(libs.robolectric)

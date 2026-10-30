@@ -21,7 +21,6 @@ import org.jetbrains.compose.resources.getString
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Named
 
-
 @Factory
 @Named(DevPulseWorkerType.FEED_SYNC)
 class FeedSyncWorker(
@@ -29,7 +28,7 @@ class FeedSyncWorker(
     private val queueExecutor: RssFeedQueueExecutor,
     private val observeSyncInBackgroundUseCase: ObserveSyncInBackgroundUseCase,
     private val notificationProvider: NotificationProvider,
-    private val dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider,
 ) : DevPulseWorker {
     override val identifier: String = DevPulseWorkerType.FEED_SYNC
 
@@ -45,18 +44,18 @@ class FeedSyncWorker(
 
         return dispatcherProvider
             .runCatchingOnDefault {
-                val syncedFeeds = queueExecutor.process()
+                val feedsWithNewPosts = queueExecutor.process().feedsWithNewPosts
+                if (feedsWithNewPosts.isEmpty()) return@runCatchingOnDefault
                 safeRunCatching {
                     val notification = DPNotificationContent(
                         identifier = DPNotificationIdentifier.FEED_SYNC_WORKER,
                         channel = DPNotificationChannel.FEED_DATA_SYNC,
                         title = getString(stringRes.feeds_sync_title),
-                        text = getString(stringRes.feeds_sync_message, syncedFeeds.size)
+                        text = getString(stringRes.feeds_sync_message, feedsWithNewPosts.size),
                     )
                     notificationProvider.showNotification(notification)
                 }
             }
             .toWorkerResult()
-
     }
 }

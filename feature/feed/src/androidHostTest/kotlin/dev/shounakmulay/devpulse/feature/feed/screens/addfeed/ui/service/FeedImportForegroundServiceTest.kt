@@ -16,7 +16,7 @@ import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.data.feed.repository.RssFeedQueueRepository
 import dev.shounakmulay.devpulse.core.domain.feed.queue.ObserveFeedQueueUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.queue.RssFeedQueueExecutor
-import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.domain.feed.queue.RssFeedQueueProcessingResult
 import dev.shounakmulay.devpulse.core.domain.models.feed.*
 import dev.shounakmulay.devpulse.core.logging.log.LogEntry
 import dev.shounakmulay.devpulse.core.logging.log.LogSink
@@ -334,7 +334,7 @@ class FeedImportForegroundServiceTest {
         override fun triggerQueueProcessing() {
             (queue.freshPending ?: queue.pending.value).forEach { if (it.id !in processed) processed += it.id }
         }
-        override suspend fun process(): Set<UUID> = error("Unused")
+        override suspend fun process(): RssFeedQueueProcessingResult = error("Unused")
         override fun isProcessing() = false
     }
 
