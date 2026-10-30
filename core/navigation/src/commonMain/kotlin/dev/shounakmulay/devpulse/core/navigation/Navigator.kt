@@ -1,6 +1,8 @@
 package dev.shounakmulay.devpulse.core.navigation
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.navigation3.runtime.NavBackStack
 import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -159,15 +161,45 @@ class Navigator(
         )
     }
 
-    fun removeFromFirst(
-        onRootStack: Boolean = false,
+    fun removeFromFirstOnAllStacks(
         predicate: (Screen) -> Boolean,
-    ): Boolean {
-        val stack = if (onRootStack) state.rootStack else state.tabsBackStacks[state.selectedTab]
-        if (stack == null) return false
-        val index = stack.indexOfFirst(predicate)
-        if (index <= 0) return false
-        stack.subList(index, stack.size).clear()
+    ): Boolean = Snapshot.withMutableSnapshot {
+        logger.d {
+            "Navigation mutation action=removeFromFirstOnAllStacks " +
+                "selectedTab=${state.selectedTab.summary()} rootSize=${state.rootStack.size}"
+        }
+        val rootStack = state.rootStack.removeFromFirst(predicate)
+        val tabStacks = state.tabsBackStacks.map {
+            it.value.removeFromFirst(predicate)
+        }.fold(false) { acc, bool -> acc || bool }
+        logger.d {
+            "Navigation result action=removeFromFirstOnAllStacks " +
+                "selectedTab=${state.selectedTab.summary()} rootChanged=$rootStack tabsChanged=$tabStacks " +
+                "result=${rootStack || tabStacks}"
+        }
+        rootStack || tabStacks
+    }
+
+    private fun NavBackStack<Screen>.removeFromFirst(predicate: (Screen) -> Boolean): Boolean {
+        val startIndex = indexOfFirst(predicate)
+        val stackName = if (this === state.rootStack) "root" else "tab"
+        logger.d {
+            "Navigation mutation action=removeFromFirst stack=$stackName " +
+                "size=$size matchIndex=$startIndex entries=${joinToString { it.summary() }}"
+        }
+        if (startIndex <= 0) {
+            logger.d {
+                "Navigation result action=removeFromFirst stack=$stackName result=false " +
+                    "reason=${if (startIndex == 0) "wouldEmptyStack" else "noMatch"}"
+            }
+            return false
+        }
+        val screensToRemove = subList(startIndex, size)
+        screensToRemove.clear()
+        logger.d {
+            "Navigation result action=removeFromFirst stack=$stackName " +
+                "result=true remaining=${joinToString { it.summary() }}"
+        }
         return true
     }
 
