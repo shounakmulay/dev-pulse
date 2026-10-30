@@ -171,13 +171,13 @@ class Navigator(
         val rootStack = state.rootStack.removeFromFirst(predicate)
         val tabStacks = state.tabsBackStacks.map {
             it.value.removeFromFirst(predicate)
-        }.reduce { acc, bool -> acc || bool }
+        }.fold(false) { acc, bool -> acc || bool }
         logger.d {
             "Navigation result action=removeFromFirstOnAllStacks " +
                 "selectedTab=${state.selectedTab.summary()} rootChanged=$rootStack tabsChanged=$tabStacks " +
                 "result=${rootStack || tabStacks}"
         }
-        return rootStack || tabStacks
+        rootStack || tabStacks
     }
 
     private fun NavBackStack<Screen>.removeFromFirst(predicate: (Screen) -> Boolean): Boolean {
@@ -187,17 +187,20 @@ class Navigator(
             "Navigation mutation action=removeFromFirst stack=$stackName " +
                 "size=$size matchIndex=$startIndex entries=${joinToString { it.summary() }}"
         }
-        if (startIndex < 0) {
-            logger.d { "Navigation result action=removeFromFirst stack=$stackName result=false reason=noMatch" }
+        if (startIndex <= 0) {
+            logger.d {
+                "Navigation result action=removeFromFirst stack=$stackName result=false " +
+                    "reason=${if (startIndex == 0) "wouldEmptyStack" else "noMatch"}"
+            }
             return false
         }
         val screensToRemove = subList(startIndex, size)
         screensToRemove.clear()
         logger.d {
             "Navigation result action=removeFromFirst stack=$stackName " +
-                "result=${screensToRemove.isNotEmpty()} remaining=${joinToString { it.summary() }}"
+                "result=true remaining=${joinToString { it.summary() }}"
         }
-        return screensToRemove.isNotEmpty()
+        return true
     }
 
     fun navigateBack(): Boolean {

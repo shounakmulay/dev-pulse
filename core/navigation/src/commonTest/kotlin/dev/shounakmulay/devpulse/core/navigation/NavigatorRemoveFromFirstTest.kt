@@ -35,7 +35,7 @@ class NavigatorRemoveFromFirstTest {
     }
 
     @Test
-    fun `Given root and hidden tab history When removing in selected tab Then only that tab is truncated`() {
+    fun `Given matching root and tab history When removing Then every matching stack is truncated`() {
         val state = state(Screen.Tabs, Screen.Settings)
         state.tabsBackStacks.getValue(Screen.Tabs.Home).add(Screen.Settings)
         state.tabsBackStacks.getValue(Screen.Tabs.Feed).addAll(
@@ -45,8 +45,8 @@ class NavigatorRemoveFromFirstTest {
         assertTrue(navigator(state).removeFromFirstOnAllStacks { it == Screen.Settings })
 
         assertEquals(listOf(Screen.Tabs.Feed, Screen.Tabs.Feed.FeedList), state.tabsBackStacks.getValue(Screen.Tabs.Feed).toList())
-        assertEquals(listOf(Screen.Tabs.Home, Screen.Settings), state.tabsBackStacks.getValue(Screen.Tabs.Home).toList())
-        assertEquals(listOf(Screen.Tabs, Screen.Settings), state.rootStack.toList())
+        assertEquals(listOf<Screen>(Screen.Tabs.Home), state.tabsBackStacks.getValue(Screen.Tabs.Home).toList())
+        assertEquals(listOf<Screen>(Screen.Tabs), state.rootStack.toList())
         assertEquals(Screen.Tabs.Feed, state.selectedTab)
     }
 
@@ -77,7 +77,6 @@ class NavigatorRemoveFromFirstTest {
         val state = state(Screen.Tabs, Screen.Settings)
 
         assertFalse(navigator(state).removeFromFirstOnAllStacks { it == Screen.AboutLibs })
-        assertFalse(navigator(state).removeFromFirstOnAllStacks { it == Screen.Settings })
 
         assertEquals(listOf(Screen.Tabs, Screen.Settings), state.rootStack.toList())
         assertEquals(listOf<Screen>(Screen.Tabs.Feed), state.tabsBackStacks.getValue(Screen.Tabs.Feed).toList())
@@ -115,7 +114,7 @@ class NavigatorRemoveFromFirstTest {
     }
 
     @Test
-    fun `Given a caller supplied tab stack When the selected tab is missing Then that stack is still pruned`() {
+    fun `Given a missing selected tab When removing Then root and existing tabs are pruned`() {
         val state = state(Screen.Tabs, Screen.Settings)
         state.selectedTab = Screen.Tabs.Time
         val feedStack = state.tabsBackStacks.getValue(Screen.Tabs.Feed)
@@ -124,7 +123,7 @@ class NavigatorRemoveFromFirstTest {
         assertTrue(navigator(state).removeFromFirstOnAllStacks { it == Screen.Settings })
 
         assertEquals(listOf<Screen>(Screen.Tabs.Feed), feedStack.toList())
-        assertEquals(listOf(Screen.Tabs, Screen.Settings), state.rootStack.toList())
+        assertEquals(listOf<Screen>(Screen.Tabs), state.rootStack.toList())
         assertEquals(Screen.Tabs.Time, state.selectedTab)
     }
 
@@ -165,6 +164,36 @@ class NavigatorRemoveFromFirstTest {
         val restored = Json.decodeFromString<Screen.Tabs.Feed.PostDetail>("""{"id":"article-a"}""")
 
         assertEquals(Screen.Tabs.Feed.PostDetail(ArticleA), restored)
+    }
+
+    @Test
+    fun `Given deleted feed routes in root and tab stacks When deleting Then both stacks retain only their roots`() {
+        val state = state(
+            Screen.Tabs,
+            Screen.Tabs.Feed.PostDetail(id = ArticleA, feedId = FeedA),
+            Screen.Tabs.Feed.FeedDetail(FeedA),
+        )
+        state.tabsBackStacks.getValue(Screen.Tabs.Feed).add(Screen.Tabs.Feed.FeedDetail(FeedA))
+
+        assertTrue(navigator(state).removeFeedRoutes(FeedA))
+
+        assertEquals(listOf<Screen>(Screen.Tabs), state.rootStack.toList())
+        assertEquals(listOf<Screen>(Screen.Tabs.Feed), state.tabsBackStacks.getValue(Screen.Tabs.Feed).toList())
+        assertFalse(navigator(state).removeFeedRoutes(FeedA))
+    }
+
+    @Test
+    fun `Given no tab stacks When removing Then root history is still pruned`() {
+        val state = NavigationState(
+            rootStack = NavBackStack(Screen.Tabs, Screen.Settings),
+            tabsStart = Screen.Tabs.Feed,
+            selectedTab = mutableStateOf(Screen.Tabs.Feed),
+            tabsBackStacks = emptyMap(),
+        )
+
+        assertTrue(navigator(state).removeFromFirstOnAllStacks { it == Screen.Settings })
+
+        assertEquals(listOf<Screen>(Screen.Tabs), state.rootStack.toList())
     }
 
     private fun state(vararg root: Screen) = NavigationState(
