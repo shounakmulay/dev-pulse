@@ -24,10 +24,13 @@ class ArticleSettingsViewModel(
     init {
         viewModelScope.launch {
             observeBrowserOpeningModeUseCase().collect { result ->
-                result.onSuccess { mode ->
-                    setState { copy(browserOpeningMode = mode, isLoading = false) }
-                }.onFailure {
-                    setState { copy(isLoading = false) }
+                setState {
+                    copy(
+                        browserOpeningMode = result.getOrNull() ?: BrowserOpeningMode.EXTERNAL_BROWSER,
+                        isLoading = false,
+                    )
+                }
+                result.onFailure {
                     postEffect(ArticleSettingsEffect.BrowserOpeningModeError)
                 }
             }

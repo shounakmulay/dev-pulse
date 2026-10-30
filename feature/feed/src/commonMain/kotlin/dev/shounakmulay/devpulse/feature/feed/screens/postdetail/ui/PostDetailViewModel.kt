@@ -11,7 +11,7 @@ import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
 import dev.shounakmulay.devpulse.core.domain.settings.content.GetBrowserOpeningTargetUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingFontScaleUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingLineHeightScaleUseCase
-import dev.shounakmulay.devpulse.core.logging.log.DPLog
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
@@ -33,8 +33,11 @@ class PostDetailViewModel(
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val setContentTextSettingFontScaleUseCase: SetContentTextSettingFontScaleUseCase,
     private val setContentTextSettingLineHeightScaleUseCase: SetContentTextSettingLineHeightScaleUseCase,
+    logger: DPLogger,
 ) : MviViewModel<PostDetailScreenState, PostDetailScreenEffect>(PostDetailScreenState()),
     EventHandler<PostDetailScreenEvent> {
+
+    private val log = logger.withTag("PostDetailViewModel")
 
     override fun createStateSerializer() = PostDetailScreenState.serializer()
 
@@ -74,10 +77,9 @@ class PostDetailViewModel(
     override fun onEvent(event: PostDetailScreenEvent) {
         when (event) {
             is PostDetailScreenEvent.OpenInBrowser -> intent {
-                val target = getBrowserOpeningTargetUseCase(event.url).getOrElse {
-                    DPLog.e(tag = "PostDetailViewModel", throwable = it) { "Couldn't read browser opening preference" }
-                    BrowserOpeningTarget.InApp(event.url)
-                }
+                val target = getBrowserOpeningTargetUseCase(event.url).onFailure {
+                    log.e(throwable = it) { "Couldn't read browser opening preference" }
+                }.getOrNull() ?: BrowserOpeningTarget.External(event.url)
                 postEffect(PostDetailScreenEffect.OpenInBrowser(target))
             }
 
