@@ -2,10 +2,6 @@ package dev.shounakmulay.devpulse.feature.feed.components.postRead
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import dev.shounakmulay.devpulse.core.designsystem.components.DPDropdownMenu
 import dev.shounakmulay.devpulse.core.designsystem.components.DPDropdownMenuItem
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
@@ -25,26 +21,27 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun PostReadMenu(
     post: UIFeedPost,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
     onReadChanged: (UUID, Boolean) -> Unit,
     onShare: (() -> Unit)? = null,
     onOpenInBrowser: (() -> Unit)? = null,
 ) {
-    var expanded by remember(post.id) { mutableStateOf(false) }
     Box {
         DPIconButton(
             icon = DPIcons.MoreOptionsVert,
             variant = DPIconButtonVariant.Tertiary,
             contentDescription = stringResource(stringRes.post_read_options),
             size = DPSize.Small,
-            onClick = { expanded = true },
+            onClick = { onExpandedChange(true) },
         )
-        DPDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DPDropdownMenu(expanded = expanded, onDismissRequest = { onExpandedChange(false) }) {
             if (onShare != null) {
                 DPDropdownMenuItem(
                     text = stringResource(stringRes.share),
                     leadingIcon = DPIcons.Share,
                     onClick = {
-                        expanded = false
+                        onExpandedChange(false)
                         onShare()
                     },
                 )
@@ -54,7 +51,7 @@ fun PostReadMenu(
                     text = stringResource(stringRes.open_in_browser),
                     leadingIcon = DPIcons.OpenInBrowser,
                     onClick = {
-                        expanded = false
+                        onExpandedChange(false)
                         onOpenInBrowser()
                     },
                 )
@@ -63,7 +60,7 @@ fun PostReadMenu(
                 text = stringResource(if (post.isRead) stringRes.post_mark_unread else stringRes.post_mark_read),
                 leadingIcon = if (post.isRead) DPIcons.Unread else DPIcons.Read,
                 onClick = {
-                    expanded = false
+                    onExpandedChange(false)
                     onReadChanged(post.id, !post.isRead)
                 },
             )
