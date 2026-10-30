@@ -14,10 +14,13 @@ import dev.shounakmulay.devpulse.core.domain.feed.queue.hooks.CorePostsItemHook
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.domain.models.feedSync.RssFeedSyncMetadata
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
+import dev.shounakmulay.devpulse.core.logging.events.DPEvent
+import dev.shounakmulay.devpulse.core.logging.events.DPEvents
 import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -39,6 +42,7 @@ import kotlin.time.Duration.Companion.hours
 @Single(binds = [RssFeedQueueExecutor::class])
 internal class RssFeedQueueExecutorImpl(
     private val dispatcherProvider: DispatcherProvider,
+    private val dpEvent: DPEvent,
     private val feedRepository: FeedRepository,
     private val postRepository: PostRepository,
     private val feedSyncMetadataRepository: FeedSyncMetadataRepository,
@@ -159,6 +163,9 @@ internal class RssFeedQueueExecutorImpl(
             "Queue entry failed id=${entry.id} action=${entry.actionType} source=${entry.url.sourceSummary()}"
         }
         feedSyncRepository.onImportFailed(entry = entry, metadata = null)
+        if (entry.actionType == RssFeedQueueActionType.IMPORT) {
+            dpEvent.track(DPEvents.FEED_IMPORT_FAILED)
+        }
         dispatcherProvider.runCatchingOnDefault {
             createSyncFailureMetadata(
                 existingFeedIdentity = existingFeedIdentity,
@@ -205,6 +212,9 @@ internal class RssFeedQueueExecutorImpl(
         )
         logger.d {
             "Queue entry completed id=${entry.id} action=${entry.actionType} source=${entry.url.sourceSummary()}"
+        }
+        if (entry.actionType == RssFeedQueueActionType.IMPORT) {
+            dpEvent.track(DPEvents.FEED_IMPORT_COMPLETED)
         }
         return ProcessedFeed(feedId = feed.id, hasNewPosts = savedPosts.newCount > 0)
     }
