@@ -18,7 +18,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -100,6 +103,7 @@ private fun LazyListScope.postDetailContentHeaderActions(
 ) {
     if (post == null) return
     stickyHeader {
+        var menuExpanded by remember(post.id) { mutableStateOf(false) }
         val expandablePaneContext = LocalExpandableDetailPaneContext.current
 
         DPSectionDivider(shape = RectangleShape) {
@@ -153,6 +157,8 @@ private fun LazyListScope.postDetailContentHeaderActions(
 
                     PostReadMenu(
                         post = post,
+                        expanded = menuExpanded,
+                        onExpandedChange = { menuExpanded = it },
                         onReadChanged = onReadChanged,
                         onShare = {
                             sharingService.share(
