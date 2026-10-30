@@ -106,6 +106,10 @@ class FeedViewModel(
 
     override fun onEvent(event: FeedScreenEvent) {
         when (event) {
+            is FeedScreenEvent.OpenInBrowser -> intent {
+                postEffect(FeedScreenEffect.OpenInBrowser(postInteractor.getBrowserOpeningTarget(event.url)))
+            }
+
             is FeedScreenEvent.SaveTelemetryConsent -> saveTelemetryConsent(event)
 
             is FeedScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)

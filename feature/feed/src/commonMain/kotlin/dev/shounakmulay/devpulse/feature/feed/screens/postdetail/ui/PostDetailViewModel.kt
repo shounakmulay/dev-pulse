@@ -6,12 +6,9 @@ import dev.shounakmulay.devpulse.core.domain.feed.posts.GetPostDetailUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.GetRssEncodedContentUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
-import dev.shounakmulay.devpulse.core.domain.models.contentSettings.BrowserOpeningTarget
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
-import dev.shounakmulay.devpulse.core.domain.settings.content.GetBrowserOpeningTargetUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingFontScaleUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingLineHeightScaleUseCase
-import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
@@ -26,18 +23,14 @@ import org.koin.core.annotation.KoinViewModel
 class PostDetailViewModel(
     private val postId: UUID,
     private val postInteractor: PostInteractor,
-    private val getBrowserOpeningTargetUseCase: GetBrowserOpeningTargetUseCase,
     private val getPostDetailUseCase: GetPostDetailUseCase,
     private val getPostContentUseCase: GetPostContentUseCase,
     private val getRssEncodedContentUseCase: GetRssEncodedContentUseCase,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val setContentTextSettingFontScaleUseCase: SetContentTextSettingFontScaleUseCase,
     private val setContentTextSettingLineHeightScaleUseCase: SetContentTextSettingLineHeightScaleUseCase,
-    logger: DPLogger,
 ) : MviViewModel<PostDetailScreenState, PostDetailScreenEffect>(PostDetailScreenState()),
     EventHandler<PostDetailScreenEvent> {
-
-    private val log = logger.withTag("PostDetailViewModel")
 
     override fun createStateSerializer() = PostDetailScreenState.serializer()
 
@@ -77,9 +70,7 @@ class PostDetailViewModel(
     override fun onEvent(event: PostDetailScreenEvent) {
         when (event) {
             is PostDetailScreenEvent.OpenInBrowser -> intent {
-                val target = getBrowserOpeningTargetUseCase(event.url).onFailure {
-                    log.e(throwable = it) { "Couldn't read browser opening preference" }
-                }.getOrNull() ?: BrowserOpeningTarget.External(event.url)
+                val target = postInteractor.getBrowserOpeningTarget(event.url)
                 postEffect(PostDetailScreenEffect.OpenInBrowser(target))
             }
 

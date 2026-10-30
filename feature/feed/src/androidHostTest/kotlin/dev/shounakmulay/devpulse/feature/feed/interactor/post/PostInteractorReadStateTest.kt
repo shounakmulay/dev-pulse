@@ -3,30 +3,38 @@ package dev.shounakmulay.devpulse.feature.feed.interactor.post
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
-import dev.shounakmulay.devpulse.core.data.feed.repository.PostRepository
 import dev.shounakmulay.devpulse.core.data.feed.repository.FeedRepository
+import dev.shounakmulay.devpulse.core.data.feed.repository.PostRepository
+import dev.shounakmulay.devpulse.core.data.settings.ContentSettingsRepository
 import dev.shounakmulay.devpulse.core.domain.feed.feed.ExtractInitialsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPinnedAndRecentFeedsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.GetPaginatedFeedPostsUseCase
+import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostReadUseCase
+import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.domain.models.contentSettings.BrowserOpeningMode
+import dev.shounakmulay.devpulse.core.domain.models.contentSettings.BrowserOpeningTarget
+import dev.shounakmulay.devpulse.core.domain.models.contentSettings.ContentTextSettings
 import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedSearchResult
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithUserState
-import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
-import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
-import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
-import kotlin.time.Instant
-import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostReadUseCase
-import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPost
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContent
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
 import dev.shounakmulay.devpulse.core.domain.models.post.RssParsedPostContent
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostQuery
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostWithFeedIdentityAndSearch
+import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
+import dev.shounakmulay.devpulse.core.domain.settings.content.GetBrowserOpeningTargetUseCase
+import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
+import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.time.Instant
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
@@ -34,12 +42,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PostInteractorReadStateTest {
@@ -80,8 +86,44 @@ class PostInteractorReadStateTest {
         }.message)
     }
 
+    @Test
+    fun `Given default browser preference When opening a post Then the target is in-app`() = runTest {
+        val fixture = Fixture(StandardTestDispatcher(testScheduler))
+
+        assertEquals(BrowserOpeningTarget.InApp(ArticleUrl), fixture.interactor.getBrowserOpeningTarget(ArticleUrl))
+    }
+
+    @Test
+    fun `Given browser preference changes When opening posts Then each action uses the latest choice`() = runTest {
+        val fixture = Fixture(StandardTestDispatcher(testScheduler))
+        fixture.contentSettings.mode = BrowserOpeningMode.EXTERNAL_BROWSER
+
+        assertEquals(BrowserOpeningTarget.External(ArticleUrl), fixture.interactor.getBrowserOpeningTarget(ArticleUrl))
+        fixture.contentSettings.mode = BrowserOpeningMode.IN_APP_BROWSER
+        assertEquals(BrowserOpeningTarget.InApp(ArticleUrl), fixture.interactor.getBrowserOpeningTarget(ArticleUrl))
+    }
+
+    @Test
+    fun `Given browser preference read failure When opening a post Then the original URL targets the external browser`() = runTest {
+        val fixture = Fixture(StandardTestDispatcher(testScheduler))
+        fixture.contentSettings.thrown = IllegalStateException("settings unavailable")
+
+        assertEquals(BrowserOpeningTarget.External(ArticleUrl), fixture.interactor.getBrowserOpeningTarget(ArticleUrl))
+    }
+
+    @Test
+    fun `Given cancelled browser preference read When opening a post Then cancellation propagates`() = runTest {
+        val fixture = Fixture(StandardTestDispatcher(testScheduler))
+        fixture.contentSettings.thrown = CancellationException("screen left")
+
+        assertEquals("screen left", assertFailsWith<CancellationException> {
+            fixture.interactor.getBrowserOpeningTarget(ArticleUrl)
+        }.message)
+    }
+
     private class Fixture(dispatcher: CoroutineDispatcher) {
         val repository = Repository()
+        val contentSettings = ContentSettings()
         private val dispatchers = object : DispatcherProvider {
             override val defaultDispatcher = dispatcher
             override val ioDispatcher = dispatcher
@@ -103,7 +145,24 @@ class PostInteractorReadStateTest {
             dispatcherProvider = dispatchers,
             dateTimeStringConverter = dates,
             setPostReadUseCase = SetPostReadUseCase(repository, dispatchers),
+            getBrowserOpeningTargetUseCase = GetBrowserOpeningTargetUseCase(contentSettings, dispatchers),
         )
+    }
+
+    private class ContentSettings : ContentSettingsRepository {
+        var mode = BrowserOpeningMode.IN_APP_BROWSER
+        var thrown: Exception? = null
+
+        override fun observeBrowserOpeningMode(defaultMode: BrowserOpeningMode): Flow<BrowserOpeningMode> = flow {
+            thrown?.let { throw it }
+            emit(mode)
+        }
+
+        override suspend fun setBrowserOpeningMode(mode: BrowserOpeningMode) = error("Unused")
+        override fun observeContentTextSettings(defaultSettings: ContentTextSettings): Flow<ContentTextSettings> = error("Unused")
+        override suspend fun updateContentTextSettings(settings: ContentTextSettings) = error("Unused")
+        override suspend fun setContentTextScale(scale: Float) = error("Unused")
+        override suspend fun setContentLineHeightScale(spacing: Float) = error("Unused")
     }
 
     private object UnusedFeeds : FeedRepository {
@@ -146,5 +205,6 @@ class PostInteractorReadStateTest {
 
     private companion object {
         val PostId = UUID("post-1")
+        const val ArticleUrl = "https://example.com/article?source=feed#section"
     }
 }

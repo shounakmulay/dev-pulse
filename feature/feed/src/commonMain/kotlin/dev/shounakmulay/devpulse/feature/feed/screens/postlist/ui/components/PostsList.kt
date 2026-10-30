@@ -47,6 +47,7 @@ internal fun PostsList(
     state: PostListScreenState,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UIFeedPost) -> Unit,
+    onOpenInBrowser: (String) -> Unit,
 ) {
     val sortAndFilterState by postSortAndFilterViewModel.collectAsState()
     val readStatus = sortAndFilterState.filters.filterIsInstance<RssPostFilter.ReadStatus>().firstOrNull()?.value
@@ -109,6 +110,7 @@ internal fun PostsList(
                         },
                         onBookmarkChanged = onBookmarkChanged,
                         onPostClick = onPostClick,
+                        onOpenInBrowser = onOpenInBrowser,
                     )
                 }
             }

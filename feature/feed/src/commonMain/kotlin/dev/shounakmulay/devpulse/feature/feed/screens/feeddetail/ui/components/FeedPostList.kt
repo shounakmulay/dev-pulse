@@ -56,6 +56,7 @@ internal fun FeedPostList(
     postSortAndFilterState: PostSortAndFilterState,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UIFeedPost) -> Unit,
+    onOpenInBrowser: (String) -> Unit,
     onFilterUpdated: (RssPostFilter) -> Unit,
     onSortUpdated: (UIPostSort) -> Unit,
     clearFilters: () -> Unit,
@@ -118,6 +119,7 @@ internal fun FeedPostList(
                     onReadChanged = onReadChanged,
                     showImage = true,
                     onPostClick = onPostClick,
+                    onOpenInBrowser = onOpenInBrowser,
                     onBookmarkChanged = onBookmarkChanged,
                     variant = postListItemVariant,
                 )
@@ -145,6 +147,7 @@ private fun FeedPostListPreview() {
             ),
             onBookmarkChanged = { _, _ -> },
             onPostClick = {},
+            onOpenInBrowser = {},
             onFilterUpdated = {},
             onSortUpdated = {},
             clearFilters = {},

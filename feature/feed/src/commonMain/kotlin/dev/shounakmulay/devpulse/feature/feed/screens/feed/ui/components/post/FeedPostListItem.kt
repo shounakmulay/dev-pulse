@@ -13,6 +13,7 @@ import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.core.ui.list.post.FeedPostListItem
+import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.feature.feed.components.postRead.PostReadMenu
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
@@ -27,8 +28,10 @@ fun FeedPostListItem(
     onReadChanged: (UUID, Boolean) -> Unit = { _, _ -> },
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UIFeedPost) -> Unit,
+    onOpenInBrowser: (String) -> Unit,
 ) {
     var menuExpanded by remember(post.id) { mutableStateOf(false) }
+    val sharingService = rememberSharingService(onCopiedToClipboard = {})
     FeedPostListItem(
         modifier = modifier,
         variant = variant,
@@ -51,6 +54,15 @@ fun FeedPostListItem(
                 expanded = menuExpanded,
                 onExpandedChange = { menuExpanded = it },
                 onReadChanged = onReadChanged,
+                onShare = {
+                    sharingService.share(
+                        text = post.title,
+                        link = post.articleUrl ?: post.sourceUrl ?: post.sourceName,
+                    )
+                },
+                onOpenInBrowser = {
+                    post.articleUrl?.let { url -> onOpenInBrowser(url) }
+                },
             )
         },
         onBookmarkChanged = { onBookmarkChanged(post, it) },
@@ -75,6 +87,7 @@ private fun FeedPostListItemPreview() {
                     showImage = false,
                     onBookmarkChanged = { _, _ -> },
                     onPostClick = {},
+                    onOpenInBrowser = {},
                 )
             }
         }
