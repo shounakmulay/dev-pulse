@@ -28,7 +28,7 @@ class NavigatorRemoveFromFirstTest {
 
         assertEquals(listOf(Screen.Tabs, Screen.Settings), state.rootStack.toList())
         assertEquals(Screen.Tabs.Feed, state.selectedTab)
-        assertFalse(navigator.removeFromFirst(onRootStack = true) { it == Screen.Tabs.Feed.FeedDetail(FeedA) })
+        assertFalse(navigator.removeFromFirstOnAllStacks { it == Screen.Tabs.Feed.FeedDetail(FeedA) })
         assertEquals(listOf(Screen.Tabs, Screen.Settings), state.rootStack.toList())
         navigator.navigateBack()
         assertEquals(listOf<Screen>(Screen.Tabs), state.rootStack.toList())
@@ -42,7 +42,7 @@ class NavigatorRemoveFromFirstTest {
             listOf(Screen.Tabs.Feed.FeedList, Screen.Settings, Screen.AboutLibs, Screen.Settings),
         )
 
-        assertTrue(navigator(state).removeFromFirst { it == Screen.Settings })
+        assertTrue(navigator(state).removeFromFirstOnAllStacks { it == Screen.Settings })
 
         assertEquals(listOf(Screen.Tabs.Feed, Screen.Tabs.Feed.FeedList), state.tabsBackStacks.getValue(Screen.Tabs.Feed).toList())
         assertEquals(listOf(Screen.Tabs.Home, Screen.Settings), state.tabsBackStacks.getValue(Screen.Tabs.Home).toList())
@@ -54,7 +54,7 @@ class NavigatorRemoveFromFirstTest {
     fun `Given a first root entry match When removing Then false is returned and all navigation stays unchanged`() {
         val state = state(Screen.Settings, Screen.AboutLibs)
 
-        assertFalse(navigator(state).removeFromFirst(onRootStack = true) { it == Screen.Settings })
+        assertFalse(navigator(state).removeFromFirstOnAllStacks { it == Screen.Settings })
 
         assertEquals(listOf(Screen.Settings, Screen.AboutLibs), state.rootStack.toList())
         assertEquals(listOf<Screen>(Screen.Tabs.Feed), state.tabsBackStacks.getValue(Screen.Tabs.Feed).toList())
@@ -66,7 +66,7 @@ class NavigatorRemoveFromFirstTest {
         val state = state(Screen.Tabs)
         state.tabsBackStacks.getValue(Screen.Tabs.Feed).add(Screen.Settings)
 
-        assertFalse(navigator(state).removeFromFirst { it == Screen.Tabs.Feed })
+        assertFalse(navigator(state).removeFromFirstOnAllStacks { it == Screen.Tabs.Feed })
 
         assertEquals(listOf(Screen.Tabs.Feed, Screen.Settings), state.tabsBackStacks.getValue(Screen.Tabs.Feed).toList())
         assertEquals(listOf<Screen>(Screen.Tabs), state.rootStack.toList())
@@ -76,8 +76,8 @@ class NavigatorRemoveFromFirstTest {
     fun `Given no matching entry When removing Then false is returned and history is preserved`() {
         val state = state(Screen.Tabs, Screen.Settings)
 
-        assertFalse(navigator(state).removeFromFirst(onRootStack = true) { it == Screen.AboutLibs })
-        assertFalse(navigator(state).removeFromFirst { it == Screen.Settings })
+        assertFalse(navigator(state).removeFromFirstOnAllStacks { it == Screen.AboutLibs })
+        assertFalse(navigator(state).removeFromFirstOnAllStacks { it == Screen.Settings })
 
         assertEquals(listOf(Screen.Tabs, Screen.Settings), state.rootStack.toList())
         assertEquals(listOf<Screen>(Screen.Tabs.Feed), state.tabsBackStacks.getValue(Screen.Tabs.Feed).toList())
@@ -87,7 +87,7 @@ class NavigatorRemoveFromFirstTest {
     fun `Given only a matching deep link When removing Then false is returned without a fallback route`() {
         val state = state(Screen.Tabs.Feed.FeedDetail(FeedA))
 
-        assertFalse(navigator(state).removeFromFirst(onRootStack = true) { it == Screen.Tabs.Feed.FeedDetail(FeedA) })
+        assertFalse(navigator(state).removeFromFirstOnAllStacks { it == Screen.Tabs.Feed.FeedDetail(FeedA) })
 
         assertEquals(listOf<Screen>(Screen.Tabs.Feed.FeedDetail(FeedA)), state.rootStack.toList())
         assertEquals(Screen.Tabs.Feed, state.selectedTab)
@@ -99,7 +99,7 @@ class NavigatorRemoveFromFirstTest {
         val restored = Json.decodeFromString<List<Screen>>(Json.encodeToString(routes))
         val state = state(*restored.toTypedArray())
 
-        assertTrue(navigator(state).removeFromFirst(onRootStack = true) { it == Screen.Tabs.Feed.FeedDetail(FeedA) })
+        assertTrue(navigator(state).removeFromFirstOnAllStacks { it == Screen.Tabs.Feed.FeedDetail(FeedA) })
 
         assertEquals(routes, restored)
         assertEquals(listOf<Screen>(Screen.Tabs), state.rootStack.toList())
@@ -109,18 +109,21 @@ class NavigatorRemoveFromFirstTest {
     fun `Given a final matching entry When removing Then earlier history is retained`() {
         val state = state(Screen.Tabs, Screen.Settings, Screen.AboutLibs)
 
-        assertTrue(navigator(state).removeFromFirst(onRootStack = true) { it == Screen.AboutLibs })
+        assertTrue(navigator(state).removeFromFirstOnAllStacks { it == Screen.AboutLibs })
 
         assertEquals(listOf(Screen.Tabs, Screen.Settings), state.rootStack.toList())
     }
 
     @Test
-    fun `Given no selected tab stack When removing Then false is returned without changing root history`() {
+    fun `Given a caller supplied tab stack When the selected tab is missing Then that stack is still pruned`() {
         val state = state(Screen.Tabs, Screen.Settings)
         state.selectedTab = Screen.Tabs.Time
+        val feedStack = state.tabsBackStacks.getValue(Screen.Tabs.Feed)
+        feedStack.add(Screen.Settings)
 
-        assertFalse(navigator(state).removeFromFirst { true })
+        assertTrue(navigator(state).removeFromFirstOnAllStacks { it == Screen.Settings })
 
+        assertEquals(listOf<Screen>(Screen.Tabs.Feed), feedStack.toList())
         assertEquals(listOf(Screen.Tabs, Screen.Settings), state.rootStack.toList())
         assertEquals(Screen.Tabs.Time, state.selectedTab)
     }
@@ -134,7 +137,7 @@ class NavigatorRemoveFromFirstTest {
             Screen.Settings,
         )
 
-        assertTrue(navigator(state).removeFromFirst(onRootStack = true) { it == Screen.Tabs.Feed.FeedDetail(FeedA) })
+        assertTrue(navigator(state).removeFromFirstOnAllStacks { it == Screen.Tabs.Feed.FeedDetail(FeedA) })
 
         assertEquals(listOf(Screen.Tabs, Screen.Tabs.Feed.PostDetail(ArticleA)), state.rootStack.toList())
     }
