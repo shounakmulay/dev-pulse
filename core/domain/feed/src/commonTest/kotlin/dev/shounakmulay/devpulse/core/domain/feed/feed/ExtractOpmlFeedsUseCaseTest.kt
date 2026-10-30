@@ -1,5 +1,14 @@
 package dev.shounakmulay.devpulse.core.domain.feed.feed
 
+import dev.shounakmulay.devpulse.core.logging.consent.AnalyticsConsentProvider
+import dev.shounakmulay.devpulse.core.logging.consent.DPAnalyticsConsent
+import dev.shounakmulay.devpulse.core.logging.events.DPEvent
+import kotlinx.coroutines.flow.flowOf
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
+import kotlin.test.BeforeTest
+import kotlin.test.AfterTest
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
@@ -20,10 +29,28 @@ import kotlin.test.assertEquals
 import kotlin.test.assertSame
 
 class ExtractOpmlFeedsUseCaseTest {
+    @BeforeTest
+    fun setUp() {
+        startKoin { modules(module {
+            single<AnalyticsConsentProvider> { object : AnalyticsConsentProvider {
+                override fun getConsent() = DPAnalyticsConsent(true, true, true)
+                override fun observeConsent() = flowOf(getConsent())
+            } }
+        }) }
+        DPEvent.configure(emptyList())
+    }
+
+    @AfterTest
+    fun tearDown() {
+        DPEvent.configure(emptyList())
+        stopKoin()
+    }
+
     @Test
     fun `Given URL repository failure When extracting OPML feeds Then failure is returned`() = runBlocking {
         val failure = IllegalStateException("boom")
         val useCase = ExtractOpmlFeedsUseCase(
+            dpEvent = DPEvent,
             feedRepository = FakeFeedRepository(failure = failure),
             dispatcherProvider = TestDispatcherProvider
         )

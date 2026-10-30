@@ -14,10 +14,13 @@ import dev.shounakmulay.devpulse.core.domain.feed.queue.hooks.CorePostsItemHook
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueActionType
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import dev.shounakmulay.devpulse.core.domain.models.feedSync.RssFeedSyncMetadata
 import dev.shounakmulay.devpulse.core.domain.models.raw.parsed.ParsedFeed
+import dev.shounakmulay.devpulse.core.logging.events.DPEvent
+import dev.shounakmulay.devpulse.core.logging.events.DPEvents
 import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -39,6 +42,7 @@ import kotlin.time.Duration.Companion.hours
 @Single(binds = [RssFeedQueueExecutor::class])
 internal class RssFeedQueueExecutorImpl(
     private val dispatcherProvider: DispatcherProvider,
+    private val dpEvent: DPEvent,
     private val feedRepository: FeedRepository,
     private val postRepository: PostRepository,
     private val feedSyncMetadataRepository: FeedSyncMetadataRepository,
@@ -84,11 +88,12 @@ internal class RssFeedQueueExecutorImpl(
         }
     }
 
-    override suspend fun process(): Set<UUID> = drain()
+    override suspend fun process(): RssFeedQueueProcessingResult = drain()
 
-    private suspend fun drain(): Set<UUID> = queueProcessingMutex.withLock {
+    private suspend fun drain(): RssFeedQueueProcessingResult = queueProcessingMutex.withLock {
         logger.d { "Queue drain started" }
         val syncedFeeds = mutableSetOf<UUID>()
+        val feedsWithNewPosts = mutableSetOf<UUID>()
         while (true) {
             val next = feedQueueRepository.getNextToProcess()
             if (next == null) {
@@ -107,16 +112,22 @@ internal class RssFeedQueueExecutorImpl(
                 break
             }
 
-            val savedFeedId = processEntry(next)
-            if (savedFeedId != null) {
-                syncedFeeds.add(savedFeedId)
+            val processedFeed = processEntry(next)
+            if (processedFeed != null) {
+                syncedFeeds.add(processedFeed.feedId)
+                if (processedFeed.hasNewPosts) {
+                    feedsWithNewPosts.add(processedFeed.feedId)
+                }
             }
         }
         logger.d { "Queue drain finished" }
-        syncedFeeds
+        RssFeedQueueProcessingResult(
+            syncedFeedIds = syncedFeeds.toSet(),
+            feedsWithNewPosts = feedsWithNewPosts.toSet(),
+        )
     }
 
-    private suspend fun processEntry(entry: RssFeedQueueEntry): UUID? {
+    private suspend fun processEntry(entry: RssFeedQueueEntry): ProcessedFeed? {
         var existingFeedIdentity: RssFeedIdentity? = null
         var existingSyncMetadata: RssFeedSyncMetadata? = null
         try {
@@ -152,6 +163,9 @@ internal class RssFeedQueueExecutorImpl(
             "Queue entry failed id=${entry.id} action=${entry.actionType} source=${entry.url.sourceSummary()}"
         }
         feedSyncRepository.onImportFailed(entry = entry, metadata = null)
+        if (entry.actionType == RssFeedQueueActionType.IMPORT) {
+            dpEvent.track(DPEvents.FEED_IMPORT_FAILED)
+        }
         dispatcherProvider.runCatchingOnDefault {
             createSyncFailureMetadata(
                 existingFeedIdentity = existingFeedIdentity,
@@ -166,7 +180,7 @@ internal class RssFeedQueueExecutorImpl(
         entry: RssFeedQueueEntry,
         existingFeedIdentity: RssFeedIdentity?,
         existingSyncMetadata: RssFeedSyncMetadata?,
-    ): UUID? {
+    ): ProcessedFeed {
         logger.d {
             "Queue entry claimed id=${entry.id} action=${entry.actionType} status=${entry.status} source=${entry.url.sourceSummary()}"
         }
@@ -179,7 +193,7 @@ internal class RssFeedQueueExecutorImpl(
             existingIdentity = existingFeedIdentity,
         )
 
-        val savedCount = savePosts(
+        val savedPosts = savePosts(
             entry = entry,
             parsedFeed = parsedFeed,
             rssFeed = feed,
@@ -188,18 +202,21 @@ internal class RssFeedQueueExecutorImpl(
         feedSyncRepository.onImportCompleted(
             entry = entry,
             feed = feed,
-            savedCount = savedCount,
+            savedCount = savedPosts.upsertedCount,
             metadata = createSyncSuccessMetadata(
                 existingMetadata = existingSyncMetadata,
                 feed = feed,
                 parsedFeed = parsedFeed,
-                savedCount = savedCount,
+                savedCount = savedPosts.upsertedCount,
             ),
         )
         logger.d {
             "Queue entry completed id=${entry.id} action=${entry.actionType} source=${entry.url.sourceSummary()}"
         }
-        return feed.id
+        if (entry.actionType == RssFeedQueueActionType.IMPORT) {
+            dpEvent.track(DPEvents.FEED_IMPORT_COMPLETED)
+        }
+        return ProcessedFeed(feedId = feed.id, hasNewPosts = savedPosts.newCount > 0)
     }
 
     private suspend fun createSyncSuccessMetadata(
@@ -307,12 +324,13 @@ internal class RssFeedQueueExecutorImpl(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun savePosts(
+    private suspend fun savePosts(
         entry: RssFeedQueueEntry,
         parsedFeed: ParsedFeed,
         rssFeed: RssFeed,
-    ): Int {
+    ): SavedPosts {
         var upsertedCount = 0
+        var newCount = 0
         val feedId = rssFeed.id
         parsedFeed.items
             .chunked(50)
@@ -340,12 +358,13 @@ internal class RssFeedQueueExecutorImpl(
 
                 feedSyncRepository.importPosts(it)
                 upsertedCount += it.size
+                newCount += it.count { post -> post.identity == null }
                 logger.d {
                     "RSS content chunk upserted feedId=$feedId upsertedPostCount=${it.size}"
                 }
             }
             .collect()
-        return upsertedCount
+        return SavedPosts(upsertedCount = upsertedCount, newCount = newCount)
     }
 
     override fun isProcessing(): Boolean = queueProcessingMutex.isLocked
@@ -356,6 +375,10 @@ internal class RssFeedQueueExecutorImpl(
             withoutScheme.substringBefore('/').substringBefore('?').takeIf { it.isNotBlank() }
         return "host=${host ?: take(80)}"
     }
+
+    private data class SavedPosts(val upsertedCount: Int, val newCount: Int)
+
+    private data class ProcessedFeed(val feedId: UUID, val hasNewPosts: Boolean)
 
     private companion object {
         const val TAG = "RssFeedQueueExecutor"

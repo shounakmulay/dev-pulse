@@ -1,22 +1,23 @@
 package dev.shounakmulay.devpulse.core.navigation
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.navigation3.runtime.NavBackStack
 import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter
 
-
 @Immutable
 class Navigator(
     val state: NavigationState,
-    private val logger: DPLogger
+    private val logger: DPLogger,
 ) {
 
     private val reselectEvents = MutableSharedFlow<Screen>(
         replay = 0,
         extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
 
     fun reselectEvents(screen: Screen) = reselectEvents.filter { it == screen }
@@ -36,14 +37,14 @@ class Navigator(
                     screen = screen,
                     stack = "root",
                     result = false,
-                    reason = "alreadyCurrent"
+                    reason = "alreadyCurrent",
                 )
             }
             return logResult(
                 action = "navigate",
                 screen = screen,
                 stack = "root",
-                result = state.rootStack.add(screen)
+                result = state.rootStack.add(screen),
             )
         }
 
@@ -54,7 +55,7 @@ class Navigator(
                 screen = screen,
                 stack = "tab",
                 result = true,
-                reason = "selectedTab"
+                reason = "selectedTab",
             )
         }
 
@@ -64,7 +65,7 @@ class Navigator(
                 screen = screen,
                 stack = "tab",
                 result = false,
-                reason = "missingSelectedStack"
+                reason = "missingSelectedStack",
             )
         val currentTabsStackScreen = currentStack.last()
         if (currentTabsStackScreen == screen) {
@@ -73,14 +74,14 @@ class Navigator(
                 screen = screen,
                 stack = "tab",
                 result = false,
-                reason = "alreadyCurrent"
+                reason = "alreadyCurrent",
             )
         }
         return logResult(
             action = "navigate",
             screen = screen,
             stack = "tab",
-            result = state.tabsBackStacks[state.selectedTab]?.add(screen) ?: false
+            result = state.tabsBackStacks[state.selectedTab]?.add(screen) ?: false,
         )
     }
 
@@ -97,7 +98,7 @@ class Navigator(
                 screen = screen,
                 stack = "tab",
                 result = false,
-                reason = "tabRouteReplacementRejected"
+                reason = "tabRouteReplacementRejected",
             )
         }
 
@@ -107,7 +108,7 @@ class Navigator(
                 screen = screen,
                 stack = "tab",
                 result = false,
-                reason = "missingSelectedStack"
+                reason = "missingSelectedStack",
             )
         selectedStack[selectedStack.size - 1] = screen
         return logResult(action = "replace", screen = screen, stack = "tab", result = true)
@@ -116,7 +117,7 @@ class Navigator(
     fun replaceOfSameType(
         screen: Screen,
         onRootStack: Boolean = false,
-        addIfNotPresent: Boolean = true
+        addIfNotPresent: Boolean = true,
     ): Boolean {
         logAttempt(action = "replaceOfSameType", screen = screen, onRootStack = onRootStack)
         if (onRootStack) {
@@ -135,7 +136,7 @@ class Navigator(
                 screen = screen,
                 stack = "root",
                 result = false,
-                reason = "differentType"
+                reason = "differentType",
             )
         }
 
@@ -156,16 +157,58 @@ class Navigator(
             screen = screen,
             stack = "tab",
             result = false,
-            reason = "differentType"
+            reason = "differentType",
         )
+    }
+
+    fun removeFromFirstOnAllStacks(
+        predicate: (Screen) -> Boolean,
+    ): Boolean = Snapshot.withMutableSnapshot {
+        logger.d {
+            "Navigation mutation action=removeFromFirstOnAllStacks " +
+                "selectedTab=${state.selectedTab.summary()} rootSize=${state.rootStack.size}"
+        }
+        val rootStack = state.rootStack.removeFromFirst(predicate)
+        val tabStacks = state.tabsBackStacks.map {
+            it.value.removeFromFirst(predicate)
+        }.fold(false) { acc, bool -> acc || bool }
+        logger.d {
+            "Navigation result action=removeFromFirstOnAllStacks " +
+                "selectedTab=${state.selectedTab.summary()} rootChanged=$rootStack tabsChanged=$tabStacks " +
+                "result=${rootStack || tabStacks}"
+        }
+        rootStack || tabStacks
+    }
+
+    private fun NavBackStack<Screen>.removeFromFirst(predicate: (Screen) -> Boolean): Boolean {
+        val startIndex = indexOfFirst(predicate)
+        val stackName = if (this === state.rootStack) "root" else "tab"
+        logger.d {
+            "Navigation mutation action=removeFromFirst stack=$stackName " +
+                "size=$size matchIndex=$startIndex entries=${joinToString { it.summary() }}"
+        }
+        if (startIndex <= 0) {
+            logger.d {
+                "Navigation result action=removeFromFirst stack=$stackName result=false " +
+                    "reason=${if (startIndex == 0) "wouldEmptyStack" else "noMatch"}"
+            }
+            return false
+        }
+        val screensToRemove = subList(startIndex, size)
+        screensToRemove.clear()
+        logger.d {
+            "Navigation result action=removeFromFirst stack=$stackName " +
+                "result=true remaining=${joinToString { it.summary() }}"
+        }
+        return true
     }
 
     fun navigateBack(): Boolean {
         logger.d {
             "Navigation mutation action=navigateBack " +
-                    "selectedTab=${state.selectedTab.summary()} rootTop=${
-                        state.rootStack.last().summary()
-                    }"
+                "selectedTab=${state.selectedTab.summary()} rootTop=${
+                    state.rootStack.last().summary()
+                }"
         }
         if (state.rootStack.last() == Screen.Tabs) {
             return navigateBackTabs()
@@ -173,7 +216,7 @@ class Navigator(
 
         return logBackResult(
             stack = "root",
-            result = state.rootStack.removeLastOrNull() != null
+            result = state.rootStack.removeLastOrNull() != null,
         )
     }
 
@@ -188,14 +231,14 @@ class Navigator(
 
         return logBackResult(
             stack = "tab",
-            result = stack.removeLastOrNull() != null
+            result = stack.removeLastOrNull() != null,
         )
     }
 
     private fun logAttempt(action: String, screen: Screen, onRootStack: Boolean) {
         logger.d {
             "Navigation mutation action=$action target=${screen.summary()} " +
-                    "selectedTab=${state.selectedTab.summary()} requestedStack=${if (onRootStack) "root" else "tab"}"
+                "selectedTab=${state.selectedTab.summary()} requestedStack=${if (onRootStack) "root" else "tab"}"
         }
     }
 
@@ -204,12 +247,12 @@ class Navigator(
         screen: Screen,
         stack: String,
         result: Boolean,
-        reason: String? = null
+        reason: String? = null,
     ): Boolean {
         logger.d {
             "Navigation result action=$action target=${screen.summary()} " +
-                    "selectedTab=${state.selectedTab.summary()} stack=$stack result=$result" +
-                    reason.asLogSuffix()
+                "selectedTab=${state.selectedTab.summary()} stack=$stack result=$result" +
+                reason.asLogSuffix()
         }
         return result
     }
@@ -217,17 +260,13 @@ class Navigator(
     private fun logBackResult(stack: String, result: Boolean, reason: String? = null): Boolean {
         logger.d {
             "Navigation result action=navigateBack selectedTab=${state.selectedTab.summary()} " +
-                    "stack=$stack result=$result" +
-                    reason.asLogSuffix()
+                "stack=$stack result=$result" +
+                reason.asLogSuffix()
         }
         return result
     }
 
-    private fun String?.asLogSuffix(): String {
-        return this?.let { " reason=$it" }.orEmpty()
-    }
+    private fun String?.asLogSuffix(): String = this?.let { " reason=$it" }.orEmpty()
 
-    private fun Screen.summary(): String {
-        return this::class.simpleName ?: toString()
-    }
+    private fun Screen.summary(): String = this::class.simpleName ?: toString()
 }

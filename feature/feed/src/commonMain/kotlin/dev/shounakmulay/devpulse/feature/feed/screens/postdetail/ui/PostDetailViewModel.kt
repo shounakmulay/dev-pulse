@@ -6,14 +6,17 @@ import dev.shounakmulay.devpulse.core.domain.feed.posts.GetPostDetailUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.GetRssEncodedContentUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.posts.SetPostBookmarkedUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.domain.models.contentSettings.BrowserOpeningTarget
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
+import dev.shounakmulay.devpulse.core.domain.settings.content.GetBrowserOpeningTargetUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingFontScaleUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingLineHeightScaleUseCase
+import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
-import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.ReaderVisitReadDecision
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.PostDetailScreenSection
+import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.ReaderVisitReadDecision
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
@@ -23,14 +26,18 @@ import org.koin.core.annotation.KoinViewModel
 class PostDetailViewModel(
     private val postId: UUID,
     private val postInteractor: PostInteractor,
+    private val getBrowserOpeningTargetUseCase: GetBrowserOpeningTargetUseCase,
     private val getPostDetailUseCase: GetPostDetailUseCase,
     private val getPostContentUseCase: GetPostContentUseCase,
     private val getRssEncodedContentUseCase: GetRssEncodedContentUseCase,
     private val setPostBookmarkedUseCase: SetPostBookmarkedUseCase,
     private val setContentTextSettingFontScaleUseCase: SetContentTextSettingFontScaleUseCase,
-    private val setContentTextSettingLineHeightScaleUseCase: SetContentTextSettingLineHeightScaleUseCase
-) : EventHandler<PostDetailScreenEvent>,
-    MviViewModel<PostDetailScreenState, PostDetailScreenEffect>(PostDetailScreenState()) {
+    private val setContentTextSettingLineHeightScaleUseCase: SetContentTextSettingLineHeightScaleUseCase,
+    logger: DPLogger,
+) : MviViewModel<PostDetailScreenState, PostDetailScreenEffect>(PostDetailScreenState()),
+    EventHandler<PostDetailScreenEvent> {
+
+    private val log = logger.withTag("PostDetailViewModel")
 
     override fun createStateSerializer() = PostDetailScreenState.serializer()
 
@@ -40,7 +47,7 @@ class PostDetailViewModel(
                 getPostContentUseCase(postId, type = RssFeedPostContentType.MARKDOWN).getOrNull()
             setState {
                 copy(
-                    content = content
+                    content = content,
                 )
             }
         }
@@ -50,7 +57,7 @@ class PostDetailViewModel(
                     .getOrNull()
             setState {
                 copy(
-                    rssContent = content
+                    rssContent = content,
                 )
             }
         }
@@ -60,7 +67,7 @@ class PostDetailViewModel(
                 setState {
                     copy(
                         isLoading = false,
-                        post = postInteractor.toUIFeedPost(postWithFeedIdentity)
+                        post = postInteractor.toUIFeedPost(postWithFeedIdentity),
                     )
                 }
             }
@@ -69,11 +76,23 @@ class PostDetailViewModel(
 
     override fun onEvent(event: PostDetailScreenEvent) {
         when (event) {
+            is PostDetailScreenEvent.OpenInBrowser -> intent {
+                val target = getBrowserOpeningTargetUseCase(event.url).onFailure {
+                    log.e(throwable = it) { "Couldn't read browser opening preference" }
+                }.getOrNull() ?: BrowserOpeningTarget.External(event.url)
+                postEffect(PostDetailScreenEffect.OpenInBrowser(target))
+            }
+
             PostDetailScreenEvent.ContentAvailable -> onContentAvailable()
+
             is PostDetailScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)
+
             is PostDetailScreenEvent.SetPostBookmarked -> setPostBookmarked(event)
+
             is PostDetailScreenEvent.OnSectionSelected -> onSectionSelected(event.section)
+
             is PostDetailScreenEvent.SetContentLineHeightScale -> setContentLineHeightScale(event.scale)
+
             is PostDetailScreenEvent.SetContentTextScale -> setContentTextScale(event.scale)
         }
     }
@@ -112,13 +131,11 @@ class PostDetailViewModel(
         }
     }
 
-
     private fun onSectionSelected(section: PostDetailScreenSection) {
         setState {
             copy(
-                selectedSection = section
+                selectedSection = section,
             )
         }
     }
-
 }

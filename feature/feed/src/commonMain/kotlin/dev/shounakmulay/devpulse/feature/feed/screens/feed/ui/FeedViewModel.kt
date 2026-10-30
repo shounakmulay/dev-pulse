@@ -183,7 +183,7 @@ class FeedViewModel(
             option = option,
             onShare = { postEffect(FeedScreenEffect.Share(it)) },
             onShowToast = { postEffect(FeedScreenEffect.ShowToast(it)) },
-            onNavigateBack = {},
+            onFeedDeleted = { postEffect(FeedScreenEffect.FeedDeleted(it)) },
         )
     }
 }

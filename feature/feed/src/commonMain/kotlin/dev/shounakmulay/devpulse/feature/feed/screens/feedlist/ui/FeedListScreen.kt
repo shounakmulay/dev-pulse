@@ -12,6 +12,7 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPSearchTopAppBar
 import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
+import dev.shounakmulay.devpulse.core.navigation.removeFeedRoutes
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
@@ -52,7 +53,7 @@ fun FeedListScreen(
                 navigationIcon = {
                     DPBackNavigationIconButton(
                         modifier = it,
-                        onNavigateBack = navigator::navigateBack
+                        onNavigateBack = navigator::navigateBack,
                     )
                 },
                 textValue = searchQuery,
@@ -70,7 +71,10 @@ fun FeedListScreen(
         },
         onEffect = {
             when (it) {
+                is FeedListScreenEffect.FeedDeleted -> navigator.removeFeedRoutes(it.feedId)
+
                 is FeedListScreenEffect.Share -> sharingService.share(text = it.text.resolve())
+
                 is FeedListScreenEffect.ShowToast -> {
                     snackbarController.showSnackbar(it.message.resolve())
                 }
@@ -108,7 +112,7 @@ fun FeedListScreen(
             },
             onNavigationToImportFeeds = {
                 navigator.navigate(Screen.Tabs.Feed.AddFeed)
-            }
+            },
         )
     }
 }

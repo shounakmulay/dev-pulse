@@ -1,6 +1,5 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui
 
-import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import dev.shounakmulay.devpulse.core.common.extensions.onEachSuccess
@@ -32,9 +31,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import org.orbitmvi.orbit.syntax.Syntax
-
 
 @KoinViewModel
 class FeedDetailViewModel(
@@ -48,10 +47,9 @@ class FeedDetailViewModel(
     private val observeFeedPostListItemVariantUseCase: ObserveFeedPostListItemVariantUseCase,
     private val feedOptionsMenuProcessor: FeedOptionsMenuProcessor,
 ) : MviViewModel<FeedDetailScreenState, FeedDetailScreenEffect>(
-    initialState = FeedDetailScreenState()
+    initialState = FeedDetailScreenState(),
 ),
     EventHandler<FeedDetailScreenEvent> {
-
 
     override fun createStateSerializer() = FeedDetailScreenState.serializer()
 
@@ -102,7 +100,9 @@ class FeedDetailViewModel(
     override fun onEvent(event: FeedDetailScreenEvent) {
         when (event) {
             is FeedDetailScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)
+
             FeedDetailScreenEvent.ConfirmDelete -> confirmDelete()
+
             FeedDetailScreenEvent.DismissDelete -> intent {
                 if (state.feedOptions is FeedOptionsState.ConfirmingDelete) {
                     setState { copy(feedOptions = null) }
@@ -110,15 +110,20 @@ class FeedDetailViewModel(
             }
 
             is FeedDetailScreenEvent.OnShowFeedOptions -> showFeedOptions(event.feed)
+
             is FeedDetailScreenEvent.HideFeedOptions -> dismissFeedOptions(event.feedId)
+
             is FeedDetailScreenEvent.OnPostBookmarkChanged -> onPostBookmarkChanged(
                 postId = event.postId,
-                bookmarked = event.bookmarked
+                bookmarked = event.bookmarked,
             )
 
             FeedDetailScreenEvent.Retry -> Unit
+
             is FeedDetailScreenEvent.OnFeedOptionSelected -> selectFeedOption(feedId, event.option)
+
             FeedDetailScreenEvent.OnPinToggled -> onPinToggled()
+
             is FeedDetailScreenEvent.OnSearchTextChange -> onSearchTextChange(event.text)
         }
     }
@@ -149,7 +154,7 @@ class FeedDetailViewModel(
                 copy(
                     feed = rssFeed.feed,
                     uiFeed = feedInteractor.toUIFeed(rssFeed),
-                    isLoading = false
+                    isLoading = false,
                 )
             }
         }.onFailure { error ->
@@ -190,7 +195,7 @@ class FeedDetailViewModel(
             option = option,
             onShare = { postEffect(FeedDetailScreenEffect.Share(it)) },
             onShowToast = { postEffect(FeedDetailScreenEffect.ShowToast(it)) },
-            onNavigateBack = { postEffect(FeedDetailScreenEffect.NavigateBack) },
+            onFeedDeleted = { postEffect(FeedDetailScreenEffect.FeedDeleted(it)) },
         )
     }
 }

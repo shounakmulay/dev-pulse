@@ -24,6 +24,7 @@ import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.PostList
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
+import dev.shounakmulay.devpulse.core.navigation.removeFeedRoutes
 import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
@@ -66,6 +67,8 @@ fun FeedScreen(
         },
         onEffect = {
             when (it) {
+                is FeedScreenEffect.FeedDeleted -> navigator.removeFeedRoutes(it.feedId)
+
                 is FeedScreenEffect.Share -> sharingService.share(text = it.text.resolve())
 
                 is FeedScreenEffect.ShowToast -> {
@@ -130,7 +133,7 @@ fun FeedScreen(
                 articles = recentArticles,
                 isLoading = state.isArticlesLoading,
                 onPostClick = {
-                    navigator.navigate(Screen.Tabs.Feed.PostDetail(it.id), onRootStack = true)
+                    navigator.navigate(Screen.Tabs.Feed.PostDetail(id = it.id, feedId = it.feed.id), onRootStack = true)
                 },
                 onBookmarkChanged = { post, bookmarked ->
                     viewModel.onEvent(

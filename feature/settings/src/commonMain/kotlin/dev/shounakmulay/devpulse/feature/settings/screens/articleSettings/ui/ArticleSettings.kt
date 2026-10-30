@@ -25,15 +25,19 @@ import dev.shounakmulay.devpulse.core.ui.button.DPBackNavigationIconButton
 import dev.shounakmulay.devpulse.core.ui.content.ContentTextContainer
 import dev.shounakmulay.devpulse.core.ui.content.ContentTextSettingControls
 import dev.shounakmulay.devpulse.core.ui.content.LocalContentTextSettings
+import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import devpulse.core.resources.generated.resources.article_reader
+import devpulse.core.resources.generated.resources.browser_opening_error
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ArticleSettingsScreen(
     viewModel: ArticleSettingsViewModel,
-    navigator: Navigator
+    navigator: Navigator,
 ) {
+    val snackbarController = LocalSnackbarController.current
     Screen(
         viewModel = viewModel,
         topAppBar = {
@@ -48,10 +52,11 @@ fun ArticleSettingsScreen(
         },
         onEffect = {
             when (it) {
+                ArticleSettingsEffect.BrowserOpeningModeError -> snackbarController.showSnackbar(getString(stringRes.browser_opening_error))
                 else -> viewModel.unhandledEffect(it)
             }
         },
-    ) {
+    ) { state ->
         val settings by LocalContentTextSettings.current.collectAsStateWithLifecycle()
         ContentTextSettingControls(
             contentTextSettings = settings,
@@ -61,40 +66,47 @@ fun ArticleSettingsScreen(
             onLineHeightScaleChanged = {
                 viewModel.onEvent(ArticleSettingsEvent.SetContentLineHeightScale(it))
             },
+            header = {
+                BrowserOpeningModeSelector(
+                    selectedMode = state.browserOpeningMode,
+                    enabled = !state.isLoading && !state.isSavingBrowserOpeningMode,
+                    onModeSelected = { viewModel.onEvent(ArticleSettingsEvent.SetBrowserOpeningMode(it)) },
+                )
+            },
             footer = {
                 Spacer(Modifier.height(LocalDPSpacing.current.lg))
                 ContentTextContainer {
                     Surface(
                         modifier = Modifier.padding(bottom = LocalDPSpacing.current.xl)
                             .animateContentSize(
-                                spring(Spring.DampingRatioLowBouncy)
+                                spring(Spring.DampingRatioLowBouncy),
                             ),
                         shape = MaterialTheme.shapes.large,
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     ) {
                         Column(
                             modifier = Modifier.padding(
                                 vertical = LocalDPSpacing.current.md,
-                                horizontal = LocalDPSpacing.current.sm
-                            )
+                                horizontal = LocalDPSpacing.current.sm,
+                            ),
                         ) {
                             DPTextView(
                                 text = "As We May Think",
-                                variant = DPTextViewVariant.HeadingMedium
+                                variant = DPTextViewVariant.HeadingMedium,
                             )
                             Spacer(Modifier.height(LocalDPSpacing.current.lg))
                             DPTextView(
                                 text = "“Consider a future device ... in which an individual " +
-                                        "stores all his books, records, and communications, " +
-                                        "and which is mechanized so that it may be consulted with " +
-                                        "exceeding speed and flexibility. " +
-                                        "It is an enlarged intimate supplement to his memory.”",
-                                variant = DPTextViewVariant.TitleMedium
+                                    "stores all his books, records, and communications, " +
+                                    "and which is mechanized so that it may be consulted with " +
+                                    "exceeding speed and flexibility. " +
+                                    "It is an enlarged intimate supplement to his memory.”",
+                                variant = DPTextViewVariant.TitleMedium,
                             )
                             Spacer(Modifier.height(LocalDPSpacing.current.lg))
                             DPTextView(
                                 text = "By Vannevar Bush",
-                                variant = DPTextViewVariant.BodyMedium
+                                variant = DPTextViewVariant.BodyMedium,
                             )
                         }
                     }

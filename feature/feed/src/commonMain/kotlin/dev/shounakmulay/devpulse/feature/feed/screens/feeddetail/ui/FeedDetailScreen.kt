@@ -16,6 +16,7 @@ import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.FeedDetail
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
+import dev.shounakmulay.devpulse.core.navigation.removeFeedRoutes
 import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
 import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
 import dev.shounakmulay.devpulse.core.ui.list.paging.rememberPagingReturnPosition
@@ -84,12 +85,14 @@ fun FeedDetailScreen(
         },
         onEffect = {
             when (it) {
-                is FeedDetailScreenEffect.NavigateBack -> navigator.navigateBack()
+                is FeedDetailScreenEffect.FeedDeleted -> navigator.removeFeedRoutes(it.feedId)
+
                 is FeedDetailScreenEffect.ShowToast -> {
                     snackbarController.showSnackbar(it.message.resolve())
                 }
 
                 is FeedDetailScreenEffect.Share -> sharingService.share(text = it.text.resolve())
+
                 else -> viewModel.unhandledEffect(it)
             }
         },
@@ -99,12 +102,13 @@ fun FeedDetailScreen(
             onConfirm = { viewModel.onEvent(FeedDetailScreenEvent.ConfirmDelete) },
             onDismissRequest = { viewModel.onEvent(FeedDetailScreenEvent.DismissDelete) },
         )
-        if (state.isLoading || state.feed == null || state.uiFeed == null)
+        if (state.isLoading || state.feed == null || state.uiFeed == null) {
             return@Screen DPLoadingIndicator(
                 modifier = Modifier.align(
-                    Alignment.Center
-                )
+                    Alignment.Center,
+                ),
             )
+        }
 
         val postSortAndFilterState by postSortAndFiltersViewModel.state.collectAsState()
         FeedPostList(
@@ -120,13 +124,13 @@ fun FeedDetailScreen(
                 viewModel.onEvent(
                     FeedDetailScreenEvent.OnPostBookmarkChanged(
                         postId = selectedPost.id,
-                        bookmarked = bookmarked
-                    )
+                        bookmarked = bookmarked,
+                    ),
                 )
             },
             onPostClick = {
                 positionRestoreController.setItemToRestore(it.id.value)
-                navigator.replaceOfSameType(Screen.Tabs.Feed.PostDetail(it.id), onRootStack = true)
+                navigator.replaceOfSameType(Screen.Tabs.Feed.PostDetail(id = it.id, feedId = it.feed.id), onRootStack = true)
             },
             postSortAndFilterState = postSortAndFilterState,
             onFilterUpdated = {

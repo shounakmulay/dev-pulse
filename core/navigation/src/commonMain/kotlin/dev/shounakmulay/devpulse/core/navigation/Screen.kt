@@ -52,7 +52,7 @@ sealed interface Screen : NavKey {
 
             @Serializable
             @Immutable
-            data class PostDetail(val id: UUID) : Screen
+            data class PostDetail(val id: UUID, val feedId: UUID? = null) : Screen
 
             @Serializable
             @Immutable
@@ -66,10 +66,8 @@ sealed interface Screen : NavKey {
         data object Time : Screen
     }
 
-
     @Serializable
     data object Monitors : Screen
-
 
     @Serializable
     data object Settings : Screen {

@@ -16,33 +16,34 @@ interface FeedOptionsMenuProcessor {
         option: FeedOptionsMenuItem,
         onShare: (TextResource) -> Unit,
         onShowToast: (TextResource) -> Unit,
-        onNavigateBack: () -> Unit
+        onFeedDeleted: (UUID) -> Unit,
     )
 }
 
 @Factory
 internal class FeedOptionsMenuProcessorDelegate(
     private val deleteFeedUseCase: DeleteFeedUseCase,
-    private val setPinFeedPinnedUseCase: SetFeedPinnedUseCase
+    private val setPinFeedPinnedUseCase: SetFeedPinnedUseCase,
 ) : FeedOptionsMenuProcessor {
     override suspend fun processFeedOption(
         feedId: UUID,
         option: FeedOptionsMenuItem,
         onShare: (TextResource) -> Unit,
         onShowToast: (TextResource) -> Unit,
-        onNavigateBack: () -> Unit
+        onFeedDeleted: (UUID) -> Unit,
     ) {
         when (option) {
             is FeedOptionsMenuItem.Delete -> onDeleteFeed(
                 feedId = feedId,
                 onShowToast = onShowToast,
-                onNavigateBack = onNavigateBack
+                onFeedDeleted = onFeedDeleted,
             )
 
             is FeedOptionsMenuItem.Pin -> setPinFeedPinnedUseCase(feedId, !option.pinned)
                 .onFailure {
                     onShowToast(TextResource.fromStringRes(stringRes.failed_to_update_feed))
                 }
+
             is FeedOptionsMenuItem.Share -> {
                 val shareText = TextResource.fromText("${option.title}: ${option.sourceUrl}")
                 onShare(shareText)
@@ -53,23 +54,22 @@ internal class FeedOptionsMenuProcessorDelegate(
     private suspend fun onDeleteFeed(
         feedId: UUID,
         onShowToast: (TextResource) -> Unit,
-        onNavigateBack: () -> Unit
+        onFeedDeleted: (UUID) -> Unit,
     ) {
         val result = deleteFeedUseCase(feedId)
 
         result.fold(
             onSuccess = {
+                onFeedDeleted(feedId)
                 onShowToast(
-                    TextResource.fromStringRes(stringRes.feed_deleted)
+                    TextResource.fromStringRes(stringRes.feed_deleted),
                 )
-                onNavigateBack()
             },
             onFailure = {
                 onShowToast(
-                    TextResource.fromStringRes(stringRes.failed_to_delete_feed)
+                    TextResource.fromStringRes(stringRes.failed_to_delete_feed),
                 )
-            }
+            },
         )
     }
-
 }

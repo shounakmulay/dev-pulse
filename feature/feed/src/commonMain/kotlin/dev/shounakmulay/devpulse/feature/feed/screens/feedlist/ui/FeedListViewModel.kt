@@ -38,7 +38,9 @@ class FeedListViewModel(
     override fun onEvent(event: FeedListScreenEvent) {
         when (event) {
             is FeedListScreenEvent.OnSearchQueryChanged -> onSearchQueryChanged(event)
+
             FeedListScreenEvent.ConfirmDelete -> confirmDelete()
+
             FeedListScreenEvent.DismissDelete -> intent {
                 if (state.feedOptions is FeedOptionsState.ConfirmingDelete) {
                     setState { copy(feedOptions = null) }
@@ -47,12 +49,15 @@ class FeedListViewModel(
 
             is FeedListScreenEvent.OnFeedOptionSelected -> selectFeedOption(
                 event.feedId,
-                event.menuItem
+                event.menuItem,
             )
 
             is FeedListScreenEvent.OnShowFeedOptions -> showFeedOptions(event.feed)
+
             is FeedListScreenEvent.HideFeedOptions -> dismissFeedOptions(event.feedId)
+
             is FeedListScreenEvent.TogglePinned -> onTogglePinned(event.id, event.pinned)
+
             is FeedListScreenEvent.SelectTab -> onTabSelected(event.tab)
         }
     }
@@ -108,7 +113,7 @@ class FeedListViewModel(
             option = option,
             onShare = { postEffect(FeedListScreenEffect.Share(it)) },
             onShowToast = { postEffect(FeedListScreenEffect.ShowToast(it)) },
-            onNavigateBack = {},
+            onFeedDeleted = { postEffect(FeedListScreenEffect.FeedDeleted(it)) },
         )
     }
 }

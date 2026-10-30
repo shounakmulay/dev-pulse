@@ -11,7 +11,7 @@ class DPEventInitialiser(
 ) : StartupAsyncInitialiser,
     KoinComponent {
     override val priority: StartupPriority
-        get() = StartupPriority.HIGH
+        get() = StartupPriority.HIGHEST
 
     override suspend fun initialise() {
         val sinks = getKoin().getAll<EventSink>()
