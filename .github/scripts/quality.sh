@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+python3 -B .github/scripts/test_firebase_config.py
 python3 -B .github/scripts/test_android_cd.py
 python3 -B .github/scripts/test_play_auth.py
 python3 -B .github/scripts/test_jvm_tests.py

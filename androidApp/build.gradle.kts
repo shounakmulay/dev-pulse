@@ -126,7 +126,10 @@ val validateUploadSigning by tasks.registering(ValidateUploadSigning::class) {
 
 val validateFirebaseConfiguration by tasks.registering(ValidateFirebaseConfiguration::class) {
     configurationFile.set(layout.projectDirectory.file("src/$environment/google-services.json"))
-    expectedProject.set(if (environment == "staging") "dev-pulse-b6b18-staging" else "dev-pulse-b6b18")
+    expectedProject.set(
+        providers.gradleProperty("devpulse.firebase.$environment.projectId")
+            .orElse(if (environment == "staging") "dev-pulse-b6b18-staging" else "dev-pulse-b6b18"),
+    )
     expectedPackage.set("dev.shounakmulay.devpulse" + if (environment == "staging") ".staging" else "")
 }
 
