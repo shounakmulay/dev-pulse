@@ -20,7 +20,7 @@ class TelemetryConsentRepositoryImpl(private val preferences: DevPulsePreference
             null
         } else {
             DPAnalyticsConsent(
-                crashReporting = crashlytics ?: false,
+                crashReporting = crashlytics ?: true,
                 usageAnalytics = analytics ?: false,
                 performanceMetrics = performance ?: false,
             )
