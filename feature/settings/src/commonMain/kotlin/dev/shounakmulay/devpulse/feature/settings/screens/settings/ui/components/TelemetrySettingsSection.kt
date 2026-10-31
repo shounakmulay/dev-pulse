@@ -19,7 +19,6 @@ import devpulse.core.resources.generated.resources.telemetry_retry
 import devpulse.core.resources.generated.resources.telemetry_saving
 import devpulse.core.resources.generated.resources.telemetry_settings_hint
 import devpulse.core.resources.generated.resources.telemetry_settings_intro
-import devpulse.core.resources.generated.resources.telemetry_settings_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -37,9 +36,11 @@ internal fun TelemetrySettingsSection(
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
-        SettingsSectionHeading(
-            title = stringResource(stringRes.telemetry_settings_title),
-            description = stringResource(stringRes.telemetry_settings_intro),
+        DPTextView(
+            modifier = Modifier.padding(horizontal = spacing.screenHorizontal, vertical = spacing.md),
+            text = stringResource(stringRes.telemetry_settings_intro),
+            variant = DPTextViewVariant.BodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         TelemetryConsentOptions(
             crashReporting = crashReporting,

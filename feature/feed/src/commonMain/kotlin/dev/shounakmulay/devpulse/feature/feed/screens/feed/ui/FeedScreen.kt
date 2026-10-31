@@ -109,12 +109,12 @@ fun FeedScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(bottom = 100.dp),
         ) {
-            if (state.isTelemetryConsentLoaded && state.telemetryConsent == null) {
+            if (state.isTelemetryConsentLoaded && state.telemetryConsent?.usageAnalytics != true) {
                 item(key = "telemetry-consent") {
                     TelemetryConsentBanner(
                         saving = state.isSavingTelemetryConsent,
-                        onSave = { crashReporting, performanceMetrics ->
-                            viewModel.onEvent(FeedScreenEvent.SaveTelemetryConsent(crashReporting, performanceMetrics))
+                        onAnalyticsChanged = {
+                            viewModel.onEvent(FeedScreenEvent.SetAnalyticsEnabled(it))
                         },
                     )
                 }

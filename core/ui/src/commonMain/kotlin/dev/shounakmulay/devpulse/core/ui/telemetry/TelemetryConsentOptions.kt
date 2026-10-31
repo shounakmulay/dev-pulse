@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Icon
@@ -41,14 +42,14 @@ fun TelemetryConsentOptions(
     val spacing = LocalDPSpacing.current
     val uriHandler = LocalUriHandler.current
     Column(modifier = modifier.fillMaxWidth()) {
-        ConsentToggle(
+        TelemetryConsentToggle(
             title = stringResource(stringRes.telemetry_crash_title),
             description = stringResource(stringRes.telemetry_crash_description),
             checked = crashReporting,
             enabled = enabled,
             onCheckedChange = onCrashReportingChanged,
         )
-        ConsentToggle(
+        TelemetryConsentToggle(
             title = stringResource(stringRes.telemetry_performance_title),
             description = stringResource(stringRes.telemetry_performance_description),
             checked = performanceMetrics,
@@ -76,7 +77,7 @@ fun TelemetryConsentOptions(
 }
 
 @Composable
-private fun ConsentToggle(
+fun TelemetryConsentToggle(
     title: String,
     description: String,
     checked: Boolean,
@@ -86,6 +87,7 @@ private fun ConsentToggle(
     val spacing = LocalDPSpacing.current
     Row(
         modifier = Modifier.fillMaxWidth()
+            .heightIn(min = spacing.touchTarget)
             .toggleable(
                 value = checked,
                 enabled = enabled,
