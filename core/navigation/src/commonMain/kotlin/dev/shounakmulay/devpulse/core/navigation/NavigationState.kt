@@ -24,79 +24,80 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.serializer
 
+internal val navigationSerializersConfig = SavedStateConfiguration {
+    serializersModule = SerializersModule {
+        polymorphic(NavKey::class) {
+            subclass(Screen.Tabs::class, Screen.Tabs.serializer())
+            subclass(Screen.Tabs.Home::class, Screen.Tabs.Home.serializer())
+            subclass(Screen.Monitors::class, Screen.Monitors.serializer())
+            subclass(Screen.Tabs.Feed::class, Screen.Tabs.Feed.serializer())
+            subclass(Screen.Tabs.Feed.AddFeed::class, Screen.Tabs.Feed.AddFeed.serializer())
+            subclass(Screen.Tabs.Feed.BrowseFeeds::class, Screen.Tabs.Feed.BrowseFeeds.serializer())
+            subclass(Screen.Tabs.Feed.BrowseFeedCollection::class, Screen.Tabs.Feed.BrowseFeedCollection.serializer())
+            subclass(
+                Screen.Tabs.Feed.FeedDetail::class,
+                Screen.Tabs.Feed.FeedDetail.serializer(),
+            )
+            subclass(
+                Screen.Tabs.Feed.FeedList::class,
+                Screen.Tabs.Feed.FeedList.serializer(),
+            )
+            subclass(
+                Screen.Tabs.Feed.PostList::class,
+                Screen.Tabs.Feed.PostList.serializer(),
+            )
+            subclass(
+                Screen.Tabs.Feed.PostDetail::class,
+                Screen.Tabs.Feed.PostDetail.serializer(),
+            )
+            subclass(
+                Screen.Tabs.Feed.ImageScreen::class,
+                Screen.Tabs.Feed.ImageScreen.serializer(),
+            )
+            subclass(Screen.Tabs.Time::class, Screen.Tabs.Time.serializer())
+            subclass(Screen.Settings::class, Screen.Settings.serializer())
+            subclass(
+                Screen.Settings.ArticleSettings::class,
+                Screen.Settings.ArticleSettings.serializer(),
+            )
+            subclass(Screen.Settings.PrivacyDiagnostics::class, Screen.Settings.PrivacyDiagnostics.serializer())
+            subclass(Screen.AboutLibs::class, Screen.AboutLibs.serializer())
+            subclass(
+                Screen.DeveloperTools.DesignSystemBoard::class,
+                Screen.DeveloperTools.DesignSystemBoard.serializer(),
+            )
+            subclass(Screen.WebView::class, Screen.WebView.serializer())
+        }
+    }
+}
+
 @Composable
 fun rememberNavigationState(
     rootStart: Screen,
     tabsStart: Screen,
-    tabRoutes: Set<Screen>
+    tabRoutes: Set<Screen>,
 ): NavigationState {
     val selectedTab = rememberSerializable(
         tabsStart,
         tabRoutes,
-        serializer = MutableStateSerializer(serializer<Screen>())
+        serializer = MutableStateSerializer(serializer<Screen>()),
     ) {
         mutableStateOf(tabsStart)
-    }
-
-    val serializersConfig = SavedStateConfiguration {
-        serializersModule = SerializersModule {
-            polymorphic(NavKey::class) {
-                subclass(Screen.Tabs::class, Screen.Tabs.serializer())
-                subclass(Screen.Tabs.Home::class, Screen.Tabs.Home.serializer())
-                subclass(Screen.Monitors::class, Screen.Monitors.serializer())
-                subclass(Screen.Tabs.Feed::class, Screen.Tabs.Feed.serializer())
-                subclass(Screen.Tabs.Feed.AddFeed::class, Screen.Tabs.Feed.AddFeed.serializer())
-                subclass(Screen.Tabs.Feed.BrowseFeeds::class, Screen.Tabs.Feed.BrowseFeeds.serializer())
-                subclass(Screen.Tabs.Feed.BrowseFeedCollection::class, Screen.Tabs.Feed.BrowseFeedCollection.serializer())
-                subclass(
-                    Screen.Tabs.Feed.FeedDetail::class,
-                    Screen.Tabs.Feed.FeedDetail.serializer()
-                )
-                subclass(
-                    Screen.Tabs.Feed.FeedList::class,
-                    Screen.Tabs.Feed.FeedList.serializer(),
-                )
-                subclass(
-                    Screen.Tabs.Feed.PostList::class,
-                    Screen.Tabs.Feed.PostList.serializer(),
-                )
-                subclass(
-                    Screen.Tabs.Feed.PostDetail::class,
-                    Screen.Tabs.Feed.PostDetail.serializer(),
-                )
-                subclass(
-                    Screen.Tabs.Feed.ImageScreen::class,
-                    Screen.Tabs.Feed.ImageScreen.serializer()
-                )
-                subclass(Screen.Tabs.Time::class, Screen.Tabs.Time.serializer())
-                subclass(Screen.Settings::class, Screen.Settings.serializer())
-                subclass(
-                    Screen.Settings.ArticleSettings::class,
-                    Screen.Settings.ArticleSettings.serializer()
-                )
-                subclass(Screen.AboutLibs::class, Screen.AboutLibs.serializer())
-                subclass(
-                    Screen.DeveloperTools.DesignSystemBoard::class,
-                    Screen.DeveloperTools.DesignSystemBoard.serializer()
-                )
-                subclass(Screen.WebView::class, Screen.WebView.serializer())
-            }
-        }
     }
 
     val tabsBackStacks = tabRoutes.associateWith { key ->
         @Suppress("UNCHECKED_CAST")
         rememberNavBackStack(
-            configuration = serializersConfig,
-            key
+            configuration = navigationSerializersConfig,
+            key,
         ) as NavBackStack<Screen>
     }
 
     @Suppress("UNCHECKED_CAST")
     val rootBackStack =
         rememberNavBackStack(
-            configuration = serializersConfig,
-            rootStart
+            configuration = navigationSerializersConfig,
+            rootStart,
         ) as NavBackStack<Screen>
 
     return remember {
@@ -104,7 +105,7 @@ fun rememberNavigationState(
             rootStack = rootBackStack,
             tabsStart = tabsStart,
             selectedTab = selectedTab,
-            tabsBackStacks = tabsBackStacks
+            tabsBackStacks = tabsBackStacks,
         )
     }
 }
@@ -113,20 +114,20 @@ class NavigationState(
     val rootStack: NavBackStack<Screen>,
     val tabsStart: Screen,
     selectedTab: MutableState<Screen>,
-    val tabsBackStacks: Map<Screen, NavBackStack<Screen>>
+    val tabsBackStacks: Map<Screen, NavBackStack<Screen>>,
 ) {
     var selectedTab: Screen by selectedTab
 
     @Composable
     fun toEntries(
         sceneStateHolder: SaveableStateHolder,
-        entryProvider: (Screen) -> NavEntry<Screen>
+        entryProvider: (Screen) -> NavEntry<Screen>,
     ): ImmutableList<NavEntry<Screen>> {
         val tabStacksEntries = tabsBackStacks.mapValues { (_, stack) ->
             rememberDecoratedNavEntries(
                 backStack = stack,
                 entryDecorators = rememberNavEntryDecorators(sceneStateHolder),
-                entryProvider = entryProvider
+                entryProvider = entryProvider,
             )
         }
 
@@ -135,8 +136,8 @@ class NavigationState(
             rememberDecoratedNavEntries(
                 backStack = rootScreens,
                 entryDecorators = rememberNavEntryDecorators(sceneStateHolder),
-                entryProvider = entryProvider
-            )
+                entryProvider = entryProvider,
+            ),
         ).toMap()
 
         val entries = buildList {
@@ -155,13 +156,13 @@ class NavigationState(
 
     @Composable
     private fun rememberNavEntryDecorators(
-        sceneStateHolder: SaveableStateHolder
+        sceneStateHolder: SaveableStateHolder,
     ): List<NavEntryDecorator<Screen>> {
         val sceneCleanupDecorator = remember(sceneStateHolder) {
             NavEntryDecorator<Screen>(
                 onPop = { contentKey ->
                     sceneStateHolder.removeState(contentKey)
-                }
+                },
             ) { entry ->
                 entry.Content()
             }
@@ -170,7 +171,7 @@ class NavigationState(
         return listOf(
             rememberSaveableStateHolderNavEntryDecorator<Screen>(),
             rememberViewModelStoreNavEntryDecorator(),
-            sceneCleanupDecorator
+            sceneCleanupDecorator,
         )
     }
 
