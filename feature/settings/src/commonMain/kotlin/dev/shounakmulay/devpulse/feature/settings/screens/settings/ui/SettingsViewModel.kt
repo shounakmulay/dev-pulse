@@ -9,11 +9,8 @@ import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveFeedPostListIt
 import dev.shounakmulay.devpulse.core.domain.settings.feed.ObserveSyncInBackgroundUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.feed.SetFeedPostListItemVariantUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.feed.SetSyncInBackgroundUseCase
-import dev.shounakmulay.devpulse.core.domain.settings.telemetry.ObserveTelemetryConsentUseCase
-import dev.shounakmulay.devpulse.core.domain.settings.telemetry.SetTelemetryConsentUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.theme.ObserveThemeSettingsUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.theme.SetThemeSettingsUseCase
-import dev.shounakmulay.devpulse.core.logging.consent.DPAnalyticsConsent
 import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
@@ -29,8 +26,6 @@ class SettingsViewModel(
     private val setFeedPostListItemVariantUseCase: SetFeedPostListItemVariantUseCase,
     private val observeSyncInBackgroundUseCase: ObserveSyncInBackgroundUseCase,
     private val setSyncInBackgroundUseCase: SetSyncInBackgroundUseCase,
-    private val observeTelemetryConsentUseCase: ObserveTelemetryConsentUseCase,
-    private val setTelemetryConsentUseCase: SetTelemetryConsentUseCase,
     logger: DPLogger,
 ) : MviViewModel<SettingsScreenState, SettingsScreenEffect>(SettingsScreenState()),
     EventHandler<SettingsScreenEvent> {
@@ -38,7 +33,6 @@ class SettingsViewModel(
 
     init {
         logger.d { "SettingsViewModel created" }
-        observeTelemetryConsent()
         observeFeedPostListItemVariantUseCase()
             .onEachSuccess { variant ->
                 if (variant != null) {
@@ -73,10 +67,6 @@ class SettingsViewModel(
 
     override fun onEvent(event: SettingsScreenEvent) {
         when (event) {
-            is SettingsScreenEvent.OnTelemetryConsentChanged -> updateTelemetryConsent(event)
-
-            SettingsScreenEvent.OnRetryTelemetryConsent -> observeTelemetryConsent()
-
             is SettingsScreenEvent.OnFeedPostListItemVariantSelected -> updateFeedPostListItemVariant(
                 event.variant,
             )
@@ -93,41 +83,6 @@ class SettingsViewModel(
 
             is SettingsScreenEvent.OnSyncInBackgroundToggled -> toggleSyncInBackground(event.enabled)
         }
-    }
-
-    private fun observeTelemetryConsent() {
-        viewModelScope.launch {
-            setState { copy(telemetryConsentError = false) }
-            observeTelemetryConsentUseCase().collect { result ->
-                result.onSuccess { consent ->
-                    setState {
-                        copy(
-                            crashReporting = consent?.crashReporting == true,
-                            performanceMetrics = consent?.performanceMetrics == true,
-                            isTelemetryConsentLoaded = true,
-                            telemetryConsentError = false,
-                        )
-                    }
-                }.onFailure {
-                    setState { copy(telemetryConsentError = true) }
-                }
-            }
-        }
-    }
-
-    private fun updateTelemetryConsent(event: SettingsScreenEvent.OnTelemetryConsentChanged) = intent {
-        if (!state.isTelemetryConsentLoaded || state.isSavingTelemetryConsent) return@intent
-        setState { copy(isSavingTelemetryConsent = true, telemetryConsentError = false) }
-        setTelemetryConsentUseCase(
-            DPAnalyticsConsent(
-                crashReporting = event.crashReporting,
-                usageAnalytics = event.performanceMetrics,
-                performanceMetrics = event.performanceMetrics,
-            ),
-        ).onFailure {
-            setState { copy(telemetryConsentError = true) }
-        }
-        setState { copy(isSavingTelemetryConsent = false) }
     }
 
     private fun toggleSyncInBackground(enabled: Boolean) {

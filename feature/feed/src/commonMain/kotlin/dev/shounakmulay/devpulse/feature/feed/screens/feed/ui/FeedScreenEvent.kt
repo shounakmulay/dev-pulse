@@ -6,7 +6,9 @@ import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptions
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 
 sealed interface FeedScreenEvent : ScreenEvent {
-    data class SaveTelemetryConsent(val crashReporting: Boolean, val performanceMetrics: Boolean) : FeedScreenEvent
+    data class OpenInBrowser(val url: String) : FeedScreenEvent
+
+    data class SetAnalyticsEnabled(val enabled: Boolean) : FeedScreenEvent
     data class SetPostRead(val postId: UUID, val isRead: Boolean) : FeedScreenEvent
 
     data class OnFeedLongClick(val feed: UIFeed) : FeedScreenEvent

@@ -47,13 +47,8 @@ class DPAnalyticsConsentProvider(
     }
 
     private fun updateConsent(value: DPAnalyticsConsent?) {
-        consent.value = value
-        applyTelemetryConsent(
-            value ?: DPAnalyticsConsent(
-                crashReporting = false,
-                usageAnalytics = false,
-                performanceMetrics = false,
-            ),
-        )
+        val effectiveConsent = value ?: DPAnalyticsConsent()
+        consent.value = effectiveConsent
+        applyTelemetryConsent(effectiveConsent)
     }
 }

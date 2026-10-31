@@ -1,7 +1,7 @@
 package dev.shounakmulay.devpulse.core.ui.list.post
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -72,6 +72,7 @@ fun FeedPostListItem(
     actions: @Composable () -> Unit = {},
     onBookmarkChanged: (Boolean) -> Unit,
     onPostClick: () -> Unit,
+    onPostLongClick: (() -> Unit)? = null,
 ) {
     val readStateDescription = stringResource(
         if (isRead) stringRes.post_read_state else stringRes.post_unread_state,
@@ -80,7 +81,7 @@ fun FeedPostListItem(
         modifier = modifier
             .fillMaxHeight()
             .clip(MaterialTheme.shapes.large)
-            .clickable(onClick = onPostClick)
+            .combinedClickable(onClick = onPostClick, onLongClick = onPostLongClick)
             .semantics { stateDescription = readStateDescription },
         shape = MaterialTheme.shapes.large,
         color = Color.Transparent,

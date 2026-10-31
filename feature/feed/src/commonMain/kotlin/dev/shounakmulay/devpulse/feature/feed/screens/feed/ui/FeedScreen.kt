@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
@@ -29,6 +30,7 @@ import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
 import dev.shounakmulay.devpulse.core.ui.text.resolve
+import dev.shounakmulay.devpulse.feature.feed.components.browser.openBrowser
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedDeleteConfirmation
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsState
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.TelemetryConsentBanner
@@ -45,6 +47,7 @@ fun FeedScreen(
     navigator: Navigator,
     viewModel: FeedViewModel,
 ) {
+    val uriHandler = LocalUriHandler.current
     val snackbarController = LocalSnackbarController.current
     val sharingService = rememberSharingService(onCopiedToClipboard = {})
     Screen(
@@ -67,6 +70,12 @@ fun FeedScreen(
         },
         onEffect = {
             when (it) {
+                is FeedScreenEffect.OpenInBrowser -> openBrowser(
+                    target = it.target,
+                    uriHandler = uriHandler,
+                    openInApp = { url -> navigator.navigate(Screen.WebView(url)) },
+                )
+
                 is FeedScreenEffect.FeedDeleted -> navigator.removeFeedRoutes(it.feedId)
 
                 is FeedScreenEffect.Share -> sharingService.share(text = it.text.resolve())
@@ -100,12 +109,12 @@ fun FeedScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(bottom = 100.dp),
         ) {
-            if (state.isTelemetryConsentLoaded && state.telemetryConsent == null) {
+            if (state.isTelemetryConsentLoaded && state.telemetryConsent?.usageAnalytics != true) {
                 item(key = "telemetry-consent") {
                     TelemetryConsentBanner(
                         saving = state.isSavingTelemetryConsent,
-                        onSave = { crashReporting, performanceMetrics ->
-                            viewModel.onEvent(FeedScreenEvent.SaveTelemetryConsent(crashReporting, performanceMetrics))
+                        onAnalyticsChanged = {
+                            viewModel.onEvent(FeedScreenEvent.SetAnalyticsEnabled(it))
                         },
                     )
                 }
@@ -127,6 +136,9 @@ fun FeedScreen(
             )
 
             postsSection(
+                onOpenInBrowser = {
+                    viewModel.onEvent(FeedScreenEvent.OpenInBrowser(it))
+                },
                 onReadChanged = { id, isRead ->
                     viewModel.onEvent(FeedScreenEvent.SetPostRead(id, isRead))
                 },

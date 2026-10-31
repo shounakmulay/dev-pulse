@@ -52,13 +52,12 @@ class FeedViewModel(
         }
     }
 
-    private fun saveTelemetryConsent(event: FeedScreenEvent.SaveTelemetryConsent) = intent {
+    private fun setAnalyticsEnabled(event: FeedScreenEvent.SetAnalyticsEnabled) = intent {
         if (state.isSavingTelemetryConsent || !state.isTelemetryConsentLoaded) return@intent
         setState { copy(isSavingTelemetryConsent = true) }
-        val consent = DPAnalyticsConsent(
-            crashReporting = event.crashReporting,
-            usageAnalytics = event.performanceMetrics,
-            performanceMetrics = event.performanceMetrics,
+        val consent = (state.telemetryConsent ?: DPAnalyticsConsent()).copy(
+            usageAnalytics = event.enabled,
+            performanceMetrics = event.enabled,
         )
         setTelemetryConsentUseCase(consent).onFailure {
             postEffect(FeedScreenEffect.ShowToast(TextResource.fromStringRes(stringRes.telemetry_error)))
@@ -106,7 +105,11 @@ class FeedViewModel(
 
     override fun onEvent(event: FeedScreenEvent) {
         when (event) {
-            is FeedScreenEvent.SaveTelemetryConsent -> saveTelemetryConsent(event)
+            is FeedScreenEvent.OpenInBrowser -> intent {
+                postEffect(FeedScreenEffect.OpenInBrowser(postInteractor.getBrowserOpeningTarget(event.url)))
+            }
+
+            is FeedScreenEvent.SetAnalyticsEnabled -> setAnalyticsEnabled(event)
 
             is FeedScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)
 

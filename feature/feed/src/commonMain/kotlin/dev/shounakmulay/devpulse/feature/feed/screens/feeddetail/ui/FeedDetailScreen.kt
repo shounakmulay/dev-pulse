@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.shounakmulay.devpulse.core.designsystem.components.DPLoadingIndicator
 import dev.shounakmulay.devpulse.core.navigation.Navigator
@@ -23,6 +24,7 @@ import dev.shounakmulay.devpulse.core.ui.list.paging.rememberPagingReturnPositio
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
 import dev.shounakmulay.devpulse.core.ui.sharing.rememberSharingService
 import dev.shounakmulay.devpulse.core.ui.text.resolve
+import dev.shounakmulay.devpulse.feature.feed.components.browser.openBrowser
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedDeleteConfirmation
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsState
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterEvent
@@ -39,6 +41,7 @@ fun FeedDetailScreen(
     postSortAndFiltersViewModel: PostSortAndFilterViewModel,
     viewModel: FeedDetailViewModel,
 ) {
+    val uriHandler = LocalUriHandler.current
     val snackbarController = LocalSnackbarController.current
     val posts = viewModel.posts.collectAsLazyPagingItems()
     val screenState by viewModel.state.collectAsState()
@@ -85,6 +88,12 @@ fun FeedDetailScreen(
         },
         onEffect = {
             when (it) {
+                is FeedDetailScreenEffect.OpenInBrowser -> openBrowser(
+                    target = it.target,
+                    uriHandler = uriHandler,
+                    openInApp = { url -> navigator.navigate(Screen.WebView(url)) },
+                )
+
                 is FeedDetailScreenEffect.FeedDeleted -> navigator.removeFeedRoutes(it.feedId)
 
                 is FeedDetailScreenEffect.ShowToast -> {
@@ -112,6 +121,9 @@ fun FeedDetailScreen(
 
         val postSortAndFilterState by postSortAndFiltersViewModel.state.collectAsState()
         FeedPostList(
+            onOpenInBrowser = {
+                viewModel.onEvent(FeedDetailScreenEvent.OpenInBrowser(it))
+            },
             onReadChanged = { id, isRead ->
                 viewModel.onEvent(FeedDetailScreenEvent.SetPostRead(id, isRead))
             },

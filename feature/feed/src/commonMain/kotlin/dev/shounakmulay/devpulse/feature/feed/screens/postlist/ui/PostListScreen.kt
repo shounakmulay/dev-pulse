@@ -12,6 +12,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSearchTopAppBar
 import dev.shounakmulay.devpulse.core.navigation.Navigator
@@ -24,6 +25,7 @@ import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
 import dev.shounakmulay.devpulse.core.ui.list.isAtTop
 import dev.shounakmulay.devpulse.core.ui.list.paging.rememberPagingReturnPosition
 import dev.shounakmulay.devpulse.core.ui.screen.Screen
+import dev.shounakmulay.devpulse.feature.feed.components.browser.openBrowser
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterEvent
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
 import dev.shounakmulay.devpulse.feature.feed.screens.postlist.ui.components.PostsList
@@ -41,6 +43,7 @@ fun PostListScreen(
         parametersOf(postSortAndFilterViewModel.sortAndFiltersFlow)
     },
 ) {
+    val uriHandler = LocalUriHandler.current
     val posts = viewModel.posts.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -94,10 +97,21 @@ fun PostListScreen(
                 appBarScrollBehavior.expand()
             }
         },
-        onEffect = {},
+        onEffect = {
+            when (it) {
+                is PostListScreenEffect.OpenInBrowser -> openBrowser(
+                    target = it.target,
+                    uriHandler = uriHandler,
+                    openInApp = { url -> navigator.navigate(Screen.WebView(url)) },
+                )
+            }
+        },
     ) { state ->
         Column {
             PostsList(
+                onOpenInBrowser = {
+                    viewModel.onEvent(PostListScreenEvent.OpenInBrowser(it))
+                },
                 onReadChanged = { id, isRead ->
                     viewModel.onEvent(PostListScreenEvent.SetPostRead(id, isRead))
                 },

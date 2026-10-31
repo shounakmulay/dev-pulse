@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalUriHandler
 import dev.shounakmulay.devpulse.core.common.BuildEnvironment
 import dev.shounakmulay.devpulse.core.common.BuildKonfigCommon
 import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
@@ -32,18 +31,17 @@ import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.SettingsSectionHeading
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.SettingsSubPageLink
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.SettingsToggle
-import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.TelemetrySettingsSection
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.ui.components.ThemeSettingsSection
 import devpulse.core.resources.generated.resources.data_and_sync
 import devpulse.core.resources.generated.resources.import_feeds
 import devpulse.core.resources.generated.resources.settings
 import devpulse.core.resources.generated.resources.sync_in_background
+import devpulse.core.resources.generated.resources.telemetry_settings_title
 import devpulse.core.resources.generated.resources.update_feeds_in_background
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
-    val uriHandler = LocalUriHandler.current
     Screen(
         viewModel = viewModel,
         onEffect = {
@@ -116,20 +114,9 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                 }
             }
             item(key = "privacy-and-diagnostics") {
-                TelemetrySettingsSection(
-                    crashReporting = state.crashReporting,
-                    performanceMetrics = state.performanceMetrics,
-                    loaded = state.isTelemetryConsentLoaded,
-                    saving = state.isSavingTelemetryConsent,
-                    error = state.telemetryConsentError,
-                    onCrashReportingChanged = {
-                        viewModel.onEvent(SettingsScreenEvent.OnTelemetryConsentChanged(crashReporting = it, performanceMetrics = state.performanceMetrics))
-                    },
-                    onPerformanceMetricsChanged = {
-                        viewModel.onEvent(SettingsScreenEvent.OnTelemetryConsentChanged(crashReporting = state.crashReporting, performanceMetrics = it))
-                    },
-                    onRetry = { viewModel.onEvent(SettingsScreenEvent.OnRetryTelemetryConsent) },
-                )
+                SettingsSubPageLink(stringResource(stringRes.telemetry_settings_title)) {
+                    navigator.navigate(Screen.Settings.PrivacyDiagnostics)
+                }
             }
             item(key = "others") {
                 OthersSection(

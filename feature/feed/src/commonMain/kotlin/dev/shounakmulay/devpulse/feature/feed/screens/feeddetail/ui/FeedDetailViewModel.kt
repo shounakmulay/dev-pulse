@@ -99,6 +99,10 @@ class FeedDetailViewModel(
 
     override fun onEvent(event: FeedDetailScreenEvent) {
         when (event) {
+            is FeedDetailScreenEvent.OpenInBrowser -> intent {
+                postEffect(FeedDetailScreenEffect.OpenInBrowser(postInteractor.getBrowserOpeningTarget(event.url)))
+            }
+
             is FeedDetailScreenEvent.SetPostRead -> setPostRead(event.postId, event.isRead)
 
             FeedDetailScreenEvent.ConfirmDelete -> confirmDelete()
