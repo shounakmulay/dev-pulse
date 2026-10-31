@@ -22,6 +22,7 @@ spotless {
 
 dependencies {
     detektPlugins(libs.compose.rules.detekt)
+    detektPlugins(project(":tools:detektrules"))
 }
 
 detekt {
@@ -40,7 +41,7 @@ detekt {
 tasks.register("qualityQuick") {
     group = "verification"
     description = "Checks formatting and Kotlin/Compose issues without compiling application code."
-    dependsOn("spotlessCheck", "detekt")
+    dependsOn("spotlessCheck", "detekt", ":tools:detektrules:test")
 }
 
 tasks.register("qualityCheck") {

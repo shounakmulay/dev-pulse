@@ -29,3 +29,8 @@ Compose:
     active: true
   ModifierNotUsedAtRoot:
     active: true
+
+devpulse:
+  active: true
+  NavigationSerializerRegistration:
+    active: true

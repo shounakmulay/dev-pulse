@@ -473,11 +473,19 @@
         "compileAndroidMain",
         "compileKotlinIosSimulatorArm64"
       ]
+    },
+    ":tools:detektrules": {
+      "path": "tools/detektrules",
+      "dependencies": [],
+      "tasks": [
+        "compileKotlin",
+        "test"
+      ]
     }
   },
   "configuration": {
-    "settings.gradle.kts": "4126052ad0167958dc4c1def9d89c4766a927bec680e993efef4c3f9933be319",
-    "build.gradle.kts": "7401b240e69bb0b5f0a0aecc0611b8d7bbb37dac85c5b0b75499389cb8e64575",
+    "settings.gradle.kts": "ac22a937b6e0b95690f20fc44600ebf846c5ef81b84bea7242b14c8e136591fb",
+    "build.gradle.kts": "21f47d4c1f15fe6de7ad83d94310d87e5ee8c2bf75ef950beed7d0dd701ee392",
     "gradle.properties": "e0b09dc6786ff47523295e78df525ddca17606f88a51a6c93fbe6cf6aa5e7861",
     "gradle/libs.versions.toml": "f9cedea29e2eacb7b9493f99c47d27b9c2843fc6f3ad3cf0332edb2a2a2d40a9",
     "gradle/wrapper/gradle-wrapper.properties": "a180163249c7252412ddaee1c7adcf59f6494b1183136f690fbd9a3b8aaed00e",
@@ -536,7 +544,8 @@
     ".github/scripts/requirements-play-auth.txt": "fb32c357609fd21a3883374c5f46c2d8b26342ee6ea86d9f4698a631affa722e",
     ".github/actions/setup-play-auth/action.yml": "239ded86dc3d59f7edac521701b2f0aa7b6de9ce10a329d1b49b7367af170a1d",
     ".github/scripts/jvm-tests.sh": "5bc9e9f1919cb67bfb4b7f7df905c24eb7b88ba2daa9aef905ec78e0229dc1e4",
-    ".github/scripts/test_jvm_tests.py": "96001aa60baaf08f62c4fa0583babe002c6af110b442aed40acee78cd6b83b54"
+    ".github/scripts/test_jvm_tests.py": "96001aa60baaf08f62c4fa0583babe002c6af110b442aed40acee78cd6b83b54",
+    "tools/detektrules/build.gradle.kts": "dfc93facdb86a80793735475a1d739c8bf6856013f906ec6cae752f277597707"
   },
   "references": {
     "skill": ".agents/skills/verify-change/SKILL.md",
