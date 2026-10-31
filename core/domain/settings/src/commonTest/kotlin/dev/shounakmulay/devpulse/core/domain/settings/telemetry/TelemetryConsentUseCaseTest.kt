@@ -17,6 +17,24 @@ import kotlin.test.assertSame
 
 class TelemetryConsentUseCaseTest {
     @Test
+    fun `Given no saved choices When initialising Then only crash reporting is enabled`(): Unit = runBlocking {
+        val provider = DPAnalyticsConsentProvider(ConsentRepository())
+        assertEquals(null, provider.getConsent())
+        provider.initialise()
+        assertEquals(DPAnalyticsConsent(crashReporting = true, usageAnalytics = false, performanceMetrics = false), provider.getConsent())
+    }
+
+    @Test
+    fun `Given a saved crash opt out When initialising Then the explicit choice is preserved`(): Unit = runBlocking {
+        val repository = ConsentRepository().apply {
+            consent.value = DPAnalyticsConsent(crashReporting = false, usageAnalytics = true, performanceMetrics = true)
+        }
+        val provider = DPAnalyticsConsentProvider(repository)
+        provider.initialise()
+        assertEquals(DPAnalyticsConsent(crashReporting = false, usageAnalytics = true, performanceMetrics = true), provider.getConsent())
+    }
+
+    @Test
     fun `Given no answer When declining and granting Then refusal remains distinct from unanswered consent`(): Unit = runBlocking {
         val repository = ConsentRepository()
         val observe = ObserveTelemetryConsentUseCase(repository, dispatchers)
