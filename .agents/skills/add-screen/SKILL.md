@@ -18,7 +18,7 @@ Inspect these current references instead of copying an embedded template:
 
 Create immutable serializable ScreenState, Effect and Event types as needed. Use MviViewModel<STATE, EFFECT>, @KoinViewModel, createStateSerializer(), Orbit state/effect APIs and DP components. Do not use StateEffectViewModel or createInitialState().
 
-Add the typed route, screen entry and feature-entry registration. Inspect the current app entry provider before wiring it. Follow current list/detail metadata when applicable. Keep business decisions in use cases and preserve cancellation and state restoration.
+Add the typed route, screen entry and feature-entry registration. Register the new back-stack route as a `NavKey` subclass in `navigationSerializersConfig` in `core/navigation/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/navigation/NavigationState.kt`; `@Serializable` on the route alone is not sufficient. Add a serialization and restoration regression test using that configuration, including any route parameters. Inspect the current app entry provider before wiring it. Follow current list/detail metadata when applicable. Keep business decisions in use cases and preserve cancellation and state restoration.
 
 Read `.agents/skills/verify-change/SKILL.md`. Preview `bash scripts/verify.sh --base <reviewed-integration-ref> --plan`, then execute it. New behavior needs meaningful assertions; existing placeholder tests are not a quality target. Check narrow/wide layout, back navigation, state restoration and relevant accessibility manually. Report unavailable platforms explicitly.
 
