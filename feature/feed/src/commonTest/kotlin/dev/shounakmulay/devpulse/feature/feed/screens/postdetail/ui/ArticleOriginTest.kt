@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui
 
+import dev.shounakmulay.devpulse.core.logging.events.articleOrigin
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

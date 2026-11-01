@@ -1,6 +1,6 @@
-package dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui
+package dev.shounakmulay.devpulse.core.logging.events
 
-internal fun articleOrigin(url: String): String? {
+fun articleOrigin(url: String): String? {
     val scheme = url.substringBefore("://", "").lowercase()
     if (scheme !in setOf("http", "https")) return null
     val authority = url.substringAfter("://").substringBefore('/').substringBefore('?').substringBefore('#')

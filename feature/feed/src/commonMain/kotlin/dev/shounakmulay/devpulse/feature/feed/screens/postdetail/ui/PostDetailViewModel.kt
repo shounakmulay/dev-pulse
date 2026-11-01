@@ -11,6 +11,7 @@ import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSett
 import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingLineHeightScaleUseCase
 import dev.shounakmulay.devpulse.core.logging.events.DPEvent
 import dev.shounakmulay.devpulse.core.logging.events.DPEvents
+import dev.shounakmulay.devpulse.core.logging.events.articleOrigin
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
