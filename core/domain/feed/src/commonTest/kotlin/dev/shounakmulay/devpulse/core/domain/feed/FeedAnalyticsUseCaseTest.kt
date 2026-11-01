@@ -22,6 +22,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.runBlocking
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -99,6 +100,56 @@ class FeedAnalyticsUseCaseTest {
     }
 
     @Test
+    fun `Given failed content fetch When article is available Then event includes sanitized origin`() = runBlocking {
+        val failure = IllegalStateException("fetch failed")
+        posts.failure = failure
+        posts.article = article("https://example.com/private/article?token=secret#section")
+
+        assertSame(failure, fetchContent(id).exceptionOrNull())
+        assertEquals(listOf(EventEntry("post_content_fetch_failed", mapOf("article_origin" to "https://example.com"))), events)
+    }
+
+    @Test
+    fun `Given failed content fetch and unavailable metadata When tracking Then original failure and event remain`() = runBlocking {
+        val failure = IllegalStateException("fetch failed")
+        posts.failure = failure
+        posts.lookupFailure = IllegalStateException("lookup failed")
+
+        assertSame(failure, fetchContent(id).exceptionOrNull())
+        assertEquals(listOf(EventEntry("post_content_fetch_failed")), events)
+    }
+
+    @Test
+    fun `Given unsafe article URL When fetch fails Then event omits the URL`() = runBlocking {
+        posts.failure = IllegalStateException("fetch failed")
+        posts.article = article("https://user:password@example.com/article")
+
+        fetchContent(id)
+        assertEquals(listOf(EventEntry("post_content_fetch_failed")), events)
+    }
+
+    @Test
+    fun `Given cancellation during metadata lookup When fetch fails Then cancellation propagates`() = runBlocking {
+        posts.failure = IllegalStateException("fetch failed")
+        val cancellation = CancellationException("cancelled")
+        posts.lookupFailure = cancellation
+
+        assertSame(cancellation, assertFailsWith<CancellationException> { fetchContent(id) })
+        assertEquals(emptyList(), events)
+    }
+
+    private fun article(link: String) = RssPostWithFeedIdentityAndSearch(
+        post = RssFeedPost(
+            id = id, feedId = UUID("feed"), fingerprint = "fingerprint", guid = null,
+            title = null, author = null, link = link, publishedAtMillis = 0, description = null,
+            content = null, image = null, audio = null, video = null, sourceName = null,
+            sourceUrl = null, categories = emptyList(), commentsUrl = null, youtubeItemData = null,
+            rawEnclosure = null, createdAtMillis = 0, updatedAtMillis = 0, pubDate = null,
+        ),
+        feedIdentity = RssFeedIdentity(UUID("feed"), null, null, "https://example.com/feed", null, 0, 0),
+    )
+
+    @Test
     fun `Given OPML extraction When successful Then events distinguish XML and URL without input data`() = runBlocking {
         val expected = listOf(OpmlFeedImportData("https://private.example/feed", "Private title"))
         assertEquals(expected, extractOpml.fromXml("private XML").getOrThrow())
@@ -151,6 +202,8 @@ class FeedAnalyticsUseCaseTest {
 
     private class Posts : PostRepository {
         var failure: Exception? = null
+        var lookupFailure: Exception? = null
+        var article: RssPostWithFeedIdentityAndSearch? = null
         val bookmarks = mutableListOf<Pair<UUID, Boolean>>()
         override suspend fun setPostBookmarked(id: UUID, bookmarked: Boolean) {
             failure?.let { throw it }
@@ -160,7 +213,10 @@ class FeedAnalyticsUseCaseTest {
             failure?.let { throw it }
             return RssParsedPostContent("private HTML", "private markdown")
         }
-        override fun getPost(id: UUID): Flow<RssPostWithFeedIdentityAndSearch> = error("unused")
+        override fun getPost(id: UUID): Flow<RssPostWithFeedIdentityAndSearch> {
+            lookupFailure?.let { throw it }
+            return article?.let { flowOf(it) } ?: emptyFlow()
+        }
         override suspend fun upsertPosts(posts: List<RssFeedPost>): Unit = error("unused")
         override fun observePosts(query: RssPostQuery, pagingConfig: PagingConfig): Flow<PagingData<RssPostWithFeedIdentityAndSearch>> = error("unused")
         override fun observeRecentPosts(maxCount: Int): Flow<List<RssPostWithFeedIdentityAndSearch>> = error("unused")

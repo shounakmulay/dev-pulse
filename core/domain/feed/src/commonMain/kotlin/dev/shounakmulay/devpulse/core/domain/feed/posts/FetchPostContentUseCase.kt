@@ -7,6 +7,8 @@ import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
 import dev.shounakmulay.devpulse.core.logging.events.DPEvent
 import dev.shounakmulay.devpulse.core.logging.events.DPEvents
+import dev.shounakmulay.devpulse.core.logging.events.articleOrigin
+import kotlinx.coroutines.flow.firstOrNull
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -23,6 +25,10 @@ class FetchPostContentUseCase(
     }.onSuccess {
         dpEvent.track(DPEvents.POST_CONTENT_FETCH_COMPLETED)
     }.onFailure {
-        dpEvent.track(DPEvents.POST_CONTENT_FETCH_FAILED)
+        val origin = dispatcherProvider.runCatchingOnDefault {
+            postRepository.getPost(postId).firstOrNull()?.post?.link?.let(::articleOrigin)
+        }.getOrNull()
+        val data = origin?.let { mapOf("article_origin" to it) }.orEmpty()
+        dpEvent.track(DPEvents.POST_CONTENT_FETCH_FAILED, data)
     }
 }
