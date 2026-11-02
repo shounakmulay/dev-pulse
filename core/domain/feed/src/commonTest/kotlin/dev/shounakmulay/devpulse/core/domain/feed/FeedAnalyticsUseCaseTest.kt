@@ -1,5 +1,7 @@
 package dev.shounakmulay.devpulse.core.domain.feed
 
+import dev.shounakmulay.devpulse.core.logging.events.DPEventKey
+import dev.shounakmulay.devpulse.core.logging.events.DPEvents
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
@@ -81,8 +83,8 @@ class FeedAnalyticsUseCaseTest {
         bookmark(id = id, bookmarked = false).getOrThrow()
         assertEquals(listOf(id to true, id to false), posts.bookmarks)
         assertEquals(listOf(
-            EventEntry("post_bookmark_changed", mapOf("bookmarked" to "true")),
-            EventEntry("post_bookmark_changed", mapOf("bookmarked" to "false")),
+            EventEntry(DPEvents.POST_BOOKMARK_CHANGED, mapOf(DPEventKey.BOOKMARKED to "true")),
+            EventEntry(DPEvents.POST_BOOKMARK_CHANGED, mapOf(DPEventKey.BOOKMARKED to "false")),
         ), events)
     }
 
@@ -90,13 +92,13 @@ class FeedAnalyticsUseCaseTest {
     fun `Given feed deletion When persistence succeeds Then event contains no feed identifier`() = runBlocking {
         delete(id).getOrThrow()
         assertEquals(listOf(id), feeds.deleted)
-        assertEquals(listOf(EventEntry("feed_deleted")), events)
+        assertEquals(listOf(EventEntry(DPEvents.FEED_DELETED)), events)
     }
 
     @Test
     fun `Given content fetch When successful Then result is retained and event contains no content`() = runBlocking {
         assertEquals(RssParsedPostContent("private HTML", "private markdown"), fetchContent(id).getOrThrow())
-        assertEquals(listOf(EventEntry("post_content_fetch_completed")), events)
+        assertEquals(listOf(EventEntry(DPEvents.POST_CONTENT_FETCH_COMPLETED)), events)
     }
 
     @Test
@@ -106,7 +108,7 @@ class FeedAnalyticsUseCaseTest {
         posts.article = article("https://example.com/private/article?token=secret#section")
 
         assertSame(failure, fetchContent(id).exceptionOrNull())
-        assertEquals(listOf(EventEntry("post_content_fetch_failed", mapOf("article_origin" to "https://example.com"))), events)
+        assertEquals(listOf(EventEntry(DPEvents.POST_CONTENT_FETCH_FAILED, mapOf(DPEventKey.ARTICLE_ORIGIN to "https://example.com"))), events)
     }
 
     @Test
@@ -116,7 +118,7 @@ class FeedAnalyticsUseCaseTest {
         posts.lookupFailure = IllegalStateException("lookup failed")
 
         assertSame(failure, fetchContent(id).exceptionOrNull())
-        assertEquals(listOf(EventEntry("post_content_fetch_failed")), events)
+        assertEquals(listOf(EventEntry(DPEvents.POST_CONTENT_FETCH_FAILED)), events)
     }
 
     @Test
@@ -125,7 +127,7 @@ class FeedAnalyticsUseCaseTest {
         posts.article = article("https://user:password@example.com/article")
 
         fetchContent(id)
-        assertEquals(listOf(EventEntry("post_content_fetch_failed")), events)
+        assertEquals(listOf(EventEntry(DPEvents.POST_CONTENT_FETCH_FAILED)), events)
     }
 
     @Test
@@ -155,8 +157,8 @@ class FeedAnalyticsUseCaseTest {
         assertEquals(expected, extractOpml.fromXml("private XML").getOrThrow())
         assertEquals(expected, extractOpml.fromUrl("https://private.example/opml").getOrThrow())
         assertEquals(listOf(
-            EventEntry("opml_extraction_completed", mapOf("source" to "xml")),
-            EventEntry("opml_extraction_completed", mapOf("source" to "url")),
+            EventEntry(DPEvents.OPML_EXTRACTION_COMPLETED, mapOf(DPEventKey.SOURCE to "xml")),
+            EventEntry(DPEvents.OPML_EXTRACTION_COMPLETED, mapOf(DPEventKey.SOURCE to "url")),
         ), events)
     }
 
@@ -171,9 +173,9 @@ class FeedAnalyticsUseCaseTest {
         assertSame(failure, extractOpml.fromXml("private XML").exceptionOrNull())
         assertSame(failure, extractOpml.fromUrl("https://private.example/opml").exceptionOrNull())
         assertEquals(listOf(
-            EventEntry("post_content_fetch_failed"),
-            EventEntry("opml_extraction_failed", mapOf("source" to "xml")),
-            EventEntry("opml_extraction_failed", mapOf("source" to "url")),
+            EventEntry(DPEvents.POST_CONTENT_FETCH_FAILED),
+            EventEntry(DPEvents.OPML_EXTRACTION_FAILED, mapOf(DPEventKey.SOURCE to "xml")),
+            EventEntry(DPEvents.OPML_EXTRACTION_FAILED, mapOf(DPEventKey.SOURCE to "url")),
         ), events)
     }
 

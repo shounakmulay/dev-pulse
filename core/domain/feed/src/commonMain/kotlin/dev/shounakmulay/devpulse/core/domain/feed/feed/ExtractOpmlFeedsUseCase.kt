@@ -5,6 +5,7 @@ import dev.shounakmulay.devpulse.core.common.coroutines.runCatchingOnDefault
 import dev.shounakmulay.devpulse.core.data.feed.repository.FeedRepository
 import dev.shounakmulay.devpulse.core.domain.models.feed.OpmlFeedImportData
 import dev.shounakmulay.devpulse.core.logging.events.DPEvent
+import dev.shounakmulay.devpulse.core.logging.events.DPEventKey
 import dev.shounakmulay.devpulse.core.logging.events.DPEvents
 import org.koin.core.annotation.Factory
 
@@ -17,16 +18,16 @@ class ExtractOpmlFeedsUseCase(
     suspend fun fromXml(opml: String): Result<List<OpmlFeedImportData>> = dispatcherProvider.runCatchingOnDefault {
         feedRepository.extractOpmlFeeds(opml)
     }.onSuccess {
-        dpEvent.track(DPEvents.OPML_EXTRACTION_COMPLETED, data = mapOf("source" to "xml"))
+        dpEvent.track(DPEvents.OPML_EXTRACTION_COMPLETED, data = mapOf(DPEventKey.SOURCE to "xml"))
     }.onFailure {
-        dpEvent.track(DPEvents.OPML_EXTRACTION_FAILED, data = mapOf("source" to "xml"))
+        dpEvent.track(DPEvents.OPML_EXTRACTION_FAILED, data = mapOf(DPEventKey.SOURCE to "xml"))
     }
 
     suspend fun fromUrl(url: String): Result<List<OpmlFeedImportData>> = dispatcherProvider.runCatchingOnDefault {
         feedRepository.extractOpmlFeedsFromUrl(url)
     }.onSuccess {
-        dpEvent.track(DPEvents.OPML_EXTRACTION_COMPLETED, data = mapOf("source" to "url"))
+        dpEvent.track(DPEvents.OPML_EXTRACTION_COMPLETED, data = mapOf(DPEventKey.SOURCE to "url"))
     }.onFailure {
-        dpEvent.track(DPEvents.OPML_EXTRACTION_FAILED, data = mapOf("source" to "url"))
+        dpEvent.track(DPEvents.OPML_EXTRACTION_FAILED, data = mapOf(DPEventKey.SOURCE to "url"))
     }
 }

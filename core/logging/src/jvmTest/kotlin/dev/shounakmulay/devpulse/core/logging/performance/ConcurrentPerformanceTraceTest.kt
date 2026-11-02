@@ -4,14 +4,37 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import dev.shounakmulay.devpulse.core.logging.consent.AnalyticsConsentProvider
+import dev.shounakmulay.devpulse.core.logging.consent.DPAnalyticsConsent
+import kotlinx.coroutines.flow.flowOf
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ConcurrentPerformanceTraceTest {
+
+    @BeforeTest
+    fun setUp() {
+        startKoin {
+            modules(module {
+                single<AnalyticsConsentProvider> {
+                    object : AnalyticsConsentProvider {
+                        override fun getConsent() = DPAnalyticsConsent(performanceMetrics = true)
+                        override fun observeConsent() = flowOf(getConsent())
+                    }
+                }
+            })
+        }
+    }
+
     @AfterTest
     fun resetPerformance() {
         DPPerformance.configure(emptyList())
+        stopKoin()
     }
 
     @Test
@@ -23,7 +46,7 @@ class ConcurrentPerformanceTraceTest {
                 override fun stop() { stops.incrementAndGet() }
             }
         }))
-        val trace = DPPerformance.startTrace(name = "feed_import")
+        val trace = DPPerformance.startTrace(trace = DPPerformanceTrace.FEED_IMPORT)
         val executor = Executors.newFixedThreadPool(8)
         val start = CountDownLatch(1)
         try {

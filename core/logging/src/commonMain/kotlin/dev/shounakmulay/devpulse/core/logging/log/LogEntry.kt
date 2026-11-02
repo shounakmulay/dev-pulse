@@ -5,7 +5,7 @@ data class LogEntry(
     val tag: String,
     val message: String,
     val throwable: Throwable?,
-    val data: Map<String, String> = emptyMap(),
+    val data: Map<DPLogKey, String> = emptyMap(),
 ) {
     val stackTrace: String? get() = throwable?.stackTraceToString()
 }

@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.domain.feed.discovery
 
+import dev.shounakmulay.devpulse.core.logging.events.DPEvents
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
@@ -52,14 +53,14 @@ class RefreshFeedDiscoveryUseCaseTest {
     @Test
     fun `Given successful fetch When refreshing Then completion is emitted once`() = runBlocking {
         assertTrue(useCase {}.invoke().isSuccess)
-        assertEquals(listOf(EventEntry("discovery_fetch_completed")), events)
+        assertEquals(listOf(EventEntry(DPEvents.DISCOVERY_FETCH_COMPLETED)), events)
     }
 
     @Test
     fun `Given failed fetch When refreshing Then failure is retained and emitted once`() = runBlocking {
         val failure = IllegalStateException("private URL must not reach analytics")
         assertSame(failure, useCase { throw failure }.invoke().exceptionOrNull())
-        assertEquals(listOf(EventEntry("discovery_fetch_failed")), events)
+        assertEquals(listOf(EventEntry(DPEvents.DISCOVERY_FETCH_FAILED)), events)
     }
 
     @Test

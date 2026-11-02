@@ -1,5 +1,11 @@
 package dev.shounakmulay.devpulse.core.logging.performance
 
+import dev.shounakmulay.devpulse.core.logging.consent.AnalyticsConsentProvider
+import dev.shounakmulay.devpulse.core.logging.consent.DPAnalyticsConsent
+import kotlinx.coroutines.flow.flowOf
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
@@ -8,43 +14,62 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.startCoroutine
 import kotlin.coroutines.suspendCoroutine
 import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 
 class DPPerformanceTest {
+
+    @BeforeTest
+    fun setUp() {
+        startKoin {
+            modules(module {
+                single<AnalyticsConsentProvider> {
+                    object : AnalyticsConsentProvider {
+                        override fun getConsent() = DPAnalyticsConsent(performanceMetrics = true)
+                        override fun observeConsent() = flowOf(getConsent())
+                    }
+                }
+            })
+        }
+    }
+
     @AfterTest
     fun resetPerformance() {
         DPPerformance.configure(emptyList())
+        stopKoin()
     }
 
     @Test
     fun `Given trace metadata When starting and stopping Then provider receives copied entry and one stop`() {
         val sink = RecordingSink()
         val sinks = mutableListOf<PerformanceSink>(sink)
-        val data = mutableMapOf("feed_id" to "feed-1")
+        val data = mutableMapOf(DPPerformanceKey.FEED_ID to "feed-1")
         DPPerformance.configure(sinks)
         sinks.clear()
 
-        val trace = DPPerformance.startTrace(name = "feed_import", data = data)
-        data["feed_id"] = "changed"
+        val trace = DPPerformance.startTrace(trace = DPPerformanceTrace.FEED_IMPORT, data = data)
+        data[DPPerformanceKey.FEED_ID] = "changed"
         trace.stop()
         trace.stop()
 
-        assertEquals(TraceEntry(name = "feed_import", data = mapOf("feed_id" to "feed-1")), sink.traces.single().entry)
+        assertEquals(TraceEntry(name = DPPerformanceTrace.FEED_IMPORT, data = mapOf(DPPerformanceKey.FEED_ID to "feed-1")), sink.traces.single().entry)
+        assertEquals("feed_import", sink.traces.single().entry.name.wireName)
+        assertEquals(mapOf("feed_id" to "feed-1"), sink.traces.single().entry.data.mapKeys { it.key.wireName })
         assertEquals(1, sink.traces.single().stops)
     }
 
     @Test
     fun `Given sink filter When starting rejected and accepted traces Then only accepted trace runs`() {
-        val sink = RecordingSink { it.name == "feed_import" }
+        val sink = RecordingSink { it.name == DPPerformanceTrace.FEED_IMPORT }
         DPPerformance.configure(listOf(sink))
 
-        DPPerformance.startTrace(name = "ignored").stop()
-        DPPerformance.startTrace(name = "feed_import").stop()
+        DPPerformance.startTrace(trace = DPPerformanceTrace.FEED_SYNC).stop()
+        DPPerformance.startTrace(trace = DPPerformanceTrace.FEED_IMPORT).stop()
 
-        assertEquals(listOf("feed_import"), sink.traces.map { it.entry.name })
+        assertEquals(listOf(DPPerformanceTrace.FEED_IMPORT), sink.traces.map { it.entry.name })
         assertEquals(1, sink.traces.single().stops)
     }
 
@@ -52,8 +77,8 @@ class DPPerformanceTest {
     fun `Given overlapping same-name traces When stopping out of order Then lifetimes remain independent`() {
         val sink = RecordingSink()
         DPPerformance.configure(listOf(sink))
-        val first = DPPerformance.startTrace(name = "feed_import")
-        val second = DPPerformance.startTrace(name = "feed_import")
+        val first = DPPerformance.startTrace(trace = DPPerformanceTrace.FEED_IMPORT)
+        val second = DPPerformance.startTrace(trace = DPPerformanceTrace.FEED_IMPORT)
 
         second.stop()
         assertEquals(listOf(0, 1), sink.traces.map { it.stops })
@@ -67,14 +92,14 @@ class DPPerformanceTest {
         val original = RecordingSink()
         val replacement = RecordingSink()
         DPPerformance.configure(listOf(original))
-        val trace = DPPerformance.startTrace(name = "feed_import")
+        val trace = DPPerformance.startTrace(trace = DPPerformanceTrace.FEED_IMPORT)
         DPPerformance.configure(listOf(replacement))
 
         trace.stop()
-        DPPerformance.startTrace(name = "feed_sync").stop()
+        DPPerformance.startTrace(trace = DPPerformanceTrace.FEED_SYNC).stop()
 
-        assertEquals(listOf("feed_import"), original.traces.map { it.entry.name })
-        assertEquals(listOf("feed_sync"), replacement.traces.map { it.entry.name })
+        assertEquals(listOf(DPPerformanceTrace.FEED_IMPORT), original.traces.map { it.entry.name })
+        assertEquals(listOf(DPPerformanceTrace.FEED_SYNC), replacement.traces.map { it.entry.name })
         assertEquals(1, original.traces.single().stops)
         assertEquals(1, replacement.traces.single().stops)
     }
@@ -99,7 +124,7 @@ class DPPerformanceTest {
             val healthy = RecordingSink()
             DPPerformance.configure(listOf(filterFailure, startFailure, stopFailure, healthy))
 
-            val result = DPPerformance.measure(name = "feed_import") { 42 }
+            val result = DPPerformance.measure(trace = DPPerformanceTrace.FEED_IMPORT) { 42 }
 
             assertEquals(42, result)
             assertEquals(1, healthy.traces.single().stops)
@@ -120,7 +145,7 @@ class DPPerformanceTest {
             DPPerformance.configure(listOf(first, brokenStop, second))
 
             val thrown = assertFailsWith<Exception> {
-                DPPerformance.measure(name = "feed_import") { throw failure }
+                DPPerformance.measure(trace = DPPerformanceTrace.FEED_IMPORT) { throw failure }
             }
 
             assertSame(failure, thrown)
@@ -136,7 +161,7 @@ class DPPerformanceTest {
         var pending: Continuation<String>? = null
         var outcome: Result<String>? = null
         val work: suspend () -> String = {
-            DPPerformance.measure(name = "feed_import") {
+            DPPerformance.measure(trace = DPPerformanceTrace.FEED_IMPORT) {
                 suspendCoroutine { pending = it }
             }
         }
@@ -160,7 +185,7 @@ class DPPerformanceTest {
         var pending: Continuation<String>? = null
         var outcome: Result<String>? = null
         val work: suspend () -> String = {
-            DPPerformance.measure(name = "feed_import") {
+            DPPerformance.measure(trace = DPPerformanceTrace.FEED_IMPORT) {
                 suspendCoroutine { pending = it }
             }
         }
@@ -179,7 +204,7 @@ class DPPerformanceTest {
     fun `Given no configured sink When measuring Then business result is unchanged`() {
         DPPerformance.configure(emptyList())
 
-        val result = DPPerformance.measure(name = "feed_import") { "Imported" }
+        val result = DPPerformance.measure(trace = DPPerformanceTrace.FEED_IMPORT) { "Imported" }
 
         assertEquals("Imported", result)
     }

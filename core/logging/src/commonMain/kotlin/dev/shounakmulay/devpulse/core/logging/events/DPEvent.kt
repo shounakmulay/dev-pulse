@@ -13,16 +13,16 @@ object DPEvent : KoinComponent {
     private val analyticsConsentProvider by inject<AnalyticsConsentProvider>()
 
     fun configure(sinks: List<EventSink>) {
-        this.sinks = sinks
+        this.sinks = sinks.toList()
     }
 
-    fun track(event: DPEvents, data: Map<String, String> = emptyMap()) {
+    fun track(event: DPEvents, data: Map<DPEventKey, String> = emptyMap()) {
         if (analyticsConsentProvider.getConsent()?.usageAnalytics != true) return
 
         val configuredSinks = requireNotNull(sinks) {
             "DPEvent configuration is missing. Did you call DPEvent.configure()"
         }
-        val entry = EventEntry(name = event.eventName, data = data)
+        val entry = EventEntry(name = event, data = data.toMap())
         configuredSinks.forEach { sink ->
             try {
                 if (sink.isTrackable(entry)) sink.track(entry)
