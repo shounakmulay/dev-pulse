@@ -19,14 +19,14 @@ object DPPerformance : KoinComponent {
 
     fun startTrace(
         trace: DPPerformanceTrace,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPPerformanceKey, String> = emptyMap(),
     ): PerformanceTrace {
         if (analyticsConsentProvider.getConsent()?.performanceMetrics != true) return NoOpPerformanceTrace
 
         val configuredSinks = requireNotNull(sinks) {
             "DPPerformance configuration is missing. Did you call DPPerformance.configure()"
         }
-        val entry = TraceEntry(name = trace.name, data = data)
+        val entry = TraceEntry(name = trace, data = data)
         val traces = buildList {
             configuredSinks.forEach { sink ->
                 try {
@@ -40,7 +40,7 @@ object DPPerformance : KoinComponent {
 
     inline fun <T> measure(
         trace: DPPerformanceTrace,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPPerformanceKey, String> = emptyMap(),
         block: () -> T,
     ): T {
         val trace = startTrace(trace = trace, data = data)

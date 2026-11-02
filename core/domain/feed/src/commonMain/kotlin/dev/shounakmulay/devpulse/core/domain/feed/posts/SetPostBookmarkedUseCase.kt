@@ -5,6 +5,7 @@ import dev.shounakmulay.devpulse.core.common.coroutines.runCatchingOnDefault
 import dev.shounakmulay.devpulse.core.data.feed.repository.PostRepository
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.logging.events.DPEvent
+import dev.shounakmulay.devpulse.core.logging.events.DPEventKey
 import dev.shounakmulay.devpulse.core.logging.events.DPEvents
 import org.koin.core.annotation.Factory
 
@@ -19,7 +20,7 @@ class SetPostBookmarkedUseCase(
     }.onSuccess {
         dpEvent.track(
             event = DPEvents.POST_BOOKMARK_CHANGED,
-            data = mapOf("bookmarked" to bookmarked.toString()),
+            data = mapOf(DPEventKey.BOOKMARKED to bookmarked.toString()),
         )
     }
 }

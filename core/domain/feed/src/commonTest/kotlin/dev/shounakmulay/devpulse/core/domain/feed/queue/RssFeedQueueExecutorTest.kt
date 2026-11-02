@@ -1,5 +1,6 @@
 package dev.shounakmulay.devpulse.core.domain.feed.queue
 
+import dev.shounakmulay.devpulse.core.logging.events.DPEvents
 import dev.shounakmulay.devpulse.core.logging.consent.AnalyticsConsentProvider
 import dev.shounakmulay.devpulse.core.logging.consent.DPAnalyticsConsent
 import dev.shounakmulay.devpulse.core.logging.events.DPEvent
@@ -73,7 +74,7 @@ class RssFeedQueueExecutorTest {
             else fixture.feeds.fetch = { if (it.id == 1) error("invalid XML") else parsedFeed() }
 
             assertEquals(setOf(UUID("feed-2")), fixture.executor.process().syncedFeedIds)
-            assertEquals(listOf(EventEntry("feed_import_failed"), EventEntry("feed_import_completed")), events)
+            assertEquals(listOf(EventEntry(DPEvents.FEED_IMPORT_FAILED), EventEntry(DPEvents.FEED_IMPORT_COMPLETED)), events)
             assertEquals(listOf(RssFeedQueueStatus.FAILED, RssFeedQueueStatus.COMPLETED), fixture.queue.entries.map { it.status })
         }
     }
