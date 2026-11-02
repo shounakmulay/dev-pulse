@@ -8,14 +8,14 @@ func createFirebasePerformanceSinks() -> [PerformanceSink] {
 
 private final class FirebasePerformanceSink: NSObject, PerformanceSink {
     func isTraceable(entry: TraceEntry) -> Bool {
-        !entry.name.isEmpty && entry.name.utf16.count <= 100 &&
-            entry.name == entry.name.trimmingCharacters(in: .whitespacesAndNewlines) &&
-            !entry.name.hasPrefix("_")
+        !entry.name.wireName.isEmpty && entry.name.wireName.utf16.count <= 100 &&
+            entry.name.wireName == entry.name.wireName.trimmingCharacters(in: .whitespacesAndNewlines) &&
+            !entry.name.wireName.hasPrefix("_")
     }
 
     func startTrace(entry: TraceEntry) -> PerformanceTrace {
-        let trace = Performance.sharedInstance().trace(name: entry.name)
-        entry.data.forEach { key, value in trace?.setValue(value, forAttribute: key) }
+        let trace = Performance.sharedInstance().trace(name: entry.name.wireName)
+        entry.data.forEach { key, value in trace?.setValue(value, forAttribute: key.wireName) }
         trace?.start()
         return FirebasePerformanceTrace(trace: trace)
     }

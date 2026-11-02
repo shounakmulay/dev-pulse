@@ -6,6 +6,7 @@ import com.google.firebase.crashlytics.CustomKeysAndValues
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dev.shounakmulay.devpulse.core.common.BuildKonfigCommon
 import dev.shounakmulay.devpulse.core.logging.consent.AnalyticsConsentProvider
+import dev.shounakmulay.devpulse.core.logging.log.DPLogKey
 import dev.shounakmulay.devpulse.core.logging.log.DPLogLevel
 import dev.shounakmulay.devpulse.core.logging.log.LogEntry
 import dev.shounakmulay.devpulse.core.logging.log.LogSink
@@ -17,7 +18,7 @@ internal class FirebaseLogSink(
     context: Context,
     private val consentProvider: AnalyticsConsentProvider,
 ) : LogSink {
-    private val defaultData: Map<String, String>
+    private val defaultData: Map<DPLogKey, String>
 
     init {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -27,10 +28,10 @@ internal class FirebaseLogSink(
             packageInfo.versionCode.toLong()
         }
         defaultData = mapOf(
-            "platform" to "android",
-            "environment" to BuildKonfigCommon.ENVIRONMENT,
-            "app.version" to packageInfo.versionName.orEmpty(),
-            "app.build" to build.toString(),
+            DPLogKey.PLATFORM to "android",
+            DPLogKey.ENVIRONMENT to BuildKonfigCommon.ENVIRONMENT,
+            DPLogKey.APP_VERSION to packageInfo.versionName.orEmpty(),
+            DPLogKey.APP_BUILD to build.toString(),
         )
     }
 
@@ -39,17 +40,17 @@ internal class FirebaseLogSink(
     override fun log(entry: LogEntry) {
         if (!isLoggable(entry)) return
         val data = defaultData + mapOf(
-            "logger.name" to entry.tag,
-            "log.message" to entry.message,
-            "log.level" to entry.level.name,
+            DPLogKey.LOGGER_NAME to entry.tag,
+            DPLogKey.LOG_MESSAGE to entry.message,
+            DPLogKey.LOG_LEVEL to entry.level.name,
         ) + entry.data
         val throwable = entry.throwable
         if (throwable == null) {
-            val context = data.toSortedMap().entries.joinToString { (key, value) -> "$key=$value" }
+            val context = data.entries.sortedBy { it.key.wireName }.joinToString { (key, value) -> "${key.wireName}=$value" }
             crashlytics.log("${entry.tag}: ${entry.message} {$context}")
         } else {
             val keys = CustomKeysAndValues.Builder().apply {
-                data.forEach { (key, value) -> putString(key, value) }
+                data.forEach { (key, value) -> putString(key.wireName, value) }
             }.build()
             crashlytics.recordException(throwable, keys)
         }

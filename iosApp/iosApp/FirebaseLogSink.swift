@@ -10,9 +10,9 @@ func createFirebaseLogSinks() -> [LogSink] {
 
 private final class FirebaseLogSink: NSObject, LogSink {
     private let defaultData = [
-        "platform": "ios",
-        "app.version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
-        "app.build": Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+        DPLogKey.platform.wireName: "ios",
+        DPLogKey.appVersion.wireName: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
+        DPLogKey.appBuild.wireName: Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
     ]
 
     func isLoggable(entry: LogEntry) -> Bool {
@@ -23,12 +23,12 @@ private final class FirebaseLogSink: NSObject, LogSink {
         guard isLoggable(entry: entry) else { return }
         let crashlytics = Crashlytics.crashlytics()
         var data = defaultData
-        data["logger.name"] = entry.tag
-        data["log.message"] = entry.message
-        data["log.level"] = entry.level.name
+        data[DPLogKey.loggerName.wireName] = entry.tag
+        data[DPLogKey.logMessage.wireName] = entry.message
+        data[DPLogKey.logLevel.wireName] = entry.level.name
         data[NSLocalizedDescriptionKey] = entry.message
-        data["kotlin_stacktrace"] = entry.stackTrace ?? ""
-        data.merge(entry.data) { _, callerValue in callerValue }
+        data[DPLogKey.kotlinStacktrace.wireName] = entry.stackTrace ?? ""
+        entry.data.forEach { key, value in data[key.wireName] = value }
         guard entry.throwable != nil else {
             let context = data.map { key, value in "\(key)=\(value)" }.sorted().joined(separator: ", ")
             crashlytics.log("\(entry.tag): \(entry.message) {\(context)}")
