@@ -14,7 +14,7 @@ object DPPerformance : KoinComponent {
     private val analyticsConsentProvider by inject<AnalyticsConsentProvider>()
 
     fun configure(sinks: List<PerformanceSink>) {
-        this.sinks = sinks.toList()
+        this.sinks = sinks
     }
 
     fun startTrace(
@@ -26,7 +26,7 @@ object DPPerformance : KoinComponent {
         val configuredSinks = requireNotNull(sinks) {
             "DPPerformance configuration is missing. Did you call DPPerformance.configure()"
         }
-        val entry = TraceEntry(name = trace, data = data.toMap())
+        val entry = TraceEntry(name = trace, data = data)
         val traces = buildList {
             configuredSinks.forEach { sink ->
                 try {

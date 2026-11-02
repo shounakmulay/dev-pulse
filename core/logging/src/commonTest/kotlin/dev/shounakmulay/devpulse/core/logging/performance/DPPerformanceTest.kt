@@ -43,15 +43,12 @@ class DPPerformanceTest {
     }
 
     @Test
-    fun `Given trace metadata When starting and stopping Then provider receives copied entry and one stop`() {
+    fun `Given trace metadata When starting and stopping Then provider receives entry and one stop`() {
         val sink = RecordingSink()
-        val sinks = mutableListOf<PerformanceSink>(sink)
-        val data = mutableMapOf(DPPerformanceKey.FEED_ID to "feed-1")
-        DPPerformance.configure(sinks)
-        sinks.clear()
+        val data = mapOf(DPPerformanceKey.FEED_ID to "feed-1")
+        DPPerformance.configure(listOf(sink))
 
         val trace = DPPerformance.startTrace(trace = DPPerformanceTrace.FEED_IMPORT, data = data)
-        data[DPPerformanceKey.FEED_ID] = "changed"
         trace.stop()
         trace.stop()
 

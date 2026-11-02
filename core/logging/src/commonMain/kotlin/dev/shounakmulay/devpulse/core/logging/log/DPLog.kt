@@ -10,7 +10,7 @@ object DPLog {
     private var configuration: DPLogConfig = DPLogConfigs.debug()
 
     fun configure(config: DPLogConfig) {
-        configuration = config.copy(sinks = config.sinks.toList())
+        configuration = config
         Logger.setMinSeverity(config.minLevel.toSeverity())
         Logger.setLogWriters(platformLogWriter())
     }
@@ -159,7 +159,7 @@ object DPLog {
                 tag = tag,
                 message = resolvedMessage,
                 throwable = throwable,
-                data = data.toMap(),
+                data = data,
             )
         }
         config.sinks.forEach { sink ->

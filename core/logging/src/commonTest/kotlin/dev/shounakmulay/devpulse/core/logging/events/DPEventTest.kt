@@ -62,15 +62,13 @@ class DPEventTest {
     }
 
     @Test
-    fun `Given custom event data When tracking Then all sinks receive immutable snapshot`() {
+    fun `Given custom event data When tracking Then all sinks receive the payload`() {
         val first = RecordingSink()
         val second = RecordingSink()
         DPEvent.configure(listOf(first, second))
-        val data = mutableMapOf(DPEventKey.SOURCE to "android")
+        val data = mapOf(DPEventKey.SOURCE to "android")
 
         DPEvent.track(event = DPEvents.FEED_IMPORT_COMPLETED, data = data)
-        data[DPEventKey.SOURCE] = "changed"
-
         assertEquals(EventEntry(name = DPEvents.FEED_IMPORT_COMPLETED, data = mapOf(DPEventKey.SOURCE to "android")), first.entries.single())
         assertSame(first.entries.single(), second.entries.single())
     }
@@ -126,10 +124,8 @@ class DPEventTest {
     fun `Given reconfigured events When tracking Then only replacement sink receives event`() {
         val previous = RecordingSink()
         val current = RecordingSink()
-        val sinks = mutableListOf<EventSink>(current)
         DPEvent.configure(listOf(previous))
-        DPEvent.configure(sinks)
-        sinks.clear()
+        DPEvent.configure(listOf(current))
 
         DPEvent.track(event = DPEvents.FEED_IMPORT_COMPLETED)
 

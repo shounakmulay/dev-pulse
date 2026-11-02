@@ -32,16 +32,14 @@ class LogDispatchTest {
     }
 
     @Test
-    fun `Given custom data When logging through both APIs Then preserves copied payloads`() {
+    fun `Given custom data When logging through both APIs Then sinks receive the payloads`() {
         val sink = TestLogSink()
         DPLog.configure(DPLogConfig(minLevel = DPLogLevel.Verbose, sinks = listOf(sink)))
-        val data = mutableMapOf(DPLogKey.FEED_ID to "feed-1")
+        val data = mapOf(DPLogKey.FEED_ID to "feed-1")
         val failure = IllegalStateException("Import failed")
 
         DPLog.tag("FeedImport").e(throwable = failure, data = data) { "Unable to import" }
         DPLog.i(tag = "Sync", data = mapOf(DPLogKey.FEED_ID to "feed-2")) { "Synced" }
-        data[DPLogKey.FEED_ID] = "changed"
-
         assertEquals(listOf("FeedImport", "Sync"), sink.entries.map { it.tag })
         assertEquals(listOf("Unable to import", "Synced"), sink.entries.map { it.message })
         assertEquals(listOf(mapOf(DPLogKey.FEED_ID to "feed-1"), mapOf(DPLogKey.FEED_ID to "feed-2")), sink.entries.map { it.data })
@@ -121,7 +119,7 @@ class LogDispatchTest {
     }
 
     @Test
-    fun `Given mutable sink configuration When caller clears list Then configured sink still receives entry`() {
+    fun `Given mutable sink configuration When caller clears list Then no sink receives entry`() {
         val sink = TestLogSink()
         val sinks = mutableListOf<LogSink>(sink)
         DPLog.configure(DPLogConfig(minLevel = DPLogLevel.Verbose, sinks = sinks))
@@ -129,6 +127,6 @@ class LogDispatchTest {
 
         DPLog.e(tag = "Import") { "Failed" }
 
-        assertEquals("Failed", sink.singleEntry().message)
+        assertEquals(emptyList(), sink.entries)
     }
 }
