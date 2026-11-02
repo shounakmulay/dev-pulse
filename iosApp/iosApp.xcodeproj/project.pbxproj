@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1C81D6F669B7BB6D2FFCCEB3 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 16D66C9411832E1B7D572C76 /* FirebaseCore */; };
+		445C052442747365B7CB2124 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */; };
 		8B16B3233021F3EA00B19956 /* vector in Frameworks */ = {isa = PBXBuildFile; productRef = 8B16B3223021F3EA00B19956 /* vector */; };
 		8BECEB6C3021A97B00013A96 /* HtmlToMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = 8BECEB6B3021A97B00013A96 /* HtmlToMarkdown */; };
+		B7C4F6137AC8345E71E92063 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = B9BCCFD9113EF7CB3F314345 /* FirebasePerformance */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,7 +32,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		B00B6092C43465464488F783 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		B00B6092C43465464488F783 /* Exceptions for "iosApp" folder in "iosApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -41,21 +44,13 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		954EBB187E742EB8182E986A /* Configuration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
 			path = Configuration;
 			sourceTree = "<group>";
 		};
 		EE42F7DA22FE086A788F962E /* iosApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				B00B6092C43465464488F783 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
+				B00B6092C43465464488F783 /* Exceptions for "iosApp" folder in "iosApp" target */,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
@@ -69,6 +64,9 @@
 			files = (
 				8BECEB6C3021A97B00013A96 /* HtmlToMarkdown in Frameworks */,
 				8B16B3233021F3EA00B19956 /* vector in Frameworks */,
+				1C81D6F669B7BB6D2FFCCEB3 /* FirebaseCore in Frameworks */,
+				445C052442747365B7CB2124 /* FirebaseCrashlytics in Frameworks */,
+				B7C4F6137AC8345E71E92063 /* FirebasePerformance in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,6 +122,9 @@
 			packageProductDependencies = (
 				8BECEB6B3021A97B00013A96 /* HtmlToMarkdown */,
 				8B16B3223021F3EA00B19956 /* vector */,
+				16D66C9411832E1B7D572C76 /* FirebaseCore */,
+				108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */,
+				B9BCCFD9113EF7CB3F314345 /* FirebasePerformance */,
 			);
 			productName = iosApp;
 			productReference = 9C3A2499CB7AA44381222227 /* DevPulse.app */;
@@ -155,7 +156,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				8BECEB6A3021A97B00013A96 /* XCRemoteSwiftPackageReference "html-to-markdown" */,
-				8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector#swift-package" */,
+				8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector" */,
+				7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0D214C63A60B029018168CD5 /* Products */;
@@ -231,6 +233,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
 				);
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -311,7 +317,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
-				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				DEVELOPMENT_TEAM = 53U5CQTUA3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
@@ -323,6 +329,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
 				);
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -411,9 +421,17 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector#swift-package" */ = {
+		7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sqliteai/sqlite-vector#swift-package";
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.1.1;
+			};
+		};
+		8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sqliteai/sqlite-vector";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
@@ -423,22 +441,37 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/xberg-io/html-to-markdown";
 			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 3.10.4;
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.19.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		16D66C9411832E1B7D572C76 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
 		8B16B3223021F3EA00B19956 /* vector */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector#swift-package" */;
+			package = 8B16B3213021F3EA00B19956 /* XCRemoteSwiftPackageReference "sqlite-vector" */;
 			productName = vector;
 		};
 		8BECEB6B3021A97B00013A96 /* HtmlToMarkdown */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8BECEB6A3021A97B00013A96 /* XCRemoteSwiftPackageReference "html-to-markdown" */;
 			productName = HtmlToMarkdown;
+		};
+		B9BCCFD9113EF7CB3F314345 /* FirebasePerformance */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebasePerformance;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

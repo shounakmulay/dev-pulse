@@ -11,11 +11,12 @@ import platform.BackgroundTasks.BGTaskScheduler
 
 @Single
 actual class DevPulseBackgroundSyncScheduler(
-    private val applicationScope: ApplicationScope
-) : BackgroundSyncScheduler, KoinComponent {
+    private val applicationScope: ApplicationScope,
+) : BackgroundSyncScheduler,
+    KoinComponent {
     actual override suspend fun initialise(workRequests: List<DevPulseWorkRequest>) {
-        DevPulseWorkerType.entries.forEach {
-            BGTaskScheduler.sharedScheduler.registerForTaskWithIdentifier(it.name, null) { task ->
+        workRequests.map { it.identifier }.distinct().forEach { identifier ->
+            BGTaskScheduler.sharedScheduler.registerForTaskWithIdentifier(identifier, null) { task ->
                 val worker = getKoin().get<DevPulseWorker>(named(requireNotNull(task?.identifier)))
                 // TODO: get data from user defaults
                 applicationScope.launch {
@@ -31,8 +32,8 @@ actual class DevPulseBackgroundSyncScheduler(
     actual override suspend fun enqueue(workRequest: DevPulseWorkRequest) {
         // TODO: Set data to user defaults
         BGTaskScheduler.sharedScheduler.submitTaskRequest(
-            taskRequest = BGProcessingTaskRequest(workRequest.identifier.name),
-            null
+            taskRequest = BGProcessingTaskRequest(workRequest.identifier),
+            null,
         )
     }
 }
