@@ -9,19 +9,11 @@ import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.domain.models.post.RssFeedPostContentType
 import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingFontScaleUseCase
 import dev.shounakmulay.devpulse.core.domain.settings.content.SetContentTextSettingLineHeightScaleUseCase
-import dev.shounakmulay.devpulse.core.logging.events.DPEvent
-import dev.shounakmulay.devpulse.core.logging.events.DPEvents
-import dev.shounakmulay.devpulse.core.logging.events.articleOrigin
 import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.PostDetailScreenSection
-import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.ReaderVisitReadDecision
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
@@ -39,25 +31,16 @@ class PostDetailViewModel(
 ) : MviViewModel<PostDetailScreenState, PostDetailScreenEffect>(PostDetailScreenState()),
     EventHandler<PostDetailScreenEvent> {
 
-    private val extractedContentLoaded = MutableStateFlow<Boolean?>(null)
-    private var initialSelectionChecked = false
-
     override fun createStateSerializer() = PostDetailScreenState.serializer()
 
     override fun bindStateSources(stateSubscriptionScope: CoroutineScope) {
-        extractedContentLoaded.value = null
         stateSubscriptionScope.launch {
             val content = getPostContentUseCase(postId, type = RssFeedPostContentType.MARKDOWN).getOrNull()
-            extractedContentLoaded.value = !content?.content.isNullOrBlank()
             setState {
                 copy(
                     content = content,
                 )
             }
-        }
-        if (!initialSelectionChecked) {
-            initialSelectionChecked = true
-            if (state.value.selectedSection == PostDetailScreenSection.EXTRACTED) trackExtractedContentView()
         }
         stateSubscriptionScope.launch {
             val content =
@@ -105,16 +88,25 @@ class PostDetailViewModel(
 
     private fun onContentAvailable() {
         intent {
-            if (state.post == null || state.readVisit.decision != ReaderVisitReadDecision.Pending) return@intent
-            reduce { state.copy(readVisit = state.readVisit.consume()) }
-            postInteractor.setPostRead(postId = postId, isRead = true)
+            var shouldMarkRead = false
+            reduce {
+                shouldMarkRead = state.post != null && state.autoReadPending
+                if (shouldMarkRead) {
+                    state.copy(autoReadPending = false)
+                } else {
+                    state
+                }
+            }
+            if (shouldMarkRead) {
+                postInteractor.setPostRead(postId = postId, isRead = true)
+            }
         }
     }
 
     private fun setPostRead(postId: UUID, isRead: Boolean) {
         intent {
             if (postId != this@PostDetailViewModel.postId) return@intent
-            reduce { state.copy(readVisit = state.readVisit.suppress()) }
+            reduce { state.copy(autoReadPending = false) }
             postInteractor.setPostRead(postId = postId, isRead = isRead)
         }
     }
@@ -143,16 +135,5 @@ class PostDetailViewModel(
                 selectedSection = section,
             )
         }
-        if (section == PostDetailScreenSection.EXTRACTED) trackExtractedContentView()
-    }
-
-    private fun trackExtractedContentView() = intent {
-        if (extractedContentLoaded.filterNotNull().first()) return@intent
-        val post = getPostDetailUseCase(postId).firstOrNull()?.getOrNull()
-        val data = buildMap {
-            post?.post?.link?.let(::articleOrigin)?.let { put("article_origin", it) }
-            post?.post?.feedId?.value?.let { put("feed_id", it) }
-        }
-        DPEvent.track(DPEvents.POST_CONTENT_VIEW_FAILED, data)
     }
 }
