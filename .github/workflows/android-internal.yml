@@ -44,6 +44,8 @@ jobs:
       - uses: ./.github/actions/setup-build
         with:
           cache-read-only: 'false'
+      - name: Create inert Firebase configuration for production checks
+        run: python3 -B .github/scripts/firebase_config.py test
       - name: Lint production and test database, feed and network behavior
         run: python3 -B .github/scripts/android_cd.py verify-production
       - uses: actions/upload-artifact@v7
@@ -65,6 +67,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - name: Restore production Firebase client configuration
+        env:
+          FIREBASE_CONFIG_BASE64: ${{ secrets.FIREBASE_ANDROID_PRODUCTION_CONFIG_B64 }}
+        run: python3 -B .github/scripts/firebase_config.py restore production
       - uses: ./.github/actions/setup-build
       - name: Select the configured Play authentication method
         id: auth-mode

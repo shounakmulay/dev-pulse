@@ -48,3 +48,7 @@ node_modules/
 !/.agents/skills/verify-change/
 !/.agents/skills/ktlint-fix/
 /.codegraph/
+
+# Firebase client configuration (supply locally; injected only for release CI)
+**/google-services.json
+**/GoogleService-Info.plist

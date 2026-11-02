@@ -35,6 +35,28 @@ DevPulse is being designed around a few core ideas:
 - **Bring developer workflows together**  
   The broader direction includes developer-focused utilities such as monitoring, calendars, timers, and other day-to-day tools.
 
+## Firebase configuration
+
+Firebase client configuration files are intentionally untracked. Download the Android
+`google-services.json` files for the staging and production Firebase projects and place
+them at `androidApp/src/staging/google-services.json` and
+`androidApp/src/production/google-services.json` respectively. For iOS, download
+`GoogleService-Info.plist` into `iosApp/iosApp/`. These files contain client-side
+identifiers, not service-account credentials, but should be specific to the developer's
+Firebase projects.
+
+The default Android Gradle checks expect Firebase projects `dev-pulse-b6b18-staging`
+and `dev-pulse-b6b18` with package names `dev.shounakmulay.devpulse.staging`
+and `dev.shounakmulay.devpulse`. To use your own Firebase projects, register
+those Android package names and pass
+`-Pdevpulse.firebase.staging.projectId=YOUR_STAGING_PROJECT_ID` or
+`-Pdevpulse.firebase.production.projectId=YOUR_PRODUCTION_PROJECT_ID`
+when building the corresponding flavor.
+
+CI generates non-functional placeholders for quality/lint jobs, including fork PRs;
+distribution builds **require** the real Firebase configuration from GitHub
+environment secrets. See [Android CD setup](.github/CD.md) for exact instructions.
+
 ## Code quality
 
 Run checks with the repository's Gradle wrapper and a JDK supported by Gradle 9.3.1. CI uses JDK 21.

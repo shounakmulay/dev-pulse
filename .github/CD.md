@@ -82,7 +82,27 @@ Configure the provider to trust this repository's numeric repository and owner I
 
 The two authentication options are mutually exclusive. Authentication happens after artifact validation. The upload job has a 30-minute limit, and auth generates the readback token for that job. The auth action removes its generated credential file at job completion.
 
-The tracked Firebase configuration files already select the production project `dev-pulse-b6b18` and staging project `dev-pulse-b6b18-staging`. They do not need additional GitHub secrets. No custom GitHub PAT is required.
+### Restore Firebase client configuration in distribution jobs
+
+The `google-services.json` files are no longer tracked. Add the following **environment secrets** before merging this change. These are *client configuration files*, not service-account private keys.
+
+| Environment | Secret | Source file |
+|---|---|---|
+| `release-signing` | `FIREBASE_ANDROID_PRODUCTION_CONFIG_B64` | `androidApp/src/production/google-services.json` |
+| `staging-distribution` | `FIREBASE_ANDROID_STAGING_CONFIG_B64` | `androidApp/src/staging/google-services.json` |
+
+From the repository root, after retaining local copies of the Firebase configuration:
+
+```sh
+base64 < androidApp/src/production/google-services.json | tr -d '\\n' | gh secret set FIREBASE_ANDROID_PRODUCTION_CONFIG_B64 --env release-signing
+base64 < androidApp/src/staging/google-services.json | tr -d '\\n' | gh secret set FIREBASE_ANDROID_STAGING_CONFIG_B64 --env staging-distribution
+```
+
+The release workflows refuse to build without a valid matching Firebase configuration.
+Non-distribution checks (including PRs from forks) generate inert temporary configurations
+and do not require secrets. iOS currently has no CI build; its local
+`iosApp/iosApp/GoogleService-Info.plist` must be downloaded from Firebase Console.
+No custom GitHub PAT is required.
 
 ## Run the workflow
 
