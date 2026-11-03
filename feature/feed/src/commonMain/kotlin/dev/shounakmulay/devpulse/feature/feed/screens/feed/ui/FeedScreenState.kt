@@ -15,6 +15,8 @@ data class FeedScreenState(
     @Transient val isSavingTelemetryConsent: Boolean = false,
     val isFeedLoading: Boolean = true,
     val isArticlesLoading: Boolean = true,
+    @Transient val feedLoadFailed: Boolean = false,
+    @Transient val articlesLoadFailed: Boolean = false,
     @Transient
     val feedOptions: FeedOptionsState? = null,
 ) : ScreenState

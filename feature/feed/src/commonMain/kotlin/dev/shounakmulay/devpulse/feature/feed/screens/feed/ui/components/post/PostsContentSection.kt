@@ -3,6 +3,7 @@ package dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -19,18 +20,28 @@ import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonStyle
 import dev.shounakmulay.devpulse.core.designsystem.components.DPButtonVariant
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSectionDivider
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPSize
 import dev.shounakmulay.devpulse.core.designsystem.theme.DPTheme
+import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.AppendLoadingRow
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedListError
 import devpulse.core.resources.generated.resources.feed_articles
+import devpulse.core.resources.generated.resources.feed_articles_loading_content_description
+import devpulse.core.resources.generated.resources.feed_no_recent_articles
+import devpulse.core.resources.generated.resources.post_list_load_error
 import devpulse.core.resources.generated.resources.view_all
 import org.jetbrains.compose.resources.stringResource
 
 fun LazyListScope.postsSection(
     articles: List<UIFeedPost>,
     isLoading: Boolean,
+    loadFailed: Boolean,
+    onRetry: () -> Unit,
     onReadChanged: (UUID, Boolean) -> Unit = { _, _ -> },
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
     onPostClick: (UIFeedPost) -> Unit,
@@ -50,6 +61,24 @@ fun LazyListScope.postsSection(
                 size = DPSize.Small,
             )
         }
+    }
+    if (isLoading && articles.isEmpty()) {
+        item(key = "ArticlesLoading") { AppendLoadingRow(stringResource(stringRes.feed_articles_loading_content_description)) }
+        return
+    }
+    if (loadFailed) {
+        item(key = "ArticlesError") { FeedListError(message = stringResource(stringRes.post_list_load_error), onRetry = onRetry) }
+    }
+    if (articles.isEmpty()) {
+        if (loadFailed) return
+        item(key = "ArticlesEmpty") {
+            DPTextView(
+                modifier = Modifier.padding(LocalDPSpacing.current.lg),
+                text = stringResource(stringRes.feed_no_recent_articles),
+                variant = DPTextViewVariant.BodyMedium,
+            )
+        }
+        return
     }
     item(key = "ArticlesContentSection") {
         val spacing = DPTheme.spacing

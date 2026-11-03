@@ -131,6 +131,9 @@ fun SettingsScreen(viewModel: SettingsViewModel, navigator: Navigator) {
                         onDesignSystemBoardClick = {
                             viewModel.onEvent(SettingsScreenEvent.OnDesignSystemBoardClicked)
                         },
+                        onDataAndSyncClick = {
+                            navigator.navigate(Screen.DeveloperTools.DataAndSync)
+                        },
                     )
                 }
             }

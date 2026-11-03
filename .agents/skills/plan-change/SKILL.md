@@ -16,6 +16,8 @@ Use before changing behavior. For a small fix, keep the plan in the conversation
 5. Identify schema, serialized-state, background-work and platform compatibility implications. Route to specialist skills below. Ask only for decisions the task and available evidence cannot resolve; continue independent authorized work.
 6. Define acceptance cases before implementation. Include relevant success, invalid input, failure, cancellation, stale/concurrent work, empty data, restoration and offline/reopen cases. Do not mechanically require every category for every change.
 
+For search and list changes, map the selected scope, query and filters together, and describe loading, successful empty, no matches and recoverable failure separately. Define which result generation each message describes; include transitions while a debounced query or tab change is pending. Break broad page sweeps into reviewable slices when requested.
+
 ## Ownership references
 
 - [Modules](../../../buildSrc/src/main/kotlin/dev/shounakmulay/devpulse/buildsrc/constants/Modules.kt) and settings.gradle.kts identify actual modules. Presentation depends on domain use cases; current repository interfaces live in data modules. Feature-local interactors map domain streams into UI models. Do not relocate interfaces to fit generic Clean Architecture examples.

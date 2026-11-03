@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.feature.feed.interactor.feed
 
 import androidx.paging.PagingData
+import androidx.paging.filter
 import androidx.paging.map
 import dev.shounakmulay.devpulse.core.domain.feed.feed.ExtractInitialsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedSearchResult
@@ -16,8 +17,12 @@ import org.koin.core.annotation.Factory
 class FeedSearchInteractor(
     private val extractInitialsUseCase: ExtractInitialsUseCase,
 ) {
-    fun getUIFeedSearchFlow(from: Flow<PagingData<RssFeedSearchResult>>): Flow<PagingData<UIFeed>> =
-        from.map { pagingData -> pagingData.map(::toUIFeed) }
+    fun getUIFeedSearchFlow(
+        from: Flow<PagingData<RssFeedSearchResult>>,
+        source: FeedListSource,
+    ): Flow<PagingData<UIFeed>> = from.map { pagingData ->
+        pagingData.filter { source != FeedListSource.Pinned || it.pinned }.map(::toUIFeed)
+    }
 
     fun toUIFeed(feed: RssFeedSearchResult): UIFeed {
         val title = feed.name.ifBlank { feed.title }

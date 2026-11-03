@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.DpOffset
@@ -33,7 +34,9 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import dev.shounakmulay.devpulse.core.designsystem.components.DPLinearProgressIndicator
+import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextView
+import dev.shounakmulay.devpulse.core.designsystem.components.DPTextViewVariant
 import dev.shounakmulay.devpulse.core.designsystem.compose.DPScreenPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
@@ -46,16 +49,22 @@ import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptions
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsTarget
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.FeedListItem
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.UISelectedTab
+import devpulse.core.resources.generated.resources.discovery_no_results
 import devpulse.core.resources.generated.resources.feed_list_load_error
+import devpulse.core.resources.generated.resources.feed_list_no_pinned
+import devpulse.core.resources.generated.resources.feed_list_show_all
+import devpulse.core.resources.generated.resources.feed_search_clear
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun FeedsList(
-    feeds: LazyPagingItems<UIFeed>,
+    feeds: LazyPagingItems<FeedListItem>,
     lazyGridState: LazyGridState,
     selectedTab: UISelectedTab,
+    onClearSearch: () -> Unit,
     onTabSelected: (UISelectedTab) -> Unit,
     onTogglePinned: (UIFeed, Boolean) -> Unit,
     selectedOptions: FeedOptionsTarget?,
@@ -63,7 +72,7 @@ internal fun FeedsList(
     onDismissOptions: (UUID) -> Unit,
     onOptionSelected: (UUID, FeedOptionsMenuItem) -> Unit,
     onFeedItemClick: (UIFeed) -> Unit,
-    onNavigationToImportFeeds: () -> Unit
+    onNavigationToImportFeeds: () -> Unit,
 ) {
     val fallbackLoadError = stringResource(stringRes.feed_list_load_error)
     LazyVerticalGrid(
@@ -76,11 +85,7 @@ internal fun FeedsList(
     ) {
         stickyHeader(key = "feed-filters") {
             Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
-                if (feeds.loadState.refresh is LoadState.Loading) {
-                    DPLinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                } else {
-                    Spacer(Modifier.fillMaxWidth().height(4.dp))
-                }
+                Spacer(Modifier.fillMaxWidth().height(4.dp))
                 FilterTabs(selectedTab = selectedTab, onClick = onTabSelected)
             }
         }
@@ -88,62 +93,81 @@ internal fun FeedsList(
         when (val refreshState = feeds.loadState.refresh) {
             is LoadState.Error -> item(
                 key = "refresh-error",
-                span = { GridItemSpan(maxLineSpan) }) {
+                span = { GridItemSpan(maxLineSpan) },
+            ) {
                 FeedListError(
                     message = refreshState.error.message ?: fallbackLoadError,
                     onRetry = feeds::retry,
                 )
             }
 
-            is LoadState.NotLoading if feeds.itemCount == 0 ->
-                item(key = "empty-feeds", span = { GridItemSpan(maxLineSpan) }) {
-                    EmptyFeedsImportCTA(
-                        modifier = Modifier.padding(top = LocalDPSpacing.current.xxxl),
-                        onNavigateToAddFeed = onNavigationToImportFeeds
-                    )
-                }
-
             else -> Unit
         }
 
         items(
             count = feeds.itemCount,
-            key = { index -> feeds.peek(index)?.id?.value ?: "feed-placeholder-$index" },
+            key = { index -> feeds.peek(index)?.key ?: "feed-placeholder-$index" },
+            span = { index ->
+                GridItemSpan(if (feeds.peek(index) is FeedListItem.Empty) maxLineSpan else 1)
+            },
         ) { index ->
-            val feed = feeds[index]
-            if (feed == null) {
-                FeedListPlaceholderRow()
-            } else {
-                var pressOffset by remember { mutableStateOf(DpOffset.Zero) }
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .animateItem()
-                        .pointerInput(Unit) {
-                            awaitEachGesture {
-                                val down = awaitFirstDown(requireUnconsumed = false)
-                                pressOffset =
-                                    DpOffset(down.position.x.toDp(), down.position.y.toDp())
+            when (val entry = feeds[index]) {
+                null -> FeedListPlaceholderRow()
+
+                is FeedListItem.Empty -> if (feeds.showEmptyEntry) {
+                    when (entry) {
+                        FeedListItem.Empty.All -> EmptyFeedsImportCTA(
+                            modifier = Modifier.padding(top = LocalDPSpacing.current.xxxl),
+                            onNavigateToAddFeed = onNavigationToImportFeeds,
+                        )
+
+                        FeedListItem.Empty.Pinned -> FeedListEmptyMessage(
+                            text = stringResource(stringRes.feed_list_no_pinned),
+                            action = stringResource(stringRes.feed_list_show_all),
+                            onAction = { onTabSelected(UISelectedTab.ALL) },
+                        )
+
+                        FeedListItem.Empty.Search -> FeedListEmptyMessage(
+                            text = stringResource(stringRes.discovery_no_results),
+                            action = stringResource(stringRes.feed_search_clear),
+                            onAction = onClearSearch,
+                        )
+                    }
+                }
+
+                is FeedListItem.Feed -> {
+                    val feed = entry.feed
+                    var pressOffset by remember { mutableStateOf(DpOffset.Zero) }
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .animateItem()
+                            .pointerInput(Unit) {
+                                awaitEachGesture {
+                                    val down = awaitFirstDown(requireUnconsumed = false)
+                                    pressOffset =
+                                        DpOffset(down.position.x.toDp(), down.position.y.toDp())
+                                }
+                            },
+                    ) {
+                        FeedListRow(
+                            feed = feed,
+                            onTogglePinned = { onTogglePinned(feed, it) },
+                            onLongClick = { onShowOptions(feed) },
+                            onClick = { onFeedItemClick(feed) },
+                        )
+                        if (selectedOptions?.feedId == feed.id) {
+                            DisposableEffect(feed.id) {
+                                onDispose { onDismissOptions(feed.id) }
                             }
-                        }
-                ) {
-                    FeedListRow(
-                        feed = feed,
-                        onTogglePinned = { onTogglePinned(feed, it) },
-                        onLongClick = { onShowOptions(feed) },
-                        onClick = { onFeedItemClick(feed) },
-                    )
-                    if (selectedOptions?.feedId == feed.id) {
-                        DisposableEffect(feed.id) {
-                            onDispose { onDismissOptions(feed.id) }
-                        }
-                        Box(Modifier.offset(pressOffset.x, pressOffset.y)) {
-                            FeedOptionsMenu(
-                                expanded = true,
-                                menuItems = selectedOptions.items,
-                                onMenuItemSelected = { onOptionSelected(feed.id, it) },
-                                onDismissRequest = { onDismissOptions(feed.id) },
-                            )
+                            Box(Modifier.offset(pressOffset.x, pressOffset.y)) {
+                                FeedOptionsMenu(
+                                    expanded = true,
+                                    menuItems = selectedOptions.items,
+                                    onMenuItemSelected = { onOptionSelected(feed.id, it) },
+                                    onDismissRequest = { onDismissOptions(feed.id) },
+                                )
+                            }
                         }
                     }
                 }
@@ -153,7 +177,8 @@ internal fun FeedsList(
         when (feeds.loadState.append) {
             is LoadState.Loading -> item(
                 key = "append-loading",
-                span = { GridItemSpan(maxLineSpan) }) {
+                span = { GridItemSpan(maxLineSpan) },
+            ) {
                 AppendLoadingRow()
             }
 
@@ -166,17 +191,30 @@ internal fun FeedsList(
     }
 }
 
+@Composable
+private fun FeedListEmptyMessage(text: String, action: String, onAction: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(top = LocalDPSpacing.current.xxxl),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(LocalDPSpacing.current.sm),
+    ) {
+        DPTextView(text = text, variant = DPTextViewVariant.TitleMedium)
+        DPButton(text = action, onClick = onAction)
+    }
+}
+
 @DPScreenPreview
 @Composable
 private fun FeedsListPreview() {
     Preview {
         val feeds = remember {
-            MutableStateFlow(PagingData.from(listOf(FeedPreviewData.feed)))
+            MutableStateFlow(PagingData.from<FeedListItem>(listOf(FeedListItem.Feed(FeedPreviewData.feed))))
         }.collectAsLazyPagingItems()
         FeedsList(
             feeds = feeds,
             lazyGridState = rememberLazyGridState(),
             selectedTab = UISelectedTab.entries.first(),
+            onClearSearch = {},
             onTabSelected = {},
             onTogglePinned = { _, _ -> },
             selectedOptions = null,

@@ -77,6 +77,20 @@ import kotlin.time.Instant
 @Config(manifest = Config.NONE, sdk = [35])
 class DiscoveryFeedInteractorTest {
     @Test
+    fun `Given a discovery storage failure When observing collections Then failure is visible and retry can recover`() = runTest {
+        val fixture = Fixture(UnconfinedTestDispatcher(testScheduler))
+        val failure = IllegalStateException("storage unavailable")
+        fixture.repository.collectionFailure = failure
+
+        assertSame(failure, fixture.interactor.observeCollectionShelves().first().exceptionOrNull())
+        assertSame(failure, fixture.interactor.observeCollection(UUID("collection")).first().exceptionOrNull())
+
+        fixture.repository.collectionFailure = null
+        assertEquals(emptyList(), fixture.interactor.observeCollectionShelves().first().getOrThrow())
+        assertNull(fixture.interactor.observeCollection(UUID("collection")).first().getOrThrow())
+    }
+
+    @Test
     fun `Given available feed When import is requested Then content import payload is queued`() = runTest {
         val fixture = Fixture(UnconfinedTestDispatcher(testScheduler))
         fixture.repository.feedState(FeedId).value = feed()
@@ -326,8 +340,8 @@ class DiscoveryFeedInteractorTest {
             dispatcherProvider = dispatchers,
         )
         val interactor = DiscoveryFeedInteractor(
-            observeFeedDiscoveryCollectionShelvesUseCase = ObserveFeedDiscoveryCollectionShelvesUseCase(repository),
-            observeFeedDiscoveryCollectionUseCase = ObserveFeedDiscoveryCollectionUseCase(repository),
+            observeFeedDiscoveryCollectionShelvesUseCase = ObserveFeedDiscoveryCollectionShelvesUseCase(repository, dispatchers),
+            observeFeedDiscoveryCollectionUseCase = ObserveFeedDiscoveryCollectionUseCase(repository, dispatchers),
             observeFeedDiscoveryFeedUseCase = ObserveFeedDiscoveryFeedUseCase(repository),
             getPaginatedFeedDiscoveryFeedsUseCase = GetPaginatedFeedDiscoveryFeedsUseCase(repository),
             extractInitialsUseCase = ExtractInitialsUseCase(),
@@ -339,6 +353,7 @@ class DiscoveryFeedInteractorTest {
     private data class QueryRequest(val query: FeedDiscoveryQuery, val config: PagingConfig)
 
     private class FakeFeedDiscoveryRepository : FeedDiscoveryRepository {
+        var collectionFailure: Throwable? = null
         private val feeds = mutableMapOf<UUID, MutableStateFlow<FeedDiscoveryFeed?>>()
         val requests = mutableListOf<QueryRequest>()
         val activeQueries = mutableSetOf<FeedDiscoveryQuery>()
@@ -348,8 +363,14 @@ class DiscoveryFeedInteractorTest {
         override suspend fun getDiscoverySeed(seedFilePath: String): DiscoverySeedData = error("Unused")
         override suspend fun initialiseWithSeed(seed: DiscoverySeedData) = Unit
         override suspend fun refresh() = Unit
-        override fun observeCollectionShelves(previewCount: Int): Flow<List<FeedDiscoveryCollectionShelf>> = flowOf(emptyList())
-        override fun observeCollection(collectionId: UUID): Flow<FeedDiscoveryCollection?> = flowOf(null)
+        override fun observeCollectionShelves(previewCount: Int): Flow<List<FeedDiscoveryCollectionShelf>> = flow {
+            collectionFailure?.let { throw it }
+            emit(emptyList())
+        }
+        override fun observeCollection(collectionId: UUID): Flow<FeedDiscoveryCollection?> = flow {
+            collectionFailure?.let { throw it }
+            emit(null)
+        }
         override fun observeFeed(feedId: UUID): Flow<FeedDiscoveryFeed?> = feedState(feedId)
         override fun observeFeeds(query: FeedDiscoveryQuery, pagingConfig: PagingConfig): Flow<PagingData<FeedDiscoveryFeed>> {
             requests += QueryRequest(query, pagingConfig)

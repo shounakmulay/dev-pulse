@@ -7,5 +7,6 @@ sealed interface BrowseFeedCollectionScreenEvent : ScreenEvent {
     data class OnSearchQueryChanged(val query: String) : BrowseFeedCollectionScreenEvent
     data class OnFeedClick(val feedId: UUID) : BrowseFeedCollectionScreenEvent
     data object OnClearSelectedFeed : BrowseFeedCollectionScreenEvent
+    data object Retry : BrowseFeedCollectionScreenEvent
     data class OnAddFeed(val feedId: UUID) : BrowseFeedCollectionScreenEvent
 }

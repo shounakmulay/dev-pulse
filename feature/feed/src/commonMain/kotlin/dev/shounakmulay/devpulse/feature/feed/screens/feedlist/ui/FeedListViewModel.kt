@@ -29,7 +29,7 @@ class FeedListViewModel(
 
     override fun createStateSerializer() = FeedListScreenState.serializer()
 
-    val uiFeedsFlow = feedListInteractor.getUIFeedsFlow(
+    internal val uiFeedsFlow = feedListInteractor.getFeedListItems(
         sources = state.map { it.feedListSource },
         searchQueries = state.map { it.searchQuery },
     )

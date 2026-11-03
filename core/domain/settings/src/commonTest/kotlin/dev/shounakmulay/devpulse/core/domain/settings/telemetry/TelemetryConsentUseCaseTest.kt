@@ -72,11 +72,11 @@ class TelemetryConsentUseCaseTest {
     }
 
     @Test
-    fun `Given flow construction failure When observing Then the original failure is returned`(): Unit = runBlocking {
+    fun `Given flow construction failure When observing Then the original failure is thrown`(): Unit = runBlocking {
         val failure = IllegalStateException("observation unavailable")
         val repository = ConsentRepository().apply { constructionFailure = failure }
         val observe = ObserveTelemetryConsentUseCase(repository, dispatchers)
-        assertSame(failure, observe().first().exceptionOrNull())
+        assertSame(failure, assertFailsWith<IllegalStateException> { observe() })
     }
 
     @Test

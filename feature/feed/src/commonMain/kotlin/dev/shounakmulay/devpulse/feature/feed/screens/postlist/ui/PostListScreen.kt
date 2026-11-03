@@ -52,7 +52,7 @@ fun PostListScreen(
     val returnPositionController = rememberPagingReturnPosition(
         items = posts,
         gridState = lazyGridState,
-        keyOf = { it.id.value },
+        keyOf = { it.key },
     )
 
     OnTabReselect(navigator = navigator, tab = Screen.Tabs.Feed) {
@@ -118,6 +118,8 @@ fun PostListScreen(
                 postSortAndFilterViewModel = postSortAndFilterViewModel,
                 lazyGridState = lazyGridState,
                 posts = posts,
+                onClearSearch = { viewModel.onEvent(PostListScreenEvent.OnSearchQueryChanged("")) },
+                onAddFeed = { navigator.navigate(Screen.Tabs.Feed.BrowseFeeds) },
                 onClearFilters = {
                     postSortAndFilterViewModel.onEvent(PostSortAndFilterEvent.OnClearFilters)
                 },
