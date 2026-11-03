@@ -1,7 +1,6 @@
 package dev.shounakmulay.devpulse.feature.feed.interactor.feed
 
 import androidx.paging.PagingData
-import androidx.paging.insertSeparators
 import androidx.paging.map
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.domain.feed.discovery.GetPaginatedFeedDiscoveryFeedsUseCase
@@ -18,6 +17,7 @@ import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.ui.image.getWebsiteImageUrl
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryListItem
+import dev.shounakmulay.devpulse.feature.feed.components.paging.withEmptyEntry
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryCollection
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryCollectionShelf
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryFeed
@@ -117,10 +117,7 @@ class DiscoveryFeedInteractor(
     )
 }
 
-internal fun PagingData<UIDiscoveryFeed>.withDiscoveryEmpty(query: FeedDiscoveryQuery): PagingData<DiscoveryListItem> = map<UIDiscoveryFeed, DiscoveryListItem> { DiscoveryListItem.Feed(it) }.insertSeparators { before, after ->
-    if (before == null && after == null) {
-        if (query is FeedDiscoveryQuery.Search) DiscoveryListItem.EmptySearch else DiscoveryListItem.EmptyCollection
-    } else {
-        null
-    }
-}
+internal fun PagingData<UIDiscoveryFeed>.withDiscoveryEmpty(query: FeedDiscoveryQuery): PagingData<DiscoveryListItem> = withEmptyEntry(
+    wrap = DiscoveryListItem::Feed,
+    empty = if (query is FeedDiscoveryQuery.Search) DiscoveryListItem.Empty.Search else DiscoveryListItem.Empty.Collection,
+)

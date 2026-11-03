@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
@@ -20,6 +19,7 @@ import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVarian
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.ui.grid.adaptiveColumnsCount
 import dev.shounakmulay.devpulse.core.ui.text.isNotNullOrEmpty
+import dev.shounakmulay.devpulse.feature.feed.components.paging.showEmptyEntry
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostListEntry
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterEvent
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
@@ -74,7 +74,7 @@ internal fun PostsList(
                 span = { index -> GridItemSpan(if (posts.peek(index) is PostListEntry.Empty) maxLineSpan else 1) },
             ) { index ->
                 when (val entry = posts[index]) {
-                    is PostListEntry.Empty -> if (posts.loadState.refresh is LoadState.NotLoading) {
+                    is PostListEntry.Empty -> if (posts.showEmptyEntry) {
                         PostsListEmptyMessage(
                             entry = entry,
                             onClearSearch = onClearSearch,

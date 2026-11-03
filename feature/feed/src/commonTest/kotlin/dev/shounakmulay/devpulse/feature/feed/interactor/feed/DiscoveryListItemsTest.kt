@@ -22,9 +22,9 @@ class DiscoveryListItemsTest {
         val collection = FeedDiscoveryQuery.Collection(UUID("collection"))
         val search = FeedDiscoveryQuery.Search("Kotlin")
         presenter.collectFrom(PagingData.from<UIDiscoveryFeed>(emptyList()).withDiscoveryEmpty(collection))
-        assertEquals(listOf(DiscoveryListItem.EmptyCollection), presenter.snapshot().items)
+        assertEquals(listOf(DiscoveryListItem.Empty.Collection), presenter.snapshot().items)
         presenter.collectFrom(PagingData.from<UIDiscoveryFeed>(emptyList()).withDiscoveryEmpty(search))
-        assertEquals(listOf(DiscoveryListItem.EmptySearch), presenter.snapshot().items)
+        assertEquals(listOf(DiscoveryListItem.Empty.Search), presenter.snapshot().items)
         presenter.collectFrom(PagingData.from(listOf(FeedPreviewData.discoveryFeed)).withDiscoveryEmpty(search))
         assertEquals(listOf(DiscoveryListItem.Feed(FeedPreviewData.discoveryFeed)), presenter.snapshot().items)
     }

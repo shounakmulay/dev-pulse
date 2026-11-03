@@ -1,11 +1,10 @@
 package dev.shounakmulay.devpulse.feature.feed.interactor.feed
 
 import androidx.paging.PagingData
-import androidx.paging.insertSeparators
-import androidx.paging.map
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedFeedSourcesUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedPinnedFeedSourcesUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SearchFeedsUseCase
+import dev.shounakmulay.devpulse.feature.feed.components.paging.withEmptyEntry
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.FeedListItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,18 +43,14 @@ class FeedListInteractor(
         }
 }
 
-internal fun PagingData<UIFeed>.withEmptyItem(source: FeedListSource, query: String): PagingData<FeedListItem> = map<UIFeed, FeedListItem> { FeedListItem.Feed(it) }
-    .insertSeparators { before, after ->
-        if (before == null && after == null) {
-            when {
-                query.isNotBlank() -> FeedListItem.Empty.Search
-                source == FeedListSource.Pinned -> FeedListItem.Empty.Pinned
-                else -> FeedListItem.Empty.All
-            }
-        } else {
-            null
-        }
-    }
+internal fun PagingData<UIFeed>.withEmptyItem(source: FeedListSource, query: String): PagingData<FeedListItem> = withEmptyEntry(
+    wrap = FeedListItem::Feed,
+    empty = when {
+        query.isNotBlank() -> FeedListItem.Empty.Search
+        source == FeedListSource.Pinned -> FeedListItem.Empty.Pinned
+        else -> FeedListItem.Empty.All
+    },
+)
 
 @OptIn(FlowPreview::class)
 internal fun Flow<String>.debouncedFeedSearchQueries(): Flow<String> = map(String::trim)

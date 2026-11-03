@@ -9,7 +9,12 @@ sealed interface PostListEntry {
         override val key: String get() = post.id.value
     }
 
-    data class Empty(val search: Boolean, val readStatus: Boolean?, val filtered: Boolean) : PostListEntry {
+    sealed interface Empty : PostListEntry {
         override val key: String get() = "empty-posts"
+
+        data object Search : Empty
+        data object Filtered : Empty
+        data class ReadStatus(val read: Boolean) : Empty
+        data object NoPosts : Empty
     }
 }

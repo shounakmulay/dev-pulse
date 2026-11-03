@@ -133,18 +133,13 @@ private fun FeedsList(
         }
         items(
             feeds.itemCount,
-            feeds.itemKey { entry ->
-                when (val item = entry.first) {
-                    is FeedListItem.Feed -> item.feed.id.value
-                    is FeedListItem.Empty -> "empty-feeds"
-                }
-            },
+            feeds.itemKey { (entry, _) -> entry.key },
         ) {
             val (entry, selected) = feeds[it] ?: return@items
             when (entry) {
                 is FeedListItem.Feed -> FeedListItem(onEvent, entry.feed, selected)
 
-                is FeedListItem.Empty -> if (feeds.loadState.refresh is LoadState.NotLoading) {
+                is FeedListItem.Empty -> if (feeds.showEmptyEntry) {
                     DPTextView(
                         modifier = Modifier.padding(LocalDPSpacing.current.xl),
                         text = stringResource(if (entry == FeedListItem.Empty.Search) stringRes.discovery_no_results else stringRes.feed_empty_imported),

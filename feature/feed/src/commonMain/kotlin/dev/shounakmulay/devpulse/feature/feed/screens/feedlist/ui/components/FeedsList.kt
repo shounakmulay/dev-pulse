@@ -106,13 +106,7 @@ internal fun FeedsList(
 
         items(
             count = feeds.itemCount,
-            key = { index ->
-                when (val entry = feeds.peek(index)) {
-                    is FeedListItem.Feed -> entry.feed.id.value
-                    is FeedListItem.Empty -> "empty-feeds"
-                    null -> "feed-placeholder-$index"
-                }
-            },
+            key = { index -> feeds.peek(index)?.key ?: "feed-placeholder-$index" },
             span = { index ->
                 GridItemSpan(if (feeds.peek(index) is FeedListItem.Empty) maxLineSpan else 1)
             },
@@ -120,7 +114,7 @@ internal fun FeedsList(
             when (val entry = feeds[index]) {
                 null -> FeedListPlaceholderRow()
 
-                is FeedListItem.Empty -> if (feeds.loadState.refresh is LoadState.NotLoading) {
+                is FeedListItem.Empty -> if (feeds.showEmptyEntry) {
                     when (entry) {
                         FeedListItem.Empty.All -> EmptyFeedsImportCTA(
                             modifier = Modifier.padding(top = LocalDPSpacing.current.xxxl),

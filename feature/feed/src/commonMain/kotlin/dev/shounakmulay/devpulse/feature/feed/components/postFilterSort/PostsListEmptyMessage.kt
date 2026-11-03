@@ -24,6 +24,7 @@ import devpulse.core.resources.generated.resources.post_no_read_matches
 import devpulse.core.resources.generated.resources.post_no_unread_matches
 import devpulse.core.resources.generated.resources.post_search_no_results
 import devpulse.core.resources.generated.resources.post_show_all
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -38,12 +39,17 @@ internal fun PostsListEmptyMessage(
         modifier = Modifier.padding(top = LocalDPSpacing.current.xxl),
         icon = DPIcons.EmptyList,
     ) {
-        val text = when {
-            entry.search -> stringRes.post_search_no_results
-            entry.filtered -> stringRes.no_posts_for_filter
-            entry.readStatus == false -> stringRes.post_no_unread_matches
-            entry.readStatus == true -> stringRes.post_no_read_matches
-            else -> stringRes.post_no_articles
+        val (text, action) = when (entry) {
+            PostListEntry.Empty.Search -> stringRes.post_search_no_results to EmptyAction(stringRes.feed_search_clear, onClearSearch)
+
+            PostListEntry.Empty.Filtered -> stringRes.no_posts_for_filter to EmptyAction(stringRes.clear_filters, onClearFilters)
+
+            is PostListEntry.Empty.ReadStatus -> {
+                val message = if (entry.read) stringRes.post_no_read_matches else stringRes.post_no_unread_matches
+                message to EmptyAction(stringRes.post_show_all, onShowAllPosts)
+            }
+
+            PostListEntry.Empty.NoPosts -> stringRes.post_no_articles to onAddFeed?.let { EmptyAction(stringRes.import_feeds, it) }
         }
         DPTextView(
             modifier = Modifier.fillMaxWidth(0.75f),
@@ -51,27 +57,15 @@ internal fun PostsListEmptyMessage(
             text = stringResource(text),
             variant = DPTextViewVariant.HeadingSmallEmphasized,
         )
-        if (entry.search || entry.filtered || entry.readStatus != null || onAddFeed != null) {
+        if (action != null) {
             Spacer(Modifier.size(LocalDPSpacing.current.xl))
             DPButton(
-                text = stringResource(
-                    when {
-                        entry.search -> stringRes.feed_search_clear
-                        entry.filtered -> stringRes.clear_filters
-                        entry.readStatus != null -> stringRes.post_show_all
-                        else -> stringRes.import_feeds
-                    },
-                ),
-                onClick = {
-                    when {
-                        entry.search -> onClearSearch()
-                        entry.filtered -> onClearFilters()
-                        entry.readStatus != null -> onShowAllPosts()
-                        else -> onAddFeed?.invoke()
-                    }
-                },
+                text = stringResource(action.label),
+                onClick = action.onClick,
                 style = DPButtonStyle.Outlined,
             )
         }
     }
 }
+
+private class EmptyAction(val label: StringResource, val onClick: () -> Unit)

@@ -20,7 +20,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -35,6 +34,7 @@ import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
+import dev.shounakmulay.devpulse.feature.feed.components.paging.showEmptyEntry
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostListEntry
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterState
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilters
@@ -122,7 +122,7 @@ internal fun FeedPostList(
             span = { index -> GridItemSpan(if (posts.peek(index) is PostListEntry.Empty) maxLineSpan else 1) },
         ) { index ->
             when (val entry = posts[index]) {
-                is PostListEntry.Empty -> if (posts.loadState.refresh is LoadState.NotLoading) {
+                is PostListEntry.Empty -> if (posts.showEmptyEntry) {
                     PostsListEmptyMessage(
                         entry = entry,
                         onClearSearch = onClearSearch,

@@ -46,12 +46,7 @@ fun DiscoveryFeedPagingList(
         header?.invoke(this)
         items(
             count = feeds.itemCount,
-            key = feeds.itemKey { entry ->
-                when (entry) {
-                    is DiscoveryListItem.Feed -> entry.feed.id.value
-                    DiscoveryListItem.EmptySearch, DiscoveryListItem.EmptyCollection -> "empty-feeds"
-                }
-            },
+            key = feeds.itemKey { it.key },
         ) { index ->
             when (val entry = feeds[index]) {
                 is DiscoveryListItem.Feed -> {
@@ -64,8 +59,12 @@ fun DiscoveryFeedPagingList(
                     )
                 }
 
-                DiscoveryListItem.EmptySearch, DiscoveryListItem.EmptyCollection -> if (feeds.loadState.refresh is LoadState.NotLoading) {
-                    DiscoveryMessage(stringResource(if (entry == DiscoveryListItem.EmptySearch) stringRes.discovery_no_results else stringRes.discovery_collection_empty))
+                is DiscoveryListItem.Empty -> if (feeds.showEmptyEntry) {
+                    val text = when (entry) {
+                        DiscoveryListItem.Empty.Search -> stringRes.discovery_no_results
+                        DiscoveryListItem.Empty.Collection -> stringRes.discovery_collection_empty
+                    }
+                    DiscoveryMessage(stringResource(text))
                 }
 
                 null -> Unit

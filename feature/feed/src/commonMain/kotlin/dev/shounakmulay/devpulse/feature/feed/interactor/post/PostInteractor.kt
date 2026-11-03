@@ -1,7 +1,6 @@
 package dev.shounakmulay.devpulse.feature.feed.interactor.post
 
 import androidx.paging.PagingData
-import androidx.paging.insertSeparators
 import androidx.paging.map
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.extensions.ifNullOrBlank
@@ -19,6 +18,7 @@ import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
+import dev.shounakmulay.devpulse.feature.feed.components.paging.withEmptyEntry
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostListEntry
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
@@ -89,7 +89,10 @@ class PostInteractor(
     }
 
     suspend fun getBrowserOpeningTarget(url: String): BrowserOpeningTarget = getBrowserOpeningTargetUseCase(url).onFailure {
-        DPLog.e(tag = "PostInteractor", throwable = it) { "Couldn't read browser opening preference" }
+        DPLog.e(
+            tag = "PostInteractor",
+            throwable = it,
+        ) { "Couldn't read browser opening preference" }
     }.getOrNull() ?: BrowserOpeningTarget.External(url)
 
     suspend fun setPostRead(postId: UUID, isRead: Boolean) {
@@ -165,12 +168,19 @@ class PostInteractor(
     }
 }
 
-internal fun PagingData<UIFeedPost>.withPostEmptyItem(filters: List<RssPostFilter>, scopedToFeed: Boolean): PagingData<PostListEntry> {
-    val activeFilters = (if (scopedToFeed) filters.drop(1) else filters).filterNot { it.isEmpty() }
-    val search = activeFilters.any { it is RssPostFilter.SearchText }
-    val readStatus = activeFilters.filterIsInstance<RssPostFilter.ReadStatus>().singleOrNull()?.value
-    val otherFilters = activeFilters.any { it !is RssPostFilter.SearchText && it !is RssPostFilter.ReadStatus }
-    return map<UIFeedPost, PostListEntry> { PostListEntry.Post(it) }.insertSeparators { before, after ->
-        if (before == null && after == null) PostListEntry.Empty(search = search, readStatus = readStatus, filtered = otherFilters) else null
+internal fun PagingData<UIFeedPost>.withPostEmptyItem(
+    filters: List<RssPostFilter>,
+    scopedToFeed: Boolean,
+): PagingData<PostListEntry> {
+    val activeFilters =
+        filters.filterNot { (scopedToFeed && it is RssPostFilter.FeedIds) || it.isEmpty() }
+    val readStatus =
+        activeFilters.filterIsInstance<RssPostFilter.ReadStatus>().singleOrNull()?.value
+    val empty = when {
+        activeFilters.any { it is RssPostFilter.SearchText } -> PostListEntry.Empty.Search
+        activeFilters.any { it !is RssPostFilter.SearchText && it !is RssPostFilter.ReadStatus } -> PostListEntry.Empty.Filtered
+        readStatus != null -> PostListEntry.Empty.ReadStatus(read = readStatus)
+        else -> PostListEntry.Empty.NoPosts
     }
+    return withEmptyEntry(wrap = PostListEntry::Post, empty = empty)
 }

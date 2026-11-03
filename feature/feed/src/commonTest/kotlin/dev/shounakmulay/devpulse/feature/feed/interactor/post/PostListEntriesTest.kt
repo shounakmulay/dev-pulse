@@ -21,10 +21,13 @@ class PostListEntriesTest {
         }
         val scope = RssPostFilter.FeedIds(setOf(UUID("feed")))
         val cases = listOf(
-            listOf(scope) to PostListEntry.Empty(search = false, readStatus = null, filtered = false),
-            listOf(scope, RssPostFilter.ReadStatus(false)) to PostListEntry.Empty(search = false, readStatus = false, filtered = false),
-            listOf(scope, RssPostFilter.Bookmarked(true)) to PostListEntry.Empty(search = false, readStatus = null, filtered = true),
-            listOf(scope, RssPostFilter.SearchText("Kotlin")) to PostListEntry.Empty(search = true, readStatus = null, filtered = false),
+            listOf(scope) to PostListEntry.Empty.NoPosts,
+            listOf(scope, RssPostFilter.ReadStatus(false)) to PostListEntry.Empty.ReadStatus(read = false),
+            listOf(scope, RssPostFilter.ReadStatus(true)) to PostListEntry.Empty.ReadStatus(read = true),
+            listOf(scope, RssPostFilter.Bookmarked(true)) to PostListEntry.Empty.Filtered,
+            listOf(scope, RssPostFilter.SearchText("Kotlin")) to PostListEntry.Empty.Search,
+            listOf(scope, RssPostFilter.SearchText("Kotlin"), RssPostFilter.Bookmarked(true)) to PostListEntry.Empty.Search,
+            listOf(scope, RssPostFilter.Bookmarked(true), RssPostFilter.ReadStatus(false)) to PostListEntry.Empty.Filtered,
         )
         for ((filters, expected) in cases) {
             presenter.collectFrom(PagingData.from<UIFeedPost>(emptyList()).withPostEmptyItem(filters, scopedToFeed = true))
