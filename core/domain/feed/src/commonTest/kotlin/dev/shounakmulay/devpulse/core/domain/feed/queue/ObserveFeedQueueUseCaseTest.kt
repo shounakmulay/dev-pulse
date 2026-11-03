@@ -32,7 +32,7 @@ class ObserveFeedQueueUseCaseTest {
     }
 
     @Test
-    fun `Given construction or upstream failure When observing results Then original failure is emitted`() = runBlocking {
+    fun `Given construction or upstream failure When observing results Then original failure reaches the caller`() = runBlocking {
         val failure = IllegalStateException("database unavailable")
         for (constructsFlow in listOf(true, false)) {
             val repository = Repository {
@@ -40,10 +40,11 @@ class ObserveFeedQueueUseCaseTest {
                 flow { throw failure }
             }
             val useCase = ObserveFeedQueueUseCase(repository, TestDispatchers)
-            assertSame(failure, useCase(RssFeedQueueStatus.QUEUED).single().exceptionOrNull())
             if (constructsFlow) {
+                assertSame(failure, assertFailsWith<IllegalStateException> { useCase(RssFeedQueueStatus.QUEUED) })
                 assertSame(failure, assertFailsWith<IllegalStateException> { useCase(setOf(RssFeedQueueStatus.QUEUED)) })
             } else {
+                assertSame(failure, useCase(RssFeedQueueStatus.QUEUED).single().exceptionOrNull())
                 assertEquals(emptyList(), useCase(setOf(RssFeedQueueStatus.QUEUED)).toList())
             }
         }

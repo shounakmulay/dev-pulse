@@ -12,6 +12,7 @@ import dev.shounakmulay.devpulse.core.ui.screen.ScreenState
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedListInteractor
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedListSource
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.FeedListItem
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
@@ -24,7 +25,7 @@ import org.koin.core.annotation.KoinViewModel
 @Immutable
 data class FeedListBottomSheetState(
     val searchTerm: String = "",
-    val selectedFeedIds: Set<UUID>
+    val selectedFeedIds: Set<UUID>,
 ) : ScreenState
 
 sealed interface FeedListBottomSheetEffect : Effect
@@ -38,28 +39,27 @@ sealed interface FeedListBottomSheetEvent : ScreenEvent {
 class FeedListBottomSheetViewModel(
     preselectedFeedIds: Set<UUID>,
     feedListInteractor: FeedListInteractor,
-) : EventHandler<FeedListBottomSheetEvent>,
-    MviViewModel<FeedListBottomSheetState, FeedListBottomSheetEffect>(
-        initialState = FeedListBottomSheetState(
-            selectedFeedIds = preselectedFeedIds
-        )
-    ) {
+) : MviViewModel<FeedListBottomSheetState, FeedListBottomSheetEffect>(
+    initialState = FeedListBottomSheetState(
+        selectedFeedIds = preselectedFeedIds,
+    ),
+),
+    EventHandler<FeedListBottomSheetEvent> {
 
-    val feeds = combine(
+    internal val feeds = combine(
         state.map { it.selectedFeedIds }.distinctUntilChanged(),
-        feedListInteractor.getUIFeedsFlow(
+        feedListInteractor.getFeedListItems(
             sources = flowOf(FeedListSource.All),
             searchQueries = state.map { it.searchTerm },
-        ).cachedIn(viewModelScope)
+        ).cachedIn(viewModelScope),
     ) { selectedFeedIds, pagingData ->
-        pagingData.map { feed ->
-            val selected = feed.id in selectedFeedIds
-            feed to selected
+        pagingData.map { entry ->
+            val selected = entry is FeedListItem.Feed && entry.feed.id in selectedFeedIds
+            entry to selected
         }
     }
 
-    override fun createStateSerializer(): KSerializer<FeedListBottomSheetState> =
-        FeedListBottomSheetState.serializer()
+    override fun createStateSerializer(): KSerializer<FeedListBottomSheetState> = FeedListBottomSheetState.serializer()
 
     override fun onEvent(event: FeedListBottomSheetEvent) {
         when (event) {
@@ -71,7 +71,7 @@ class FeedListBottomSheetViewModel(
     private fun onSearchTermChanged(event: FeedListBottomSheetEvent.OnSearchTermChanged) {
         blockingSetState {
             copy(
-                searchTerm = event.searchTerm
+                searchTerm = event.searchTerm,
             )
         }
     }
@@ -83,9 +83,8 @@ class FeedListBottomSheetViewModel(
                     selectedFeedIds - feedId
                 } else {
                     selectedFeedIds + feedId
-                }
+                },
             )
         }
     }
-
 }

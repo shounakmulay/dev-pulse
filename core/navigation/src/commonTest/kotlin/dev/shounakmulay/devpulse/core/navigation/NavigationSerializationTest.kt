@@ -19,4 +19,16 @@ class NavigationSerializationTest {
 
         assertEquals(backStack, restored)
     }
+
+    @Test
+    fun `Given data and sync on the back stack When saved and restored Then the developer tools route is retained`() {
+        val json = Json { serializersModule = navigationSerializersConfig.serializersModule }
+        val serializer = ListSerializer(PolymorphicSerializer(NavKey::class))
+        val backStack = listOf<NavKey>(Screen.DeveloperTools.DataAndSync)
+
+        val saved = json.encodeToString(serializer, backStack)
+        val restored = json.decodeFromString(serializer, saved)
+
+        assertEquals(backStack, restored)
+    }
 }

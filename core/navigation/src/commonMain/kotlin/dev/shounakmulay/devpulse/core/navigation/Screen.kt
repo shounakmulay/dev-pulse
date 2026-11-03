@@ -14,6 +14,9 @@ sealed interface Screen : NavKey {
 
         @Serializable
         data object DesignSystemBoard : Screen
+
+        @Serializable
+        data object DataAndSync : Screen
     }
 
     @Serializable

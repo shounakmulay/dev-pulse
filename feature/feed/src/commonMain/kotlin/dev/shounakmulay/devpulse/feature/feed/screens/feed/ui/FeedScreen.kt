@@ -122,6 +122,8 @@ fun FeedScreen(
             feedsSection(
                 pinnedAndRecentFeeds = pinnedAndRecentFeeds,
                 isFeedLoading = state.isFeedLoading,
+                loadFailed = state.feedLoadFailed,
+                onRetry = { viewModel.onEvent(FeedScreenEvent.RetryFeeds) },
                 selectedOptions = (state.feedOptions as? FeedOptionsState.Open)?.target,
                 onDismissOptions = { viewModel.onEvent(FeedScreenEvent.HideFeedOptions(it)) },
                 onOptionSelected = { feedId, option ->
@@ -144,6 +146,8 @@ fun FeedScreen(
                 },
                 articles = recentArticles,
                 isLoading = state.isArticlesLoading,
+                loadFailed = state.articlesLoadFailed,
+                onRetry = { viewModel.onEvent(FeedScreenEvent.RetryArticles) },
                 onPostClick = {
                     navigator.navigate(Screen.Tabs.Feed.PostDetail(id = it.id, feedId = it.feed.id), onRootStack = true)
                 },

@@ -1,10 +1,13 @@
 package dev.shounakmulay.devpulse.feature.feed.interactor.feed
 
 import androidx.paging.PagingData
+import androidx.paging.insertSeparators
+import androidx.paging.map
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedFeedSourcesUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPaginatedPinnedFeedSourcesUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.SearchFeedsUseCase
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.FeedListItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -24,25 +27,37 @@ class FeedListInteractor(
     private val feedSearchInteractor: FeedSearchInteractor,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getUIFeedsFlow(
+    internal fun getFeedListItems(
         sources: Flow<FeedListSource>,
         searchQueries: Flow<String>,
-    ): Flow<PagingData<UIFeed>> =
-        combine(
-            sources.distinctUntilChanged(),
-            searchQueries.debouncedFeedSearchQueries(),
-        ) { source, query -> source to query }
-            .flatMapLatest { (source, query) ->
-                when {
-                    query.isNotBlank() -> feedSearchInteractor.getUIFeedSearchFlow(searchFeedsUseCase(query))
-                    source == FeedListSource.Pinned -> feedInteractor.getUIFeedFlow(getPaginatedPinnedFeedSourcesUseCase())
-                    else -> feedInteractor.getUIFeedFlow(getPaginatedFeedSourcesUseCase())
-                }
+    ): Flow<PagingData<FeedListItem>> = combine(
+        sources.distinctUntilChanged(),
+        searchQueries.debouncedFeedSearchQueries(),
+    ) { source, query -> source to query }
+        .flatMapLatest { (source, query) ->
+            val pages = when {
+                query.isNotBlank() -> feedSearchInteractor.getUIFeedSearchFlow(searchFeedsUseCase(query), source)
+                source == FeedListSource.Pinned -> feedInteractor.getUIFeedFlow(getPaginatedPinnedFeedSourcesUseCase())
+                else -> feedInteractor.getUIFeedFlow(getPaginatedFeedSourcesUseCase())
             }
+            pages.map { page -> page.withEmptyItem(source, query) }
+        }
 }
 
+internal fun PagingData<UIFeed>.withEmptyItem(source: FeedListSource, query: String): PagingData<FeedListItem> = map<UIFeed, FeedListItem> { FeedListItem.Feed(it) }
+    .insertSeparators { before, after ->
+        if (before == null && after == null) {
+            when {
+                query.isNotBlank() -> FeedListItem.Empty.Search
+                source == FeedListSource.Pinned -> FeedListItem.Empty.Pinned
+                else -> FeedListItem.Empty.All
+            }
+        } else {
+            null
+        }
+    }
+
 @OptIn(FlowPreview::class)
-internal fun Flow<String>.debouncedFeedSearchQueries(): Flow<String> =
-    map(String::trim)
-        .distinctUntilChanged()
-        .debounce { query -> if (query.length >= 3) 300L else 0L }
+internal fun Flow<String>.debouncedFeedSearchQueries(): Flow<String> = map(String::trim)
+    .distinctUntilChanged()
+    .debounce { query -> if (query.length >= 3) 300L else 0L }

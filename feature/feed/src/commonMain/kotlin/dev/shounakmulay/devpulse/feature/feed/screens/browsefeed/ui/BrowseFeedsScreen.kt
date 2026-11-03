@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.paging.compose.collectAsLazyPagingItems
+import dev.shounakmulay.devpulse.core.designsystem.components.DPButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPIconButton
 import dev.shounakmulay.devpulse.core.designsystem.components.DPLinearProgressIndicator
 import dev.shounakmulay.devpulse.core.designsystem.components.DPSearchTopAppBar
@@ -29,6 +30,10 @@ import dev.shounakmulay.devpulse.core.ui.text.resolve
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryCollectionShelf
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryFeedDetailsBottomSheet
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryFeedPagingList
+import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryMessage
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedListError
+import devpulse.core.resources.generated.resources.discovery_catalog_empty
+import devpulse.core.resources.generated.resources.discovery_load_failed
 import devpulse.core.resources.generated.resources.discovery_no_results
 import devpulse.core.resources.generated.resources.discovery_search_all
 import devpulse.core.resources.generated.resources.import_feeds
@@ -41,7 +46,7 @@ import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 fun BrowseFeedsScreen(
     viewModel: BrowseFeedsViewModel,
     navigator: Navigator,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val results = viewModel.feeds.collectAsLazyPagingItems()
     val normalListState = rememberLazyListState()
@@ -59,8 +64,8 @@ fun BrowseFeedsScreen(
                 onTextValueChange = {
                     viewModel.onEvent(
                         BrowseFeedsScreenEvent.OnSearchQueryChanged(
-                            it
-                        )
+                            it,
+                        ),
                     )
                 },
                 navigationIcon = { modifier ->
@@ -72,31 +77,30 @@ fun BrowseFeedsScreen(
                         contentDescription = stringResource(stringRes.import_feeds),
                         onClick = { navigator.navigate(Feed.AddFeed) },
                     )
-                }
+                },
             )
         },
         onEffect = {
             when (it) {
                 is BrowseFeedsScreenEffect.OpenCollection -> navigator.navigate(
                     Screen.Tabs.Feed.BrowseFeedCollection(
-                        it.collectionId
-                    )
+                        it.collectionId,
+                    ),
                 )
 
                 is BrowseFeedsScreenEffect.ShowToast -> snackbarController.showSnackbar(it.message.resolve())
+
                 else -> viewModel.unhandledEffect(it)
             }
         },
     ) { state ->
-        if (state.searchQuery.isNotBlank()) {
+        if (state.searchQuery.isNotBlank() && state.searchQuery.trim().length < 3) {
+            DiscoveryMessage(stringResource(stringRes.post_search_minimum_length))
+        } else if (state.searchQuery.isNotBlank()) {
             DiscoveryFeedPagingList(
                 feeds = results,
                 listState = searchListState,
                 pendingImportIds = state.pendingImportIds,
-                emptyText = stringResource(
-                    if (state.searchQuery.trim().length < 3) stringRes.post_search_minimum_length
-                    else stringRes.discovery_no_results
-                ),
                 onAddFeed = { viewModel.onEvent(BrowseFeedsScreenEvent.OnAddFeed(it)) },
                 onFeedClick = { viewModel.onEvent(BrowseFeedsScreenEvent.OnFeedClick(it)) },
             )
@@ -110,6 +114,21 @@ fun BrowseFeedsScreen(
             ) {
                 if (state.isLoading) {
                     item { DPLinearProgressIndicator(modifier = Modifier.fillMaxWidth()) }
+                } else if (state.loadFailed) {
+                    item {
+                        FeedListError(
+                            message = stringResource(stringRes.discovery_load_failed),
+                            onRetry = { viewModel.onEvent(BrowseFeedsScreenEvent.Retry) },
+                        )
+                    }
+                } else if (state.collectionShelves.isEmpty()) {
+                    item {
+                        DiscoveryMessage(stringResource(stringRes.discovery_catalog_empty))
+                        DPButton(
+                            text = stringResource(stringRes.import_feeds),
+                            onClick = { navigator.navigate(Feed.AddFeed) },
+                        )
+                    }
                 }
                 state.collectionShelves.forEach { shelf ->
                     DiscoveryCollectionShelf(
@@ -118,11 +137,10 @@ fun BrowseFeedsScreen(
                         pendingImportIds = state.pendingImportIds,
                         onViewAll = { viewModel.onEvent(BrowseFeedsScreenEvent.OnViewAll(it)) },
                         onAddFeed = { viewModel.onEvent(BrowseFeedsScreenEvent.OnAddFeed(it)) },
-                        onFeedClick = { viewModel.onEvent(BrowseFeedsScreenEvent.OnFeedClick(it.id)) }
+                        onFeedClick = { viewModel.onEvent(BrowseFeedsScreenEvent.OnFeedClick(it.id)) },
                     )
                 }
             }
-
         }
         state.selectedFeedDetails?.let { feed ->
             DiscoveryFeedDetailsBottomSheet(

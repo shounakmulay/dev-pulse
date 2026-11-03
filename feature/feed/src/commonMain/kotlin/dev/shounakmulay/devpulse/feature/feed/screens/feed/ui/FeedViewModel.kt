@@ -19,11 +19,19 @@ import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.toFeedOptio
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import devpulse.core.resources.generated.resources.telemetry_error
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import org.orbitmvi.orbit.syntax.Syntax
@@ -41,6 +49,7 @@ class FeedViewModel(
     EventHandler<FeedScreenEvent> {
 
     init {
+        setState { copy(isFeedLoading = true, isArticlesLoading = true) }
         viewModelScope.launch {
             observeTelemetryConsentUseCase().collect { result ->
                 result.onSuccess { consent ->
@@ -67,30 +76,35 @@ class FeedViewModel(
 
     override fun createStateSerializer() = FeedScreenState.serializer()
 
-    val pinnedAndRecentFeeds = feedInteractor
-        .getPinnedAndRecentsUIFeedFlow()
-        .onEach {
+    private val feedReload = MutableStateFlow(0)
+    private val articlesReload = MutableStateFlow(0)
+    private val emptyFeeds: ImmutableList<UIFeed> = persistentListOf()
+    private val emptyArticles: ImmutableList<UIFeedPost> = persistentListOf()
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val pinnedAndRecentFeeds = feedReload
+        .flatMapLatest { feedInteractor.getPinnedAndRecentsUIFeedFlow() }
+        .onEach { result ->
             setState {
-                copy(
-                    isFeedLoading = false,
-                )
+                copy(isFeedLoading = false, feedLoadFailed = result.isFailure)
             }
         }
+        .scan(emptyFeeds) { previous, result -> result.getOrElse { previous } }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = persistentListOf(),
         )
 
-    val recentArticles = postInteractor
-        .getRecentArticlesFlow()
-        .onEach {
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val recentArticles = articlesReload
+        .flatMapLatest { postInteractor.getRecentArticlesFlow() }
+        .onEach { result ->
             setState {
-                copy(
-                    isArticlesLoading = false,
-                )
+                copy(isArticlesLoading = false, articlesLoadFailed = result.isFailure)
             }
         }
+        .scan(emptyArticles) { previous, result -> result.getOrElse { previous } }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -105,6 +119,16 @@ class FeedViewModel(
 
     override fun onEvent(event: FeedScreenEvent) {
         when (event) {
+            FeedScreenEvent.RetryFeeds -> intent {
+                setState { copy(isFeedLoading = true, feedLoadFailed = false) }
+                feedReload.update { it + 1 }
+            }
+
+            FeedScreenEvent.RetryArticles -> intent {
+                setState { copy(isArticlesLoading = true, articlesLoadFailed = false) }
+                articlesReload.update { it + 1 }
+            }
+
             is FeedScreenEvent.OpenInBrowser -> intent {
                 postEffect(FeedScreenEffect.OpenInBrowser(postInteractor.getBrowserOpeningTarget(event.url)))
             }

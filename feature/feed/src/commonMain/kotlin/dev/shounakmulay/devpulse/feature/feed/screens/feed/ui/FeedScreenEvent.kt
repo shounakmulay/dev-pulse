@@ -29,4 +29,6 @@ sealed interface FeedScreenEvent : ScreenEvent {
     data class HideFeedOptions(val feedId: UUID) : FeedScreenEvent
     data object ConfirmDelete : FeedScreenEvent
     data object DismissDelete : FeedScreenEvent
+    data object RetryFeeds : FeedScreenEvent
+    data object RetryArticles : FeedScreenEvent
 }

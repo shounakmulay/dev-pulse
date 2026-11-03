@@ -5,12 +5,14 @@ import dev.shounakmulay.devpulse.core.navigation.Navigator
 import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.feature.settings.screens.aboutLibs.navigation.aboutLibsScreen
 import dev.shounakmulay.devpulse.feature.settings.screens.articleSettings.navigation.articleSettingsEntry
+import dev.shounakmulay.devpulse.feature.settings.screens.dataSync.navigation.dataSyncEntry
 import dev.shounakmulay.devpulse.feature.settings.screens.settings.navigation.settingsScreen
 import dev.shounakmulay.devpulse.feature.settings.screens.telemetry.navigation.telemetrySettingsEntry
 
 fun EntryProviderScope<Screen>.settingsFeatureEntries(navigator: Navigator) {
     settingsScreen(navigator)
     articleSettingsEntry(navigator)
+    dataSyncEntry(navigator)
     telemetrySettingsEntry(navigator)
     aboutLibsScreen(navigator)
 }

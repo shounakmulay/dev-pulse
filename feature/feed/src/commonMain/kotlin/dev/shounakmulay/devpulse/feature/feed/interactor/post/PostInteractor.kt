@@ -1,6 +1,7 @@
 package dev.shounakmulay.devpulse.feature.feed.interactor.post
 
 import androidx.paging.PagingData
+import androidx.paging.insertSeparators
 import androidx.paging.map
 import dev.shounakmulay.devpulse.core.common.coroutines.DispatcherProvider
 import dev.shounakmulay.devpulse.core.common.extensions.ifNullOrBlank
@@ -18,6 +19,7 @@ import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostListEntry
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPostSearchHighlights
@@ -96,23 +98,20 @@ class PostInteractor(
         }
     }
 
-    fun getRecentArticlesFlow(): Flow<ImmutableList<UIFeedPost>> = getRecentFeedItemsUseCase().map { feedItems ->
-        feedItems.map {
-            toUIFeedPost(it)
-        }.toImmutableList()
+    fun getRecentArticlesFlow(): Flow<Result<ImmutableList<UIFeedPost>>> = getRecentFeedItemsUseCase().map { result ->
+        result.map { feedItems -> feedItems.map(::toUIFeedPost).toImmutableList() }
     }.flowOn(dispatcherProvider.defaultDispatcher)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getPostsWithFilterAndSort(
         filerAndSortFlow: Flow<Pair<RssPostSort?, List<RssPostFilter>>>,
-    ): Flow<PagingData<UIFeedPost>> = filerAndSortFlow.flatMapLatest { (sort, filters) ->
+        scopedToFeed: Boolean = false,
+    ): Flow<PagingData<PostListEntry>> = filerAndSortFlow.flatMapLatest { (sort, filters) ->
         getPaginatedFeedPostsUseCase(
             filters = filters,
             sort = sort ?: RssPostSort.PublishedNewest,
         ).map { pagingData ->
-            pagingData.map {
-                toUIFeedPost(it)
-            }
+            pagingData.map(::toUIFeedPost).withPostEmptyItem(filters, scopedToFeed)
         }.flowOn(dispatcherProvider.defaultDispatcher)
     }
 
@@ -128,10 +127,7 @@ class PostInteractor(
             post.rawEnclosure?.url,
         ).firstOrNull { !it.isNullOrBlank() }
 
-        val summary = listOf(
-            post.description,
-            post.content,
-        ).firstOrNull { !it.isNullOrBlank() }
+        val summary = post.description
 
         val publishedText = post.publishedAtMillis.let {
             dateTimeStringConverter.getTimeElapsedOrDateString(
@@ -166,5 +162,15 @@ class PostInteractor(
                 )
             },
         )
+    }
+}
+
+internal fun PagingData<UIFeedPost>.withPostEmptyItem(filters: List<RssPostFilter>, scopedToFeed: Boolean): PagingData<PostListEntry> {
+    val activeFilters = (if (scopedToFeed) filters.drop(1) else filters).filterNot { it.isEmpty() }
+    val search = activeFilters.any { it is RssPostFilter.SearchText }
+    val readStatus = activeFilters.filterIsInstance<RssPostFilter.ReadStatus>().singleOrNull()?.value
+    val otherFilters = activeFilters.any { it !is RssPostFilter.SearchText && it !is RssPostFilter.ReadStatus }
+    return map<UIFeedPost, PostListEntry> { PostListEntry.Post(it) }.insertSeparators { before, after ->
+        if (before == null && after == null) PostListEntry.Empty(search = search, readStatus = readStatus, filtered = otherFilters) else null
     }
 }

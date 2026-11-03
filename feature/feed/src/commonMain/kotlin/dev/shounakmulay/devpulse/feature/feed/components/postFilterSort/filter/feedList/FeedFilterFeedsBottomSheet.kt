@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
@@ -32,9 +33,15 @@ import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.DPModalBottomSheet
 import dev.shounakmulay.devpulse.core.ui.bottomsheet.DPModalBottomSheetController
-import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
-import devpulse.core.resources.generated.resources.search
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.AppendErrorRow
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.AppendLoadingRow
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedListError
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.model.FeedListItem
+import devpulse.core.resources.generated.resources.discovery_no_results
+import devpulse.core.resources.generated.resources.feed_empty_imported
+import devpulse.core.resources.generated.resources.feed_list_load_error
 import devpulse.core.resources.generated.resources.feed_search_clear
+import devpulse.core.resources.generated.resources.search
 import devpulse.core.resources.generated.resources.select_feeds
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -45,7 +52,7 @@ import org.orbitmvi.orbit.compose.collectAsState
 internal fun FeedFilterFeedsBottomSheet(
     feedListBottomSheetController: DPModalBottomSheetController,
     filter: RssPostFilter.FeedIds,
-    onFilterUpdated: (RssPostFilter) -> Unit
+    onFilterUpdated: (RssPostFilter) -> Unit,
 ) {
     DPModalBottomSheet(controller = feedListBottomSheetController) {
         val scopedViewModelOwner = rememberViewModelStoreOwner()
@@ -66,10 +73,10 @@ internal fun FeedFilterFeedsBottomSheet(
                     DPTextView(
                         modifier = Modifier.padding(
                             horizontal = LocalDPSpacing.current.xl,
-                            vertical = LocalDPSpacing.current.xs
+                            vertical = LocalDPSpacing.current.xs,
                         ),
                         text = stringResource(stringRes.select_feeds),
-                        variant = DPTextViewVariant.TitleMedium
+                        variant = DPTextViewVariant.TitleMedium,
                     )
                     DPTextField(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = LocalDPSpacing.current.xl),
@@ -100,7 +107,7 @@ internal fun FeedFilterFeedsBottomSheet(
                         onFilterUpdated = onFilterUpdated,
                         filter = filter,
                         feedListBottomSheetController = feedListBottomSheetController,
-                        viewModel = viewModel
+                        viewModel = viewModel,
                     )
                 }
             }
@@ -111,7 +118,7 @@ internal fun FeedFilterFeedsBottomSheet(
 @Composable
 private fun FeedsList(
     modifier: Modifier,
-    feeds: LazyPagingItems<Pair<UIFeed, Boolean>>,
+    feeds: LazyPagingItems<Pair<FeedListItem, Boolean>>,
     listState: LazyListState,
     onEvent: (FeedListBottomSheetEvent) -> Unit,
 ) {
@@ -119,9 +126,37 @@ private fun FeedsList(
         modifier = modifier.fillMaxWidth(),
         state = listState,
     ) {
-        items(feeds.itemCount, feeds.itemKey { it.first.id.value }) {
-            val (feed, selected) = feeds[it] ?: return@items
-            FeedListItem(onEvent, feed, selected)
+        when (feeds.loadState.refresh) {
+            is LoadState.Loading -> item { AppendLoadingRow() }
+            is LoadState.Error -> item { FeedListError(message = stringResource(stringRes.feed_list_load_error), onRetry = feeds::retry) }
+            is LoadState.NotLoading -> Unit
+        }
+        items(
+            feeds.itemCount,
+            feeds.itemKey { entry ->
+                when (val item = entry.first) {
+                    is FeedListItem.Feed -> item.feed.id.value
+                    is FeedListItem.Empty -> "empty-feeds"
+                }
+            },
+        ) {
+            val (entry, selected) = feeds[it] ?: return@items
+            when (entry) {
+                is FeedListItem.Feed -> FeedListItem(onEvent, entry.feed, selected)
+
+                is FeedListItem.Empty -> if (feeds.loadState.refresh is LoadState.NotLoading) {
+                    DPTextView(
+                        modifier = Modifier.padding(LocalDPSpacing.current.xl),
+                        text = stringResource(if (entry == FeedListItem.Empty.Search) stringRes.discovery_no_results else stringRes.feed_empty_imported),
+                        variant = DPTextViewVariant.BodyMedium,
+                    )
+                }
+            }
+        }
+        when (feeds.loadState.append) {
+            is LoadState.Loading -> item { AppendLoadingRow() }
+            is LoadState.Error -> item { AppendErrorRow(onRetry = feeds::retry) }
+            is LoadState.NotLoading -> Unit
         }
     }
 }

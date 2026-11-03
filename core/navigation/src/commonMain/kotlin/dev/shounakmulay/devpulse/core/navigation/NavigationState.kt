@@ -66,6 +66,7 @@ internal val navigationSerializersConfig = SavedStateConfiguration {
                 Screen.DeveloperTools.DesignSystemBoard::class,
                 Screen.DeveloperTools.DesignSystemBoard.serializer(),
             )
+            subclass(Screen.DeveloperTools.DataAndSync::class, Screen.DeveloperTools.DataAndSync.serializer())
             subclass(Screen.WebView::class, Screen.WebView.serializer())
         }
     }

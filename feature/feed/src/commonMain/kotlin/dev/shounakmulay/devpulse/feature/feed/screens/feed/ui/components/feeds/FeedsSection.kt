@@ -10,15 +10,21 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.ui.Modifier
 import dev.shounakmulay.devpulse.core.designsystem.theme.LocalDPSpacing
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
+import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.components.feed.EmptyFeedsImportCTA
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsMenuItem
 import dev.shounakmulay.devpulse.feature.feed.components.feedOptions.FeedOptionsTarget
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedListError
+import devpulse.core.resources.generated.resources.feed_list_load_error
 import kotlinx.collections.immutable.ImmutableList
+import org.jetbrains.compose.resources.stringResource
 
 fun LazyListScope.feedsSection(
     pinnedAndRecentFeeds: ImmutableList<UIFeed>,
     isFeedLoading: Boolean,
+    loadFailed: Boolean,
+    onRetry: () -> Unit,
     onNavigateToAddFeed: () -> Unit,
     onNavigateToFeedList: () -> Unit,
     onFeedClick: (UIFeed) -> Unit,
@@ -31,7 +37,7 @@ fun LazyListScope.feedsSection(
         FeedsSectionHeader(
             viewAllEnabled = pinnedAndRecentFeeds.isNotEmpty(),
             onNavigateToAddFeed = onNavigateToAddFeed,
-            onNavigateToFeedList = onNavigateToFeedList
+            onNavigateToFeedList = onNavigateToFeedList,
         )
     }
     item(key = "FeedsSection") {
@@ -42,19 +48,19 @@ fun LazyListScope.feedsSection(
                 PinnedAndRecentsGridLoading()
             }
             AnimatedVisibility(
-                visible = !isFeedLoading && pinnedAndRecentFeeds.isEmpty(),
+                visible = !isFeedLoading && !loadFailed && pinnedAndRecentFeeds.isEmpty(),
                 enter = enter,
-                exit = exit
+                exit = exit,
             ) {
                 EmptyFeedsImportCTA(
                     modifier = Modifier.fillMaxWidth().padding(LocalDPSpacing.current.xl),
-                    onNavigateToAddFeed = onNavigateToAddFeed
+                    onNavigateToAddFeed = onNavigateToAddFeed,
                 )
             }
             AnimatedVisibility(
-                visible = !isFeedLoading && pinnedAndRecentFeeds.isNotEmpty(),
+                visible = pinnedAndRecentFeeds.isNotEmpty(),
                 enter = enter,
-                exit = exit
+                exit = exit,
             ) {
                 PinnedAndRecentsGrid(
                     pinnedAndRecentFeeds = pinnedAndRecentFeeds,
@@ -66,5 +72,8 @@ fun LazyListScope.feedsSection(
                 )
             }
         }
+    }
+    if (loadFailed) {
+        item(key = "FeedsError") { FeedListError(message = stringResource(stringRes.feed_list_load_error), onRetry = onRetry) }
     }
 }
