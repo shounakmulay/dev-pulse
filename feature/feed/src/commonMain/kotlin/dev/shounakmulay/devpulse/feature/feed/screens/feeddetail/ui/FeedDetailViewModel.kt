@@ -26,11 +26,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import org.orbitmvi.orbit.syntax.Syntax
@@ -52,6 +55,8 @@ class FeedDetailViewModel(
     EventHandler<FeedDetailScreenEvent> {
 
     override fun createStateSerializer() = FeedDetailScreenState.serializer()
+
+    private val feedReload = MutableStateFlow(0)
 
     init {
         observeFeedPostListItemVariantUseCase()
@@ -82,11 +87,13 @@ class FeedDetailViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val posts = postInteractor
-        .getPostsWithFilterAndSort(filerAndSortFlow = filterAndSortFlow)
+        .getPostsWithFilterAndSort(filerAndSortFlow = filterAndSortFlow, scopedToFeed = true)
         .cachedIn(viewModelScope)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun bindStateSources(stateSubscriptionScope: CoroutineScope) {
-        getFeedDetailUseCase(feedId)
+        setState { if (feed == null || uiFeed == null) copy(isLoading = true) else this }
+        feedReload.flatMapLatest { getFeedDetailUseCase(feedId) }
             .onEach(::updateFeed)
             .launchIn(stateSubscriptionScope)
     }
@@ -122,7 +129,10 @@ class FeedDetailViewModel(
                 bookmarked = event.bookmarked,
             )
 
-            FeedDetailScreenEvent.Retry -> Unit
+            FeedDetailScreenEvent.Retry -> intent {
+                setState { copy(isLoading = true, loadFailed = false) }
+                feedReload.update { it + 1 }
+            }
 
             is FeedDetailScreenEvent.OnFeedOptionSelected -> selectFeedOption(feedId, event.option)
 
@@ -159,10 +169,11 @@ class FeedDetailViewModel(
                     feed = rssFeed.feed,
                     uiFeed = feedInteractor.toUIFeed(rssFeed),
                     isLoading = false,
+                    loadFailed = false,
                 )
             }
-        }.onFailure { error ->
-            setState { copy(isLoading = false) }
+        }.onFailure {
+            setState { copy(isLoading = false, loadFailed = true) }
         }
     }
 

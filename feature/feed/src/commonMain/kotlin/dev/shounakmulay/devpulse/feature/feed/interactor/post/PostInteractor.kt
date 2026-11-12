@@ -18,6 +18,8 @@ import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
+import dev.shounakmulay.devpulse.feature.feed.components.paging.withEmptyEntry
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostListEntry
 import dev.shounakmulay.devpulse.feature.feed.interactor.feed.FeedInteractor
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPostSearchHighlights
@@ -87,7 +89,10 @@ class PostInteractor(
     }
 
     suspend fun getBrowserOpeningTarget(url: String): BrowserOpeningTarget = getBrowserOpeningTargetUseCase(url).onFailure {
-        DPLog.e(tag = "PostInteractor", throwable = it) { "Couldn't read browser opening preference" }
+        DPLog.e(
+            tag = "PostInteractor",
+            throwable = it,
+        ) { "Couldn't read browser opening preference" }
     }.getOrNull() ?: BrowserOpeningTarget.External(url)
 
     suspend fun setPostRead(postId: UUID, isRead: Boolean) {
@@ -96,23 +101,20 @@ class PostInteractor(
         }
     }
 
-    fun getRecentArticlesFlow(): Flow<ImmutableList<UIFeedPost>> = getRecentFeedItemsUseCase().map { feedItems ->
-        feedItems.map {
-            toUIFeedPost(it)
-        }.toImmutableList()
+    fun getRecentArticlesFlow(): Flow<Result<ImmutableList<UIFeedPost>>> = getRecentFeedItemsUseCase().map { result ->
+        result.map { feedItems -> feedItems.map(::toUIFeedPost).toImmutableList() }
     }.flowOn(dispatcherProvider.defaultDispatcher)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getPostsWithFilterAndSort(
         filerAndSortFlow: Flow<Pair<RssPostSort?, List<RssPostFilter>>>,
-    ): Flow<PagingData<UIFeedPost>> = filerAndSortFlow.flatMapLatest { (sort, filters) ->
+        scopedToFeed: Boolean = false,
+    ): Flow<PagingData<PostListEntry>> = filerAndSortFlow.flatMapLatest { (sort, filters) ->
         getPaginatedFeedPostsUseCase(
             filters = filters,
             sort = sort ?: RssPostSort.PublishedNewest,
         ).map { pagingData ->
-            pagingData.map {
-                toUIFeedPost(it)
-            }
+            pagingData.map(::toUIFeedPost).withPostEmptyItem(filters, scopedToFeed)
         }.flowOn(dispatcherProvider.defaultDispatcher)
     }
 
@@ -128,10 +130,7 @@ class PostInteractor(
             post.rawEnclosure?.url,
         ).firstOrNull { !it.isNullOrBlank() }
 
-        val summary = listOf(
-            post.description,
-            post.content,
-        ).firstOrNull { !it.isNullOrBlank() }
+        val summary = post.description
 
         val publishedText = post.publishedAtMillis.let {
             dateTimeStringConverter.getTimeElapsedOrDateString(
@@ -167,4 +166,21 @@ class PostInteractor(
             },
         )
     }
+}
+
+internal fun PagingData<UIFeedPost>.withPostEmptyItem(
+    filters: List<RssPostFilter>,
+    scopedToFeed: Boolean,
+): PagingData<PostListEntry> {
+    val activeFilters =
+        filters.filterNot { (scopedToFeed && it is RssPostFilter.FeedIds) || it.isEmpty() }
+    val readStatus =
+        activeFilters.filterIsInstance<RssPostFilter.ReadStatus>().singleOrNull()?.value
+    val empty = when {
+        activeFilters.any { it is RssPostFilter.SearchText } -> PostListEntry.Empty.Search
+        activeFilters.any { it !is RssPostFilter.SearchText && it !is RssPostFilter.ReadStatus } -> PostListEntry.Empty.Filtered
+        readStatus != null -> PostListEntry.Empty.ReadStatus(read = readStatus)
+        else -> PostListEntry.Empty.NoPosts
+    }
+    return withEmptyEntry(wrap = PostListEntry::Post, empty = empty)
 }

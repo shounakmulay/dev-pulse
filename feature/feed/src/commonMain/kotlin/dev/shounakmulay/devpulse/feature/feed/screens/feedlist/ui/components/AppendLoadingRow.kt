@@ -17,15 +17,13 @@ import devpulse.core.resources.generated.resources.feed_loading_more_content_des
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun AppendLoadingRow() {
-    val loadingMoreContentDescription = stringResource(stringRes.feed_loading_more_content_description)
-
+fun AppendLoadingRow(contentDescription: String = stringResource(stringRes.feed_loading_more_content_description)) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(LocalDPSpacing.current.listItemHeight)
             .semantics {
-                contentDescription = loadingMoreContentDescription
+                this.contentDescription = contentDescription
             },
         contentAlignment = Alignment.Center,
     ) {

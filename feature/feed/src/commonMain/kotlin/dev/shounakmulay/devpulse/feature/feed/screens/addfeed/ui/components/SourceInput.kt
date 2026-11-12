@@ -18,6 +18,7 @@ import dev.shounakmulay.devpulse.core.designsystem.compose.DPComponentPreview
 import dev.shounakmulay.devpulse.core.designsystem.compose.Preview
 import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.model.UIAddFeedData
+import devpulse.core.resources.generated.resources.enter_valid_feed_url
 import devpulse.core.resources.generated.resources.enter_valid_url
 import devpulse.core.resources.generated.resources.source
 import devpulse.core.resources.generated.resources.url
@@ -28,15 +29,15 @@ fun SourceInput(
     url: String,
     onUrlChanged: (String) -> Unit,
     onFocusLost: () -> Unit,
-    error: UIAddFeedData.ValidationError?
+    error: UIAddFeedData.ValidationError?,
 ) {
-
     var wasFocused by remember { mutableStateOf(false) }
     val enterValidUrlError = stringResource(stringRes.enter_valid_url)
-    val errorText = remember(error, enterValidUrlError) {
+    val enterValidFeedUrlError = stringResource(stringRes.enter_valid_feed_url)
+    val errorText = remember(error, enterValidUrlError, enterValidFeedUrlError) {
         when (error) {
             UIAddFeedData.ValidationError.INVALID_SOURCE_URL -> enterValidUrlError
-            UIAddFeedData.ValidationError.INVALID_RSS_URL -> TODO()
+            UIAddFeedData.ValidationError.INVALID_RSS_URL -> enterValidFeedUrlError
             null -> null
         }
     }
@@ -59,12 +60,12 @@ fun SourceInput(
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Uri,
-            capitalization = KeyboardCapitalization.None
+            capitalization = KeyboardCapitalization.None,
         ),
         keyboardActions = KeyboardActions(
             onDone = {
                 defaultKeyboardAction(ImeAction.Next)
-            }
+            },
         ),
         value = url,
         onValueChange = onUrlChanged,

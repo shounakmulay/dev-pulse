@@ -63,10 +63,10 @@ class BrowserOpeningUseCaseTest {
     }
 
     @Test
-    fun `Given observation construction fails When observing Then failure is returned`(): Unit = runBlocking {
+    fun `Given observation construction fails When observing Then failure is thrown`(): Unit = runBlocking {
         val failure = IllegalStateException("observation unavailable")
         val repository = Repository().apply { constructionFailure = failure }
-        assertSame(failure, ObserveBrowserOpeningModeUseCase(repository, dispatchers)().first().exceptionOrNull())
+        assertSame(failure, assertFailsWith<IllegalStateException> { ObserveBrowserOpeningModeUseCase(repository, dispatchers)() })
     }
 
     @Test

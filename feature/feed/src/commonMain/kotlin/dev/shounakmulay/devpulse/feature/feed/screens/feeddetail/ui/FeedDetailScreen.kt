@@ -18,6 +18,7 @@ import dev.shounakmulay.devpulse.core.navigation.Screen
 import dev.shounakmulay.devpulse.core.navigation.Screen.Tabs.Feed.FeedDetail
 import dev.shounakmulay.devpulse.core.navigation.callbacks.OnTabReselect
 import dev.shounakmulay.devpulse.core.navigation.removeFeedRoutes
+import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.feedback.LocalSnackbarController
 import dev.shounakmulay.devpulse.core.ui.list.ScrollToTopFAB
 import dev.shounakmulay.devpulse.core.ui.list.paging.rememberPagingReturnPosition
@@ -31,7 +32,10 @@ import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSort
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterViewModel
 import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components.FeedDetailTopAppBar
 import dev.shounakmulay.devpulse.feature.feed.screens.feeddetail.ui.components.FeedPostList
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedListError
+import devpulse.core.resources.generated.resources.feed_list_load_error
 import kotlinx.serialization.json.Json
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -52,7 +56,7 @@ fun FeedDetailScreen(
     val positionRestoreController = rememberPagingReturnPosition(
         items = posts,
         gridState = lazyGridState,
-        keyOf = { it.id.value },
+        keyOf = { it.key },
         queryKey = Json.encodeToString(sortAndFilterState) + screenState.searchQuery,
     )
 
@@ -111,11 +115,18 @@ fun FeedDetailScreen(
             onConfirm = { viewModel.onEvent(FeedDetailScreenEvent.ConfirmDelete) },
             onDismissRequest = { viewModel.onEvent(FeedDetailScreenEvent.DismissDelete) },
         )
-        if (state.isLoading || state.feed == null || state.uiFeed == null) {
+        if (state.isLoading && (state.feed == null || state.uiFeed == null)) {
             return@Screen DPLoadingIndicator(
                 modifier = Modifier.align(
                     Alignment.Center,
                 ),
+            )
+        }
+
+        if (state.feed == null || state.uiFeed == null) {
+            return@Screen FeedListError(
+                message = stringResource(stringRes.feed_list_load_error),
+                onRetry = { viewModel.onEvent(FeedDetailScreenEvent.Retry) },
             )
         }
 
@@ -131,6 +142,10 @@ fun FeedDetailScreen(
             uiFeed = state.uiFeed,
             feed = state.feed,
             posts = posts,
+            feedLoadFailed = state.loadFailed,
+            onRetryFeed = { viewModel.onEvent(FeedDetailScreenEvent.Retry) },
+            onClearSearch = { viewModel.onEvent(FeedDetailScreenEvent.OnSearchTextChange("")) },
+            searchQuery = state.searchQuery,
             postListItemVariant = state.feedPostListItemVariant,
             onBookmarkChanged = { selectedPost, bookmarked ->
                 viewModel.onEvent(

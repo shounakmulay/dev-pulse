@@ -20,7 +20,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -33,17 +32,26 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeed
 import dev.shounakmulay.devpulse.core.domain.models.post.FeedsPostListItemVariant
 import dev.shounakmulay.devpulse.core.domain.models.post.RssPostFilter
 import dev.shounakmulay.devpulse.core.navigation.Screen
+import dev.shounakmulay.devpulse.core.resources.stringRes
 import dev.shounakmulay.devpulse.core.ui.image.DPImage
+import dev.shounakmulay.devpulse.feature.feed.components.paging.showEmptyEntry
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostListEntry
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilterState
 import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostSortAndFilters
-import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.postsListEmptyMessage
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.PostsListEmptyMessage
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.postAppendFeedback
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.postRefreshFeedback
+import dev.shounakmulay.devpulse.feature.feed.components.postFilterSort.postSearchHint
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeedPost
 import dev.shounakmulay.devpulse.feature.feed.model.UIPostSort
 import dev.shounakmulay.devpulse.feature.feed.preview.FeedPreviewData
 import dev.shounakmulay.devpulse.feature.feed.screens.feed.ui.components.post.FeedPostListItem
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedListError
+import devpulse.core.resources.generated.resources.feed_list_load_error
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -51,7 +59,9 @@ internal fun FeedPostList(
     lazyGridState: LazyGridState,
     uiFeed: UIFeed,
     feed: RssFeed,
-    posts: LazyPagingItems<UIFeedPost>,
+    posts: LazyPagingItems<PostListEntry>,
+    feedLoadFailed: Boolean,
+    onRetryFeed: () -> Unit,
     onReadChanged: (UUID, Boolean) -> Unit = { _, _ -> },
     postSortAndFilterState: PostSortAndFilterState,
     onBookmarkChanged: (UIFeedPost, Boolean) -> Unit,
@@ -60,6 +70,8 @@ internal fun FeedPostList(
     onFilterUpdated: (RssPostFilter) -> Unit,
     onSortUpdated: (UIPostSort) -> Unit,
     clearFilters: () -> Unit,
+    onClearSearch: () -> Unit,
+    searchQuery: String,
     postListItemVariant: FeedsPostListItemVariant,
 ) {
     LazyVerticalGrid(
@@ -97,34 +109,47 @@ internal fun FeedPostList(
             )
         }
 
-        if (posts.loadState.refresh is LoadState.NotLoading && posts.itemCount == 0) {
-            postsListEmptyMessage(
-                readStatus = postSortAndFilterState.filters.filterIsInstance<RssPostFilter.ReadStatus>()
-                    .firstOrNull()?.value,
-                showAllPosts = { onFilterUpdated(RssPostFilter.ReadStatus(null)) },
-                clearFilters = clearFilters,
-            )
-        }
-
-        items(
-            count = posts.itemCount,
-            key = posts.itemKey { it.id.value },
-        ) { index ->
-            val post = posts[index]
-            if (post != null) {
-                FeedPostListItem(
-                    modifier = Modifier.padding(horizontal = LocalDPSpacing.current.sm)
-                        .animateItem(),
-                    post = post,
-                    onReadChanged = onReadChanged,
-                    showImage = true,
-                    onPostClick = onPostClick,
-                    onOpenInBrowser = onOpenInBrowser,
-                    onBookmarkChanged = onBookmarkChanged,
-                    variant = postListItemVariant,
-                )
+        if (feedLoadFailed) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                FeedListError(message = stringResource(stringRes.feed_list_load_error), onRetry = onRetryFeed)
             }
         }
+        postSearchHint(searchQuery)
+        postRefreshFeedback(posts)
+        items(
+            count = posts.itemCount,
+            key = posts.itemKey { it.key },
+            span = { index -> GridItemSpan(if (posts.peek(index) is PostListEntry.Empty) maxLineSpan else 1) },
+        ) { index ->
+            when (val entry = posts[index]) {
+                is PostListEntry.Empty -> if (posts.showEmptyEntry) {
+                    PostsListEmptyMessage(
+                        entry = entry,
+                        onClearSearch = onClearSearch,
+                        onShowAllPosts = { onFilterUpdated(RssPostFilter.ReadStatus(null)) },
+                        onClearFilters = clearFilters,
+                    )
+                }
+
+                is PostListEntry.Post -> {
+                    val post = entry.post
+                    FeedPostListItem(
+                        modifier = Modifier.padding(horizontal = LocalDPSpacing.current.sm)
+                            .animateItem(),
+                        post = post,
+                        onReadChanged = onReadChanged,
+                        showImage = true,
+                        onPostClick = onPostClick,
+                        onOpenInBrowser = onOpenInBrowser,
+                        onBookmarkChanged = onBookmarkChanged,
+                        variant = postListItemVariant,
+                    )
+                }
+
+                null -> Unit
+            }
+        }
+        postAppendFeedback(posts)
     }
 }
 
@@ -133,13 +158,15 @@ internal fun FeedPostList(
 private fun FeedPostListPreview() {
     Preview {
         val posts = remember {
-            MutableStateFlow(PagingData.from(listOf(FeedPreviewData.post)))
+            MutableStateFlow(PagingData.from<PostListEntry>(listOf(PostListEntry.Post(FeedPreviewData.post))))
         }.collectAsLazyPagingItems()
         FeedPostList(
             lazyGridState = rememberLazyGridState(),
             uiFeed = FeedPreviewData.feed,
             feed = FeedPreviewData.rssFeed,
             posts = posts,
+            feedLoadFailed = false,
+            onRetryFeed = {},
             postSortAndFilterState = PostSortAndFilterState(
                 screen = Screen.Tabs.Feed,
                 filters = persistentListOf(),
@@ -151,6 +178,8 @@ private fun FeedPostListPreview() {
             onFilterUpdated = {},
             onSortUpdated = {},
             clearFilters = {},
+            onClearSearch = {},
+            searchQuery = "",
             postListItemVariant = FeedsPostListItemVariant.DEFAULT,
         )
     }

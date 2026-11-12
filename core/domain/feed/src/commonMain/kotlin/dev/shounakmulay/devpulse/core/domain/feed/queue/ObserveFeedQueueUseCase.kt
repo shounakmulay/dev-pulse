@@ -7,8 +7,6 @@ import dev.shounakmulay.devpulse.core.data.feed.repository.RssFeedQueueRepositor
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueEntry
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedQueueStatus
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -21,7 +19,5 @@ class ObserveFeedQueueUseCase(
         .flowCachingOnDefault(dispatcherProvider)
         .mapToSuccessNotNull()
 
-    operator fun invoke(vararg status: RssFeedQueueStatus): Flow<Result<List<RssFeedQueueEntry>>> = flow {
-        emitAll(feedQueueRepository.observeQueue(status.toSet()))
-    }.flowCachingOnDefault(dispatcherProvider)
+    operator fun invoke(vararg status: RssFeedQueueStatus): Flow<Result<List<RssFeedQueueEntry>>> = feedQueueRepository.observeQueue(status.toSet()).flowCachingOnDefault(dispatcherProvider)
 }

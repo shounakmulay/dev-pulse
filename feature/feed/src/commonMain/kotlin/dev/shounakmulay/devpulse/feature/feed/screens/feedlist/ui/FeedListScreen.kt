@@ -92,6 +92,7 @@ fun FeedListScreen(
             feeds = feeds,
             lazyGridState = lazyGridState,
             selectedTab = state.selectedTab,
+            onClearSearch = { viewModel.onEvent(FeedListScreenEvent.OnSearchQueryChanged("")) },
             selectedOptions = (state.feedOptions as? FeedOptionsState.Open)?.target,
             onShowOptions = { viewModel.onEvent(FeedListScreenEvent.OnShowFeedOptions(it)) },
             onDismissOptions = { viewModel.onEvent(FeedListScreenEvent.HideFeedOptions(it)) },

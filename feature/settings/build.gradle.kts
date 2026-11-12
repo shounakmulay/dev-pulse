@@ -24,6 +24,7 @@ kotlin {
             implementation(project(Modules.Core.NAVIGATION))
             implementation(project(Modules.Core.UI))
             implementation(project(Modules.Core.Domain.SETTINGS))
+            implementation(project(Modules.Core.Domain.FEED))
             implementation(project(Modules.Core.COMMON))
             implementation(libs.compose.components.resources)
             implementation(libs.aboutlibraries.compose.m3)

@@ -8,9 +8,9 @@ import dev.shounakmulay.devpulse.core.domain.feed.feed.ExtractInitialsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetPinnedAndRecentFeedsUseCase
 import dev.shounakmulay.devpulse.core.domain.feed.feed.GetRecentFeedItemsUseCase
 import dev.shounakmulay.devpulse.core.domain.models.common.UUID
-import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithUserState
 import dev.shounakmulay.devpulse.core.domain.models.feed.FeedUserState
 import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedIdentity
+import dev.shounakmulay.devpulse.core.domain.models.feed.RssFeedWithUserState
 import dev.shounakmulay.devpulse.core.ui.datetime.DateTimeStringConverter
 import dev.shounakmulay.devpulse.core.ui.image.getWebsiteImageUrl
 import dev.shounakmulay.devpulse.feature.feed.model.UIFeed
@@ -28,26 +28,18 @@ class FeedInteractor(
     private val getPinnedAndRecentFeedsUseCase: GetPinnedAndRecentFeedsUseCase,
     private val getRecentFeedItemsUseCase: GetRecentFeedItemsUseCase,
     private val dateTimeStringConverter: DateTimeStringConverter,
-    private val dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider,
 ) {
-    fun getPinnedAndRecentsUIFeedFlow(): Flow<ImmutableList<UIFeed>> {
-        return getPinnedAndRecentFeedsUseCase().map { feedList ->
-            feedList.map {
-                toUIFeed(it)
-            }.toImmutableList()
-        }.flowOn(dispatcherProvider.defaultDispatcher)
-    }
+    fun getPinnedAndRecentsUIFeedFlow(): Flow<Result<ImmutableList<UIFeed>>> = getPinnedAndRecentFeedsUseCase().map { result ->
+        result.map { feedList -> feedList.map(::toUIFeed).toImmutableList() }
+    }.flowOn(dispatcherProvider.defaultDispatcher)
 
     @JvmName("getUIFeedPagingDataFlow")
-    fun getUIFeedFlow(from: Flow<PagingData<RssFeedWithUserState>>): Flow<PagingData<UIFeed>> {
-        return from.map { pagingData ->
-            pagingData.map {
-                toUIFeed(it)
-            }
-        }.flowOn(dispatcherProvider.defaultDispatcher)
-    }
-
-
+    fun getUIFeedFlow(from: Flow<PagingData<RssFeedWithUserState>>): Flow<PagingData<UIFeed>> = from.map { pagingData ->
+        pagingData.map {
+            toUIFeed(it)
+        }
+    }.flowOn(dispatcherProvider.defaultDispatcher)
 
     fun toUIFeed(from: RssFeedWithUserState): UIFeed {
         val feed = from.feed
@@ -58,7 +50,7 @@ class FeedInteractor(
             link = feed.link,
             sourceUrl = feed.sourceUrl,
             pinned = from.userState.pinned,
-            imageUrl = feed.image?.url
+            imageUrl = feed.image?.url,
         )
     }
 
@@ -71,7 +63,7 @@ class FeedInteractor(
             link = feedIdentity.link,
             sourceUrl = feedIdentity.sourceUrl,
             pinned = userState.pinned,
-            imageUrl = websiteImageUrl
+            imageUrl = websiteImageUrl,
         )
     }
 
@@ -82,7 +74,7 @@ class FeedInteractor(
         link: String?,
         sourceUrl: String,
         pinned: Boolean,
-        imageUrl: String?
+        imageUrl: String?,
     ): UIFeed {
         val feedTitle = getFeedTitle(name, title)
         val websiteImageUrl = getWebsiteImageUrl(link, sourceUrl)
@@ -94,16 +86,14 @@ class FeedInteractor(
             initials = extractInitialsUseCase(feedTitle),
             pinned = pinned,
             sourceUrl = sourceUrl,
-            websiteImageUrl = websiteImageUrl
+            websiteImageUrl = websiteImageUrl,
         )
     }
 
-    private fun getFeedTitle(name: String?, title: String?): String {
-        return name.ifNullOrBlank {
-            title.ifNullOrBlank {
-                // TODO: Extract from url
-                "NO_NAME"
-            }
+    private fun getFeedTitle(name: String?, title: String?): String = name.ifNullOrBlank {
+        title.ifNullOrBlank {
+            // TODO: Extract from url
+            "NO_NAME"
         }
     }
 }

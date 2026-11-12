@@ -16,6 +16,8 @@ import dev.shounakmulay.devpulse.core.domain.models.feed.FeedDiscoveryQuery
 import dev.shounakmulay.devpulse.core.logging.log.DPLogger
 import dev.shounakmulay.devpulse.core.ui.image.getWebsiteImageUrl
 import dev.shounakmulay.devpulse.core.ui.text.TextResource
+import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryListItem
+import dev.shounakmulay.devpulse.feature.feed.components.paging.withEmptyEntry
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryCollection
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryCollectionShelf
 import dev.shounakmulay.devpulse.feature.feed.model.UIDiscoveryFeed
@@ -47,36 +49,39 @@ class DiscoveryFeedInteractor(
 
     private val log = logger.withTag(TAG)
 
-    fun observeCollectionShelves(): Flow<List<UIDiscoveryCollectionShelf>> =
-        observeFeedDiscoveryCollectionShelvesUseCase().map { shelves ->
+    fun observeCollectionShelves(): Flow<Result<List<UIDiscoveryCollectionShelf>>> = observeFeedDiscoveryCollectionShelvesUseCase().map { result ->
+        result.map { shelves ->
             shelves.map { shelf ->
                 UIDiscoveryCollectionShelf(
                     collection = toUIDiscoveryCollection(shelf.collection),
                     feeds = shelf.feeds.map(::toUIDiscoveryFeed),
                 )
             }
-        }.flowOn(dispatcherProvider.defaultDispatcher)
-
-    fun observeCollection(collectionId: UUID): Flow<UIDiscoveryCollection?> =
-        observeFeedDiscoveryCollectionUseCase(collectionId).map { it?.let(::toUIDiscoveryCollection) }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun observeSelectedFeed(feedIds: Flow<UUID?>): Flow<Pair<UUID?, UIDiscoveryFeed?>> =
-        feedIds.distinctUntilChanged().flatMapLatest { id ->
-            log.d { "Discovery selected feed changed feedId=$id" }
-            if (id == null) flowOf(null to null)
-            else observeFeedDiscoveryFeedUseCase(id).map { feed -> id to feed?.let(::toUIDiscoveryFeed) }
         }
+    }.flowOn(dispatcherProvider.defaultDispatcher)
+
+    fun observeCollection(collectionId: UUID): Flow<Result<UIDiscoveryCollection?>> = observeFeedDiscoveryCollectionUseCase(collectionId).map { result -> result.map { it?.let(::toUIDiscoveryCollection) } }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getFeeds(queries: Flow<FeedDiscoveryQuery?>): Flow<PagingData<UIDiscoveryFeed>> {
-        return queries.flatMapLatest { query ->
-            if (query == null) flowOf(PagingData.empty())
-            else getPaginatedFeedDiscoveryFeedsUseCase(query).map { pagingData ->
-                pagingData.map(::toUIDiscoveryFeed)
-            }
-        }.flowOn(dispatcherProvider.defaultDispatcher)
+    fun observeSelectedFeed(feedIds: Flow<UUID?>): Flow<Pair<UUID?, UIDiscoveryFeed?>> = feedIds.distinctUntilChanged().flatMapLatest { id ->
+        log.d { "Discovery selected feed changed feedId=$id" }
+        if (id == null) {
+            flowOf(null to null)
+        } else {
+            observeFeedDiscoveryFeedUseCase(id).map { feed -> id to feed?.let(::toUIDiscoveryFeed) }
+        }
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getFeeds(queries: Flow<FeedDiscoveryQuery?>): Flow<PagingData<DiscoveryListItem>> = queries.flatMapLatest { query ->
+        if (query == null) {
+            flowOf(PagingData.empty())
+        } else {
+            getPaginatedFeedDiscoveryFeedsUseCase(query).map { pagingData ->
+                pagingData.map(::toUIDiscoveryFeed).withDiscoveryEmpty(query)
+            }
+        }
+    }.flowOn(dispatcherProvider.defaultDispatcher)
 
     private fun toUIDiscoveryFeed(feed: FeedDiscoveryFeed): UIDiscoveryFeed = UIDiscoveryFeed(
         id = feed.id,
@@ -111,3 +116,8 @@ class DiscoveryFeedInteractor(
         feedCount = collection.feedCount,
     )
 }
+
+internal fun PagingData<UIDiscoveryFeed>.withDiscoveryEmpty(query: FeedDiscoveryQuery): PagingData<DiscoveryListItem> = withEmptyEntry(
+    wrap = DiscoveryListItem::Feed,
+    empty = if (query is FeedDiscoveryQuery.Search) DiscoveryListItem.Empty.Search else DiscoveryListItem.Empty.Collection,
+)

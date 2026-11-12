@@ -17,10 +17,14 @@ import dev.shounakmulay.devpulse.feature.feed.screens.addfeed.ui.service.FeedImp
 import devpulse.core.resources.generated.resources.discovery_import_failed
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
@@ -31,7 +35,7 @@ class BrowseFeedCollectionViewModel(
     private val feedImportBackgroundProcessLauncher: FeedImportBackgroundProcessLauncher,
     logger: DPLogger,
 ) : MviViewModel<BrowseFeedCollectionScreenState, BrowseFeedCollectionScreenEffect>(
-    BrowseFeedCollectionScreenState(collectionId = collectionId)
+    BrowseFeedCollectionScreenState(collectionId = collectionId),
 ),
     EventHandler<BrowseFeedCollectionScreenEvent> {
 
@@ -40,6 +44,7 @@ class BrowseFeedCollectionViewModel(
     }
 
     private val log = logger.withTag(TAG)
+    private val collectionReload = MutableStateFlow(0)
 
     override fun createStateSerializer() = BrowseFeedCollectionScreenState.serializer()
 
@@ -53,30 +58,36 @@ class BrowseFeedCollectionViewModel(
             .map { query ->
                 query?.let { FeedDiscoveryQuery.Search(text = it, collectionId = collectionId) }
                     ?: FeedDiscoveryQuery.Collection(collectionId)
-            }
+            },
     ).cachedIn(viewModelScope)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun bindStateSources(stateSubscriptionScope: CoroutineScope) {
         log.d { "Binding discovery screen state collectionId=$collectionId" }
         discoveryFeedInteractor.observeSelectedFeed(state.map { it.selectedFeedId })
             .onEach { (feedId, feed) ->
                 setState {
-                    if (feedId != selectedFeedId) this else copy(
-                        selectedFeedId = feed?.id,
-                        selectedFeed = feed
-                    )
+                    if (feedId != selectedFeedId) {
+                        this
+                    } else {
+                        copy(
+                            selectedFeedId = feed?.id,
+                            selectedFeed = feed,
+                        )
+                    }
                 }
             }.launchIn(stateSubscriptionScope)
 
-        discoveryFeedInteractor.observeCollection(collectionId).onEach { collection ->
-            log.d { "Discovery collection state collectionId=$collectionId found=${collection != null}" }
-            setState {
-                copy(
-                    content = collection?.let {
-                        BrowseFeedCollectionContent.Ready(it)
-                    } ?: BrowseFeedCollectionContent.Missing,
-                    selectedFeedId = selectedFeedId.takeIf { collection != null },
-                )
+        collectionReload.flatMapLatest { discoveryFeedInteractor.observeCollection(collectionId) }.onEach { result ->
+            result.onSuccess { collection ->
+                setState {
+                    copy(
+                        content = collection?.let { BrowseFeedCollectionContent.Ready(it) } ?: BrowseFeedCollectionContent.Missing,
+                        selectedFeedId = selectedFeedId.takeIf { collection != null },
+                    )
+                }
+            }.onFailure {
+                setState { copy(content = BrowseFeedCollectionContent.Failed) }
             }
         }.launchIn(stateSubscriptionScope)
     }
@@ -84,9 +95,17 @@ class BrowseFeedCollectionViewModel(
     override fun onEvent(event: BrowseFeedCollectionScreenEvent) {
         log.d { "Discovery screen event=${event::class.simpleName} collectionId=$collectionId" }
         when (event) {
+            BrowseFeedCollectionScreenEvent.Retry -> intent {
+                setState { copy(content = BrowseFeedCollectionContent.Loading) }
+                collectionReload.update { it + 1 }
+            }
+
             is BrowseFeedCollectionScreenEvent.OnSearchQueryChanged -> onSearchQueryChanged(event)
+
             is BrowseFeedCollectionScreenEvent.OnAddFeed -> addFeed(event.feedId)
+
             is BrowseFeedCollectionScreenEvent.OnFeedClick -> onFeedClick(event)
+
             BrowseFeedCollectionScreenEvent.OnClearSelectedFeed -> onClearSelectedFeed()
         }
     }
@@ -99,7 +118,7 @@ class BrowseFeedCollectionViewModel(
         setState {
             copy(
                 selectedFeedId = null,
-                selectedFeed = null
+                selectedFeed = null,
             )
         }
     }
@@ -125,8 +144,8 @@ class BrowseFeedCollectionViewModel(
             log.e(cause) { "Discovery import failed feedId=$feedId" }
             postEffect(
                 BrowseFeedCollectionScreenEffect.ShowToast(
-                    TextResource.fromStringRes(stringRes.discovery_import_failed)
-                )
+                    TextResource.fromStringRes(stringRes.discovery_import_failed),
+                ),
             )
         } finally {
             setState { copy(pendingImportIds = pendingImportIds - feedId) }

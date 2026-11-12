@@ -38,7 +38,7 @@ operator fun invoke(defaultValue: Boolean = true): Flow<Result<Boolean>> =
 
 [FeedSettingsRepositoryImpl](../../../core/data/settings/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/data/settings/FeedSettingsRepositoryImpl.kt) supplies plain Flow<Boolean>/Unit, maps a missing preference to the supplied domain default and uses distinctUntilChanged. This normal default is not an exception fallback. Keep the @Factory constructor-injected operator invoke pattern used by the linked use cases.
 
-Apply flowCachingOnDefault once at the use-case boundary after building the complete upstream operation. If creating the upstream flow can throw before collection, defer its construction inside a Flow builder so that failure also reaches this boundary. Do not return Result<Flow<T>>, Flow<Result<Result<T>>> or introduce a Flow.catch in the repository. Preserve cancellation and upstream/downstream exception transparency; exercise these cases rather than assuming a helper covers them automatically.
+Apply flowCachingOnDefault once at the use-case boundary after building the complete upstream operation. Apply the helper directly to the repository flow by default. A synchronous failure while constructing that flow propagates to the caller; defer construction only when the requested behavior requires that failure to become a Result. Do not return Result<Flow<T>>, Flow<Result<Result<T>>> or introduce a Flow.catch in the repository. Preserve cancellation and upstream/downstream exception transparency; exercise these cases rather than assuming a helper covers them automatically.
 
 When one use case calls another, unwrap a failing inner Result with getOrThrow() inside the outer dispatcher-catching block to avoid nested Result and accidental success. Use getOrNull()/defaults only for an explicit domain fallback, never to silently erase a required failure. Callers above use cases handle the returned Result deliberately.
 
@@ -89,6 +89,12 @@ PostsList(onReadChanged = onReadChanged)
 - Enqueue and observe long-running feed processing through the existing queue path. Do not start another queue loop in a ViewModel. Distinguish accepted/enqueued work from completed work, and inspect the current executor's owner and concurrency controls.
 - Use viewModelScope or subscription scopes for screen work, and the established application/service/worker owner for longer work. The suspend helpers in [DispatcherProvider](../../../core/common/src/commonMain/kotlin/dev/shounakmulay/devpulse/core/common/coroutines/DispatcherProvider.kt) rethrow CancellationException. Invoke exception-to-Result helpers only at a use-case boundary; cancellation must not become success, ordinary failure or retry.
 - Keep native APIs in configured platform source sets and update all actual implementations affected by a shared contract. Use current annotated Koin wiring at the application root.
+
+## List and search state
+
+Use the existing owner for each fact: Paging load states for loading and failure, the result for content, and screen state for user input. Do not duplicate these as independently mutable loading, empty or result flags, add counts or result stores without a concrete need, or infer an empty outcome from an in-flight load. Show an empty message only for the result generation being presented; current input may be ahead of debounced or paged results. Keep existing content visible on refresh or append failure where appropriate, with a relevant recovery action.
+
+Combine search with the selected tab and active filters rather than letting search silently replace their scope. For example, searching Pinned must not return unpinned feeds. Use the existing paging path and choose filtering at the appropriate layer; do not mandate a sentinel item or other one-size-fits-all mechanism.
 
 ## UI and source integrity
 

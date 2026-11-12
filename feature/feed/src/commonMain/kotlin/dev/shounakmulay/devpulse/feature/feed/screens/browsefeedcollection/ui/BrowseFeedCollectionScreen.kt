@@ -27,8 +27,10 @@ import dev.shounakmulay.devpulse.core.ui.text.resolve
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryFeedDetailsBottomSheet
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryFeedPagingList
 import dev.shounakmulay.devpulse.feature.feed.components.discovery.DiscoveryMessage
+import dev.shounakmulay.devpulse.feature.feed.screens.feedlist.ui.components.FeedListError
 import devpulse.core.resources.generated.resources.discovery_collection_empty
 import devpulse.core.resources.generated.resources.discovery_collection_removed
+import devpulse.core.resources.generated.resources.discovery_load_failed
 import devpulse.core.resources.generated.resources.discovery_no_results
 import devpulse.core.resources.generated.resources.discovery_search_collection
 import devpulse.core.resources.generated.resources.post_search_minimum_length
@@ -40,7 +42,7 @@ import dev.shounakmulay.devpulse.core.ui.screen.Screen as MviScreen
 fun BrowseFeedCollectionScreen(
     viewModel: BrowseFeedCollectionViewModel,
     navigator: Navigator,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val feeds = viewModel.feeds.collectAsLazyPagingItems()
     val listState = rememberLazyListState()
@@ -57,8 +59,8 @@ fun BrowseFeedCollectionScreen(
                 onTextValueChange = {
                     viewModel.onEvent(
                         BrowseFeedCollectionScreenEvent.OnSearchQueryChanged(
-                            it
-                        )
+                            it,
+                        ),
                     )
                 },
                 navigationIcon = { modifier ->
@@ -76,7 +78,14 @@ fun BrowseFeedCollectionScreen(
         Column(Modifier.fillMaxSize()) {
             when (val content = state.content) {
                 BrowseFeedCollectionContent.Loading -> DPLinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+
                 BrowseFeedCollectionContent.Missing -> DiscoveryMessage(stringResource(stringRes.discovery_collection_removed))
+
+                BrowseFeedCollectionContent.Failed -> FeedListError(
+                    message = stringResource(stringRes.discovery_load_failed),
+                    onRetry = { viewModel.onEvent(BrowseFeedCollectionScreenEvent.Retry) },
+                )
+
                 is BrowseFeedCollectionContent.Ready -> {
                     val collection = content.collection
                     val searching = state.searchQuery.trim().length >= 3
@@ -84,18 +93,14 @@ fun BrowseFeedCollectionScreen(
                         feeds = feeds,
                         listState = listState,
                         pendingImportIds = state.pendingImportIds,
-                        emptyText = stringResource(
-                            if (searching) stringRes.discovery_no_results
-                            else stringRes.discovery_collection_empty
-                        ),
                         onAddFeed = {
                             viewModel.onEvent(BrowseFeedCollectionScreenEvent.OnAddFeed(it))
                         },
                         onFeedClick = {
                             viewModel.onEvent(
                                 BrowseFeedCollectionScreenEvent.OnFeedClick(
-                                    it
-                                )
+                                    it,
+                                ),
                             )
                         },
                         header = {

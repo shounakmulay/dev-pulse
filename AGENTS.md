@@ -23,6 +23,7 @@ Read the relevant canonical skill under `.agents/skills/<name>/SKILL.md`:
 - Preserve pre-existing worktree changes. Keep each change cohesive and avoid unrelated cleanup.
 - State the intended observable behavior and concrete acceptance checks. Wait for confirmation on non-trivial implementation plans unless the current request already authorizes them.
 - Reuse established mechanisms and dependencies. Never weaken checks, remove relevant tests, widen suppressions or add unsupported casts to obtain a pass.
+- For list and search states, use the existing data and loading owners; keep empty messages tied to the results actually displayed and preserve the selected scope when searching. See implement-change and test-change for state and paging checks.
 - Read `.agents/skills/verify-change/SKILL.md` when verifying changes or selecting Gradle checks. Its reference tests cover cancellation, transport boundaries and real Room paging.
 - Preview scope with `bash scripts/verify.sh --base <reviewed-integration-ref> --plan`; omit `--plan` to execute. Without a verified base, selection broadens to all modules.
 - `bash scripts/verify.sh --test :core:common dev.shounakmulay.devpulse.core.common.coroutines.SafeRunCatchingTest` runs one class; it does not verify consumers.

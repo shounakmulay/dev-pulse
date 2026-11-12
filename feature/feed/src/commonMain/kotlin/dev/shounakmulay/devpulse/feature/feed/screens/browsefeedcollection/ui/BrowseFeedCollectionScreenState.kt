@@ -25,6 +25,10 @@ data class BrowseFeedCollectionScreenState(
 @Immutable
 sealed interface BrowseFeedCollectionContent {
     @Serializable data object Loading : BrowseFeedCollectionContent
+
     @Serializable data object Missing : BrowseFeedCollectionContent
+
+    @Serializable data object Failed : BrowseFeedCollectionContent
+
     @Serializable data class Ready(val collection: UIDiscoveryCollection) : BrowseFeedCollectionContent
 }
