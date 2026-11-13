@@ -13,7 +13,6 @@ import dev.shounakmulay.devpulse.core.ui.event.EventHandler
 import dev.shounakmulay.devpulse.core.ui.viewmodel.MviViewModel
 import dev.shounakmulay.devpulse.feature.feed.interactor.post.PostInteractor
 import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.PostDetailScreenSection
-import dev.shounakmulay.devpulse.feature.feed.screens.postdetail.ui.model.ReaderVisitReadDecision
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
@@ -36,8 +35,7 @@ class PostDetailViewModel(
 
     override fun bindStateSources(stateSubscriptionScope: CoroutineScope) {
         stateSubscriptionScope.launch {
-            val content =
-                getPostContentUseCase(postId, type = RssFeedPostContentType.MARKDOWN).getOrNull()
+            val content = getPostContentUseCase(postId, type = RssFeedPostContentType.MARKDOWN).getOrNull()
             setState {
                 copy(
                     content = content,
@@ -90,16 +88,25 @@ class PostDetailViewModel(
 
     private fun onContentAvailable() {
         intent {
-            if (state.post == null || state.readVisit.decision != ReaderVisitReadDecision.Pending) return@intent
-            reduce { state.copy(readVisit = state.readVisit.consume()) }
-            postInteractor.setPostRead(postId = postId, isRead = true)
+            var shouldMarkRead = false
+            reduce {
+                shouldMarkRead = state.post != null && state.autoReadPending
+                if (shouldMarkRead) {
+                    state.copy(autoReadPending = false)
+                } else {
+                    state
+                }
+            }
+            if (shouldMarkRead) {
+                postInteractor.setPostRead(postId = postId, isRead = true)
+            }
         }
     }
 
     private fun setPostRead(postId: UUID, isRead: Boolean) {
         intent {
             if (postId != this@PostDetailViewModel.postId) return@intent
-            reduce { state.copy(readVisit = state.readVisit.suppress()) }
+            reduce { state.copy(autoReadPending = false) }
             postInteractor.setPostRead(postId = postId, isRead = isRead)
         }
     }

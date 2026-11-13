@@ -13,7 +13,7 @@ class DPLogger internal constructor(
 
     fun v(
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         DPLog.v(tag = tag, throwable = throwable, data = data, message = message)
@@ -21,7 +21,7 @@ class DPLogger internal constructor(
 
     fun d(
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         DPLog.d(tag = tag, throwable = throwable, data = data, message = message)
@@ -29,7 +29,7 @@ class DPLogger internal constructor(
 
     fun i(
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         DPLog.i(tag = tag, throwable = throwable, data = data, message = message)
@@ -37,7 +37,7 @@ class DPLogger internal constructor(
 
     fun w(
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         DPLog.w(tag = tag, throwable = throwable, data = data, message = message)
@@ -45,7 +45,7 @@ class DPLogger internal constructor(
 
     fun e(
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         DPLog.e(tag = tag, throwable = throwable, data = data, message = message)
@@ -53,7 +53,7 @@ class DPLogger internal constructor(
 
     fun a(
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         DPLog.a(tag = tag, throwable = throwable, data = data, message = message)

@@ -22,7 +22,7 @@ object DPLog {
     fun v(
         tag: String,
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         log(
@@ -37,7 +37,7 @@ object DPLog {
     fun d(
         tag: String,
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         log(
@@ -52,7 +52,7 @@ object DPLog {
     fun i(
         tag: String,
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         log(
@@ -67,7 +67,7 @@ object DPLog {
     fun w(
         tag: String,
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         log(
@@ -82,7 +82,7 @@ object DPLog {
     fun e(
         tag: String,
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         log(
@@ -97,7 +97,7 @@ object DPLog {
     fun a(
         tag: String,
         throwable: Throwable? = null,
-        data: Map<String, String> = emptyMap(),
+        data: Map<DPLogKey, String> = emptyMap(),
         message: () -> String,
     ) {
         log(
@@ -113,54 +113,57 @@ object DPLog {
         level: DPLogLevel,
         tag: String,
         throwable: Throwable?,
-        data: Map<String, String>,
+        data: Map<DPLogKey, String>,
         message: () -> String,
     ) {
         val config = configuration
         if (level < config.minLevel) return
+        val resolvedMessage by lazy(message)
 
         when (level) {
-            DPLogLevel.Verbose -> Logger.v(tag = tag, throwable = throwable, message = message)
+            DPLogLevel.Verbose -> Logger.v(tag = tag, throwable = throwable, message = { resolvedMessage })
 
             DPLogLevel.Debug -> Logger.d(
                 tag = tag,
                 throwable = throwable,
-                message = message,
+                message = { resolvedMessage },
             )
 
             DPLogLevel.Info -> Logger.i(
                 tag = tag,
                 throwable = throwable,
-                message = message,
+                message = { resolvedMessage },
             )
 
             DPLogLevel.Warn -> Logger.w(
                 tag = tag,
                 throwable = throwable,
-                message = message,
+                message = { resolvedMessage },
             )
 
             DPLogLevel.Error -> Logger.e(
                 tag = tag,
                 throwable = throwable,
-                message = message,
+                message = { resolvedMessage },
             )
 
             DPLogLevel.Assert -> Logger.a(
                 tag = tag,
                 throwable = throwable,
-                message = message,
+                message = { resolvedMessage },
+            )
+        }
+        val entry by lazy {
+            LogEntry(
+                level = level,
+                tag = tag,
+                message = resolvedMessage,
+                throwable = throwable,
+                data = data,
             )
         }
         config.sinks.forEach { sink ->
             try {
-                val entry = LogEntry(
-                    level = level,
-                    tag = tag,
-                    message = message(),
-                    throwable = throwable,
-                    data = data,
-                )
                 if (sink.isLoggable(entry)) sink.log(entry)
             } catch (cancelled: CancellationException) {
                 throw cancelled

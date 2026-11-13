@@ -60,3 +60,5 @@ include(":bridge:markdownconverter")
 include(":bridge:sqlitevec")
 include(":bridge:readability")
 include(":core:sync")
+
+include(":tools:detektrules")

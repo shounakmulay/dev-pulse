@@ -23,6 +23,9 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Create inert Firebase configuration for quality checks
+        run: python3 -B .github/scripts/firebase_config.py test
+
       - uses: ./.github/actions/setup-build
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}

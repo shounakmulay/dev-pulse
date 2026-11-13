@@ -39,7 +39,7 @@ internal fun LazyListScope.sortItem(
         Icon(
             DPIcons.Sort,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            contentDescription = ""
+            contentDescription = "",
         )
     }
     item(key = "sort_content") {
@@ -62,7 +62,7 @@ internal fun LazyListScope.sortItem(
             label = {
                 DPTextView(
                     text = selected?.name?.asString().orEmpty(),
-                    variant = DPTextViewVariant.LabelMedium
+                    variant = DPTextViewVariant.LabelMedium,
                 )
             },
         )
@@ -80,7 +80,7 @@ internal fun LazyListScope.sortItem(
                     }
                     val coroutineScope = rememberCoroutineScope()
                     DPClickableRow(
-                        modifier = Modifier.padding(LocalDPSpacing.current.lg),
+                        modifier = Modifier.padding(horizontal = LocalDPSpacing.current.lg),
                         leadingIcon = icon,
                         trailingIcon = if (it.selected) DPIcons.Check else null,
                         trailingIconTint = MaterialTheme.colorScheme.primary,

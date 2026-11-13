@@ -6,6 +6,7 @@ import co.touchlab.kermit.Severity
 import dev.shounakmulay.devpulse.core.logging.log.DPLog
 import dev.shounakmulay.devpulse.core.logging.log.DPLogConfig
 import dev.shounakmulay.devpulse.core.logging.log.DPLogConfigs
+import dev.shounakmulay.devpulse.core.logging.log.DPLogKey
 import dev.shounakmulay.devpulse.core.logging.log.DPLogLevel
 import dev.shounakmulay.devpulse.core.logging.log.LogEntry
 import dev.shounakmulay.devpulse.core.logging.log.LogSink
@@ -23,19 +24,26 @@ class LogDispatchTest {
     }
 
     @Test
-    fun `Given custom data When logging through both APIs Then preserves copied payloads`() {
+    fun `Given log keys When converted for a platform Then wire names are unchanged`() {
+        assertEquals(
+            listOf("platform", "environment", "app.version", "app.build", "logger.name", "log.message", "log.level", "kotlin_stacktrace", "feed_id"),
+            DPLogKey.entries.map { it.wireName },
+        )
+    }
+
+    @Test
+    fun `Given custom data When logging through both APIs Then sinks receive the payloads`() {
         val sink = TestLogSink()
         DPLog.configure(DPLogConfig(minLevel = DPLogLevel.Verbose, sinks = listOf(sink)))
-        val data = mutableMapOf("feed_id" to "feed-1")
+        val data = mapOf(DPLogKey.FEED_ID to "feed-1")
         val failure = IllegalStateException("Import failed")
 
         DPLog.tag("FeedImport").e(throwable = failure, data = data) { "Unable to import" }
-        DPLog.i(tag = "Sync", data = mapOf("feed_id" to "feed-2")) { "Synced" }
-        data["feed_id"] = "changed"
-
+        DPLog.i(tag = "Sync", data = mapOf(DPLogKey.FEED_ID to "feed-2")) { "Synced" }
         assertEquals(listOf("FeedImport", "Sync"), sink.entries.map { it.tag })
         assertEquals(listOf("Unable to import", "Synced"), sink.entries.map { it.message })
-        assertEquals(listOf(mapOf("feed_id" to "feed-1"), mapOf("feed_id" to "feed-2")), sink.entries.map { it.data })
+        assertEquals(listOf(mapOf(DPLogKey.FEED_ID to "feed-1"), mapOf(DPLogKey.FEED_ID to "feed-2")), sink.entries.map { it.data })
+        assertEquals(mapOf("feed_id" to "feed-1"), sink.entries.first().data.mapKeys { it.key.wireName })
         assertSame(failure, sink.entries.first().throwable)
     }
 
@@ -54,14 +62,14 @@ class LogDispatchTest {
         })
         var evaluations = 0
 
-        DPLog.e(tag = "Import", throwable = failure, data = mapOf("job" to "42")) {
+        DPLog.e(tag = "Import", throwable = failure, data = mapOf(DPLogKey.FEED_ID to "42")) {
             evaluations++
             "Failed"
         }
 
         assertEquals(1, evaluations)
         assertEquals(listOf("Error/Import/Failed"), console)
-        assertEquals(mapOf("job" to "42"), first.singleEntry().data)
+        assertEquals(mapOf(DPLogKey.FEED_ID to "42"), first.singleEntry().data)
         assertSame(first.singleEntry(), second.singleEntry())
     }
 
@@ -83,10 +91,10 @@ class LogDispatchTest {
             )
         )
 
-        DPLog.e(tag = "Import", data = mapOf("job" to "42")) { "Failed" }
+        DPLog.e(tag = "Import", data = mapOf(DPLogKey.FEED_ID to "42")) { "Failed" }
 
         assertEquals("Failed", working.singleEntry().message)
-        assertEquals(mapOf("job" to "42"), working.singleEntry().data)
+        assertEquals(mapOf(DPLogKey.FEED_ID to "42"), working.singleEntry().data)
     }
 
     @Test
@@ -111,7 +119,7 @@ class LogDispatchTest {
     }
 
     @Test
-    fun `Given mutable sink configuration When caller clears list Then configured sink still receives entry`() {
+    fun `Given mutable sink configuration When caller clears list Then no sink receives entry`() {
         val sink = TestLogSink()
         val sinks = mutableListOf<LogSink>(sink)
         DPLog.configure(DPLogConfig(minLevel = DPLogLevel.Verbose, sinks = sinks))
@@ -119,6 +127,6 @@ class LogDispatchTest {
 
         DPLog.e(tag = "Import") { "Failed" }
 
-        assertEquals("Failed", sink.singleEntry().message)
+        assertEquals(emptyList(), sink.entries)
     }
 }

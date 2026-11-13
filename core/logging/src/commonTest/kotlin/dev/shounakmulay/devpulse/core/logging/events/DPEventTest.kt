@@ -39,28 +39,49 @@ class DPEventTest {
     }
 
     @Test
-    fun `Given custom event data When tracking Then all sinks receive immutable snapshot`() {
+    fun `Given typed event and parameters When tracked Then wire names are unchanged`() {
+        val sink = RecordingSink()
+        DPEvent.configure(listOf(sink))
+
+        DPEvent.track(DPEvents.POST_BOOKMARK_CHANGED, mapOf(DPEventKey.BOOKMARKED to "true"))
+
+        val entry = sink.entries.single()
+        assertEquals("post_bookmark_changed", entry.name.eventName)
+        assertEquals(mapOf("bookmarked" to "true"), entry.data.mapKeys { it.key.wireName })
+        assertEquals("article_origin", DPEventKey.ARTICLE_ORIGIN.wireName)
+        assertEquals("source", DPEventKey.SOURCE.wireName)
+        assertEquals("environment", DPEventKey.ENVIRONMENT.wireName)
+        assertEquals(
+            listOf(
+                "post_bookmark_changed", "feed_deleted", "opml_extraction_completed", "opml_extraction_failed",
+                "post_content_fetch_completed", "post_content_fetch_failed", "feed_import_completed", "feed_import_failed",
+                "discovery_fetch_completed", "discovery_fetch_failed",
+            ),
+            DPEvents.entries.map { it.eventName },
+        )
+    }
+
+    @Test
+    fun `Given custom event data When tracking Then all sinks receive the payload`() {
         val first = RecordingSink()
         val second = RecordingSink()
         DPEvent.configure(listOf(first, second))
-        val data = mutableMapOf("collection_id" to "android")
+        val data = mapOf(DPEventKey.SOURCE to "android")
 
         DPEvent.track(event = DPEvents.FEED_IMPORT_COMPLETED, data = data)
-        data["collection_id"] = "changed"
-
-        assertEquals(EventEntry(name = "feed_import_completed", data = mapOf("collection_id" to "android")), first.entries.single())
+        assertEquals(EventEntry(name = DPEvents.FEED_IMPORT_COMPLETED, data = mapOf(DPEventKey.SOURCE to "android")), first.entries.single())
         assertSame(first.entries.single(), second.entries.single())
     }
 
     @Test
     fun `Given filtering sink When tracking rejected and accepted events Then retains accepted payload`() {
-        val sink = RecordingSink { it.name == "feed_import_completed" }
+        val sink = RecordingSink { it.name == DPEvents.FEED_IMPORT_COMPLETED }
         DPEvent.configure(listOf(sink))
 
         DPEvent.track(event = DPEvents.FEED_IMPORT_FAILED)
-        DPEvent.track(event = DPEvents.FEED_IMPORT_COMPLETED, data = mapOf("collection_id" to "android"))
+        DPEvent.track(event = DPEvents.FEED_IMPORT_COMPLETED, data = mapOf(DPEventKey.SOURCE to "android"))
 
-        assertEquals(listOf(EventEntry(name = "feed_import_completed", data = mapOf("collection_id" to "android"))), sink.entries)
+        assertEquals(listOf(EventEntry(name = DPEvents.FEED_IMPORT_COMPLETED, data = mapOf(DPEventKey.SOURCE to "android"))), sink.entries)
     }
 
     @Test
@@ -76,9 +97,9 @@ class DPEventTest {
         val working = RecordingSink()
         DPEvent.configure(listOf(failedFilter, failedDelivery, working))
 
-        DPEvent.track(event = DPEvents.FEED_IMPORT_COMPLETED, data = mapOf("collection_id" to "android"))
+        DPEvent.track(event = DPEvents.FEED_IMPORT_COMPLETED, data = mapOf(DPEventKey.SOURCE to "android"))
 
-        assertEquals(listOf(EventEntry(name = "feed_import_completed", data = mapOf("collection_id" to "android"))), working.entries)
+        assertEquals(listOf(EventEntry(name = DPEvents.FEED_IMPORT_COMPLETED, data = mapOf(DPEventKey.SOURCE to "android"))), working.entries)
     }
 
     @Test
@@ -103,15 +124,13 @@ class DPEventTest {
     fun `Given reconfigured events When tracking Then only replacement sink receives event`() {
         val previous = RecordingSink()
         val current = RecordingSink()
-        val sinks = mutableListOf<EventSink>(current)
         DPEvent.configure(listOf(previous))
-        DPEvent.configure(sinks)
-        sinks.clear()
+        DPEvent.configure(listOf(current))
 
         DPEvent.track(event = DPEvents.FEED_IMPORT_COMPLETED)
 
         assertEquals(emptyList(), previous.entries)
-        assertEquals(listOf(EventEntry(name = "feed_import_completed")), current.entries)
+        assertEquals(listOf(EventEntry(name = DPEvents.FEED_IMPORT_COMPLETED)), current.entries)
     }
 
     @Test
