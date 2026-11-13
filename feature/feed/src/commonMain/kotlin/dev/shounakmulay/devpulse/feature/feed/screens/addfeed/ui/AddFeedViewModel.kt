@@ -152,7 +152,7 @@ class AddFeedViewModel(
     }
 
     private fun onUpdateOpmlUrl(url: String) {
-        setState {
+        blockingSetState {
             copy(
                 opmlUrl = url,
                 opmlImportError = null
@@ -263,7 +263,7 @@ class AddFeedViewModel(
     }
 
     private fun onUpdateName(id: String, name: String) {
-        setState {
+        blockingSetState {
             copy(
                 addFeedDataList = addFeedDataList.map {
                     if (it.id == id) it.copy(name = name).withCollapsedHeaderText() else it
@@ -273,7 +273,7 @@ class AddFeedViewModel(
     }
 
     private fun onUpdateUrl(id: String, url: String) {
-        setState {
+        blockingSetState {
             copy(
                 addFeedDataList = addFeedDataList.map {
                     if (it.id == id) {
