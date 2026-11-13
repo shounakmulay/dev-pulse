@@ -38,7 +38,7 @@ class AddFeedViewModel(
     private val observeFeedQueueForUrlsUseCase: ObserveFeedQueueForUrlsUseCase,
     private val normalizeUrlUseCase: NormalizeUrlUseCase,
     private val validateUrlUseCase: ValidateUrlUseCase,
-    private val feedImportBackgroundProcessLauncher: FeedImportBackgroundProcessLauncher
+    private val feedImportBackgroundProcessLauncher: FeedImportBackgroundProcessLauncher,
 ) : MviViewModel<AddFeedScreenState, AddFeedScreenEffect>(AddFeedScreenState()),
     EventHandler<AddFeedScreenEvent> {
     override fun createStateSerializer() = AddFeedScreenState.serializer()
@@ -57,13 +57,14 @@ class AddFeedViewModel(
                             val processingEntry = it
                                 .firstOrNull { queueEntry -> queueEntry.url == feedQueueData.addFeedData.url }
 
-                            if (processingEntry == null) feedQueueData
-                            else {
+                            if (processingEntry == null) {
+                                feedQueueData
+                            } else {
                                 feedQueueData.copy(
-                                    status = processingEntry.status
+                                    status = processingEntry.status,
                                 )
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -101,7 +102,7 @@ class AddFeedViewModel(
             setState {
                 copy(
                     isOpmlLoading = false,
-                    opmlImportError = TextResource.fromStringRes(stringRes.add_feed_opml_empty_error)
+                    opmlImportError = TextResource.fromStringRes(stringRes.add_feed_opml_empty_error),
                 )
             }
             return@intent
@@ -115,22 +116,21 @@ class AddFeedViewModel(
                 setState {
                     copy(
                         isOpmlLoading = false,
-                        opmlImportError = TextResource.fromStringRes(stringRes.add_feed_opml_process_error)
+                        opmlImportError = TextResource.fromStringRes(stringRes.add_feed_opml_process_error),
                     )
                 }
-            }
+            },
         )
-
     }
 
     private fun onOpmlExtractionSuccess(
-        feeds: List<OpmlFeedImportData>
+        feeds: List<OpmlFeedImportData>,
     ) {
         if (feeds.isEmpty()) {
             setState {
                 copy(
                     isOpmlLoading = false,
-                    opmlImportError = TextResource.fromStringRes(stringRes.add_feed_opml_no_feeds_error)
+                    opmlImportError = TextResource.fromStringRes(stringRes.add_feed_opml_no_feeds_error),
                 )
             }
             return
@@ -144,7 +144,7 @@ class AddFeedViewModel(
                 addFeedDataList = currentData + importedData,
                 isOpmlLoading = false,
                 opmlUrl = "",
-                opmlImportError = null
+                opmlImportError = null,
             )
         }
 
@@ -152,10 +152,10 @@ class AddFeedViewModel(
     }
 
     private fun onUpdateOpmlUrl(url: String) {
-        setState {
+        blockingSetState {
             copy(
                 opmlUrl = url,
-                opmlImportError = null
+                opmlImportError = null,
             )
         }
     }
@@ -189,14 +189,14 @@ class AddFeedViewModel(
                 ?.addFeedData
                 ?.copy(
                     expanded = true,
-                    error = null
+                    error = null,
                 ) ?: return@setState this
 
             copy(
                 processingData = processingData.filterNot {
                     it.addFeedData.id == id && it.status == RssFeedQueueStatus.FAILED
                 },
-                addFeedDataList = addFeedDataList + failedData
+                addFeedDataList = addFeedDataList + failedData,
             )
         }
     }
@@ -205,7 +205,7 @@ class AddFeedViewModel(
         val expanded = state.value.addFeedDataList.all { it.expanded }
         setState {
             copy(
-                addFeedDataList = addFeedDataList.map { it.copy(expanded = !expanded) }
+                addFeedDataList = addFeedDataList.map { it.copy(expanded = !expanded) },
             )
         }
     }
@@ -219,7 +219,7 @@ class AddFeedViewModel(
                     if (it.id != id) return@map it
 
                     it.copy(url = normalizedUrl, error = null).withCollapsedHeaderText()
-                }
+                },
             )
         }
     }
@@ -230,8 +230,10 @@ class AddFeedViewModel(
                 addFeedDataList = addFeedDataList.map {
                     if (it.id == id) {
                         it.copy(expanded = !it.expanded)
-                    } else it
-                }
+                    } else {
+                        it
+                    }
+                },
             )
         }
     }
@@ -239,7 +241,7 @@ class AddFeedViewModel(
     private fun onAdd() {
         setState {
             copy(
-                addFeedDataList = addFeedDataList + UIAddFeedData.empty()
+                addFeedDataList = addFeedDataList + UIAddFeedData.empty(),
             )
         }
     }
@@ -257,31 +259,33 @@ class AddFeedViewModel(
             }
 
             copy(
-                addFeedDataList = newList
+                addFeedDataList = newList,
             )
         }
     }
 
     private fun onUpdateName(id: String, name: String) {
-        setState {
+        blockingSetState {
             copy(
                 addFeedDataList = addFeedDataList.map {
                     if (it.id == id) it.copy(name = name).withCollapsedHeaderText() else it
-                }
+                },
             )
         }
     }
 
     private fun onUpdateUrl(id: String, url: String) {
-        setState {
+        blockingSetState {
             copy(
                 addFeedDataList = addFeedDataList.map {
                     if (it.id == id) {
                         it.copy(
-                            url = url
+                            url = url,
                         ).withCollapsedHeaderText()
-                    } else it
-                }
+                    } else {
+                        it
+                    }
+                },
             )
         }
     }
@@ -295,7 +299,7 @@ class AddFeedViewModel(
             .map { (data, normalizedUrl) ->
                 data.copy(
                     url = normalizedUrl,
-                    error = null
+                    error = null,
                 ).withCollapsedHeaderText()
             }
             .groupBy { it.error == null }
@@ -311,9 +315,9 @@ class AddFeedViewModel(
                 processingData = validData.map {
                     UIFeedQueueData(
                         addFeedData = it,
-                        status = null
+                        status = null,
                     )
-                }
+                },
             )
         }
 
@@ -327,22 +331,20 @@ class AddFeedViewModel(
         feedImportBackgroundProcessLauncher.launch()
     }
 
-    private fun UIAddFeedData.toAddFeedData(): AddFeedData {
-        return AddFeedData(
-            url = url,
-            name = name,
-            type = type,
-            tags = tags,
-            folders = folders,
-        )
-    }
+    private fun UIAddFeedData.toAddFeedData(): AddFeedData = AddFeedData(
+        url = url,
+        name = name,
+        type = type,
+        tags = tags,
+        folders = folders,
+    )
 
     private fun UIAddFeedData.withCollapsedHeaderText(): UIAddFeedData {
         val text = name?.ifBlank { null }
             ?: url.ifBlank { null }
         return copy(
             collapsedHeaderText = text?.let(TextResource::fromText)
-                ?: TextResource.fromStringRes(stringRes.enter_feed_url)
+                ?: TextResource.fromStringRes(stringRes.enter_feed_url),
         )
     }
 
